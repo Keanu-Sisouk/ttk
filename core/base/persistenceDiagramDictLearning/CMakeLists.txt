@@ -1,0 +1,12 @@
+ttk_add_base_library(persistenceDiagramDictLearning
+  SOURCES
+    PersistenceDiagramDictLearning.cpp
+    PersistenceDiagramBarycenter.cpp
+  HEADERS
+    PersistenceDiagramDictLearning.h
+    PersistenceDiagramBarycenter.h
+  DEPENDS
+    common
+    persistenceDiagramAuction
+    kdTree
+  )
