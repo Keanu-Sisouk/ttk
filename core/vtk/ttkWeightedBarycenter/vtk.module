@@ -1,0 +1,6 @@
+NAME
+ ttkWeightedBarycenter
+DEPENDS
+  ttkAlgorithm
+PRIVATE_DEPENDS
+  VTK::FiltersGeneral

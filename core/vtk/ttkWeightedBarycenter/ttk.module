@@ -1,0 +1,9 @@
+NAME
+  ttkWeightedBarycenter
+SOURCES
+  ttkWeightedBarycenter.cpp
+HEADERS
+  ttkWeightedBarycenter.h
+DEPENDS
+  ttkAlgorithm
+  persistenceDiagramClustering
