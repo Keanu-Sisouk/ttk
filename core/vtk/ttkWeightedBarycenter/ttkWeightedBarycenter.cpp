@@ -111,15 +111,23 @@ int ttkWeightedBarycenter::RequestData(vtkInformation *request,
       }
 
     std::vector<double> weights;
-    weights.resize(3);
-    weights[0]=0.0;
-    weights[1]=0.5;
-    weights[2]=0.5;
+    // weights.resize(3);
+    // weights[0]=0.5;
+    // weights[1]=0.5;
+    // weights[2]=0.5;
     diagramType barycenter;
     std::vector<std::vector<matchingType>> matchings;
 
       computeWeightedBarycenter<double>(
         intermediateDiagrams_, weights, barycenter, matchings);
+      
+  std::cout<<"PRINT MATCHINGS"<<std::endl;
+    for(int ii = 0; ii<matchings.size(); ii++){
+      std::cout<<" j = "<<ii<<std::endl;
+      for(int jj = 0; jj<matchings[ii].size(); jj++){
+        std::cout<<"    "<<get<0>(matchings[ii][jj])<<" "<<get<1>(matchings[ii][jj])<<" "<<get<2>(matchings[ii][jj])<<std::endl;
+      }
+    }
       final_centroids_.resize(1);
       final_centroids_[0] = std::move(barycenter);
       all_matchings_[0] = std::move(matchings);
