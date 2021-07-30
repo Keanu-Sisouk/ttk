@@ -110,9 +110,13 @@ int ttkWeightedBarycenter::RequestData(vtkInformation *request,
         inv_clustering_[i_input] = 0;
       }
 
-      std::vector<double> weights;
-      diagramType barycenter;
-      std::vector<std::vector<matchingType>> matchings;
+    std::vector<double> weights;
+    weights.resize(3);
+    weights[0]=0.0;
+    weights[1]=0.5;
+    weights[2]=0.5;
+    diagramType barycenter;
+    std::vector<std::vector<matchingType>> matchings;
 
       computeWeightedBarycenter<double>(
         intermediateDiagrams_, weights, barycenter, matchings);
