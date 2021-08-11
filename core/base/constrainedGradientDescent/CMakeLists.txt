@@ -1,4 +1,9 @@
 ttk_add_base_library(ConstrainedGradienDescent
-SOURCES ConstrainedGradienDescent.cpp
-HEADERS ConstrainedGradienDescent.h
+  SOURCES
+    ConstrainedGradientDescent.cpp
+  HEADERS
+    ConstrainedGradientDescent.h
+  DEPENDS
+    common
+    persistenceDiagramClustering
 )

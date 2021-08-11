@@ -1,11 +1,10 @@
 #pragma once
 
+//#include <PDClustering.h>
+//#include <PersistenceDiagramBarycenter.h>
+#include <Wrapper.h>
 #include <algorithm>
 #include <array>
-#include <PersistenceDiagramBarycenter.h>
-#include <PDClustering.h>
-#include <Wrapper.h>
-
 
 namespace ttk {
   using diagramTuple = std::tuple<
@@ -38,28 +37,37 @@ namespace ttk {
 
   using Diagram = std::vector<diagramTuple>;
   using Matrice = std::vector<std::vector<double>>;
-
-
-  class ConstrainedGradientDescent : public Debug{
+  using matchingTuple = std::tuple<ttk::SimplexId , ttk::SimplexId , double>;
+  class ConstrainedGradientDescent : public Debug {
 
   public:
-    ConstrainedGradientDescent(){
+    ConstrainedGradientDescent() {
       this->setDebugMsgPrefix("ConstrainedGradientDescent");
     };
 
-    void executeWeightsProjected(std::vector<double> &weights , const std::vector<double> &grad , const int epoch,const int nb_points);
-    //void executeAtoms(std::vector<Diagram> &DictDiagrams);
+    void executeWeightsProjected(std::vector<double> &weights,
+                                 const std::vector<double> &grad,
+                                 const int epoch,
+                                 const int nb_points);
+    // void executeAtoms(std::vector<Diagram> &DictDiagrams);
 
-    inline void setNbAtoms(const int nbAtoms){
-      NbAtoms = nbAtoms;
-    }
+    //inline void setNbAtoms(const int nbAtoms) {
+      //NbAtoms = nbAtoms;
+    //}
 
   protected:
     void projectionOnSimplex(std::vector<double> &weights);
 
-    void gradientDescentWeights(std::vector<double> &weights , const std::vector<double> &grad ,const int epoch, const int nb_points);
+    void gradientDescentWeights(std::vector<double> &weights,
+                                const std::vector<double> &grad,
+                                const int epoch,
+                                const int nb_points);
 
-    void gradientDescentAtoms(std::vector<Diagram> &DictDiagrams ,const std::vector<std::vector<matchingTuple>> &matchings , const Diagram &Barycenter , const std::vector<Matrice> &gradLists , const int nb_points);
-
+    void gradientDescentAtoms(
+      std::vector<Diagram> &DictDiagrams,
+      const std::vector<std::vector<matchingTuple>> &matchings,
+      const Diagram &Barycenter,
+      const std::vector<Matrice> &gradsLists,
+      const int nb_points);
   };
-}
+} // namespace ttk
