@@ -1,0 +1,4 @@
+NAME
+ ttkPersistenceDiagramDictEncoding
+DEPENDS
+ ttkAlgorithm

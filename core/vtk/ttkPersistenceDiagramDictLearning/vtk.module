@@ -1,6 +1,0 @@
-NAME
- ttkPersistenceDiagramDictLearning
-DEPENDS
-  ttkAlgorithm
-PRIVATE_DEPENDS
-  VTK::FiltersGeneral

@@ -1,4 +1,4 @@
-ttk_add_base_library(ConstrainedGradienDescent
+ttk_add_base_library(constrainedGradientDescent
   SOURCES
     ConstrainedGradientDescent.cpp
   HEADERS

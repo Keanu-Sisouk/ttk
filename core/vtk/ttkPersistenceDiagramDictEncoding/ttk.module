@@ -1,0 +1,9 @@
+NAME
+  ttkPersistenceDiagramDictEncoding
+SOURCES
+  ttkPersistenceDiagramDictEncoding.cpp
+HEADERS
+  ttkPersistenceDiagramDictEncoding.h
+DEPENDS
+  persistenceDiagramDictEncoding
+  ttkAlgorithm

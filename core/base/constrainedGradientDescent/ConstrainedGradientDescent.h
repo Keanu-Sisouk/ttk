@@ -7,7 +7,7 @@
 #include <array>
 
 namespace ttk {
-  using diagramTuple = std::tuple<
+  using DiagramTuple = std::tuple<
     /** Vertex Id of low pair element */
     ttk::SimplexId,
     /** Critical Type of low pair element */
@@ -35,9 +35,9 @@ namespace ttk {
     float,
     float>;
 
-  using Diagram = std::vector<diagramTuple>;
+  using Diagram = std::vector<DiagramTuple>;
   using Matrice = std::vector<std::vector<double>>;
-  using matchingTuple = std::tuple<ttk::SimplexId , ttk::SimplexId , double>;
+  using MatchingTuple = std::tuple<ttk::SimplexId, ttk::SimplexId, double>;
   class ConstrainedGradientDescent : public Debug {
 
   public:
@@ -51,8 +51,8 @@ namespace ttk {
                                  const int nb_points);
     // void executeAtoms(std::vector<Diagram> &DictDiagrams);
 
-    //inline void setNbAtoms(const int nbAtoms) {
-      //NbAtoms = nbAtoms;
+    // inline void setNbAtoms(const int nbAtoms) {
+    // NbAtoms = nbAtoms;
     //}
 
   protected:
@@ -65,7 +65,7 @@ namespace ttk {
 
     void gradientDescentAtoms(
       std::vector<Diagram> &DictDiagrams,
-      const std::vector<std::vector<matchingTuple>> &matchings,
+      const std::vector<std::vector<MatchingTuple>> &matchings,
       const Diagram &Barycenter,
       const std::vector<Matrice> &gradsLists,
       const int nb_points);

@@ -14,8 +14,9 @@ void ConstrainedGradientDescent::executeWeightsProjected(
 void ConstrainedGradientDescent::projectionOnSimplex(
   std::vector<double> &weights) {
   int n = weights.size();
-  std::sort(weights.begin() , weights.end() , std::greater<double>());
-  //std::vector<double> u = std::sort(weights.begin(), weights.end(), std::greater<double>());
+  std::sort(weights.begin(), weights.end(), std::greater<double>());
+  // std::vector<double> u = std::sort(weights.begin(), weights.end(),
+  // std::greater<double>());
   double K = 1.;
   double somme_u = weights[0];
   double theta = (somme_u - 1.) / K;
@@ -47,11 +48,11 @@ void ConstrainedGradientDescent::gradientDescentWeights(
     step = std::min(mini, 1.) / norm_grad;
   } else {
     if(epoch < 10) {
-      //float step = 1 / 2 * *(epoch + 1);
-      step = 1/pow(2 , epoch +1);
+      // float step = 1 / 2 * *(epoch + 1);
+      step = 1 / pow(2, epoch + 1);
     } else {
-      //float step = 1 / 2 * *11;
-      step = 1/pow(2 , 11);
+      // float step = 1 / 2 * *11;
+      step = 1 / pow(2, 11);
     }
   }
   for(int i = 0; i < n; ++i) {
@@ -61,64 +62,65 @@ void ConstrainedGradientDescent::gradientDescentWeights(
 
 void ConstrainedGradientDescent::gradientDescentAtoms(
   std::vector<Diagram> &DictDiagrams,
-  const std::vector<std::vector<matchingTuple>> &matchings,
+  const std::vector<std::vector<MatchingTuple>> &matchings,
   const Diagram &Barycenter,
   const std::vector<Matrice> &gradsLists,
   const int nb_points) {
-  //Here vector of diagramTuple because it is not a persistence diagram per say.
-  std::vector<std::vector<diagramTuple>> grad_list(Barycenter.size());
-  for(int i = 0 ; i < matchings.size() ; ++i){
-    for(int j = 0 ; j < matchings[i].size() ; j++){
-      const matchingTuple &t = matchings[i][j];
+  // Here vector of diagramTuple because it is not a persistence diagram per
+  // say.
+  std::vector<std::vector<DiagramTuple>> grad_list(Barycenter.size());
+  for(int i = 0; i < matchings.size(); ++i) {
+    for(int j = 0; j < matchings[i].size(); j++) {
+      const MatchingTuple &t = matchings[i][j];
       const SimplexId Id1 = std::get<0>(t);
       const SimplexId Id2 = std::get<1>(t);
-      diagramTuple &t2 = DictDiagrams[i][Id1];
+      DiagramTuple &t2 = DictDiagrams[i][Id1];
       grad_list[Id2].push_back(t2);
     }
   }
-  for(int i = 0 ; i < grad_list.size() ; ++i){
-    std::vector<double> pos(grad_list[i].size() , 1);
+  for(int i = 0; i < grad_list.size(); ++i) {
+    std::vector<double> pos(grad_list[i].size(), 1);
     int k = 0;
-    for(int j = 0 ; j < grad_list[i].size() ; ++j){
-      diagramTuple &t = grad_list[i][j];
+    for(int j = 0; j < grad_list[i].size(); ++j) {
+      DiagramTuple &t = grad_list[i][j];
       double birth = std::get<6>(t);
       double death = std::get<10>(t);
       pos[j] = death - birth;
-      if(death - birth < 1e-10){
-        k+=1;
+      if(death - birth < 1e-10) {
+        k += 1;
       }
     }
-    if(k>0){
-      std::vector<bool> pos2(pos.size() , false);
+    if(k > 0) {
+      std::vector<bool> pos2(pos.size(), false);
       std::vector<float> temp2;
-      for(int k = 0 ; k < pos.size() ; ++k){
-        diagramTuple &t = grad_list[i][k];
+      for(int k = 0; k < pos.size(); ++k) {
+        DiagramTuple &t = grad_list[i][k];
         double birth = std::get<6>(t);
         pos2[k] = birth > 0;
-        if(birth > 0){
+        if(birth > 0) {
           temp2.push_back(birth);
         }
       }
       std::vector<double> temp;
-      for(int k = 0 ; k < pos.size() ; ++k){
+      for(int k = 0; k < pos.size(); ++k) {
         double val = pos[k];
-        if(val> 0 ){
+        if(val > 0) {
           temp.push_back(val);
         }
       }
-      double mini = *std::min_element(temp.begin() , temp.end());
-      double mini2 = *std::min_element(temp2.begin() , temp2.end());
-      //double maxi = std::max_element(pos.begin() ; pos.end());
-      double step = std::min(std::min(1. , mini) , mini2)/1e1;
-      for(int k = 0 ; k < pos.size() ; ++k){
-        if(pos2[k]){
-          diagramTuple &t = grad_list[i][k];
-          std::get<10>(t) = std::get<10>(t) - step*gradsLists[i][k][1];
-        }else if(pos[k] < 1e-17){
-        }else{
-          diagramTuple &t = grad_list[i][k];
-          std::get<6>(t) = std::get<6>(t) - step*gradsLists[i][k][0];
-          std::get<10>(t) = std::get<10>(t) - step*gradsLists[i][k][1];
+      double mini = *std::min_element(temp.begin(), temp.end());
+      double mini2 = *std::min_element(temp2.begin(), temp2.end());
+      // double maxi = std::max_element(pos.begin() ; pos.end());
+      double step = std::min(std::min(1., mini), mini2) / 1e1;
+      for(int k = 0; k < pos.size(); ++k) {
+        if(pos2[k]) {
+          DiagramTuple &t = grad_list[i][k];
+          std::get<10>(t) = std::get<10>(t) - step * gradsLists[i][k][1];
+        } else if(pos[k] < 1e-17) {
+        } else {
+          DiagramTuple &t = grad_list[i][k];
+          std::get<6>(t) = std::get<6>(t) - step * gradsLists[i][k][0];
+          std::get<10>(t) = std::get<10>(t) - step * gradsLists[i][k][1];
         }
       }
     }

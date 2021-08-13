@@ -1,9 +1,0 @@
-NAME
-  ttkPersistenceDiagramDictLearning
-SOURCES
-  ttkPersistenceDiagramDictLearning.cpp
-HEADERS
-  ttkPersistenceDiagramDictLearning.h
-DEPENDS
-  ttkAlgorithm
-  persistenceDiagramDictLearning
