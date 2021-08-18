@@ -113,15 +113,19 @@ namespace ttk {
       const std::vector<Diagram> &dictDiagrams,
       const std::vector<std::vector<MatchingTuple>> &matchings,
       const Diagram &Barycenter,
-      const BidderDiagram<double> &newData);
+      const BidderDiagram<double> &barycenterBidder,
+      const BidderDiagram<double> &newDataBidder,
+      const Diagram &newData) const;
 
-
-    //A modifier
+    // A modifier
     void
       setBidderDiagrams(const size_t nInputs,
                         std::vector<Diagram> &inputDiagrams,
                         std::vector<BidderDiagram<double>> &bidder_diags) const;
-    //A modifier
+
+    void setBidderDiagram(Diagram &inputDiagram,
+                          BidderDiagram<double> &bidder_diag) const;
+    // A modifier
     void enrichCurrentBidderDiagrams(
       const std::vector<BidderDiagram<double>> &bidder_diags,
       std::vector<BidderDiagram<double>> &current_bidder_diags,
