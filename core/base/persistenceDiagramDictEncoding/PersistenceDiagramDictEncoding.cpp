@@ -211,7 +211,7 @@ std::vector<double> PersistenceDiagramDictEncoding::computeGradientWeights(
     std::vector<double> direction(2);
     direction[0] = std::get<6>(t2) - std::get<6>(t3);
     direction[1] = std::get<10>(t2) - std::get<10>(t3);
-    //directions[Id2].push_back(direction);
+    // directions[Id2].push_back(direction);
     directions[Id2] = direction;
   }
   for(int i = 0; i < Barycenter.size(); ++i) {
@@ -224,6 +224,44 @@ std::vector<double> PersistenceDiagramDictEncoding::computeGradientWeights(
     }
   }
   return gradient;
+}
+
+
+std::vector<Matrice> PersistenceDiagramDictEncoding::computeGradientAtoms(
+  const std::vector<double> &weights,
+  const Diagram &Barycenter,
+  const BidderDiagram<double> &barycenterBidder,
+  const BidderDiagram<double> &newDataBidder,
+  const Diagram &newData) const{
+
+  std::vector<MatchingTuple> matching;
+  std::vector<Matrice> gradsLists(Barycenter.size());
+  std::vector<std::vector<double>> directions(Barycenter.size());
+  computeDistance(newDataBidder , barycenterBidder , matching);
+  for(int i = 0; i < matching.size(); ++i) {
+    const MatchingTuple &t = matching[i];
+    // Id in newData
+    const SimplexId Id1 = std::get<0>(t);
+    // Id in barycenter
+    const SimplexId Id2 = std::get<1>(t);
+    const DiagramTuple &t2 = newData[Id1];
+    const DiagramTuple &t3 = Barycenter[Id2];
+    std::vector<double> direction(2);
+    direction[0] = std::get<6>(t2) - std::get<6>(t3);
+    direction[1] = std::get<10>(t2) - std::get<10>(t3);
+    // directions[Id2].push_back(direction);
+    directions[Id2] = direction;
+  }
+  for (int i = 0 ; i < Barycenter.size() ; ++i){
+    for (int j = 0 ; j < weights.size() ; ++j){
+        std::vector<double> temp(2);
+        const std::vector<double> &direction = directions[i];
+        temp[0] = -2*weights[j]*direction[0];
+        temp[1] = -2*weights[j]*direction[1];
+        gradsLists[i].push_back(temp);
+    }
+  }
+  return gradsLists;
 }
 
 void PersistenceDiagramDictEncoding::setBidderDiagrams(
@@ -251,12 +289,10 @@ void PersistenceDiagramDictEncoding::setBidderDiagrams(
 }
 
 void PersistenceDiagramDictEncoding::setBidderDiagram(
-  Diagram &inputDiagram,
-  BidderDiagram<double> &bidder_diag) const {
+  Diagram &inputDiagram, BidderDiagram<double> &bidder_diag) const {
 
-
-  //auto &diag = inputDiagrams[i];
-  //auto &bidders = bidder_diags[i];
+  // auto &diag = inputDiagrams[i];
+  // auto &bidders = bidder_diags[i];
 
   for(size_t j = 0; j < inputDiagram.size(); j++) {
     // Add bidder to bidders
@@ -264,14 +300,11 @@ void PersistenceDiagramDictEncoding::setBidderDiagram(
     b.setPositionInAuction(bidder_diag.size());
     bidder_diag.addBidder(b);
     if(b.isDiagonal() || b.x_ == b.y_) {
-      this->printMsg("Diagonal point in diagram !",
-                      ttk::debug::Priority::DETAIL);
+      this->printMsg(
+        "Diagonal point in diagram !", ttk::debug::Priority::DETAIL);
     }
   }
 }
-
-
-
 
 void PersistenceDiagramDictEncoding::enrichCurrentBidderDiagrams(
   const std::vector<BidderDiagram<double>> &bidder_diags,
@@ -309,10 +342,6 @@ void PersistenceDiagramDictEncoding::enrichCurrentBidderDiagrams(
     }
     return;
   }
-
-
-
-
 
   const double prev_min_persistence = 2.0 * getMostPersistent(bidder_diags);
   double new_min_persistence = 0.0;

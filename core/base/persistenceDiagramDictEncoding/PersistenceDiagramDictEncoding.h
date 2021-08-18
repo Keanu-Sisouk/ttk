@@ -117,6 +117,14 @@ namespace ttk {
       const BidderDiagram<double> &newDataBidder,
       const Diagram &newData) const;
 
+    std::vector<Matrice> computeGradientAtoms(
+      const std::vector<double> &weights,
+      const Diagram &Barycenter,
+      const BidderDiagram<double> &barycenterBidder,
+      const BidderDiagram<double> &newDataBidder,
+      const Diagram &newData) const;
+
+
     // A modifier
     void
       setBidderDiagrams(const size_t nInputs,
