@@ -29,8 +29,7 @@
 #include <PersistenceDiagramDictEncoding.h>
 #include <ttkAlgorithm.h>
 
-class TTKPERSISTENCEDIAGRAMDICTENCODING_EXPORT
-  ttkPersistenceDiagramDictEncoding
+class TTKPERSISTENCEDIAGRAMDICTENCODING_EXPORT ttkPersistenceDiagramDictEncoding
   : public ttkAlgorithm,
     protected ttk::PersistenceDiagramDictEncoding {
 

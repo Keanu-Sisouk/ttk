@@ -112,7 +112,7 @@ Matrice PersistenceDiagramDictEncoding::execute(
   }
 
   std::vector<std::vector<double>> distMat{};
-  //if(this->Constraint == ConstraintType::FULL_DIAGRAMS) {
+  // if(this->Constraint == ConstraintType::FULL_DIAGRAMS) {
   //  getDiagramsDistMat(nInputs, distMat, bidder_diagrams_min,
   //                     bidder_diagrams_sad, bidder_diagrams_max);
   //} else {
@@ -134,7 +134,7 @@ Matrice PersistenceDiagramDictEncoding::execute(
   //}
 
   this->printMsg("Complete", 1.0, tm.getElapsedTime(), this->threadNumber_);
-  //std::vector<double> gradient = compute
+  // std::vector<double> gradient = compute
 
   return distMat;
 }
@@ -157,7 +157,9 @@ double PersistenceDiagramDictEncoding::getMostPersistent(
 }
 
 void PersistenceDiagramDictEncoding::computeDistance(
-  const BidderDiagram<double> &D1, const BidderDiagram<double> &D2, std::vector<MatchingTuple> &matching) const {
+  const BidderDiagram<double> &D1,
+  const BidderDiagram<double> &D2,
+  std::vector<MatchingTuple> &matching) const {
 
   GoodDiagram<double> D2_bis{};
   for(int i = 0; i < D2.size(); i++) {
@@ -174,28 +176,32 @@ void PersistenceDiagramDictEncoding::computeDistance(
   auction.run(&matching);
 }
 
-std::vector<double> PersistenceDiagramDictEncoding::computeGradientWeights(const std::vector<Diagram> &dictDiagrams, const std::vector<std::vector<MatchingTuple>> &matchings, const Diagram &Barycenter, const BidderDiagram<double> &newData){
+std::vector<double> PersistenceDiagramDictEncoding::computeGradientWeights(
+  const std::vector<Diagram> &dictDiagrams,
+  const std::vector<std::vector<MatchingTuple>> &matchings,
+  const Diagram &Barycenter,
+  const BidderDiagram<double> &newData) {
   std::vector<std::vector<DiagramTuple>> grad_list(Barycenter.size());
   std::vector<MatchingTuple> matching;
   std::vector<std::vector<double>> directions(Barycenter.size());
-  std::vector<double> gradient(dictDiagrams.size() , 0);
-  for(int i = 0 ; i < matchings.size() ; ++i){
-    for(int j = 0 ; j < matchings[i].size() ; ++j){
+  std::vector<double> gradient(dictDiagrams.size(), 0);
+  for(int i = 0; i < matchings.size(); ++i) {
+    for(int j = 0; j < matchings[i].size(); ++j) {
       const MatchingTuple &t = matchings[i][j];
-      //Id in atom
+      // Id in atom
       const SimplexId Id1 = std::get<0>(t);
-      //Id in barycenter
+      // Id in barycenter
       const SimplexId Id2 = std::get<1>(t);
       const DiagramTuple &t2 = dictDiagrams[i][Id1];
       grad_list[Id2].push_back(t2);
     }
   }
   computeDistance(newData, Barycenter, matching);
-  for(int i = 0; < matching.size() ; ++i){
+  for(int i = 0; < matching.size(); ++i) {
     const MatchingTuple &t = matching[i];
-    //Id in newData
+    // Id in newData
     const SimplexId Id1 = std::get<0>(t);
-    //Id in barycenter
+    // Id in barycenter
     const SimplexId Id2 = std::get<1>(t);
     const DiagramTuple &t2 = newData[Id1];
     const DiagramTuple &t3 = Barycenter[Id2];
@@ -204,18 +210,17 @@ std::vector<double> PersistenceDiagramDictEncoding::computeGradientWeights(const
     direction[1] = std::get<10>(t2) - std::get<10>(t3);
     directions[Id2].push_back(direction);
   }
-  for(int i = 0; < Barycenter.size() ; ++i){
-    for(int j = 0; <dictDiagrams.size() ; ++j){
+  for(int i = 0; < Barycenter.size(); ++i) {
+    for(int j = 0; < dictDiagrams.size(); ++j) {
       const DiagramTuple &t = grad_list[i];
       const double birth = std::get<6>(t);
       const double death = std::get<10>(t);
       const std::vector<double> &direction = directions[i];
-      gradient[j] += -2*(birth*direction[0] + death*direction[1]);
+      gradient[j] += -2 * (birth * direction[0] + death * direction[1]);
     }
   }
   return gradient;
 }
-
 
 void PersistenceDiagramDictEncoding::setBidderDiagrams(
   const size_t nInputs,

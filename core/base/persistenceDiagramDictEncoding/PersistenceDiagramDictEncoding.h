@@ -17,9 +17,9 @@
 #include <array>
 #include <limits>
 
+#include <ConstrainedGradientDescent.h>
 #include <PersistenceDiagramAuction.h>
 #include <PersistenceDiagramClustering.h>
-#include <ConstrainedGradientDescent.h>
 #include <Wrapper.h>
 
 namespace ttk {
@@ -62,9 +62,8 @@ namespace ttk {
       this->setDebugMsgPrefix("PersistenceDiagramDictEncoding");
     }
 
-    Matrice
-      execute(const std::vector<Diagram> &intermediateDiagrams,
-              const std::array<size_t, 2> &nInputs) const;
+    Matrice execute(const std::vector<Diagram> &intermediateDiagrams,
+                    const std::array<size_t, 2> &nInputs) const;
 
     inline void setWasserstein(const int data) {
       Wasserstein = data;
@@ -107,17 +106,22 @@ namespace ttk {
     double getMostPersistent(
       const std::vector<BidderDiagram<double>> &bidder_diags) const;
     void computeDistance(const BidderDiagram<double> &D1,
-                           const BidderDiagram<double> &D2, std::vector<MatchingTuple> &matching) const;
+                         const BidderDiagram<double> &D2,
+                         std::vector<MatchingTuple> &matching) const;
 
-    std::vector<double> computeGradientWeights(const std::vector<Diagram> &dictDiagrams,
-                                                const std::vector<std::vector<MatchingTuple>> &matchings,
-                                                const Diagram &Barycenter,const BidderDiagram<double> &newData);
+    std::vector<double> computeGradientWeights(
+      const std::vector<Diagram> &dictDiagrams,
+      const std::vector<std::vector<MatchingTuple>> &matchings,
+      const Diagram &Barycenter,
+      const BidderDiagram<double> &newData);
 
 
+    //A modifier
     void
       setBidderDiagrams(const size_t nInputs,
                         std::vector<Diagram> &inputDiagrams,
                         std::vector<BidderDiagram<double>> &bidder_diags) const;
+    //A modifier
     void enrichCurrentBidderDiagrams(
       const std::vector<BidderDiagram<double>> &bidder_diags,
       std::vector<BidderDiagram<double>> &current_bidder_diags,
