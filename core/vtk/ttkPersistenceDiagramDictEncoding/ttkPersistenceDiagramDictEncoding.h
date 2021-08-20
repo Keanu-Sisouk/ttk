@@ -59,6 +59,9 @@ public:
   }
   vtkGetMacro(Alpha, double);
 
+  vtkSetMacro(atomNumber_ , int);
+  vtkGetMacro(atomNumber_ , int);
+
   vtkSetMacro(DeltaLim, double);
   vtkGetMacro(DeltaLim, double);
 
@@ -122,6 +125,7 @@ public:
   vtkGetMacro(MinPersistence, double);
 
 protected:
+  int atomNumber_{3};
   ttkPersistenceDiagramDictEncoding();
   ~ttkPersistenceDiagramDictEncoding() override = default;
 

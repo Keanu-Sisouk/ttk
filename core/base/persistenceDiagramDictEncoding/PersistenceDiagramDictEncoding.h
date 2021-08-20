@@ -63,7 +63,7 @@ namespace ttk {
     }
 
     Matrice execute(const std::vector<Diagram> &intermediateDiagrams,
-                    const std::array<size_t, 2> &nInputs) const;
+                 const std::array<size_t, 2> &nInputs) const;
 
     inline void setWasserstein(const int data) {
       Wasserstein = data;
@@ -117,13 +117,12 @@ namespace ttk {
       const BidderDiagram<double> &newDataBidder,
       const Diagram &newData) const;
 
-    std::vector<Matrice> computeGradientAtoms(
-      const std::vector<double> &weights,
-      const Diagram &Barycenter,
-      const BidderDiagram<double> &barycenterBidder,
-      const BidderDiagram<double> &newDataBidder,
-      const Diagram &newData) const;
-
+    std::vector<Matrice>
+      computeGradientAtoms(const std::vector<double> &weights,
+                           const Diagram &Barycenter,
+                           const BidderDiagram<double> &barycenterBidder,
+                           const BidderDiagram<double> &newDataBidder,
+                           const Diagram &newData) const;
 
     // A modifier
     void

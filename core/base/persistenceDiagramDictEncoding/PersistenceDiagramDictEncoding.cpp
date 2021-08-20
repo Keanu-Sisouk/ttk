@@ -4,9 +4,8 @@
 
 using namespace ttk;
 
-Matrice PersistenceDiagramDictEncoding::execute(
-  const std::vector<Diagram> &intermediateDiagrams,
-  const std::array<size_t, 2> &nInputs) const {
+Matrice PersistenceDiagramDictEncoding::execute(const std::vector<Diagram> &intermediateDiagrams,
+             const std::array<size_t, 2> &nInputs) const {
 
   Timer tm{};
 
@@ -22,6 +21,8 @@ Matrice PersistenceDiagramDictEncoding::execute(
     this->printMsg("Processing only SAD-MAX pairs");
   }
 
+
+  //inputDiagrams = newDatas here
   std::vector<Diagram> inputDiagramsMin(nDiags);
   std::vector<Diagram> inputDiagramsSad(nDiags);
   std::vector<Diagram> inputDiagramsMax(nDiags);
@@ -112,6 +113,11 @@ Matrice PersistenceDiagramDictEncoding::execute(
   }
 
   std::vector<std::vector<double>> distMat{};
+
+  Diagram Barycenter{};
+
+  std::vector<std::vector<MatchingTuple>> matchings;
+
   // if(this->Constraint == ConstraintType::FULL_DIAGRAMS) {
   //  getDiagramsDistMat(nInputs, distMat, bidder_diagrams_min,
   //                     bidder_diagrams_sad, bidder_diagrams_max);
@@ -226,18 +232,17 @@ std::vector<double> PersistenceDiagramDictEncoding::computeGradientWeights(
   return gradient;
 }
 
-
 std::vector<Matrice> PersistenceDiagramDictEncoding::computeGradientAtoms(
   const std::vector<double> &weights,
   const Diagram &Barycenter,
   const BidderDiagram<double> &barycenterBidder,
   const BidderDiagram<double> &newDataBidder,
-  const Diagram &newData) const{
+  const Diagram &newData) const {
 
   std::vector<MatchingTuple> matching;
   std::vector<Matrice> gradsLists(Barycenter.size());
   std::vector<std::vector<double>> directions(Barycenter.size());
-  computeDistance(newDataBidder , barycenterBidder , matching);
+  computeDistance(newDataBidder, barycenterBidder, matching);
   for(int i = 0; i < matching.size(); ++i) {
     const MatchingTuple &t = matching[i];
     // Id in newData
@@ -252,13 +257,13 @@ std::vector<Matrice> PersistenceDiagramDictEncoding::computeGradientAtoms(
     // directions[Id2].push_back(direction);
     directions[Id2] = direction;
   }
-  for (int i = 0 ; i < Barycenter.size() ; ++i){
-    for (int j = 0 ; j < weights.size() ; ++j){
-        std::vector<double> temp(2);
-        const std::vector<double> &direction = directions[i];
-        temp[0] = -2*weights[j]*direction[0];
-        temp[1] = -2*weights[j]*direction[1];
-        gradsLists[i].push_back(temp);
+  for(int i = 0; i < Barycenter.size(); ++i) {
+    for(int j = 0; j < weights.size(); ++j) {
+      std::vector<double> temp(2);
+      const std::vector<double> &direction = directions[i];
+      temp[0] = -2 * weights[j] * direction[0];
+      temp[1] = -2 * weights[j] * direction[1];
+      gradsLists[i].push_back(temp);
     }
   }
   return gradsLists;

@@ -18,14 +18,14 @@ vtkStandardNewMacro(ttkPersistenceDiagramDictEncoding);
 
 ttkPersistenceDiagramDictEncoding::ttkPersistenceDiagramDictEncoding() {
   SetNumberOfInputPorts(1);
-  SetNumberOfOutputPorts(1);
+  SetNumberOfOutputPorts(2);
 }
 
 int ttkPersistenceDiagramDictEncoding::FillInputPortInformation(
   int port, vtkInformation *info) {
   if(port == 0) {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet");
-    info->Set(vtkAlgorithm::INPUT_IS_REPEATABLE(), 1);
+    //info->Set(vtkAlgorithm::INPUT_IS_REPEATABLE(), 1);
     return 1;
   }
   return 0;
@@ -33,12 +33,18 @@ int ttkPersistenceDiagramDictEncoding::FillInputPortInformation(
 
 int ttkPersistenceDiagramDictEncoding::FillOutputPortInformation(
   int port, vtkInformation *info) {
-  if(port == 0) {
-    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkTable");
-    return 1;
+    if(port == 0) {
+      /*info->Set(ttkAlgorithm::SAME_DATA_TYPE_AS_INPUT_PORT(), 0);*/
+      info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkMultiBlockDataSet");
+      return 1;
+    } else if (port == 1){
+      info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkTable");
+      return 1;
+    } else {
+      return 0;
+    }
   }
-  return 0;
-}
+
 
 // to adapt if your wrapper does not inherit from vtkDataSetAlgorithm
 int ttkPersistenceDiagramDictEncoding::RequestData(
@@ -48,27 +54,48 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
   ttk::Memory m;
 
   // Get input data
-  std::vector<vtkUnstructuredGrid *> inputDiagrams;
+  //std::vector<vtkUnstructuredGrid *> inputDiagrams;
 
-  auto nBlocks = inputVector[0]->GetNumberOfInformationObjects();
-  std::vector<vtkMultiBlockDataSet *> blocks(nBlocks);
+  //auto nBlocks = inputVector[0]->GetNumberOfInformationObjects();
+  //std::vector<vtkMultiBlockDataSet *> blocks(nBlocks);
 
-  if(nBlocks > 2) {
-    this->printWrn("Only dealing with the first two MultiBlockDataSets");
-    nBlocks = 2;
-  }
+  //if(nBlocks > 2) {
+  //  this->printWrn("Only dealing with the first two MultiBlockDataSets");
+  //  nBlocks = 2;
+  //}
 
-  // number of diagrams per input block
+   //number of diagrams per input block
   std::array<size_t, 2> nInputs{0, 0};
 
-  for(int i = 0; i < nBlocks; ++i) {
-    blocks[i] = vtkMultiBlockDataSet::GetData(inputVector[0], i);
-    if(blocks[i] != nullptr) {
-      nInputs[i] = blocks[i]->GetNumberOfBlocks();
-      for(size_t j = 0; j < nInputs[i]; ++j) {
-        inputDiagrams.emplace_back(
-          vtkUnstructuredGrid::SafeDownCast(blocks[i]->GetBlock(j)));
-      }
+  //for(int i = 0; i < nBlocks; ++i) {
+  //  blocks[i] = vtkMultiBlockDataSet::GetData(inputVector[0], i);
+  //  if(blocks[i] != nullptr) {
+  //    nInputs[i] = blocks[i]->GetNumberOfBlocks();
+  //    for(size_t j = 0; j < nInputs[i]; ++j) {
+  //      inputDiagrams.emplace_back(
+  //        vtkUnstructuredGrid::SafeDownCast(blocks[i]->GetBlock(j)));
+  //    }
+  //  }
+  //}
+
+  auto blocks = vtkMultiBlockDataSet::GetData(inputVector[0], 0);
+
+  // Flat storage for diagrams extracted from blocks
+  std::vector<vtkUnstructuredGrid *> inputDiagrams;
+
+  // Number of input diagrams
+  int numInputs = 0;
+  int numAtom = this->GetatomNumber_();
+  printf("Atom number %d" , numAtom);
+
+  if(blocks != nullptr) {
+    numInputs = blocks->GetNumberOfBlocks();
+    inputDiagrams.resize(numInputs);
+    for(int i = 0; i < numInputs; ++i) {
+      inputDiagrams[i] = vtkUnstructuredGrid::SafeDownCast(blocks->GetBlock(i));
+      // if(this->GetMTime() < input[i]->GetMTime()) {
+      //  needUpdate_ = true;
+      //}
     }
   }
 
@@ -84,12 +111,24 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
   }
 
   // Set output
-  auto diagramsDistTable = vtkTable::GetData(outputVector);
+  //auto diagramsDistTable = vtkTable::GetData(outputVector);
+
+  auto output_dgm = vtkMultiBlockDataSet::GetData(outputVector , 0);
+  auto output_weights = vtkTable::GetData(outputVector , 1 );
+
+  //int numAtom = this->GetAtomNumber();
+  output_dgm->SetNumberOfBlocks(numAtom);
+
+  for(int i = 0; i < numAtom; ++i) {
+    vtkNew<vtkUnstructuredGrid> vtu;
+    vtu->DeepCopy(inputDiagrams[i]);
+    output_dgm->SetBlock(i, vtu);
+  }
 
   std::vector<ttk::Diagram> intermediateDiagrams(nDiags);
 
   double max_dimension_total = 0.0;
-  for(int i = 0; i < nDiags; i++) {
+  for(int i = 0; i < nDiags; ++i) {
     double max_dimension
       = getPersistenceDiagram(intermediateDiagrams[i], inputDiagrams[i]);
     if(max_dimension < 0.0) {
@@ -101,9 +140,38 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
     }
   }
 
+  std::vector<ttk::Diagram> dictDiagrams(numAtom);
+  double max_dimension_total2 = 0.0;
+  for(int i = 0; i < numAtom; ++i) {
+    double max_dimension2
+      = getPersistenceDiagram(dictDiagrams[i], inputDiagrams[i]);
+    if(max_dimension2 < 0.0) {
+      this->printErr("Could not read Persistence Diagram");
+      return 0;
+    }
+    if(max_dimension_total2 < max_dimension2) {
+      max_dimension_total2 = max_dimension2;
+    }
+  }
+
+  std::vector<std::vector<double>> vectorWeights(nDiags);
+  for (int i = 0; i < vectorWeights.size() ; ++i){
+    std::vector<double> weights(numAtom , 1/3);
+    vectorWeights[i] = weights;
+  }
+
+
+
+
   const auto diagramsDistMat = this->execute(intermediateDiagrams, nInputs);
 
   // zero-padd column name to keep Row Data columns ordered
+  
+
+
+
+  output_weights->SetNumberOfRows(numAtom);
+
   const auto zeroPad
     = [](std::string &colName, const size_t numberCols, const size_t colIdx) {
         std::string max{std::to_string(numberCols - 1)};
@@ -111,35 +179,26 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
         std::string zer(max.size() - cur.size(), '0');
         colName.append(zer).append(cur);
       };
-
-  const auto nTuples = nInputs[1] == 0 ? nInputs[0] : nInputs[1];
-
-  // copy diagrams distance matrix to output
-  for(size_t i = 0; i < diagramsDistMat.size(); ++i) {
-    std::string name{"Diagram"};
-    zeroPad(name, diagramsDistMat.size(), i);
-
+  //output_weights->SetNumberOfTuples(3);
+  for(int i=0 ; i < numInputs ; ++i){
+    std::string name{"weights"};
+    zeroPad(name, i, i);
+    // name
     vtkNew<vtkDoubleArray> col{};
-    col->SetNumberOfTuples(nTuples);
+    // vtkDoubleArray *col=vtkDoubleArray::New();
+    // col->SetNumberOfComponents(1);
+    // col->SetNumberOfTuples(3);
+    col->SetNumberOfValues(numAtom);
     col->SetName(name.c_str());
-    for(size_t j = 0; j < diagramsDistMat[i].size(); ++j) {
-      col->SetTuple1(j, diagramsDistMat[i][j]);
+    for(int j = 0; j < numAtom; ++j){
+      col->SetValue(j , 0.3);
     }
-    diagramsDistTable->AddColumn(col);
+    col->Modified();
+    //col->Modified();
+    printf("number of values %d" , int(col->GetNumberOfValues()));
+    output_weights->AddColumn(col);
   }
 
-  // aggregate input field data
-  vtkNew<vtkFieldData> fd{};
-  fd->CopyStructure(inputDiagrams[0]->GetFieldData());
-  fd->SetNumberOfTuples(nTuples);
-  for(size_t i = 0; i < nTuples; ++i) {
-    fd->SetTuple(i, 0, inputDiagrams[i]->GetFieldData());
-  }
-
-  // copy input field data to output row data
-  for(int i = 0; i < fd->GetNumberOfArrays(); ++i) {
-    diagramsDistTable->AddColumn(fd->GetAbstractArray(i));
-  }
 
   return 1;
 }
