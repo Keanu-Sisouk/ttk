@@ -4,8 +4,11 @@
 
 using namespace ttk;
 
-Matrice PersistenceDiagramDictEncoding::execute(const std::vector<Diagram> &intermediateDiagrams,
-             const std::array<size_t, 2> &nInputs) const {
+void PersistenceDiagramDictEncoding::execute(
+  const std::vector<Diagram> &intermediateDiagrams,
+  std::vector<Diagram> &dictDiagrams,
+  std::vector<std::vector<double>> &vectorWeights,
+  const std::array<size_t, 2> &nInputs) const {
 
   Timer tm{};
 
@@ -21,8 +24,7 @@ Matrice PersistenceDiagramDictEncoding::execute(const std::vector<Diagram> &inte
     this->printMsg("Processing only SAD-MAX pairs");
   }
 
-
-  //inputDiagrams = newDatas here
+  // inputDiagrams = newDatas here
   std::vector<Diagram> inputDiagramsMin(nDiags);
   std::vector<Diagram> inputDiagramsSad(nDiags);
   std::vector<Diagram> inputDiagramsMax(nDiags);
@@ -117,7 +119,9 @@ Matrice PersistenceDiagramDictEncoding::execute(const std::vector<Diagram> &inte
   Diagram Barycenter{};
 
   std::vector<std::vector<MatchingTuple>> matchings;
-
+  for (int epoch = 0 ; epoch < 50 ; ++epoch){
+    int k = 0;
+  }
   // if(this->Constraint == ConstraintType::FULL_DIAGRAMS) {
   //  getDiagramsDistMat(nInputs, distMat, bidder_diagrams_min,
   //                     bidder_diagrams_sad, bidder_diagrams_max);
@@ -142,7 +146,7 @@ Matrice PersistenceDiagramDictEncoding::execute(const std::vector<Diagram> &inte
   this->printMsg("Complete", 1.0, tm.getElapsedTime(), this->threadNumber_);
   // std::vector<double> gradient = compute
 
-  return distMat;
+  //return distMat;
 }
 
 double PersistenceDiagramDictEncoding::getMostPersistent(

@@ -1,4 +1,6 @@
+#include <ttkMacros.h>
 #include <ttkPersistenceDiagramDictEncoding.h>
+#include <ttkUtils.h>
 
 #include <vtkCellData.h>
 #include <vtkCharArray.h>
@@ -14,6 +16,8 @@
 #include <vtkPointData.h>
 #include <vtkTable.h>
 
+
+
 vtkStandardNewMacro(ttkPersistenceDiagramDictEncoding);
 
 ttkPersistenceDiagramDictEncoding::ttkPersistenceDiagramDictEncoding() {
@@ -25,7 +29,7 @@ int ttkPersistenceDiagramDictEncoding::FillInputPortInformation(
   int port, vtkInformation *info) {
   if(port == 0) {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet");
-    //info->Set(vtkAlgorithm::INPUT_IS_REPEATABLE(), 1);
+    // info->Set(vtkAlgorithm::INPUT_IS_REPEATABLE(), 1);
     return 1;
   }
   return 0;
@@ -33,18 +37,17 @@ int ttkPersistenceDiagramDictEncoding::FillInputPortInformation(
 
 int ttkPersistenceDiagramDictEncoding::FillOutputPortInformation(
   int port, vtkInformation *info) {
-    if(port == 0) {
-      /*info->Set(ttkAlgorithm::SAME_DATA_TYPE_AS_INPUT_PORT(), 0);*/
-      info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkMultiBlockDataSet");
-      return 1;
-    } else if (port == 1){
-      info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkTable");
-      return 1;
-    } else {
-      return 0;
-    }
+  if(port == 0) {
+    /*info->Set(ttkAlgorithm::SAME_DATA_TYPE_AS_INPUT_PORT(), 0);*/
+    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkMultiBlockDataSet");
+    return 1;
+  } else if(port == 1) {
+    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkTable");
+    return 1;
+  } else {
+    return 0;
   }
-
+  }
 
 // to adapt if your wrapper does not inherit from vtkDataSetAlgorithm
 int ttkPersistenceDiagramDictEncoding::RequestData(
@@ -54,20 +57,20 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
   ttk::Memory m;
 
   // Get input data
-  //std::vector<vtkUnstructuredGrid *> inputDiagrams;
+  // std::vector<vtkUnstructuredGrid *> inputDiagrams;
 
-  //auto nBlocks = inputVector[0]->GetNumberOfInformationObjects();
-  //std::vector<vtkMultiBlockDataSet *> blocks(nBlocks);
+  // auto nBlocks = inputVector[0]->GetNumberOfInformationObjects();
+  // std::vector<vtkMultiBlockDataSet *> blocks(nBlocks);
 
-  //if(nBlocks > 2) {
+  // if(nBlocks > 2) {
   //  this->printWrn("Only dealing with the first two MultiBlockDataSets");
   //  nBlocks = 2;
   //}
 
-   //number of diagrams per input block
+  // number of diagrams per input block
   std::array<size_t, 2> nInputs{0, 0};
 
-  //for(int i = 0; i < nBlocks; ++i) {
+  // for(int i = 0; i < nBlocks; ++i) {
   //  blocks[i] = vtkMultiBlockDataSet::GetData(inputVector[0], i);
   //  if(blocks[i] != nullptr) {
   //    nInputs[i] = blocks[i]->GetNumberOfBlocks();
@@ -84,12 +87,12 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
   std::vector<vtkUnstructuredGrid *> inputDiagrams;
 
   // Number of input diagrams
-  int numInputs = 0;
-  int numAtom = this->GetatomNumber_();
-  printf("Atom number %d" , numAtom);
+  //int numInputs = 0;
+  const int numAtom = this->GetatomNumber_();
+  printf("Atom number %d", numAtom);
 
   if(blocks != nullptr) {
-    numInputs = blocks->GetNumberOfBlocks();
+    int numInputs = blocks->GetNumberOfBlocks();
     inputDiagrams.resize(numInputs);
     for(int i = 0; i < numInputs; ++i) {
       inputDiagrams[i] = vtkUnstructuredGrid::SafeDownCast(blocks->GetBlock(i));
@@ -111,12 +114,12 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
   }
 
   // Set output
-  //auto diagramsDistTable = vtkTable::GetData(outputVector);
+  // auto diagramsDistTable = vtkTable::GetData(outputVector);
 
-  auto output_dgm = vtkMultiBlockDataSet::GetData(outputVector , 0);
-  auto output_weights = vtkTable::GetData(outputVector , 1 );
+  auto output_dgm = vtkMultiBlockDataSet::GetData(outputVector, 0);
+  auto output_weights = vtkTable::GetData(outputVector, 1);
 
-  //int numAtom = this->GetAtomNumber();
+  // int numAtom = this->GetAtomNumber();
   output_dgm->SetNumberOfBlocks(numAtom);
 
   for(int i = 0; i < numAtom; ++i) {
@@ -155,20 +158,14 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
   }
 
   std::vector<std::vector<double>> vectorWeights(nDiags);
-  for (int i = 0; i < vectorWeights.size() ; ++i){
-    std::vector<double> weights(numAtom , 1/3);
+  for(int i = 0; i < vectorWeights.size(); ++i) {
+    std::vector<double> weights(numAtom, 1 / 3);
     vectorWeights[i] = weights;
   }
 
-
-
-
-  const auto diagramsDistMat = this->execute(intermediateDiagrams, nInputs);
-
+  //const auto diagramsDistMat = this->execute(intermediateDiagrams, dictDiagrams, vectorWeights,  nInputs);
+  this->execute(intermediateDiagrams, dictDiagrams, vectorWeights,  nInputs);
   // zero-padd column name to keep Row Data columns ordered
-  
-
-
 
   output_weights->SetNumberOfRows(numAtom);
 
@@ -179,8 +176,8 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
         std::string zer(max.size() - cur.size(), '0');
         colName.append(zer).append(cur);
       };
-  //output_weights->SetNumberOfTuples(3);
-  for(int i=0 ; i < numInputs ; ++i){
+  // output_weights->SetNumberOfTuples(3);
+  for(int i = 0; i < nDiags; ++i) {
     std::string name{"weights"};
     zeroPad(name, i, i);
     // name
@@ -190,15 +187,14 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
     // col->SetNumberOfTuples(3);
     col->SetNumberOfValues(numAtom);
     col->SetName(name.c_str());
-    for(int j = 0; j < numAtom; ++j){
-      col->SetValue(j , 0.3);
+    for(int j = 0; j < numAtom; ++j) {
+      col->SetValue(j, vectorWeights[i][j]);
     }
     col->Modified();
-    //col->Modified();
-    printf("number of values %d" , int(col->GetNumberOfValues()));
+    // col->Modified();
+    printf("number of values %d", int(col->GetNumberOfValues()));
     output_weights->AddColumn(col);
   }
-
 
   return 1;
 }
@@ -329,4 +325,121 @@ double ttkPersistenceDiagramDictEncoding::getPersistenceDiagram(
   }
 
   return max_dimension;
+}
+
+
+void ttkPersistenceDiagramDictEncoding::diagramToVTU(
+  vtkUnstructuredGrid *output,
+  const ttk::Diagram &diagram,
+  const int cid,
+  const double max_persistence) const {
+
+  const auto nPoints = 2 * diagram.size();
+  if(nPoints == 0) {
+    this->printWrn("Diagram with no points");
+    return;
+  }
+
+  vtkNew<vtkPoints> points{};
+  points->SetNumberOfPoints(nPoints);
+  output->SetPoints(points);
+
+  // point data
+  vtkNew<vtkIntArray> critType{};
+  critType->SetName("CriticalType");
+  critType->SetNumberOfTuples(nPoints);
+  output->GetPointData()->AddArray(critType);
+
+  vtkNew<vtkIntArray> clusterId{};
+  clusterId->SetName("ClusterID");
+  clusterId->SetNumberOfComponents(1);
+  clusterId->SetNumberOfTuples(nPoints);
+  clusterId->Fill(cid);
+  output->GetPointData()->AddArray(clusterId);
+
+  vtkNew<vtkFloatArray> coords{};
+  coords->SetNumberOfComponents(3);
+  coords->SetName("Coordinates");
+  coords->SetNumberOfTuples(nPoints);
+  output->GetPointData()->AddArray(coords);
+
+  vtkNew<vtkDoubleArray> pointPers{};
+  pointPers->SetName("Persistence");
+  pointPers->SetNumberOfTuples(nPoints);
+  output->GetPointData()->AddArray(pointPers);
+
+  vtkNew<ttkSimplexIdTypeArray> vsf{};
+  vsf->SetName(ttk::VertexScalarFieldName);
+  vsf->SetNumberOfTuples(nPoints);
+  output->GetPointData()->AddArray(vsf);
+
+  // cell data
+  vtkNew<vtkIntArray> pairId{};
+  pairId->SetName("PairIdentifier");
+  pairId->SetNumberOfTuples(diagram.size() + 1);
+  output->GetCellData()->AddArray(pairId);
+
+  vtkNew<vtkIntArray> pairType{};
+  pairType->SetName("PairType");
+  pairType->SetNumberOfTuples(diagram.size() + 1);
+  output->GetCellData()->AddArray(pairType);
+
+  vtkNew<vtkDoubleArray> pairPers{};
+  pairPers->SetName("Persistence");
+  pairPers->SetNumberOfTuples(diagram.size() + 1);
+  output->GetCellData()->AddArray(pairPers);
+
+  for(size_t j = 0; j < diagram.size(); ++j) {
+    const auto &pair{diagram[j]};
+    const auto birth{std::get<6>(pair)};
+    const auto death{std::get<10>(pair)};
+    const auto birtVertId{std::get<0>(pair)};
+    const auto deathVertId{std::get<2>(pair)};
+    const auto pType{std::get<5>(pair)};
+    const auto birthType{std::get<1>(pair)};
+    const auto deathType{std::get<3>(pair)};
+    std::array<float, 3> coordsBirth{
+      std::get<7>(pair), std::get<8>(pair), std::get<9>(pair)};
+    std::array<float, 3> coordsDeath{
+      std::get<11>(pair), std::get<12>(pair), std::get<13>(pair)};
+
+    // cell data
+    pairId->SetTuple1(j, j);
+    pairType->SetTuple1(j, pType);
+    pairPers->SetTuple1(j, death - birth);
+
+    // point data
+    coords->SetTuple(2 * j + 0, coordsBirth.data());
+    coords->SetTuple(2 * j + 1, coordsDeath.data());
+    pointPers->SetTuple1(2 * j + 0, death - birth);
+    pointPers->SetTuple1(2 * j + 1, death - birth);
+    critType->SetTuple1(2 * j + 0, static_cast<int>(birthType));
+    critType->SetTuple1(2 * j + 1, static_cast<int>(deathType));
+    vsf->SetTuple1(2 * j + 0, birtVertId);
+    vsf->SetTuple1(2 * j + 1, deathVertId);
+
+    points->SetPoint(2 * j + 0, birth, birth, 0);
+    points->SetPoint(2 * j + 1, birth, death, 0);
+
+    const std::array<vtkIdType, 2> ids{
+      2 * static_cast<vtkIdType>(j) + 0,
+      2 * static_cast<vtkIdType>(j) + 1,
+    };
+    output->InsertNextCell(VTK_LINE, 2, ids.data());
+  }
+
+  // add diagonal
+  const auto minmax_birth = std::minmax_element(
+    diagram.begin(), diagram.end(), [](const DiagramTuple &a, const DiagramTuple &b) {
+      return std::get<6>(a) < std::get<6>(b);
+    });
+  const std::array<vtkIdType, 2> ids{
+    2 * (minmax_birth.first - diagram.begin()),
+    2 * (minmax_birth.second - diagram.begin()),
+  };
+  output->InsertNextCell(VTK_LINE, 2, ids.data());
+  pairId->SetTuple1(diagram.size(), -1);
+  pairType->SetTuple1(diagram.size(), -1);
+  // use twice the max persistence of all input diagrams...
+  pairPers->SetTuple1(diagram.size(), 2.0 * max_persistence);
 }

@@ -62,8 +62,10 @@ namespace ttk {
       this->setDebugMsgPrefix("PersistenceDiagramDictEncoding");
     }
 
-    Matrice execute(const std::vector<Diagram> &intermediateDiagrams,
-                 const std::array<size_t, 2> &nInputs) const;
+    void execute(const std::vector<Diagram> &intermediateDiagrams,
+                    std::vector<Diagram> &dictDiagrams,
+                    std::vector<std::vector<double>> &vectorWeights,
+                    const std::array<size_t, 2> &nInputs) const;
 
     inline void setWasserstein(const int data) {
       Wasserstein = data;

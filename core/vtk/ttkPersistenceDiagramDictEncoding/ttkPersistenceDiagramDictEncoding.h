@@ -59,8 +59,8 @@ public:
   }
   vtkGetMacro(Alpha, double);
 
-  vtkSetMacro(atomNumber_ , int);
-  vtkGetMacro(atomNumber_ , int);
+  vtkSetMacro(atomNumber_, int);
+  vtkGetMacro(atomNumber_, int);
 
   vtkSetMacro(DeltaLim, double);
   vtkGetMacro(DeltaLim, double);
@@ -131,6 +131,12 @@ protected:
 
   double getPersistenceDiagram(ttk::Diagram &diagram,
                                vtkUnstructuredGrid *CTPersistenceDiagram_);
+
+  void VTUToDiagram(Diagram &diagram, vtkUnstructuredGrid *vtu) const;
+  void diagramToVTU(vtkUnstructuredGrid *output,
+                    const Diagram &diagram,
+                    const int cid,
+                    const double max_persistence) const;
 
   int FillInputPortInformation(int port, vtkInformation *info) override;
   int FillOutputPortInformation(int port, vtkInformation *info) override;
