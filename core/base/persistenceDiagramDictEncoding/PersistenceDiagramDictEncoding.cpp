@@ -32,12 +32,12 @@ void PersistenceDiagramDictEncoding::execute(
   std::vector<BidderDiagram<double>> bidder_diagrams_min{};
   std::vector<BidderDiagram<double>> bidder_diagrams_sad{};
   std::vector<BidderDiagram<double>> bidder_diagrams_max{};
-  //std::vector<BidderDiagram<double>> current_bidder_diagrams_min{};
-  //std::vector<BidderDiagram<double>> current_bidder_diagrams_sad{};
-  //std::vector<BidderDiagram<double>> current_bidder_diagrams_max{};
+  // std::vector<BidderDiagram<double>> current_bidder_diagrams_min{};
+  // std::vector<BidderDiagram<double>> current_bidder_diagrams_sad{};
+  // std::vector<BidderDiagram<double>> current_bidder_diagrams_max{};
 
   // Store the persistence of the global min-max pair
-  //std::vector<double> maxDiagPersistence(nDiags);
+  // std::vector<double> maxDiagPersistence(nDiags);
 
   // Create diagrams for min, saddle and max persistence pairs
 #ifdef TTK_ENABLE_OPENMP
@@ -51,7 +51,7 @@ void PersistenceDiagramDictEncoding::execute(
       const ttk::CriticalType nt1 = std::get<1>(t);
       const ttk::CriticalType nt2 = std::get<3>(t);
       const double pers = std::get<4>(t);
-      //maxDiagPersistence[i] = std::max(pers, maxDiagPersistence[i]);
+      // maxDiagPersistence[i] = std::max(pers, maxDiagPersistence[i]);
 
       if(pers > 0) {
         if(nt1 == CriticalType::Local_minimum
@@ -114,23 +114,23 @@ void PersistenceDiagramDictEncoding::execute(
       break;
   }
 
-  //std::vector<std::vector<double>> distMat{};
+  // std::vector<std::vector<double>> distMat{};
 
   std::vector<Diagram> Barycenters{};
   std::vector<std::vector<std::vector<MatchingTuple>>> allMatchingsAtoms;
   std::vector<std::vector<MatchingTuple>> matchingsDatas;
-  ConstrainedGradientDescent gradActor ;
+  ConstrainedGradientDescent gradActor;
 
   for(int epoch = 0; epoch < 50; ++epoch) {
     int k = 0;
 #ifdef TTK_ENABLE_OPENMP
 #pragma omp parallel for num_threads(threadNumber_)
 #endif // TTK_ENABLE_OPENMP
-    for(int i = 0 ; i < nDiags ; ++i){
+    for(int i = 0; i < nDiags; ++i) {
       Diagram &barycenter = Barycenters[i];
       std::vector<double> &weight = vectorWeights[i];
       std::vector<std::vector<MatchingTuple>> &matchings = allMatchingsAtoms[i];
-      computeWeightedBarycenter(dictDiagrams , weight , barycenter , matchings);
+      computeWeightedBarycenter(dictDiagrams, weight, barycenter, matchings);
     }
     std::vector<Diagram> BarycentersMin(nDiags);
     std::vector<Diagram> BarycentersSad(nDiags);
@@ -140,37 +140,37 @@ void PersistenceDiagramDictEncoding::execute(
     std::vector<BidderDiagram<double>> bidder_barycenters_sad{};
     std::vector<BidderDiagram<double>> bidder_barycenters_max{};
 
-//setting BidderDiagram Barycenters
+// setting BidderDiagram Barycenters
 #ifdef TTK_ENABLE_OPENMP
 #pragma omp parallel for num_threads(threadNumber_)
 #endif // TTK_ENABLE_OPENMP
     for(size_t i = 0; i < nDiags; i++) {
-        const Diagram &barycenter = Barycenters[i];
+      const Diagram &barycenter = Barycenters[i];
 
-        for(size_t j = 0; j < barycenter.size(); ++j) {
-            const DiagramTuple &t = barycenter[j];
-            const ttk::CriticalType nt1 = std::get<1>(t);
-            const ttk::CriticalType nt2 = std::get<3>(t);
-            const double pers = std::get<4>(t);
-            //maxDiagPersistence[i] = std::max(pers, maxDiagPersistence[i]);
+      for(size_t j = 0; j < barycenter.size(); ++j) {
+        const DiagramTuple &t = barycenter[j];
+        const ttk::CriticalType nt1 = std::get<1>(t);
+        const ttk::CriticalType nt2 = std::get<3>(t);
+        const double pers = std::get<4>(t);
+        // maxDiagPersistence[i] = std::max(pers, maxDiagPersistence[i]);
 
-            if(pers > 0) {
-              if(nt1 == CriticalType::Local_minimum
-                && nt2 == CriticalType::Local_maximum) {
-                  BarycentersMax[i].emplace_back(t);
-              } else {
-              if(nt1 == CriticalType::Local_maximum
-                || nt2 == CriticalType::Local_maximum) {
-                BarycentersMax[i].emplace_back(t);
-              }
-              if(nt1 == CriticalType::Local_minimum
-                || nt2 == CriticalType::Local_minimum) {
-                BarycentersMin[i].emplace_back(t);
-                }
-              if((nt1 == CriticalType::Saddle1 && nt2 == CriticalType::Saddle2)
-                || (nt1 == CriticalType::Saddle2
-                  && nt2 == CriticalType::Saddle1)) {
-                BarycentersSad[i].emplace_back(t);
+        if(pers > 0) {
+          if(nt1 == CriticalType::Local_minimum
+             && nt2 == CriticalType::Local_maximum) {
+            BarycentersMax[i].emplace_back(t);
+          } else {
+            if(nt1 == CriticalType::Local_maximum
+               || nt2 == CriticalType::Local_maximum) {
+              BarycentersMax[i].emplace_back(t);
+            }
+            if(nt1 == CriticalType::Local_minimum
+               || nt2 == CriticalType::Local_minimum) {
+              BarycentersMin[i].emplace_back(t);
+            }
+            if((nt1 == CriticalType::Saddle1 && nt2 == CriticalType::Saddle2)
+               || (nt1 == CriticalType::Saddle2
+                   && nt2 == CriticalType::Saddle1)) {
+              BarycentersSad[i].emplace_back(t);
             }
           }
         }
@@ -178,53 +178,57 @@ void PersistenceDiagramDictEncoding::execute(
     }
     if(this->do_min_) {
       setBidderDiagrams(nDiags, BarycentersMin, bidder_barycenters_min);
-      }
+    }
     if(this->do_sad_) {
       setBidderDiagrams(nDiags, BarycentersSad, bidder_barycenters_sad);
-      }
+    }
     if(this->do_max_) {
       setBidderDiagrams(nDiags, BarycentersMax, bidder_barycenters_max);
-      }
-
+    }
 
     this->printMsg("Complete", 1.0, tm.getElapsedTime(), this->threadNumber_);
-  // std::vector<double> gradient = compute
+    // std::vector<double> gradient = compute
 #ifdef TTK_ENABLE_OPENMP
 #pragma omp parallel for num_threads(threadNumber_)
 #endif // TTK_ENABLE_OPENMP
-    for (size_t i = 0 ; i < nDiags ; ++i){
+    for(size_t i = 0; i < nDiags; ++i) {
       std::vector<MatchingTuple> matching_min;
       std::vector<MatchingTuple> matching_sad;
       std::vector<MatchingTuple> matching_max;
-      if (this->do_min_){
+      if(this->do_min_) {
         auto &barycentermin = bidder_barycenters_min[i];
         auto &datamin = bidder_diagrams_min[i];
-        computeDistance(datamin , barycentermin , matching_min);
+        computeDistance(datamin, barycentermin, matching_min);
       }
-      if (this->do_max_){
+      if(this->do_max_) {
         auto &barycentermax = bidder_barycenters_max[i];
         auto &datamax = bidder_diagrams_max[i];
-        computeDistance(datamax , barycentermax , matching_max);
+        computeDistance(datamax, barycentermax, matching_max);
       }
-      if (this->do_sad_){
+      if(this->do_sad_) {
         auto &barycentersad = bidder_barycenters_sad[i];
         auto &datasad = bidder_diagrams_sad[i];
-        computeDistance(datasad , barycentersad , matching_sad);
+        computeDistance(datasad, barycentersad, matching_sad);
       }
-      matching_sad.insert(matching_sad.end() , std::make_move_iterator(matching_max.begin()) , std::make_move_iterator(matching_max.end()));
-      matching_min.insert(matching_min.end() , std::make_move_iterator(matching_sad.begin()) , std::make_move_iterator(matching_sad.end()));
-    //matchingsDatas[i] = matching_min.insert()
+      matching_sad.insert(matching_sad.end(),
+                          std::make_move_iterator(matching_max.begin()),
+                          std::make_move_iterator(matching_max.end()));
+      matching_min.insert(matching_min.end(),
+                          std::make_move_iterator(matching_sad.begin()),
+                          std::make_move_iterator(matching_sad.end()));
+      // matchingsDatas[i] = matching_min.insert()
       matchingsDatas[i] = matching_min;
     }
-    for (size_t i = 0 ; i < nDiags ; ++i){
-      std::vector<double> gradWeight = computeGradientWeights(dictDiagrams, allMatchingsAtoms[i], Barycenters[i], intermediateDiagrams[i] , matchingsDatas[i]);
+    for(size_t i = 0; i < nDiags; ++i) {
+      std::vector<double> gradWeight = computeGradientWeights(
+        dictDiagrams, allMatchingsAtoms[i], Barycenters[i],
+        intermediateDiagrams[i], matchingsDatas[i]);
       int nb_points = Barycenters[i].size();
-      gradActor.executeWeightsProjected(vectorWeights[i] , gradWeight , epoch , nb_points);
+      gradActor.executeWeightsProjected(
+        vectorWeights[i], gradWeight, epoch, nb_points);
     }
 
-
-    
-  }// return distMat;
+  } // return distMat;
 }
 
 double PersistenceDiagramDictEncoding::getMostPersistent(
@@ -271,13 +275,13 @@ std::vector<double> PersistenceDiagramDictEncoding::computeGradientWeights(
   const Diagram &newData,
   const std::vector<MatchingTuple> &matchings) const {
 
-  //initialization
+  // initialization
   std::vector<std::vector<DiagramTuple>> grad_list(Barycenter.size());
-  //std::vector<MatchingTuple> matching;
+  // std::vector<MatchingTuple> matching;
   std::vector<std::vector<double>> directions(Barycenter.size());
   std::vector<double> gradient(dictDiagrams.size(), 0);
 
-  //computing gradients
+  // computing gradients
   for(int i = 0; i < matchingsAtoms.size(); ++i) {
     for(int j = 0; j < matchingsAtoms[i].size(); ++j) {
       const MatchingTuple &t = matchingsAtoms[i][j];
@@ -290,7 +294,7 @@ std::vector<double> PersistenceDiagramDictEncoding::computeGradientWeights(
     }
   }
 
-  //computeDistance(newDataBidder, barycenterBidder, matching);
+  // computeDistance(newDataBidder, barycenterBidder, matching);
   for(int i = 0; i < matchings.size(); ++i) {
     const MatchingTuple &t = matchings[i];
     // Id in newData
@@ -323,10 +327,10 @@ std::vector<Matrice> PersistenceDiagramDictEncoding::computeGradientAtoms(
   const Diagram &newData,
   const std::vector<MatchingTuple> &matchings) const {
 
-  //std::vector<MatchingTuple> matching;
+  // std::vector<MatchingTuple> matching;
   std::vector<Matrice> gradsLists(Barycenter.size());
   std::vector<std::vector<double>> directions(Barycenter.size());
-  //computeDistance(newDataBidder, barycenterBidder, matching);
+  // computeDistance(newDataBidder, barycenterBidder, matching);
   for(int i = 0; i < matchings.size(); ++i) {
     const MatchingTuple &t = matchings[i];
     // Id in newData
@@ -377,23 +381,6 @@ void PersistenceDiagramDictEncoding::setBidderDiagrams(
   }
 }
 
-void PersistenceDiagramDictEncoding::setBidderDiagram(
-  Diagram &inputDiagram, BidderDiagram<double> &bidder_diag) const {
-
-  // auto &diag = inputDiagrams[i];
-  // auto &bidders = bidder_diags[i];
-
-  for(size_t j = 0; j < inputDiagram.size(); j++) {
-    // Add bidder to bidders
-    Bidder<double> b(inputDiagram[j], j, this->Lambda);
-    b.setPositionInAuction(bidder_diag.size());
-    bidder_diag.addBidder(b);
-    if(b.isDiagonal() || b.x_ == b.y_) {
-      this->printMsg(
-        "Diagonal point in diagram !", ttk::debug::Priority::DETAIL);
-    }
-  }
-}
 
 void PersistenceDiagramDictEncoding::enrichCurrentBidderDiagrams(
   const std::vector<BidderDiagram<double>> &bidder_diags,

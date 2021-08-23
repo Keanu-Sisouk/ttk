@@ -130,8 +130,6 @@ namespace ttk {
                         std::vector<Diagram> &inputDiagrams,
                         std::vector<BidderDiagram<double>> &bidder_diags) const;
 
-    void setBidderDiagram(Diagram &inputDiagram,
-                          BidderDiagram<double> &bidder_diag) const;
     // A modifier
     void enrichCurrentBidderDiagrams(
       const std::vector<BidderDiagram<double>> &bidder_diags,
