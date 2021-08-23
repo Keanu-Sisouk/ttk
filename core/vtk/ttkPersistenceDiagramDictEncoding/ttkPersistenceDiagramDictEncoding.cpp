@@ -16,8 +16,6 @@
 #include <vtkPointData.h>
 #include <vtkTable.h>
 
-
-
 vtkStandardNewMacro(ttkPersistenceDiagramDictEncoding);
 
 ttkPersistenceDiagramDictEncoding::ttkPersistenceDiagramDictEncoding() {
@@ -87,7 +85,7 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
   std::vector<vtkUnstructuredGrid *> inputDiagrams;
 
   // Number of input diagrams
-  //int numInputs = 0;
+  // int numInputs = 0;
   const int numAtom = this->GetatomNumber_();
   printf("Atom number %d", numAtom);
 
@@ -163,8 +161,9 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
     vectorWeights[i] = weights;
   }
 
-  //const auto diagramsDistMat = this->execute(intermediateDiagrams, dictDiagrams, vectorWeights,  nInputs);
-  this->execute(intermediateDiagrams, dictDiagrams, vectorWeights,  nInputs);
+  // const auto diagramsDistMat = this->execute(intermediateDiagrams,
+  // dictDiagrams, vectorWeights,  nInputs);
+  this->execute(intermediateDiagrams, dictDiagrams, vectorWeights, nInputs);
   // zero-padd column name to keep Row Data columns ordered
 
   output_weights->SetNumberOfRows(numAtom);
@@ -327,7 +326,6 @@ double ttkPersistenceDiagramDictEncoding::getPersistenceDiagram(
   return max_dimension;
 }
 
-
 void ttkPersistenceDiagramDictEncoding::diagramToVTU(
   vtkUnstructuredGrid *output,
   const ttk::Diagram &diagram,
@@ -429,10 +427,11 @@ void ttkPersistenceDiagramDictEncoding::diagramToVTU(
   }
 
   // add diagonal
-  const auto minmax_birth = std::minmax_element(
-    diagram.begin(), diagram.end(), [](const DiagramTuple &a, const DiagramTuple &b) {
-      return std::get<6>(a) < std::get<6>(b);
-    });
+  const auto minmax_birth
+    = std::minmax_element(diagram.begin(), diagram.end(),
+                          [](const DiagramTuple &a, const DiagramTuple &b) {
+                            return std::get<6>(a) < std::get<6>(b);
+                          });
   const std::array<vtkIdType, 2> ids{
     2 * (minmax_birth.first - diagram.begin()),
     2 * (minmax_birth.second - diagram.begin()),

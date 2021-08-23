@@ -49,6 +49,12 @@ namespace ttk {
                                  const std::vector<double> &grad,
                                  const int epoch,
                                  const int nb_points);
+
+    void executeAtoms(std::vector<Diagram> &DictDiagrams,
+                                 const std::vector<std::vector<MatchingTuple>> &matchings,
+                                 const Diagram &Barycenter,
+                                 const std::vector<Matrice> &gradsLists,
+                                 const int nb_points);
     // void executeAtoms(std::vector<Diagram> &DictDiagrams);
 
     // inline void setNbAtoms(const int nbAtoms) {

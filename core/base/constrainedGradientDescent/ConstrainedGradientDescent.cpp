@@ -11,6 +11,19 @@ void ConstrainedGradientDescent::executeWeightsProjected(
   projectionOnSimplex(weights);
 }
 
+void ConstrainedGradientDescent::executeAtoms(std::vector<Diagram> &DictDiagrams,
+const std::vector<std::vector<MatchingTuple>> &matchings,
+const Diagram &Barycenter,
+const std::vector<Matrice> &gradsLists,
+const int nb_points) {
+  gradientDescentAtoms(
+    DictDiagrams,
+    matchings,
+    Barycenter,
+    gradsLists,
+    nb_points);
+}
+
 void ConstrainedGradientDescent::projectionOnSimplex(
   std::vector<double> &weights) {
   int n = weights.size();

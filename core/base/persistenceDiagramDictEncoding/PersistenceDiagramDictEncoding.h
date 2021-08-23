@@ -63,9 +63,9 @@ namespace ttk {
     }
 
     void execute(const std::vector<Diagram> &intermediateDiagrams,
-                    std::vector<Diagram> &dictDiagrams,
-                    std::vector<std::vector<double>> &vectorWeights,
-                    const std::array<size_t, 2> &nInputs) const;
+                 std::vector<Diagram> &dictDiagrams,
+                 std::vector<std::vector<double>> &vectorWeights,
+                 const std::array<size_t, 2> &nInputs) const;
 
     inline void setWasserstein(const int data) {
       Wasserstein = data;
@@ -113,18 +113,16 @@ namespace ttk {
 
     std::vector<double> computeGradientWeights(
       const std::vector<Diagram> &dictDiagrams,
-      const std::vector<std::vector<MatchingTuple>> &matchings,
+      const std::vector<std::vector<MatchingTuple>> &matchingsAtoms,
       const Diagram &Barycenter,
-      const BidderDiagram<double> &barycenterBidder,
-      const BidderDiagram<double> &newDataBidder,
-      const Diagram &newData) const;
+      const Diagram &newData,
+      const std::vector<MatchingTuple> &matchings) const;
 
     std::vector<Matrice>
       computeGradientAtoms(const std::vector<double> &weights,
                            const Diagram &Barycenter,
-                           const BidderDiagram<double> &barycenterBidder,
-                           const BidderDiagram<double> &newDataBidder,
-                           const Diagram &newData) const;
+                           const Diagram &newData,
+                           const std::vector<MatchingTuple> &matchings) const;
 
     // A modifier
     void
