@@ -126,7 +126,7 @@ void PersistenceDiagramDictEncoding::execute(
 #ifdef TTK_ENABLE_OPENMP
 #pragma omp parallel for num_threads(threadNumber_)
 #endif // TTK_ENABLE_OPENMP
-//////////////////////////////WEIGHTS/////////////////////////////////////////
+    //////////////////////////////WEIGHTS/////////////////////////////////////////
     for(int i = 0; i < nDiags; ++i) {
       Diagram &barycenter = Barycenters[i];
       std::vector<double> &weight = vectorWeights[i];
@@ -187,7 +187,8 @@ void PersistenceDiagramDictEncoding::execute(
       setBidderDiagrams(nDiags, BarycentersMax, bidder_barycenters_max);
     }
 
-    //this->printMsg("Complete", 1.0, tm.getElapsedTime(), this->threadNumber_);
+    // this->printMsg("Complete", 1.0, tm.getElapsedTime(),
+    // this->threadNumber_);
     // std::vector<double> gradient = compute
 #ifdef TTK_ENABLE_OPENMP
 #pragma omp parallel for num_threads(threadNumber_)
@@ -224,17 +225,16 @@ void PersistenceDiagramDictEncoding::execute(
 #pragma omp parallel for num_threads(threadNumber_)
 #endif // TTK_ENABLE_OPENMP
     for(size_t i = 0; i < nDiags; ++i) {
-      std::vector<std::vector<MatchingTuple>> &matchingsAtoms = allMatchingsAtoms[i];
+      std::vector<std::vector<MatchingTuple>> &matchingsAtoms
+        = allMatchingsAtoms[i];
       Diagram &Barycenter = Barycenters[i];
       const Diagram &Data = intermediateDiagrams[i];
       std::vector<MatchingTuple> &matchings = matchingsDatas[i];
       std::vector<double> gradWeight = computeGradientWeights(
-        dictDiagrams, matchingsAtoms, Barycenter,
-        Data, matchings);
+        dictDiagrams, matchingsAtoms, Barycenter, Data, matchings);
       int nb_points = Barycenters[i].size();
       std::vector<double> &weights = vectorWeights[i];
-      gradActor.executeWeightsProjected(
-        weights, gradWeight, epoch, nb_points);
+      gradActor.executeWeightsProjected(weights, gradWeight, epoch, nb_points);
     }
 ////////////////////////////////ATOM////////////////////////////////////////
 #ifdef TTK_ENABLE_OPENMP
@@ -247,9 +247,9 @@ void PersistenceDiagramDictEncoding::execute(
       computeWeightedBarycenter(dictDiagrams, weight, barycenter, matchings);
     }
 
-    //std::vector<Diagram> BarycentersMin(nDiags);
-    //std::vector<Diagram> BarycentersSad(nDiags);
-    //std::vector<Diagram> BarycentersMax(nDiags);
+    // std::vector<Diagram> BarycentersMin(nDiags);
+    // std::vector<Diagram> BarycentersSad(nDiags);
+    // std::vector<Diagram> BarycentersMax(nDiags);
     BarycentersMin.clear();
     BarycentersSad.clear();
     BarycentersMax.clear();
@@ -260,14 +260,14 @@ void PersistenceDiagramDictEncoding::execute(
     bidder_barycenters_min.clear();
     bidder_barycenters_sad.clear();
     bidder_barycenters_max.clear();
-    //std::vector<BidderDiagram<double>> bidder_barycenters_min{};
-    //std::vector<BidderDiagram<double>> bidder_barycenters_sad{};
-    //std::vector<BidderDiagram<double>> bidder_barycenters_max{};
+    // std::vector<BidderDiagram<double>> bidder_barycenters_min{};
+    // std::vector<BidderDiagram<double>> bidder_barycenters_sad{};
+    // std::vector<BidderDiagram<double>> bidder_barycenters_max{};
 
 #ifdef TTK_ENABLE_OPENMP
 #pragma omp parallel for num_threads(threadNumber_)
 #endif // TTK_ENABLE_OPENMP
-    for(size_t i = 0; i < nDiags; i++) {
+    for(size_t i = 0; i < nDiags; ++i) {
       const Diagram &barycenter = Barycenters[i];
 
       for(size_t j = 0; j < barycenter.size(); ++j) {
@@ -341,14 +341,17 @@ void PersistenceDiagramDictEncoding::execute(
     }
 
     for(size_t i = 0; i < nDiags; ++i) {
-      std::vector<std::vector<MatchingTuple>> &matchingsAtoms = allMatchingsAtoms[i];
+      std::vector<std::vector<MatchingTuple>> &matchingsAtoms
+        = allMatchingsAtoms[i];
       Diagram &Barycenter = Barycenters[i];
       const Diagram &Data = intermediateDiagrams[i];
       std::vector<MatchingTuple> &matchings = matchingsDatas[i];
       std::vector<double> &weights = vectorWeights[i];
       int nb_points = Barycenters[i].size();
-      std::vector<Matrice> gradsAtoms = computeGradientAtoms(weights , Barycenter , Data , matchings);
-      gradActor.executeAtoms(dictDiagrams, matchingsAtoms , Barycenter , gradsAtoms , nb_points);
+      std::vector<Matrice> gradsAtoms
+        = computeGradientAtoms(weights, Barycenter, Data, matchings);
+      gradActor.executeAtoms(
+        dictDiagrams, matchingsAtoms, Barycenter, gradsAtoms, nb_points);
     }
     this->printMsg("Complete", 1.0, tm.getElapsedTime(), this->threadNumber_);
   } // return distMat;
@@ -367,7 +370,6 @@ double PersistenceDiagramDictEncoding::getMostPersistent(
       }
     }
   }
-
 
   return max_persistence;
 }
