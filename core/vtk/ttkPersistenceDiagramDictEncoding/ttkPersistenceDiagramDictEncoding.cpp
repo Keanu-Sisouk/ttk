@@ -195,6 +195,15 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
     output_weights->AddColumn(col);
   }
 
+  for(int i = 0 ; i < numAtom ; ++i ){
+    //vtkUnstructuredGrid temp = vtkUnstructuredGrid::SafeDownCast(output_dgm->GetBlock(i));
+    vtkNew<vtkUnstructuredGrid> vtu;
+    Diagram &diagram = dictDiagrams[i];
+    double max_persistence = getMaxPersistence(diagram);
+    diagramToVTU(vtu , diagram , max_persistence);
+    output_dgm->SetBlock(i, vtu);
+  }
+
   return 1;
 }
 
@@ -329,7 +338,6 @@ double ttkPersistenceDiagramDictEncoding::getPersistenceDiagram(
 void ttkPersistenceDiagramDictEncoding::diagramToVTU(
   vtkUnstructuredGrid *output,
   const ttk::Diagram &diagram,
-  const int cid,
   const double max_persistence) const {
 
   const auto nPoints = 2 * diagram.size();
@@ -347,13 +355,6 @@ void ttkPersistenceDiagramDictEncoding::diagramToVTU(
   critType->SetName("CriticalType");
   critType->SetNumberOfTuples(nPoints);
   output->GetPointData()->AddArray(critType);
-
-  vtkNew<vtkIntArray> clusterId{};
-  clusterId->SetName("ClusterID");
-  clusterId->SetNumberOfComponents(1);
-  clusterId->SetNumberOfTuples(nPoints);
-  clusterId->Fill(cid);
-  output->GetPointData()->AddArray(clusterId);
 
   vtkNew<vtkFloatArray> coords{};
   coords->SetNumberOfComponents(3);
@@ -441,4 +442,14 @@ void ttkPersistenceDiagramDictEncoding::diagramToVTU(
   pairType->SetTuple1(diagram.size(), -1);
   // use twice the max persistence of all input diagrams...
   pairPers->SetTuple1(diagram.size(), 2.0 * max_persistence);
+}
+
+double ttkPersistenceDiagramDictEncoding::getMaxPersistence(Diagram &diagram){
+  double max_persistence{0};
+  for (size_t i = 0; i<diagram.size(); ++i){
+    const DiagramTuple &t = diagram[i];
+    const double pers = std::get<4>(t);
+    max_persistence = std::max(pers, max_persistence);
+  }
+  return max_persistence;
 }

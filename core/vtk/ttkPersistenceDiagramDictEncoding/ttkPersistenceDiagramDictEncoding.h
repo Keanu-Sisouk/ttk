@@ -135,8 +135,10 @@ protected:
   void VTUToDiagram(Diagram &diagram, vtkUnstructuredGrid *vtu) const;
   void diagramToVTU(vtkUnstructuredGrid *output,
                     const Diagram &diagram,
-                    const int cid,
                     const double max_persistence) const;
+
+
+  double getMaxPersistence(Diagram &diagram);
 
   int FillInputPortInformation(int port, vtkInformation *info) override;
   int FillOutputPortInformation(int port, vtkInformation *info) override;
