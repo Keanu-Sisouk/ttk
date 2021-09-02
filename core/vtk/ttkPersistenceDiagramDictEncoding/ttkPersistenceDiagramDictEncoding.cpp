@@ -158,7 +158,7 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
   std::vector<std::vector<double>> vectorWeights(nDiags);
   for(int i = 0; i < vectorWeights.size(); ++i) {
     std::vector<double> weights(numAtom, 1 / 3);
-    vectorWeights[i] = weights;
+    vectorWeights[i] = std::move(weights);
   }
 
   // const auto diagramsDistMat = this->execute(intermediateDiagrams,

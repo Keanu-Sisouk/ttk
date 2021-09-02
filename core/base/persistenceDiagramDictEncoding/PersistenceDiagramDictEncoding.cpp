@@ -116,9 +116,9 @@ void PersistenceDiagramDictEncoding::execute(
 
   // std::vector<std::vector<double>> distMat{};
 
-  std::vector<Diagram> Barycenters{};
-  std::vector<std::vector<std::vector<MatchingTuple>>> allMatchingsAtoms;
-  std::vector<std::vector<MatchingTuple>> matchingsDatas;
+  std::vector<Diagram> Barycenters(nDiags);
+  std::vector<std::vector<std::vector<MatchingTuple>>> allMatchingsAtoms(nDiags);
+  std::vector<std::vector<MatchingTuple>> matchingsDatas(nDiags);
   ConstrainedGradientDescent gradActor;
 
   for(int epoch = 0; epoch < 50; ++epoch) {
@@ -133,6 +133,7 @@ void PersistenceDiagramDictEncoding::execute(
       std::vector<std::vector<MatchingTuple>> &matchings = allMatchingsAtoms[i];
       computeWeightedBarycenter(dictDiagrams, weight, barycenter, matchings);
     }
+    this->printMsg("=============================WE ARE HERE ================================");
     std::vector<Diagram> BarycentersMin(nDiags);
     std::vector<Diagram> BarycentersSad(nDiags);
     std::vector<Diagram> BarycentersMax(nDiags);
@@ -219,23 +220,25 @@ void PersistenceDiagramDictEncoding::execute(
                           std::make_move_iterator(matching_sad.begin()),
                           std::make_move_iterator(matching_sad.end()));
       // matchingsDatas[i] = matching_min.insert()
-      matchingsDatas[i] = matching_min;
+      matchingsDatas[i] = std::move(matching_min);
     }
 #ifdef TTK_ENABLE_OPENMP
 #pragma omp parallel for num_threads(threadNumber_)
 #endif // TTK_ENABLE_OPENMP
     for(size_t i = 0; i < nDiags; ++i) {
-      std::vector<std::vector<MatchingTuple>> &matchingsAtoms
+      const std::vector<std::vector<MatchingTuple>> &matchingsAtoms
         = allMatchingsAtoms[i];
-      Diagram &Barycenter = Barycenters[i];
+      const Diagram &Barycenter = Barycenters[i];
       const Diagram &Data = intermediateDiagrams[i];
-      std::vector<MatchingTuple> &matchings = matchingsDatas[i];
-      std::vector<double> gradWeight = computeGradientWeights(
+      const std::vector<MatchingTuple> &matchings = matchingsDatas[i];
+      const std::vector<double> gradWeight = computeGradientWeights(
         dictDiagrams, matchingsAtoms, Barycenter, Data, matchings);
       int nb_points = Barycenters[i].size();
       std::vector<double> &weights = vectorWeights[i];
       gradActor.executeWeightsProjected(weights, gradWeight, epoch, nb_points);
     }
+
+
 ////////////////////////////////ATOM////////////////////////////////////////
 #ifdef TTK_ENABLE_OPENMP
 #pragma omp parallel for num_threads(threadNumber_)
@@ -337,7 +340,7 @@ void PersistenceDiagramDictEncoding::execute(
                           std::make_move_iterator(matching_sad.begin()),
                           std::make_move_iterator(matching_sad.end()));
       // matchingsDatas[i] = matching_min.insert()
-      matchingsDatas[i] = matching_min;
+      matchingsDatas[i] = std::move(matching_min);
     }
 
     for(size_t i = 0; i < nDiags; ++i) {
@@ -406,9 +409,10 @@ std::vector<double> PersistenceDiagramDictEncoding::computeGradientWeights(
   // std::vector<MatchingTuple> matching;
   std::vector<std::vector<double>> directions(Barycenter.size());
   std::vector<double> gradient(dictDiagrams.size(), 0);
-
+  this->printMsg("error?2");
   // computing gradients
   for(int i = 0; i < matchingsAtoms.size(); ++i) {
+    this->printMsg(std::to_string(static_cast<int>(matchingsAtoms[i].size())) + " and " + std::to_string(static_cast<int>(Barycenter.size())));
     for(int j = 0; j < matchingsAtoms[i].size(); ++j) {
       const MatchingTuple &t = matchingsAtoms[i][j];
       // Id in atom
@@ -420,7 +424,10 @@ std::vector<double> PersistenceDiagramDictEncoding::computeGradientWeights(
     }
   }
 
+  //this->printMsg("error?1");
   // computeDistance(newDataBidder, barycenterBidder, matching);
+
+
   for(int i = 0; i < matchings.size(); ++i) {
     const MatchingTuple &t = matchings[i];
     // Id in newData
@@ -433,8 +440,13 @@ std::vector<double> PersistenceDiagramDictEncoding::computeGradientWeights(
     direction[0] = std::get<6>(t2) - std::get<6>(t3);
     direction[1] = std::get<10>(t2) - std::get<10>(t3);
     // directions[Id2].push_back(direction);
+    this->printMsg("==Here?==");
     directions[Id2] = direction;
+    //this->printMsg(std::to_string(i));
   }
+
+
+  this->printMsg("error?3");
   for(int i = 0; i < Barycenter.size(); ++i) {
     for(int j = 0; j < dictDiagrams.size(); ++j) {
       const DiagramTuple &t = grad_list[i][j];

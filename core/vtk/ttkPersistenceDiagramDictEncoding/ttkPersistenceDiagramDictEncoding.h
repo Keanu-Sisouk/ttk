@@ -33,6 +33,9 @@ class TTKPERSISTENCEDIAGRAMDICTENCODING_EXPORT ttkPersistenceDiagramDictEncoding
   : public ttkAlgorithm,
     protected ttk::PersistenceDiagramDictEncoding {
 
+private:
+  int atomNumber_{3};
+
 public:
   static ttkPersistenceDiagramDictEncoding *New();
 
@@ -125,7 +128,7 @@ public:
   vtkGetMacro(MinPersistence, double);
 
 protected:
-  int atomNumber_{3};
+
   ttkPersistenceDiagramDictEncoding();
   ~ttkPersistenceDiagramDictEncoding() override = default;
 
@@ -136,7 +139,6 @@ protected:
   void diagramToVTU(vtkUnstructuredGrid *output,
                     const Diagram &diagram,
                     const double max_persistence) const;
-
 
   double getMaxPersistence(Diagram &diagram);
 

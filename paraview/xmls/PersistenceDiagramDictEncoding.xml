@@ -47,7 +47,7 @@
       <!-- Create a UI group that contains all input parameter widgets (here only one) -->
       <!-- OUTPUT PARAMETER WIDGETS -->
 
-      <IntVectorProperty name = "AtomNumber" label = "Number of Atoms" command="SetAtomNumber" number_of_elements = "1" default_values="3" >
+      <IntVectorProperty name = "atomNumber_" label = "Number of Atoms" command="SetatomNumber_" number_of_elements = "1" default_values="3" >
       <IntRangeDomain name = "Range" min = "0" max = "5" />
       </IntVectorProperty>
 
@@ -57,7 +57,7 @@
 
       <!-- Create a UI group that contains all output parameter widgets (here only one) -->
       <PropertyGroup panel_widget="Line" label="Input Options">
-        <Property name="AtomNumber" />
+        <Property name="atomNumber_" />
       </PropertyGroup>
 
 
