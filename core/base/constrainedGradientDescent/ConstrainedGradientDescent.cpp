@@ -21,6 +21,9 @@ void ConstrainedGradientDescent::executeAtoms(
     DictDiagrams, matchings, Barycenter, gradsLists, nb_points);
 }
 
+
+//simple projection on simplex, aka where a vector has positive elements and 
+//sum to 1.
 void ConstrainedGradientDescent::projectionOnSimplex(
   std::vector<double> &weights) {
   int n = weights.size();
@@ -78,6 +81,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
   const int nb_points) {
   // Here vector of diagramTuple because it is not a persistence diagram per
   // say.
+  //we get the right paris to update for each barycenter pair.
   std::vector<std::vector<DiagramTuple>> grad_list(Barycenter.size());
   for(int i = 0; i < matchings.size(); ++i) {
     for(int j = 0; j < matchings[i].size(); j++) {
@@ -126,7 +130,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
         if(pos2[k]) {
           DiagramTuple &t = grad_list[i][k];
           std::get<10>(t) = std::get<10>(t) - step * gradsLists[i][k][1];
-        } else if(pos[k] < 1e-17) {
+        } else if(pos[k] < 1e-17) { ;
         } else {
           DiagramTuple &t = grad_list[i][k];
           std::get<6>(t) = std::get<6>(t) - step * gradsLists[i][k][0];

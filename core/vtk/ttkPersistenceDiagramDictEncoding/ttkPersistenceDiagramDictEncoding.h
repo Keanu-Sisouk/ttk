@@ -128,7 +128,6 @@ public:
   vtkGetMacro(MinPersistence, double);
 
 protected:
-
   ttkPersistenceDiagramDictEncoding();
   ~ttkPersistenceDiagramDictEncoding() override = default;
 

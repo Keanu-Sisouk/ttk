@@ -9,3 +9,5 @@ ttk_add_base_library(persistenceDiagramDictEncoding
     constrainedGradientDescent
     persistenceDiagramClustering
   )
+  target_compile_options(persistenceDiagramDictEncoding PRIVATE -O0 -ggdb
+  )
