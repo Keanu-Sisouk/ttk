@@ -116,13 +116,29 @@ namespace ttk {
       const std::vector<std::vector<MatchingTuple>> &matchingsAtoms,
       const Diagram &Barycenter,
       const Diagram &newData,
-      const std::vector<MatchingTuple> &matchings) const;
+      const std::vector<MatchingTuple> &matchingsMin,
+      const std::vector<MatchingTuple> &matchingsMax,
+      const std::vector<MatchingTuple> &matchingsSad,
+      const std::vector<size_t> &indexBaryMin,
+      const std::vector<size_t> &indexBaryMax,
+      const std::vector<size_t> &indexBarySad,
+      const std::vector<size_t> &indexDataMin,
+      const std::vector<size_t> &indexDataMax,
+      const std::vector<size_t> &indexDataSad) const;
 
     std::vector<Matrice>
       computeGradientAtoms(const std::vector<double> &weights,
                            const Diagram &Barycenter,
                            const Diagram &newData,
-                           const std::vector<MatchingTuple> &matchings) const;
+                           const std::vector<MatchingTuple> &matchingsMin,
+                           const std::vector<MatchingTuple> &matchingsMax,
+                           const std::vector<MatchingTuple> &matchingsSad,
+                           const std::vector<size_t> &indexBaryMin,
+                           const std::vector<size_t> &indexBaryMax,
+                           const std::vector<size_t> &indexBarySad,
+                           const std::vector<size_t> &indexDataMin,
+                           const std::vector<size_t> &indexDataMax,
+                           const std::vector<size_t> &indexDataSad) const;
 
     // A modifier
     void
@@ -135,6 +151,7 @@ namespace ttk {
       const std::vector<BidderDiagram<double>> &bidder_diags,
       std::vector<BidderDiagram<double>> &current_bidder_diags,
       const std::vector<double> &maxDiagPersistence) const;
+
 
     int Wasserstein{2};
     double Alpha{1.0};

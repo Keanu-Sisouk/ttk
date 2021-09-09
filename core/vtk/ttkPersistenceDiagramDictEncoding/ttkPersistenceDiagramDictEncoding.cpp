@@ -144,8 +144,9 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
   std::vector<ttk::Diagram> dictDiagrams(numAtom);
   double max_dimension_total2 = 0.0;
   for(int i = 0; i < numAtom; ++i) {
+    ttk::Diagram &atom = dictDiagrams[i];
     double max_dimension2
-      = getPersistenceDiagram(dictDiagrams[i], inputDiagrams[i]);
+      = getPersistenceDiagram(atom, vtkUnstructuredGrid::SafeDownCast(output_dgm->GetBlock(i)));
     if(max_dimension2 < 0.0) {
       this->printErr("Could not read Persistence Diagram");
       return 0;
@@ -157,7 +158,7 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
 
   std::vector<std::vector<double>> vectorWeights(nDiags);
   for(int i = 0; i < vectorWeights.size(); ++i) {
-    std::vector<double> weights(numAtom, 1 / 3);
+    std::vector<double> weights(numAtom, 1/numAtom);
     vectorWeights[i] = std::move(weights);
   }
 
