@@ -7,6 +7,7 @@ void ConstrainedGradientDescent::executeWeightsProjected(
   const std::vector<double> &grad,
   const int epoch,
   const int nb_points) {
+    printf("===========WEIGHT UPDATE=============");
   gradientDescentWeights(weights, grad, epoch, nb_points);
   projectionOnSimplex(weights);
 }
@@ -17,6 +18,7 @@ void ConstrainedGradientDescent::executeAtoms(
   const Diagram &Barycenter,
   const std::vector<Matrice> &gradsLists,
   const int nb_points) {
+  this->printMsg("==========ATOM UPDATING=============");
   gradientDescentAtoms(
     DictDiagrams, matchings, Barycenter, gradsLists, nb_points);
 }
@@ -80,7 +82,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
   const int nb_points) {
   // Here vector of diagramTuple because it is not a persistence diagram per
   // say.
-  // we get the right paris to update for each barycenter pair.
+  // we get the right pairs to update for each barycenter pair.
   std::vector<std::vector<DiagramTuple>> grad_list(Barycenter.size());
   for(int i = 0; i < matchings.size(); ++i) {
     for(int j = 0; j < matchings[i].size(); j++) {
@@ -91,32 +93,35 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
       grad_list[Id2].push_back(t2);
     }
   }
+  printf("=========ATOM GRADIENT STEP==============");
   for(int i = 0; i < grad_list.size(); ++i) {
-    std::vector<double> pos(grad_list[i].size(), 1);
+    std::vector<double> pos(grad_list[i].size());
     int k = 0;
     for(int j = 0; j < grad_list[i].size(); ++j) {
       DiagramTuple &t = grad_list[i][j];
       double birth = std::get<6>(t);
       double death = std::get<10>(t);
       pos[j] = death - birth;
-      if(death - birth < 1e-10) {
+      std::cout << "PERSISTENCE: " << pos[j] << std::endl;
+      if(death - birth > 1e-10) {
         k += 1;
       }
     }
     if(k > 0) {
+      printf("==============BOOL VERIFIED==============");
       std::vector<bool> pos2(pos.size(), false);
       std::vector<float> temp2;
-      for(int k = 0; k < pos.size(); ++k) {
-        DiagramTuple &t = grad_list[i][k];
+      for(int p = 0; p < pos.size(); ++p) {
+        DiagramTuple &t = grad_list[i][p];
         double birth = std::get<6>(t);
-        pos2[k] = birth > 0;
+        pos2[p] = birth == 0;
         if(birth > 0) {
           temp2.push_back(birth);
         }
       }
       std::vector<double> temp;
-      for(int k = 0; k < pos.size(); ++k) {
-        double val = pos[k];
+      for(int p = 0; p < pos.size(); ++p) {
+        double val = pos[p];
         if(val > 0) {
           temp.push_back(val);
         }
@@ -125,18 +130,30 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
       double mini2 = *std::min_element(temp2.begin(), temp2.end());
       // double maxi = std::max_element(pos.begin() ; pos.end());
       double step = std::min(std::min(1., mini), mini2) / 1e1;
-      for(int k = 0; k < pos.size(); ++k) {
-        if(pos2[k]) {
-          DiagramTuple &t = grad_list[i][k];
-          std::get<10>(t) = std::get<10>(t) - step * gradsLists[i][k][1];
-        } else if(pos[k] < 1e-17) {
-          ;
+      std::cout << "STEP : " << step << std::endl;
+      for(int p = 0; p < pos.size(); ++p) {
+        if(pos2[p]) {
+          printf("==========ATOM UPDATING2=============");
+          DiagramTuple &t = grad_list[i][p];
+          std::get<10>(t) = std::get<10>(t) - step * gradsLists[i][p][1];
+        } else if(pos[p] < 1e-17) {
+          continue;
         } else {
-          DiagramTuple &t = grad_list[i][k];
-          std::get<6>(t) = std::get<6>(t) - step * gradsLists[i][k][0];
-          std::get<10>(t) = std::get<10>(t) - step * gradsLists[i][k][1];
+          printf("==========ATOM UPDATING3=============");
+          DiagramTuple &t = grad_list[i][p];
+          std::get<6>(t) = std::get<6>(t) - step * gradsLists[i][p][0];
+          std::get<10>(t) = std::get<10>(t) - step * gradsLists[i][p][1];
         }
       }
+    }
+  }
+
+  for(int i = 0 ; i < DictDiagrams.size(); ++i){
+    for(int j = 0 ; j < nb_points ; ++j){
+      DiagramTuple &t1 = DictDiagrams[i][j];
+      DiagramTuple &t2 = grad_list[j][i];
+      std::get<6>(t1) = std::get<6>(t2);
+      std::get<10>(t1) = std::get<10>(t2);
     }
   }
 }
