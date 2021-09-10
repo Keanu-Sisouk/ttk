@@ -141,9 +141,7 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
     }
   }
 
-  //std::vector<ttk::Diagram> inputDiagram(1);
-
-
+  // std::vector<ttk::Diagram> inputDiagram(1);
 
   std::vector<ttk::Diagram> dictDiagrams(numAtom);
   double max_dimension_total2 = 0.0;
@@ -309,11 +307,11 @@ double ttkPersistenceDiagramDictEncoding::getPersistenceDiagram(
           ttk::CriticalType::Saddle1, persistence, pairType, birth,
           coordsBirth[0], coordsBirth[1], coordsBirth[2], death, coordsDeath[0],
           coordsDeath[1], coordsDeath[2]);
-        //diagram[pairingsSize] = std::make_tuple(
-          //vertexId1, ttk::CriticalType::Saddle1, vertexId2,
-          //ttk::CriticalType::Local_maximum, persistence, pairType, birth,
-          //coordsBirth[0], coordsBirth[1], coordsBirth[2], death, coordsDeath[0],
-          //coordsDeath[1], coordsDeath[2]);
+        // diagram[pairingsSize] = std::make_tuple(
+        // vertexId1, ttk::CriticalType::Saddle1, vertexId2,
+        // ttk::CriticalType::Local_maximum, persistence, pairType, birth,
+        // coordsBirth[0], coordsBirth[1], coordsBirth[2], death,
+        // coordsDeath[0], coordsDeath[1], coordsDeath[2]);
 
       } else {
         diagram[pairIdentifier] = std::make_tuple(

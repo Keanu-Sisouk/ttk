@@ -291,7 +291,6 @@ void PersistenceDiagramDictEncoding::execute(
       gradActor.executeWeightsProjected(weights, gradWeight, epoch, nb_points);
     }
 
-
     Barycenters.clear();
     Barycenters.resize(nDiags);
     allMatchingsAtoms.clear();
