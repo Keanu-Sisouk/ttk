@@ -12,15 +12,14 @@ void PersistenceDiagramDictEncoding::execute(
 
   Timer tm{};
 
-
-  for (size_t i = 0 ; i < dictDiagrams.size() ; ++i){
+  for(size_t i = 0; i < dictDiagrams.size(); ++i) {
     std::cout << "Atom " << i << std::endl;
-    for (size_t j = 0 ; j < dictDiagrams[i].size() ; ++j){
+    for(size_t j = 0; j < dictDiagrams[i].size(); ++j) {
       DiagramTuple &t = dictDiagrams[i][j];
-      std::cout << "Pair atoms: " << std::get<6>(t) << ", " << std::get<10>(t) << std::endl;
+      std::cout << "Pair atoms: " << std::get<6>(t) << ", " << std::get<10>(t)
+                << std::endl;
     }
   }
-
 
   const auto nDiags = intermediateDiagrams.size();
 
@@ -143,7 +142,7 @@ void PersistenceDiagramDictEncoding::execute(
   std::vector<std::vector<MatchingTuple>> matchingsDatasMax(nDiags);
   ConstrainedGradientDescent gradActor;
 
-  for(int epoch = 0; epoch < 50; ++epoch) {
+  for(int epoch = 0; epoch < 1; ++epoch) {
     int k = 0;
     this->printMsg("Epoch: " + std::to_string(epoch));
 #ifdef TTK_ENABLE_OPENMP
@@ -153,11 +152,14 @@ void PersistenceDiagramDictEncoding::execute(
     for(int i = 0; i < nDiags; ++i) {
       Diagram &barycenter = Barycenters[i];
       std::vector<double> &weight = vectorWeights[i];
+      std::cout << "Poids: " << weight[0] << weight[1] << weight[2] << std::endl;
+      std::cout << "=================================================" << std::endl;
       std::vector<std::vector<MatchingTuple>> &matchings = allMatchingsAtoms[i];
       computeWeightedBarycenter(dictDiagrams, weight, barycenter, matchings);
-      for(int i = 0 ; i < barycenter.size() ; ++i){
+      for(int i = 0; i < barycenter.size(); ++i) {
         DiagramTuple &t = barycenter[i];
-        std::cout << "Pair: " << std::get<6>(t) << ", " << std::get<10>(t) << std::endl;
+        std::cout << "Pair: " << std::get<6>(t) << ", " << std::get<10>(t)
+                  << std::endl;
       }
     }
     this->printMsg("=============================WE ARE HERE "
@@ -249,10 +251,10 @@ void PersistenceDiagramDictEncoding::execute(
         auto &datasad = bidder_diagrams_sad[i];
         computeDistance(datasad, barycentersad, matching_sad);
       }
-      //matching_sad.insert(matching_sad.end(),
+      // matching_sad.insert(matching_sad.end(),
       //                    std::make_move_iterator(matching_max.begin()),
       //                    std::make_move_iterator(matching_max.end()));
-      //matching_min.insert(matching_min.end(),
+      // matching_min.insert(matching_min.end(),
       //                    std::make_move_iterator(matching_sad.begin()),
       //                    std::make_move_iterator(matching_sad.end()));
       // matchingsDatas[i] = matching_min.insert()
@@ -280,8 +282,8 @@ void PersistenceDiagramDictEncoding::execute(
 
       const std::vector<double> gradWeight = computeGradientWeights(
         dictDiagrams, matchingsAtoms, Barycenter, Data, matchingsMin,
-        matchingsMax , matchingsSad, indexBaryMin , indexBaryMax , indexBarySad,
-        indexDataMin , indexDataMax , indexDataSad);
+        matchingsMax, matchingsSad, indexBaryMin, indexBaryMax, indexBarySad,
+        indexDataMin, indexDataMax, indexDataSad);
       int nb_points = Barycenters[i].size();
       std::vector<double> &weights = vectorWeights[i];
       gradActor.executeWeightsProjected(weights, gradWeight, epoch, nb_points);
@@ -290,7 +292,7 @@ void PersistenceDiagramDictEncoding::execute(
     Barycenters.resize(nDiags);
     allMatchingsAtoms.clear();
     allMatchingsAtoms.resize(nDiags);
-////////////////////////////////ATOM////////////////////////////////////////
+    ////////////////////////////////ATOM////////////////////////////////////////
 
 #ifdef TTK_ENABLE_OPENMP
 #pragma omp parallel for num_threads(threadNumber_)
@@ -339,17 +341,17 @@ void PersistenceDiagramDictEncoding::execute(
             origin_index_barysMax[i].push_back(j);
           } else {
             if(nt1 == CriticalType::Local_maximum
-                || nt2 == CriticalType::Local_maximum) {
+               || nt2 == CriticalType::Local_maximum) {
               BarycentersMax[i].emplace_back(t);
               origin_index_barysMax[i].push_back(j);
             }
             if(nt1 == CriticalType::Local_minimum
-                || nt2 == CriticalType::Local_minimum) {
+               || nt2 == CriticalType::Local_minimum) {
               BarycentersMin[i].emplace_back(t);
               origin_index_barysMin[i].push_back(j);
             }
             if((nt1 == CriticalType::Saddle1 && nt2 == CriticalType::Saddle2)
-                || (nt1 == CriticalType::Saddle2
+               || (nt1 == CriticalType::Saddle2
                    && nt2 == CriticalType::Saddle1)) {
               BarycentersSad[i].emplace_back(t);
               origin_index_barysSad[i].push_back(j);
@@ -367,7 +369,6 @@ void PersistenceDiagramDictEncoding::execute(
     if(this->do_max_) {
       setBidderDiagrams(nDiags, BarycentersMax, bidder_barycenters_max);
     }
-
 
 #ifdef TTK_ENABLE_OPENMP
 #pragma omp parallel for num_threads(threadNumber_)
@@ -391,10 +392,10 @@ void PersistenceDiagramDictEncoding::execute(
         auto &datasad = bidder_diagrams_sad[i];
         computeDistance(datasad, barycentersad, matching_sad);
       }
-      //matching_sad.insert(matching_sad.end(),
+      // matching_sad.insert(matching_sad.end(),
       //                    std::make_move_iterator(matching_max.begin()),
       //                    std::make_move_iterator(matching_max.end()));
-      //matching_min.insert(matching_min.end(),
+      // matching_min.insert(matching_min.end(),
       //                    std::make_move_iterator(matching_sad.begin()),
       //                    std::make_move_iterator(matching_sad.end()));
       // matchingsDatas[i] = matching_min.insert()
@@ -419,10 +420,10 @@ void PersistenceDiagramDictEncoding::execute(
       const std::vector<size_t> &indexDataMax = origin_index_datasMax[i];
       std::vector<double> &weights = vectorWeights[i];
       int nb_points = Barycenters[i].size();
-      std::vector<Matrice> gradsAtoms
-        = computeGradientAtoms(weights, Barycenter, Data, matchingsMin,
-        matchingsMax , matchingsSad, indexBaryMin , indexBaryMax , indexBarySad,
-        indexDataMin , indexDataMax , indexDataSad);
+      std::vector<Matrice> gradsAtoms = computeGradientAtoms(
+        weights, Barycenter, Data, matchingsMin, matchingsMax, matchingsSad,
+        indexBaryMin, indexBaryMax, indexBarySad, indexDataMin, indexDataMax,
+        indexDataSad);
       gradActor.executeAtoms(
         dictDiagrams, matchingsAtoms, Barycenter, gradsAtoms, nb_points);
     }
@@ -487,30 +488,31 @@ std::vector<double> PersistenceDiagramDictEncoding::computeGradientWeights(
   // std::vector<MatchingTuple> matching;
   std::vector<std::vector<double>> directions(Barycenter.size());
   std::vector<double> gradient(dictDiagrams.size(), 0);
+  std::vector<std::vector<int>> checker(Barycenter.size());
+
+
   this->printMsg("error?2");
   // computing gradients
   for(int i = 0; i < matchingsAtoms.size(); ++i) {
-    this->printMsg(std::to_string(static_cast<int>(dictDiagrams[i].size()))
-                   + " and "
-                   +
-                   std::to_string(static_cast<int>(matchingsAtoms[i].size()))
-                   + " and "
-                   + std::to_string(static_cast<int>(Barycenter.size())));
+    this->printMsg(
+      std::to_string(static_cast<int>(dictDiagrams[i].size())) + " and "
+      + std::to_string(static_cast<int>(matchingsAtoms[i].size())) + " and "
+      + std::to_string(static_cast<int>(Barycenter.size())));
     for(int j = 0; j < matchingsAtoms[i].size(); ++j) {
       const MatchingTuple &t = matchingsAtoms[i][j];
       // Id in atom
       const SimplexId Id1 = std::get<0>(t);
       // Id in barycenter
       const SimplexId Id2 = std::get<1>(t);
-      if(Id2 < 0 || Id2 >= grad_list.size()
-         || Id1 >= dictDiagrams[i].size()) {
+      if(Id2 < 0 || Id2 >= grad_list.size() || Id1 >= dictDiagrams[i].size()) {
         continue;
       } else if(Id1 < 0) {
         const DiagramTuple &t3 = Barycenter[Id2];
         std::vector<double> point(2);
         const double birth_barycenter = std::get<6>(t3);
         const double death_barycenter = std::get<10>(t3);
-        const double birth_death_atom = birth_barycenter + (death_barycenter - birth_barycenter)/2;
+        const double birth_death_atom
+          = birth_barycenter + (death_barycenter - birth_barycenter) / 2;
         point[0] = birth_death_atom;
         point[1] = birth_death_atom;
         grad_list[Id2].push_back(point);
@@ -548,11 +550,13 @@ std::vector<double> PersistenceDiagramDictEncoding::computeGradientWeights(
       const double birth_barycenter = std::get<6>(t3);
       const double death_barycenter = std::get<10>(t3);
       std::vector<double> direction(2);
-      if(Id1 < 0){
-        const double birth_death_data = birth_barycenter + (death_barycenter - birth_barycenter)/2;
+      if(Id1 < 0) {
+        const double birth_death_data
+          = birth_barycenter + (death_barycenter - birth_barycenter) / 2;
         direction[0] = birth_death_data - birth_barycenter;
         direction[1] = birth_death_data - death_barycenter;
       } else {
+        checker[indexBaryMin[Id2]].push_back(indexDataMin[Id1]);
         const DiagramTuple &t2 = newData[indexDataMin[Id1]];
         const double birth_data = std::get<6>(t2);
         const double death_data = std::get<10>(t2);
@@ -584,10 +588,12 @@ std::vector<double> PersistenceDiagramDictEncoding::computeGradientWeights(
       const double death_barycenter = std::get<10>(t3);
       std::vector<double> direction(2);
       if(Id1 < 0) {
-        const double birth_death_data = birth_barycenter + (death_barycenter - birth_barycenter)/2;
+        const double birth_death_data
+          = birth_barycenter + (death_barycenter - birth_barycenter) / 2;
         direction[0] = birth_death_data - birth_barycenter;
         direction[1] = birth_death_data - death_barycenter;
       } else {
+        checker[indexBaryMax[Id2]].push_back(indexDataMax[Id1]);
         const DiagramTuple &t2 = newData[indexDataMax[Id1]];
         const double birth_data = std::get<6>(t2);
         const double death_data = std::get<10>(t2);
@@ -600,7 +606,6 @@ std::vector<double> PersistenceDiagramDictEncoding::computeGradientWeights(
       directions[indexBaryMax[Id2]] = std::move(direction);
     }
   }
-
 
   for(int i = 0; i < matchingsSad.size(); ++i) {
     const MatchingTuple &t = matchingsSad[i];
@@ -619,11 +624,13 @@ std::vector<double> PersistenceDiagramDictEncoding::computeGradientWeights(
       const double birth_barycenter = std::get<6>(t3);
       const double death_barycenter = std::get<10>(t3);
       std::vector<double> direction(2);
-      if(Id1 < 0){
-        const double birth_death_data = birth_barycenter + (death_barycenter - birth_barycenter)/2;
+      if(Id1 < 0) {
+        const double birth_death_data
+          = birth_barycenter + (death_barycenter - birth_barycenter) / 2;
         direction[0] = birth_death_data - birth_barycenter;
         direction[1] = birth_death_data - death_barycenter;
       } else {
+        checker[indexBarySad[Id2]].push_back(indexDataSad[Id1]);
         const DiagramTuple &t2 = newData[indexDataSad[Id1]];
         const double birth_data = std::get<6>(t2);
         const double death_data = std::get<10>(t2);
@@ -636,18 +643,18 @@ std::vector<double> PersistenceDiagramDictEncoding::computeGradientWeights(
       directions[indexBarySad[Id2]] = std::move(direction);
     }
   }
-    // this->printMsg(std::to_string(i));
-
+  // this->printMsg(std::to_string(i));
 
   this->printMsg("error?3");
   for(int i = 0; i < Barycenter.size(); ++i) {
-    for(int j = 0; j < dictDiagrams.size(); ++j) {
+    //for(auto it = std::begin(checker); it != std::end(checker); ++it) {
+    for(int j = 0 ; j < dictDiagrams.size() ; ++j){
       const std::vector<double> &point = grad_list[i][j];
-      //const double birth = std::get<6>(t);
-      //const double death = std::get<10>(t);
+      // const double birth = std::get<6>(t);
+      // const double death = std::get<10>(t);
       const std::vector<double> &direction = directions[i];
       //gradient[j] += -2 * (birth * direction[0] + death * direction[1]);
-      gradient[j] += -2*(point[0] * direction[0] + point[1] * direction[1]);
+      gradient[j] += -2 * (point[0] * direction[0] + point[1] * direction[1]);
     }
   }
   return gradient;
@@ -691,8 +698,9 @@ std::vector<Matrice> PersistenceDiagramDictEncoding::computeGradientAtoms(
       const double birth_barycenter = std::get<6>(t3);
       const double death_barycenter = std::get<10>(t3);
       std::vector<double> direction(2);
-      if(Id1 < 0){
-        const double birth_death_data = birth_barycenter + (death_barycenter - birth_barycenter)/2;
+      if(Id1 < 0) {
+        const double birth_death_data
+          = birth_barycenter + (death_barycenter - birth_barycenter) / 2;
         direction[0] = birth_death_data - birth_barycenter;
         direction[1] = birth_death_data - death_barycenter;
       } else {
@@ -727,7 +735,8 @@ std::vector<Matrice> PersistenceDiagramDictEncoding::computeGradientAtoms(
       const double death_barycenter = std::get<10>(t3);
       std::vector<double> direction(2);
       if(Id1 < 0) {
-        const double birth_death_data = birth_barycenter + (death_barycenter - birth_barycenter)/2;
+        const double birth_death_data
+          = birth_barycenter + (death_barycenter - birth_barycenter) / 2;
         direction[0] = birth_death_data - birth_barycenter;
         direction[1] = birth_death_data - death_barycenter;
       } else {
@@ -761,8 +770,9 @@ std::vector<Matrice> PersistenceDiagramDictEncoding::computeGradientAtoms(
       const double birth_barycenter = std::get<6>(t3);
       const double death_barycenter = std::get<10>(t3);
       std::vector<double> direction(2);
-      if(Id1 < 0){
-        const double birth_death_data = birth_barycenter + (death_barycenter - birth_barycenter)/2;
+      if(Id1 < 0) {
+        const double birth_death_data
+          = birth_barycenter + (death_barycenter - birth_barycenter) / 2;
         direction[0] = birth_death_data - birth_barycenter;
         direction[1] = birth_death_data - death_barycenter;
       } else {

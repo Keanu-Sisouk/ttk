@@ -152,7 +152,6 @@ namespace ttk {
       std::vector<BidderDiagram<double>> &current_bidder_diags,
       const std::vector<double> &maxDiagPersistence) const;
 
-
     int Wasserstein{2};
     double Alpha{1.0};
     double DeltaLim{0.01};
