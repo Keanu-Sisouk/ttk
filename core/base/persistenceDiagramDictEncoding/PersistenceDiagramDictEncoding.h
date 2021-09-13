@@ -107,7 +107,7 @@ namespace ttk {
   protected:
     double getMostPersistent(
       const std::vector<BidderDiagram<double>> &bidder_diags) const;
-    void computeDistance(const BidderDiagram<double> &D1,
+    double computeDistance(const BidderDiagram<double> &D1,
                          const BidderDiagram<double> &D2,
                          std::vector<MatchingTuple> &matching) const;
 

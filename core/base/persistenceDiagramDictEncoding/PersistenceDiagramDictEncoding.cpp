@@ -141,9 +141,11 @@ void PersistenceDiagramDictEncoding::execute(
   std::vector<std::vector<MatchingTuple>> matchingsDatasSad(nDiags);
   std::vector<std::vector<MatchingTuple>> matchingsDatasMax(nDiags);
   ConstrainedGradientDescent gradActor;
+  double loss;
 
-  for(int epoch = 0; epoch < 150; ++epoch) {
+  for(int epoch = 0; epoch < 80; ++epoch) {
     int k = 0;
+    loss = 0;
     this->printMsg("Epoch: " + std::to_string(epoch));
 #ifdef TTK_ENABLE_OPENMP
 #pragma omp parallel for num_threads(threadNumber_)
@@ -241,17 +243,17 @@ void PersistenceDiagramDictEncoding::execute(
       if(this->do_min_) {
         auto &barycentermin = bidder_barycenters_min[i];
         auto &datamin = bidder_diagrams_min[i];
-        computeDistance(datamin, barycentermin, matching_min);
+        loss += computeDistance(datamin, barycentermin, matching_min);
       }
       if(this->do_max_) {
         auto &barycentermax = bidder_barycenters_max[i];
         auto &datamax = bidder_diagrams_max[i];
-        computeDistance(datamax, barycentermax, matching_max);
+        loss += computeDistance(datamax, barycentermax, matching_max);
       }
       if(this->do_sad_) {
         auto &barycentersad = bidder_barycenters_sad[i];
         auto &datasad = bidder_diagrams_sad[i];
-        computeDistance(datasad, barycentersad, matching_sad);
+        loss += computeDistance(datasad, barycentersad, matching_sad);
       }
       // matching_sad.insert(matching_sad.end(),
       //                    std::make_move_iterator(matching_max.begin()),
@@ -372,6 +374,7 @@ void PersistenceDiagramDictEncoding::execute(
     if(this->do_max_) {
       setBidderDiagrams(nDiags, BarycentersMax, bidder_barycenters_max);
     }
+    double temp2 = 0;
 
 #ifdef TTK_ENABLE_OPENMP
 #pragma omp parallel for num_threads(threadNumber_)
@@ -383,17 +386,17 @@ void PersistenceDiagramDictEncoding::execute(
       if(this->do_min_) {
         auto &barycentermin = bidder_barycenters_min[i];
         auto &datamin = bidder_diagrams_min[i];
-        computeDistance(datamin, barycentermin, matching_min);
+        temp2 += computeDistance(datamin, barycentermin, matching_min);
       }
       if(this->do_max_) {
         auto &barycentermax = bidder_barycenters_max[i];
         auto &datamax = bidder_diagrams_max[i];
-        computeDistance(datamax, barycentermax, matching_max);
+        temp2 += computeDistance(datamax, barycentermax, matching_max);
       }
       if(this->do_sad_) {
         auto &barycentersad = bidder_barycenters_sad[i];
         auto &datasad = bidder_diagrams_sad[i];
-        computeDistance(datasad, barycentersad, matching_sad);
+        temp2 += computeDistance(datasad, barycentersad, matching_sad);
       }
       // matching_sad.insert(matching_sad.end(),
       //                    std::make_move_iterator(matching_max.begin()),
@@ -440,6 +443,7 @@ void PersistenceDiagramDictEncoding::execute(
       }
     }
   } // return distMat;
+  this->printMsg("loss " + std::to_string(loss));
   this->printMsg("Complete", 1.0, tm.getElapsedTime(), this->threadNumber_);
 }
 
@@ -460,7 +464,7 @@ double PersistenceDiagramDictEncoding::getMostPersistent(
   return max_persistence;
 }
 
-void PersistenceDiagramDictEncoding::computeDistance(
+double PersistenceDiagramDictEncoding::computeDistance(
   const BidderDiagram<double> &D1,
   const BidderDiagram<double> &D2,
   std::vector<MatchingTuple> &matching) const {
@@ -477,7 +481,9 @@ void PersistenceDiagramDictEncoding::computeDistance(
   PersistenceDiagramAuction<double> auction(
     this->Wasserstein, this->Alpha, this->Lambda, this->DeltaLim, true);
   auction.BuildAuctionDiagrams(&D1, &D2_bis);
-  auction.run(&matching);
+  double loss;
+  loss = auction.run(&matching);
+  return loss;
 }
 
 std::vector<double> PersistenceDiagramDictEncoding::computeGradientWeights(
@@ -554,9 +560,9 @@ std::vector<double> PersistenceDiagramDictEncoding::computeGradientWeights(
 
     if(Id2 < 0) {
       k += 1;
-      this->printMsg("k = " + std::to_string(k));
+      //this->printMsg("k = " + std::to_string(k));
     } else {
-      this->printMsg("==Here?==");
+      //this->printMsg("==Here?==");
       this->printMsg(std::to_string(static_cast<int>(indexBaryMin[Id2])));
       const DiagramTuple &t3 = Barycenter[indexBaryMin[Id2]];
       const double birth_barycenter = std::get<6>(t3);
@@ -591,9 +597,9 @@ std::vector<double> PersistenceDiagramDictEncoding::computeGradientWeights(
 
     if(Id2 < 0) {
       k += 1;
-      this->printMsg("k = " + std::to_string(k));
+      //this->printMsg("k = " + std::to_string(k));
     } else {
-      this->printMsg("==Here?==");
+      //this->printMsg("==Here?==");
       this->printMsg(std::to_string(static_cast<int>(indexBaryMax[Id2])));
       const DiagramTuple &t3 = Barycenter[indexBaryMax[Id2]];
       const double birth_barycenter = std::get<6>(t3);
@@ -628,9 +634,9 @@ std::vector<double> PersistenceDiagramDictEncoding::computeGradientWeights(
 
     if(Id2 < 0) {
       k += 1;
-      this->printMsg("k = " + std::to_string(k));
+      //this->printMsg("k = " + std::to_string(k));
     } else {
-      this->printMsg("==Here?==");
+      //this->printMsg("==Here?==");
       this->printMsg(std::to_string(static_cast<int>(indexBarySad[Id2])));
       const DiagramTuple &t3 = Barycenter[indexBarySad[Id2]];
       const double birth_barycenter = std::get<6>(t3);
@@ -661,6 +667,7 @@ std::vector<double> PersistenceDiagramDictEncoding::computeGradientWeights(
   for(int i = 0; i < Barycenter.size(); ++i) {
     // for(auto it = std::begin(checker); it != std::end(checker); ++it) {
     for(int j = 0; j < grad_list[i].size(); ++j) {
+      this->printMsg("======GRADIENT INDEX " + std::to_string(j) + "=======" );
       const std::vector<double> &point = grad_list[i][j];
       // const double birth = std::get<6>(t);
       // const double death = std::get<10>(t);
