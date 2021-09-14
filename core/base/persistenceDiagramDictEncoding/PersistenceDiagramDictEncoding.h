@@ -108,8 +108,8 @@ namespace ttk {
     double getMostPersistent(
       const std::vector<BidderDiagram<double>> &bidder_diags) const;
     double computeDistance(const BidderDiagram<double> &D1,
-                         const BidderDiagram<double> &D2,
-                         std::vector<MatchingTuple> &matching) const;
+                           const BidderDiagram<double> &D2,
+                           std::vector<MatchingTuple> &matching) const;
 
     std::vector<double> computeGradientWeights(
       const std::vector<Diagram> &dictDiagrams,
