@@ -1,4 +1,5 @@
 #include <ConstrainedGradientDescent.h>
+#include <math.h>
 
 using namespace ttk;
 
@@ -27,21 +28,34 @@ void ConstrainedGradientDescent::executeAtoms(
 // sum to 1.
 void ConstrainedGradientDescent::projectionOnSimplex(
   std::vector<double> &weights) {
+
+
   int n = weights.size();
-  std::sort(weights.begin(), weights.end(), std::greater<double>());
+  std::vector<double> copy_temp(n);
+  for(int i = 0 ; i < n ; ++i){
+    copy_temp[i] = weights[i];
+  }
+  std::sort(copy_temp.begin(), copy_temp.end(), std::greater<double>());
   // std::vector<double> u = std::sort(weights.begin(), weights.end(),
   // std::greater<double>());
   double K = 1.;
-  double somme_u = weights[0];
+  double somme_u = copy_temp[0];
   double theta = (somme_u - 1.) / K;
-  while(K < n && (somme_u + weights[K] - 1.) / (K + 1.) < weights[K]) {
-    somme_u += weights[K];
+  while(K < n && (somme_u + copy_temp[K] - 1.) / (K + 1.) < copy_temp[K]) {
+    somme_u += copy_temp[K];
     K += 1;
     theta = (somme_u - 1.) / K;
   }
   for(int i = 0; i < n; ++i) {
     weights[i] = std::max(weights[i] - theta, 0.);
   }
+
+  //double sum = 0.;
+  //for(int i = 0; i < n-1 ; ++i){
+    //weights[i] = trunc(weights[i]*1e6)/1e6;
+    //sum += weights[i];
+  //}
+  //weights[n-1] = 1. - sum;
 }
 
 void ConstrainedGradientDescent::gradientDescentWeights(
@@ -49,6 +63,7 @@ void ConstrainedGradientDescent::gradientDescentWeights(
   const std::vector<double> &grad,
   const int epoch,
   const int nb_points) {
+
   double mini = *std::min_element(weights.begin(), weights.end());
   int n = weights.size();
   double norm_grad = 0;
@@ -58,15 +73,17 @@ void ConstrainedGradientDescent::gradientDescentWeights(
   double step;
   if(nb_points < 100) {
     step = mini / (5e3 * (epoch + 1.));
+    //step = mini / 5e3 * (epoch + 1.);
   } else if(100 <= nb_points < 700) {
-    step = std::min(mini, 1.) / norm_grad;
+    step = std::min(mini, 1.) / (norm_grad * pow(2 , 10));
+    //step = std::min(mini , 1.) / norm_grad;
   } else {
     if(epoch < 10) {
       // float step = 1 / 2 * *(epoch + 1);
-      step = 1 / pow(2, epoch + 1);
+      step = std::min(mini,1.) / pow(2, epoch + 1);
     } else {
       // float step = 1 / 2 * *11;
-      step = 1 / pow(2, 11);
+      step = std::min(mini , 1.) / pow(2, epoch + 1);
     }
   }
   for(int i = 0; i < n; ++i) {
@@ -192,7 +209,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
       }
     }
   }
-
+  printf("===============PASSED================");
   for(int i = 0; i < DictDiagrams.size(); ++i) {
     for(int j = 0; j < nb_points; ++j) {
       DiagramTuple &t1 = DictDiagrams[i][j];

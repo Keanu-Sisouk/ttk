@@ -161,7 +161,8 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
   std::vector<std::vector<double>> vectorWeights(nDiags);
   for(int i = 0; i < vectorWeights.size(); ++i) {
     //std::vector<double> weights{0.333, 0.333, 0.334};
-    std::vector<double> weights{1./3., 1./3., 1./3.};
+    //std::vector<double> weights{1. / 3., 1. / 3., 1. / 3.};
+    std::vector<double> weights(numAtom , 1./(numAtom*1.));
     vectorWeights[i] = std::move(weights);
   }
 
