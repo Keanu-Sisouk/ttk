@@ -180,10 +180,10 @@ void PersistenceDiagramDictEncoding::execute(
     std::vector<std::vector<size_t>> origin_index_barysSad(nDiags);
     std::vector<std::vector<size_t>> origin_index_barysMax(nDiags);
 
-// setting BidderDiagram Barycenters
-//#ifdef TTK_ENABLE_OPENMP
-//#pragma omp parallel for num_threads(threadNumber_)
-//#endif // TTK_ENABLE_OPENMP
+    // setting BidderDiagram Barycenters
+    //#ifdef TTK_ENABLE_OPENMP
+    //#pragma omp parallel for num_threads(threadNumber_)
+    //#endif // TTK_ENABLE_OPENMP
     for(size_t i = 0; i < nDiags; i++) {
       const Diagram &barycenter = Barycenters[i];
 
@@ -233,9 +233,9 @@ void PersistenceDiagramDictEncoding::execute(
     // this->printMsg("Complete", 1.0, tm.getElapsedTime(),
     // this->threadNumber_);
     // std::vector<double> gradient = compute
-//#ifdef TTK_ENABLE_OPENMP
-//#pragma omp parallel for num_threads(threadNumber_)
-//#endif // TTK_ENABLE_OPENMP
+    //#ifdef TTK_ENABLE_OPENMP
+    //#pragma omp parallel for num_threads(threadNumber_)
+    //#endif // TTK_ENABLE_OPENMP
     for(size_t i = 0; i < nDiags; ++i) {
       std::vector<MatchingTuple> matching_min;
       std::vector<MatchingTuple> matching_sad;
@@ -277,9 +277,9 @@ void PersistenceDiagramDictEncoding::execute(
     this->printMsg("====================PRINT WEIGHT======================");
 
     std::vector<std::vector<double>> gradientsWeights(nDiags);
-//#ifdef TTK_ENABLE_OPENMP
-//#pragma omp parallel for num_threads(threadNumber_)
-//#endif // TTK_ENABLE_OPENMP
+    //#ifdef TTK_ENABLE_OPENMP
+    //#pragma omp parallel for num_threads(threadNumber_)
+    //#endif // TTK_ENABLE_OPENMP
     for(size_t i = 0; i < nDiags; ++i) {
       const std::vector<std::vector<MatchingTuple>> &matchingsAtoms
         = allMatchingsAtoms[i];
@@ -301,9 +301,9 @@ void PersistenceDiagramDictEncoding::execute(
         indexDataMin, indexDataMax, indexDataSad));
     }
 
-//#ifdef TTK_ENABLE_OPENMP
-//#pragma omp parallel for num_threads(threadNumber_)
-//#endif // TTK_ENABLE_OPENMP
+    //#ifdef TTK_ENABLE_OPENMP
+    //#pragma omp parallel for num_threads(threadNumber_)
+    //#endif // TTK_ENABLE_OPENMP
     for(int i = 0; i < nDiags; ++i) {
       // const std::vector<double> gradWeight = computeGradientWeights(
       // dictDiagrams, matchingsAtoms, Barycenter, Data, matchingsMin,
@@ -327,11 +327,6 @@ void PersistenceDiagramDictEncoding::execute(
     for(int i = 0; i < nDiags; ++i) {
       Diagram &barycenter = Barycenters[i];
       std::vector<double> &weight = vectorWeights[i];
-      double sum_temp = 0.;
-      for(int j = 0; j < weight.size(); ++j) {
-        this->printMsg(std::to_string(weight[j]));
-        sum_temp += weight[j];
-      }
       // this->printMsg(std::to_string(sum_temp));
       std::vector<std::vector<MatchingTuple>> &matchings = allMatchingsAtoms[i];
       computeWeightedBarycenter(dictDiagrams, weight, barycenter, matchings);
@@ -378,9 +373,9 @@ void PersistenceDiagramDictEncoding::execute(
     // std::vector<BidderDiagram<double>> bidder_barycenters_sad{};
     // std::vector<BidderDiagram<double>> bidder_barycenters_max{};
 
-//#ifdef TTK_ENABLE_OPENMP
-//#pragma omp parallel for num_threads(threadNumber_)
-//#endif // TTK_ENABLE_OPENMP
+    //#ifdef TTK_ENABLE_OPENMP
+    //#pragma omp parallel for num_threads(threadNumber_)
+    //#endif // TTK_ENABLE_OPENMP
     for(size_t i = 0; i < nDiags; i++) {
       const Diagram &barycenter = Barycenters[i];
 
@@ -428,9 +423,9 @@ void PersistenceDiagramDictEncoding::execute(
     }
     double temp2 = 0;
 
-//#ifdef TTK_ENABLE_OPENMP
-//#pragma omp parallel for num_threads(threadNumber_)
-//#endif // TTK_ENABLE_OPENMP
+    //#ifdef TTK_ENABLE_OPENMP
+    //#pragma omp parallel for num_threads(threadNumber_)
+    //#endif // TTK_ENABLE_OPENMP
     for(size_t i = 0; i < nDiags; ++i) {
       std::vector<MatchingTuple> matching_min;
       std::vector<MatchingTuple> matching_sad;
@@ -479,12 +474,13 @@ void PersistenceDiagramDictEncoding::execute(
       const std::vector<size_t> &indexDataMax = origin_index_datasMax[i];
       const std::vector<double> &weights = vectorWeights[i];
       int nb_points = Barycenters[i].size();
+      std::vector<int> checkerAtoms(Barycenter.size(), 0);
       std::vector<Matrice> gradsAtoms = computeGradientAtoms(
         weights, Barycenter, Data, matchingsMin, matchingsMax, matchingsSad,
         indexBaryMin, indexBaryMax, indexBarySad, indexDataMin, indexDataMax,
-        indexDataSad);
+        indexDataSad, checkerAtoms);
       gradActor.executeAtoms(
-        dictDiagrams, matchingsAtoms, Barycenter, gradsAtoms, nb_points);
+        dictDiagrams, matchingsAtoms, Barycenter, gradsAtoms, nb_points , checkerAtoms);
     }
 
     for(size_t i = 0; i < dictDiagrams.size(); ++i) {
@@ -625,6 +621,7 @@ std::vector<double> PersistenceDiagramDictEncoding::computeGradientWeights(
       const SimplexId Id1 = std::get<0>(t);
       // Id in barycenter
       const SimplexId Id2 = std::get<1>(t);
+      //if(Id2 < 0){
       if(Id2 < 0 || Id2 >= grad_list.size() || Id1 >= dictDiagrams[i].size()) {
         continue;
       } else if(Id1 < 0) {
@@ -814,12 +811,13 @@ std::vector<Matrice> PersistenceDiagramDictEncoding::computeGradientAtoms(
   const std::vector<size_t> &indexBarySad,
   const std::vector<size_t> &indexDataMin,
   const std::vector<size_t> &indexDataMax,
-  const std::vector<size_t> &indexDataSad) const {
+  const std::vector<size_t> &indexDataSad,
+  std::vector<int> &checker) const {
 
   // std::vector<MatchingTuple> matching;
   std::vector<Matrice> gradsLists(Barycenter.size());
   std::vector<std::vector<double>> directions(Barycenter.size());
-  std::vector<int> checker(Barycenter.size() , 0);
+  //std::vector<int> checker(Barycenter.size(), 0);
   // computeDistance(newDataBidder, barycenterBidder, matching);
 
   int k = 0;
@@ -936,7 +934,7 @@ std::vector<Matrice> PersistenceDiagramDictEncoding::computeGradientAtoms(
   }
 
   for(int i = 0; i < Barycenter.size(); ++i) {
-    if(checker[i] == 0){
+    if(checker[i] == 0) {
       continue;
     } else {
       for(int j = 0; j < weights.size(); ++j) {

@@ -18,10 +18,11 @@ void ConstrainedGradientDescent::executeAtoms(
   const std::vector<std::vector<MatchingTuple>> &matchings,
   const Diagram &Barycenter,
   const std::vector<Matrice> &gradsLists,
-  const int nb_points) {
+  const int nb_points,
+  const std::vector<int> &checkerAtomsExt) {
   this->printMsg("==========ATOM UPDATING=============");
   gradientDescentAtoms(
-    DictDiagrams, matchings, Barycenter, gradsLists, nb_points);
+    DictDiagrams, matchings, Barycenter, gradsLists, nb_points , checkerAtomsExt);
 }
 
 // simple projection on simplex, aka where a vector has positive elements and
@@ -49,12 +50,12 @@ void ConstrainedGradientDescent::projectionOnSimplex(
     weights[i] = std::max(weights[i] - theta, 0.);
   }
 
-  // double sum = 0.;
-  // for(int i = 0; i < n-1 ; ++i){
-  // weights[i] = trunc(weights[i]*1e6)/1e6;
-  // sum += weights[i];
-  //}
-  // weights[n-1] = 1. - sum;
+  double sum = 0.;
+  for(int i = 0; i < n-1 ; ++i){
+    weights[i] = trunc(weights[i]*1e6)/1e6;
+    sum += weights[i];
+  }
+  weights[n-1] = 1. - sum;
 }
 
 void ConstrainedGradientDescent::gradientDescentWeights(
@@ -95,7 +96,8 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
   const std::vector<std::vector<MatchingTuple>> &matchings,
   const Diagram &Barycenter,
   const std::vector<Matrice> &gradsLists,
-  const int nb_points) {
+  const int nb_points,
+  const std::vector<int> &checkerAtomsExt) {
   // Here vector of diagramTuple because it is not a persistence diagram per
   // say.
   // we get the right pairs to update for each barycenter pair.
@@ -107,7 +109,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
 
   std::vector<std::vector<int>> checker(Barycenter.size());
   std::vector<int> tracker(Barycenter.size(), 0);
-  //std::vector<int> tracker2(Barycenter.size(), 0);
+  // std::vector<int> tracker2(Barycenter.size(), 0);
   std::vector<std::vector<int>> tracker_match(Barycenter.size());
 
   // for(int i = 0; i < matchings.size(); ++i) {
@@ -138,7 +140,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
           = birth_barycenter + (death_barycenter - birth_barycenter) / 2;
         point[0] = birth_death_atom;
         point[1] = birth_death_atom;
-        //grad_list[Id2].push_back(point);
+        // grad_list[Id2].push_back(point);
         grad_list[Id2][i] = std::move(point);
         checker[Id2].push_back(i);
         tracker[Id2] = 1;
@@ -151,7 +153,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
         const double death_atom = std::get<10>(t2);
         point[0] = birth_atom;
         point[1] = death_atom;
-        //grad_list[Id2].push_back(point);
+        // grad_list[Id2].push_back(point);
         grad_list[Id2][i] = std::move(point);
         checker[Id2].push_back(i);
         tracker[Id2] = 1;
@@ -162,15 +164,15 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
 
   printf("=========ATOM GRADIENT STEP==============");
   for(int i = 0; i < grad_list.size(); ++i) {
-    if(tracker[i] == 0) {
+    if(tracker[i] == 0 || checkerAtomsExt[i] == 0) {
       continue;
     } else {
       std::vector<double> pos(grad_list[i].size(), 0.);
       int k = 0;
-      //for(int j = 0; j < grad_list[i].size(); ++j) {
+      // for(int j = 0; j < grad_list[i].size(); ++j) {
       for(int j = 0; j < checker[i].size(); ++j) {
         // DiagramTuple &t = grad_list[i][j];
-        //std::vector<double> &t = grad_list[i][j];
+        // std::vector<double> &t = grad_list[i][j];
         std::vector<double> &t = grad_list[i][checker[i][j]];
         // double birth = std::get<6>(t);
         // double death = std::get<10>(t);
@@ -186,10 +188,10 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
         printf("==============BOOL VERIFIED==============");
         std::vector<bool> pos2(pos.size(), false);
         std::vector<float> temp2;
-        //for(int p = 0; p < pos.size(); ++p) {
-        for(int p = 0 ; p < checker[i].size() ; ++p) {
+        // for(int p = 0; p < pos.size(); ++p) {
+        for(int p = 0; p < checker[i].size(); ++p) {
           // DiagramTuple &t = grad_list[i][p];
-          //std::vector<double> &t = grad_list[i][p];
+          // std::vector<double> &t = grad_list[i][p];
           std::vector<double> &t = grad_list[i][checker[i][p]];
           // double birth = std::get<6>(t);
           double birth = t[0];
@@ -210,28 +212,28 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
         // double maxi = std::max_element(pos.begin() ; pos.end());
         double step = std::min(std::min(1., mini), mini2) / 1e1;
         std::cout << "STEP : " << step << std::endl;
-        //for(int p = 0; p < pos.size(); ++p) {
-        for (int p = 0; p < checker[i].size() ; ++p){
-          if(pos2[p]){
-          //if(pos2[checker[i][p]]) {
+        // for(int p = 0; p < pos.size(); ++p) {
+        for(int p = 0; p < checker[i].size(); ++p) {
+          if(pos2[p]) {
+            // if(pos2[checker[i][p]]) {
             printf("==========ATOM UPDATING2=============");
             // DiagramTuple &t = grad_list[i][p];
-            //std::vector<double> &t = grad_list[i][p];
+            // std::vector<double> &t = grad_list[i][p];
             std::vector<double> &t = grad_list[i][checker[i][p]];
             // std::get<10>(t) = std::get<10>(t) - step * gradsLists[i][p][1];
-            //t[1] = t[1] - step * gradsLists[i][p][1];
+            // t[1] = t[1] - step * gradsLists[i][p][1];
             t[1] = t[1] - step * gradsLists[i][checker[i][p]][1];
           } else if(pos[p] < 1e-17) {
-          //} else if(pos[checker[i][p]] < 1e-17) {
+            //} else if(pos[checker[i][p]] < 1e-17) {
             continue;
           } else {
             printf("==========ATOM UPDATING3=============");
             // DiagramTuple &t = grad_list[i][p];
             // std::get<6>(t) = std::get<6>(t) - step * gradsLists[i][p][0];
             // std::get<10>(t) = std::get<10>(t) - step * gradsLists[i][p][1];
-            //std::vector<double> &t = grad_list[i][p];
-            //t[0] = t[0] - step * gradsLists[i][p][0];
-            //t[1] = t[1] - step * gradsLists[i][p][1];
+            // std::vector<double> &t = grad_list[i][p];
+            // t[0] = t[0] - step * gradsLists[i][p][0];
+            // t[1] = t[1] - step * gradsLists[i][p][1];
             std::vector<double> &t = grad_list[i][checker[i][p]];
             t[0] = t[0] - step * gradsLists[i][checker[i][p]][0];
             t[1] = t[1] - step * gradsLists[i][checker[i][p]][1];
@@ -241,26 +243,26 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
     }
   }
   printf("===============PASSED================");
-  //for(int i = 0; i < DictDiagrams.size(); ++i) {
-    //for(int j = 0; j < nb_points; ++j) {
-      //DiagramTuple &t1 = DictDiagrams[i][j];
-      // DiagramTuple &t2 = grad_list[j][i];
-      //std::vector<double> &t2 = grad_list[j][i];
-      // std::get<6>(t1) = std::get<6>(t2);
-      // std::get<10>(t1) = std::get<10>(t2);
-      //std::get<6>(t1) = t2[0];
-      //std::get<10>(t1) = t2[1];
-    //}
+  // for(int i = 0; i < DictDiagrams.size(); ++i) {
+  // for(int j = 0; j < nb_points; ++j) {
+  // DiagramTuple &t1 = DictDiagrams[i][j];
+  // DiagramTuple &t2 = grad_list[j][i];
+  // std::vector<double> &t2 = grad_list[j][i];
+  // std::get<6>(t1) = std::get<6>(t2);
+  // std::get<10>(t1) = std::get<10>(t2);
+  // std::get<6>(t1) = t2[0];
+  // std::get<10>(t1) = t2[1];
   //}
-  for(int i = 0; i < checker.size() ; ++i){
-    if(tracker[i] == 0) {
+  //}
+  for(int i = 0; i < checker.size(); ++i) {
+    if(tracker[i] == 0 || checkerAtomsExt[i] == 0) {
       continue;
     } else {
-      for(int j = 0; j < checker[i].size() ; ++j){
-          std::vector<double> &t2 = grad_list[i][checker[i][j]];
-          DiagramTuple &t1 = DictDiagrams[checker[i][j]][tracker_match[i][j]];
-          std::get<6>(t1) = t2[0];
-          std::get<10>(t1) = t2[1];
+      for(int j = 0; j < checker[i].size(); ++j) {
+        std::vector<double> &t2 = grad_list[i][checker[i][j]];
+        DiagramTuple &t1 = DictDiagrams[checker[i][j]][tracker_match[i][j]];
+        std::get<6>(t1) = t2[0];
+        std::get<10>(t1) = t2[1];
       }
     }
   }
