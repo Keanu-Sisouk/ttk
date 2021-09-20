@@ -21,8 +21,8 @@ void ConstrainedGradientDescent::executeAtoms(
   const int nb_points,
   const std::vector<int> &checkerAtomsExt) {
   this->printMsg("==========ATOM UPDATING=============");
-  gradientDescentAtoms(
-    DictDiagrams, matchings, Barycenter, gradsLists, nb_points , checkerAtomsExt);
+  gradientDescentAtoms(DictDiagrams, matchings, Barycenter, gradsLists,
+                       nb_points, checkerAtomsExt);
 }
 
 // simple projection on simplex, aka where a vector has positive elements and
@@ -51,11 +51,11 @@ void ConstrainedGradientDescent::projectionOnSimplex(
   }
 
   double sum = 0.;
-  for(int i = 0; i < n-1 ; ++i){
-    weights[i] = trunc(weights[i]*1e6)/1e6;
+  for(int i = 0; i < n - 1; ++i) {
+    weights[i] = trunc(weights[i] * 1e6) / 1e6;
     sum += weights[i];
   }
-  weights[n-1] = 1. - sum;
+  weights[n - 1] = 1. - sum;
 }
 
 void ConstrainedGradientDescent::gradientDescentWeights(
@@ -68,14 +68,14 @@ void ConstrainedGradientDescent::gradientDescentWeights(
   int n = weights.size();
   double norm_grad = 0;
   for(int i = 0; i < n; ++i) {
-    norm_grad += weights[i] * weights[i];
+    norm_grad += grad[i] * grad[i];
   }
   double step;
   if(nb_points < 100) {
     step = mini / (5e3 * (epoch + 1.));
     // step = mini / 5e3 * (epoch + 1.);
   } else if(100 <= nb_points < 700) {
-    step = std::min(mini, 1.) / (norm_grad * pow(2, 10));
+    step = std::min(mini, 1.) / (norm_grad);// * pow(2, 10));
     // step = std::min(mini , 1.) / norm_grad;
   } else {
     if(epoch < 10) {

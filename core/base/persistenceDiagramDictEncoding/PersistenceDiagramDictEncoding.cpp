@@ -12,14 +12,14 @@ void PersistenceDiagramDictEncoding::execute(
 
   Timer tm{};
 
-  // for(size_t i = 0; i < dictDiagrams.size(); ++i) {
-  // std::cout << "Atom " << i << std::endl;
-  // for(size_t j = 0; j < dictDiagrams[i].size(); ++j) {
-  // DiagramTuple &t = dictDiagrams[i][j];
-  // std::cout << "Pair atoms: " << std::get<6>(t) << ", " << std::get<10>(t)
-  //          << std::endl;
-  //}
-  //}
+  for(size_t i = 0; i < dictDiagrams.size(); ++i) {
+    std::cout << "Atom " << i << std::endl;
+    for(size_t j = 0; j < dictDiagrams[i].size(); ++j) {
+      DiagramTuple &t = dictDiagrams[i][j];
+      std::cout << "Pair atoms: " << std::get<6>(t) << ", " << std::get<10>(t)
+              << std::endl;
+    }
+  }
 
   const auto nDiags = intermediateDiagrams.size();
 
@@ -479,8 +479,8 @@ void PersistenceDiagramDictEncoding::execute(
         weights, Barycenter, Data, matchingsMin, matchingsMax, matchingsSad,
         indexBaryMin, indexBaryMax, indexBarySad, indexDataMin, indexDataMax,
         indexDataSad, checkerAtoms);
-      gradActor.executeAtoms(
-        dictDiagrams, matchingsAtoms, Barycenter, gradsAtoms, nb_points , checkerAtoms);
+      gradActor.executeAtoms(dictDiagrams, matchingsAtoms, Barycenter,
+                             gradsAtoms, nb_points, checkerAtoms);
     }
 
     for(size_t i = 0; i < dictDiagrams.size(); ++i) {
@@ -621,7 +621,7 @@ std::vector<double> PersistenceDiagramDictEncoding::computeGradientWeights(
       const SimplexId Id1 = std::get<0>(t);
       // Id in barycenter
       const SimplexId Id2 = std::get<1>(t);
-      //if(Id2 < 0){
+      // if(Id2 < 0){
       if(Id2 < 0 || Id2 >= grad_list.size() || Id1 >= dictDiagrams[i].size()) {
         continue;
       } else if(Id1 < 0) {
@@ -817,7 +817,7 @@ std::vector<Matrice> PersistenceDiagramDictEncoding::computeGradientAtoms(
   // std::vector<MatchingTuple> matching;
   std::vector<Matrice> gradsLists(Barycenter.size());
   std::vector<std::vector<double>> directions(Barycenter.size());
-  //std::vector<int> checker(Barycenter.size(), 0);
+  // std::vector<int> checker(Barycenter.size(), 0);
   // computeDistance(newDataBidder, barycenterBidder, matching);
 
   int k = 0;
