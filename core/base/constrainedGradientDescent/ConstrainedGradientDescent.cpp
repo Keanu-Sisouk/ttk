@@ -197,15 +197,15 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
           double birth = t[0];
           pos2[p] = birth == 0;
           if(birth > 0) {
-            //temp2.push_back(birth);
+            // temp2.push_back(birth);
             temp2[p] = birth;
           }
         }
-        std::vector<double> temp(pos.size() , 0.);
+        std::vector<double> temp(pos.size(), 0.);
         for(int p = 0; p < pos.size(); ++p) {
           double val = pos[p];
           if(val > 0.) {
-            //temp.push_back(val);
+            // temp.push_back(val);
             temp[p] = val;
           }
         }

@@ -142,13 +142,18 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
   }
 
   // std::vector<ttk::Diagram> inputDiagram(1);
-
+  this->printMsg("==============COUCHE TTK=======================");
   std::vector<ttk::Diagram> dictDiagrams(numAtom);
   double max_dimension_total2 = 0.0;
   for(int i = 0; i < numAtom; ++i) {
     ttk::Diagram &atom = dictDiagrams[i];
     double max_dimension2 = getPersistenceDiagram(
       atom, vtkUnstructuredGrid::SafeDownCast(output_dgm->GetBlock(i)));
+    for(size_t k = 0 ; k < atom.size() ; ++k){
+      DiagramTuple &t = atom[k];
+      std::cout << "Pair atoms: " << std::get<6>(t) << ", " << std::get<10>(t)
+                << std::endl;
+    }
     if(max_dimension2 < 0.0) {
       this->printErr("Could not read Persistence Diagram");
       return 0;
@@ -157,6 +162,8 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
       max_dimension_total2 = max_dimension2;
     }
   }
+
+  this->printMsg("==============COUCHE TTK=======================");
 
   std::vector<std::vector<double>> vectorWeights(nDiags);
   for(int i = 0; i < vectorWeights.size(); ++i) {
@@ -268,13 +275,13 @@ double ttkPersistenceDiagramDictEncoding::getPersistenceDiagram(
     return -3.0;
   }
 
-  diagram.resize(pairingsSize + 1);
+  diagram.resize(pairingsSize);
   int nbNonCompact = 0;
   double max_dimension = 0;
 
   // skip diagonal cell (corresponding points already dealt with)
   for(int i = 0; i < pairingsSize; ++i) {
-
+    this->printMsg("=====" + std::to_string(i) + "=====DEBUT=====");
     int vertexId1 = vertexIdentifierScalars->GetValue(2 * i);
     int vertexId2 = vertexIdentifierScalars->GetValue(2 * i + 1);
     int nodeType1 = nodeTypeScalars->GetValue(2 * i);
@@ -307,16 +314,16 @@ double ttkPersistenceDiagramDictEncoding::getPersistenceDiagram(
       if(pairIdentifier == 0) {
         max_dimension = persistence;
 
+        //diagram[0] = std::make_tuple(
+          //vertexId1, ttk::CriticalType::Local_minimum, vertexId2,
+          //ttk::CriticalType::Saddle1, persistence, pairType, birth,
+          //coordsBirth[0], coordsBirth[1], coordsBirth[2], death, coordsDeath[0],
+          //coordsDeath[1], coordsDeath[2]);
         diagram[0] = std::make_tuple(
-          vertexId1, ttk::CriticalType::Local_minimum, vertexId2,
-          ttk::CriticalType::Saddle1, persistence, pairType, birth,
-          coordsBirth[0], coordsBirth[1], coordsBirth[2], death, coordsDeath[0],
-          coordsDeath[1], coordsDeath[2]);
-        // diagram[pairingsSize] = std::make_tuple(
-        // vertexId1, ttk::CriticalType::Saddle1, vertexId2,
-        // ttk::CriticalType::Local_maximum, persistence, pairType, birth,
-        // coordsBirth[0], coordsBirth[1], coordsBirth[2], death,
-        // coordsDeath[0], coordsDeath[1], coordsDeath[2]);
+         vertexId1, ttk::CriticalType::Saddle1, vertexId2,
+         ttk::CriticalType::Local_maximum, persistence, pairType, birth,
+         coordsBirth[0], coordsBirth[1], coordsBirth[2], death,
+         coordsDeath[0], coordsDeath[1], coordsDeath[2]);
 
       } else {
         diagram[pairIdentifier] = std::make_tuple(
@@ -333,7 +340,10 @@ double ttkPersistenceDiagramDictEncoding::getPersistenceDiagram(
                        "the diagram size).");
       }
     }
+    this->printMsg("=====" + std::to_string(i) + "=====FIN=====");
   }
+
+
 
   if(nbNonCompact > 0) {
     this->printWrn("Missed " + std::to_string(nbNonCompact)
