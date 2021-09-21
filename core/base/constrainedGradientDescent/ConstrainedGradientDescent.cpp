@@ -75,7 +75,7 @@ void ConstrainedGradientDescent::gradientDescentWeights(
     step = mini / (5e3 * (epoch + 1.));
     // step = mini / 5e3 * (epoch + 1.);
   } else if(100 <= nb_points < 700) {
-    step = std::min(mini, 1.) / (norm_grad);// * pow(2, 10));
+    step = std::min(mini, 1.) / (norm_grad); // * pow(2, 10));
     // step = std::min(mini , 1.) / norm_grad;
   } else {
     if(epoch < 10) {
@@ -187,7 +187,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
       if(k > 0) {
         printf("==============BOOL VERIFIED==============");
         std::vector<bool> pos2(pos.size(), false);
-        std::vector<float> temp2;
+        std::vector<double> temp2(pos.size(), 0.);
         // for(int p = 0; p < pos.size(); ++p) {
         for(int p = 0; p < checker[i].size(); ++p) {
           // DiagramTuple &t = grad_list[i][p];
@@ -197,14 +197,16 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
           double birth = t[0];
           pos2[p] = birth == 0;
           if(birth > 0) {
-            temp2.push_back(birth);
+            //temp2.push_back(birth);
+            temp2[p] = birth;
           }
         }
-        std::vector<double> temp;
+        std::vector<double> temp(pos.size() , 0.);
         for(int p = 0; p < pos.size(); ++p) {
           double val = pos[p];
           if(val > 0.) {
-            temp.push_back(val);
+            //temp.push_back(val);
+            temp[p] = val;
           }
         }
         double mini = *std::min_element(temp.begin(), temp.end());

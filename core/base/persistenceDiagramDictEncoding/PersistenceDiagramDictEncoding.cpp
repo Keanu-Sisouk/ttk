@@ -17,7 +17,7 @@ void PersistenceDiagramDictEncoding::execute(
     for(size_t j = 0; j < dictDiagrams[i].size(); ++j) {
       DiagramTuple &t = dictDiagrams[i][j];
       std::cout << "Pair atoms: " << std::get<6>(t) << ", " << std::get<10>(t)
-              << std::endl;
+                << std::endl;
     }
   }
 
@@ -488,48 +488,31 @@ void PersistenceDiagramDictEncoding::execute(
       for(size_t j = 0; j < dictDiagrams[i].size(); ++j) {
         DiagramTuple &t = dictDiagrams[i][j];
         std::cout << "Pair atoms: " << std::get<6>(t) << ", " << std::get<10>(t)
-                  << std::endl;
+                  << " and " << (std::get<6>(t) > 0.)  << " and "
+                  << (std::get<10>(t) >= std::get<6>(t)) << std::endl;
       }
     }
 
     this->printMsg("=====================================================");
-    for(size_t i = 0; i < allMatchingsAtoms[0].size(); ++i) {
-      std::cout << "matchings atom" << i << std::endl;
-      for(size_t j = 0; j < allMatchingsAtoms[0][i].size(); ++j) {
-        MatchingTuple &t = allMatchingsAtoms[0][i][j];
-        std::cout << "Matching: " << std::get<0>(t) << ", " << std::get<1>(t)
-                  << std::endl;
-      }
-    }
-    this->printMsg("=====================================================");
-    for(size_t i = 0; i < allMatchingsAtoms[1].size(); ++i) {
-      std::cout << "matchings atom" << i << std::endl;
-      for(size_t j = 0; j < allMatchingsAtoms[1][i].size(); ++j) {
-        MatchingTuple &t = allMatchingsAtoms[1][i][j];
-        std::cout << "Matching: " << std::get<0>(t) << ", " << std::get<1>(t)
-                  << std::endl;
+
+    for(size_t i = 0 ; i < vectorWeights.size() ; ++i){
+      std::cout << "Weight" << i << "================" << std::endl;
+      for(size_t j = 0 ; j < vectorWeights[i].size() ; ++j){
+        //std::cout << vectorWeights[i][j] << std::end;
+        this->printMsg(std::to_string(vectorWeights[i][j]));
       }
     }
 
     this->printMsg("=====================================================");
-    for(size_t i = 0; i < allMatchingsAtoms[2].size(); ++i) {
-      std::cout << "matchings atom" << i << std::endl;
-      for(size_t j = 0; j < allMatchingsAtoms[2][i].size(); ++j) {
-        MatchingTuple &t = allMatchingsAtoms[2][i][j];
-        std::cout << "Matching: " << std::get<0>(t) << ", " << std::get<1>(t)
-                  << std::endl;
-      }
-    }
+    //for(size_t i = 0; i < allMatchingsAtoms[0].size(); ++i) {
+      //std::cout << "matchings atom" << i << std::endl;
+      //for(size_t j = 0; j < allMatchingsAtoms[0][i].size(); ++j) {
+        //MatchingTuple &t = allMatchingsAtoms[0][i][j];
+        //std::cout << "Matching: " << std::get<0>(t) << ", " << std::get<1>(t)
+        //          << std::endl;
+      //}
+    //}
 
-    this->printMsg("=====================================================");
-    for(size_t i = 0; i < allMatchingsAtoms[3].size(); ++i) {
-      std::cout << "matchings atom" << i << std::endl;
-      for(size_t j = 0; j < allMatchingsAtoms[3][i].size(); ++j) {
-        MatchingTuple &t = allMatchingsAtoms[3][i][j];
-        std::cout << "Matching: " << std::get<0>(t) << ", " << std::get<1>(t)
-                  << std::endl;
-      }
-    }
 
     this->printMsg("=====================================================");
 
@@ -621,8 +604,8 @@ std::vector<double> PersistenceDiagramDictEncoding::computeGradientWeights(
       const SimplexId Id1 = std::get<0>(t);
       // Id in barycenter
       const SimplexId Id2 = std::get<1>(t);
-      // if(Id2 < 0){
-      if(Id2 < 0 || Id2 >= grad_list.size() || Id1 >= dictDiagrams[i].size()) {
+      if(Id2 < 0){
+      //if(Id2 < 0 || Id2 >= grad_list.size() || Id1 >= dictDiagrams[i].size()) {
         continue;
       } else if(Id1 < 0) {
         const DiagramTuple &t3 = Barycenter[Id2];
