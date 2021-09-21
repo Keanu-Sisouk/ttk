@@ -149,7 +149,7 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
     ttk::Diagram &atom = dictDiagrams[i];
     double max_dimension2 = getPersistenceDiagram(
       atom, vtkUnstructuredGrid::SafeDownCast(output_dgm->GetBlock(i)));
-    for(size_t k = 0 ; k < atom.size() ; ++k){
+    for(size_t k = 0; k < atom.size(); ++k) {
       DiagramTuple &t = atom[k];
       std::cout << "Pair atoms: " << std::get<6>(t) << ", " << std::get<10>(t)
                 << std::endl;
@@ -314,16 +314,16 @@ double ttkPersistenceDiagramDictEncoding::getPersistenceDiagram(
       if(pairIdentifier == 0) {
         max_dimension = persistence;
 
-        //diagram[0] = std::make_tuple(
-          //vertexId1, ttk::CriticalType::Local_minimum, vertexId2,
-          //ttk::CriticalType::Saddle1, persistence, pairType, birth,
-          //coordsBirth[0], coordsBirth[1], coordsBirth[2], death, coordsDeath[0],
-          //coordsDeath[1], coordsDeath[2]);
+        // diagram[0] = std::make_tuple(
+        // vertexId1, ttk::CriticalType::Local_minimum, vertexId2,
+        // ttk::CriticalType::Saddle1, persistence, pairType, birth,
+        // coordsBirth[0], coordsBirth[1], coordsBirth[2], death,
+        // coordsDeath[0], coordsDeath[1], coordsDeath[2]);
         diagram[0] = std::make_tuple(
-         vertexId1, ttk::CriticalType::Saddle1, vertexId2,
-         ttk::CriticalType::Local_maximum, persistence, pairType, birth,
-         coordsBirth[0], coordsBirth[1], coordsBirth[2], death,
-         coordsDeath[0], coordsDeath[1], coordsDeath[2]);
+          vertexId1, ttk::CriticalType::Saddle1, vertexId2,
+          ttk::CriticalType::Local_maximum, persistence, pairType, birth,
+          coordsBirth[0], coordsBirth[1], coordsBirth[2], death, coordsDeath[0],
+          coordsDeath[1], coordsDeath[2]);
 
       } else {
         diagram[pairIdentifier] = std::make_tuple(
@@ -342,8 +342,6 @@ double ttkPersistenceDiagramDictEncoding::getPersistenceDiagram(
     }
     this->printMsg("=====" + std::to_string(i) + "=====FIN=====");
   }
-
-
 
   if(nbNonCompact > 0) {
     this->printWrn("Missed " + std::to_string(nbNonCompact)
