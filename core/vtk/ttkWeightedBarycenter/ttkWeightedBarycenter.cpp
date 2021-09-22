@@ -111,10 +111,10 @@ int ttkWeightedBarycenter::RequestData(vtkInformation *request,
       }
 
     std::vector<double> weights;
-    // weights.resize(3);
-    // weights[0]=0.5;
-    // weights[1]=0.5;
-    // weights[2]=0.5;
+    weights.resize(3);
+    weights[0]=0.4;
+    weights[1]=0.4;
+    weights[2]=0.2;
     diagramType barycenter;
     std::vector<std::vector<matchingType>> matchings;
 
@@ -678,6 +678,11 @@ void ttkWeightedBarycenter::outputMatchings(
     pairType->SetNumberOfTuples(nCells);
     matchingsGrid->GetCellData()->AddArray(pairType);
 
+    vtkNew<vtkIntArray> isDiagonal{};
+    isDiagonal->SetName("IsDiagonal");
+    isDiagonal->SetNumberOfTuples(nCells);
+    matchingsGrid->GetCellData()->AddArray(isDiagonal);
+
     for(size_t j = 0; j < matchings.size(); ++j) {
       const auto &m{matchings[j]};
       const auto bidderId{std::get<0>(m)};
@@ -690,15 +695,29 @@ void ttkWeightedBarycenter::outputMatchings(
         continue;
       }
 
-      if(nClusters == 1) {
+      if(nClusters == 1 and bidderId >= 0) {
         matchings_count[goodId] += 1;
         count_to_good.push_back(goodId);
       }
 
       const auto &p0{centroids[cid][goodId]};
-      const auto &p1{diag[bidderId]};
       std::array<double, 3> coords0{std::get<6>(p0), std::get<10>(p0), 0};
-      std::array<double, 3> coords1{std::get<6>(p1), std::get<10>(p1), 0};
+
+      std::array<double, 3> coords1{};
+
+      if(bidderId >=0){
+        const auto &p1{diag[bidderId]};
+        coords1[0] = std::get<6>(p1);
+        coords1[1] = std::get<10>(p1);
+        coords1[2] = 0;
+        isDiagonal->SetTuple1(j, 0);
+      }else{
+        double diagonal_projection = (std::get<6>(p0) + std::get<10>(p0)) / 2;
+        coords1[0] = diagonal_projection;
+        coords1[1] = diagonal_projection;
+        coords1[2] = 0;
+        isDiagonal->SetTuple1(j, 1);
+      }
 
       if(dm == DISPLAY::STARS && spacing > 0) {
         const auto angle = 2.0 * M_PI * static_cast<double>(diagIdInClust[i])
@@ -727,7 +746,7 @@ void ttkWeightedBarycenter::outputMatchings(
       diagIdVerts->SetTuple1(2 * j + 1, i);
       pointId->SetTuple1(2 * j + 0, goodId);
       pointId->SetTuple1(2 * j + 1, bidderId);
-      pairType->SetTuple1(j, std::get<5>(p1));
+      pairType->SetTuple1(j, std::get<5>(p0));
     }
 
     output->SetBlock(i, matchingsGrid);

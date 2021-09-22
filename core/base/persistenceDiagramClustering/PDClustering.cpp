@@ -590,7 +590,7 @@ void ttk::PDClustering::correctMatchings(
         std::vector<MatchingType> matchings_diagram_i;
         for(size_t j = 0; j < previous_matchings[c][2][i].size(); j++) {
           MatchingType m = previous_matchings[c][2][i][j];
-          int const new_id = std::get<0>(m);
+          int new_id = std::get<0>(m);
           if(new_id >= 0 && std::get<1>(m) >= 0) {
             int const old_id = new_to_old_id[new_id];
             if(old_id > 0) {
