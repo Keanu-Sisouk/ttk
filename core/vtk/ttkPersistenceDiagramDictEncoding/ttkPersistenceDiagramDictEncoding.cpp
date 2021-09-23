@@ -216,9 +216,11 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
     Diagram &diagram = dictDiagrams[i];
     double max_persistence = getMaxPersistence(diagram);
     diagramToVTU(vtu , diagram , max_persistence);
+    this->printMsg("=====HERE?======");
     output_dgm->SetBlock(i, vtu);
+    this->printMsg("=====HERE2?=====");
   }
-
+  this->printMsg("========JUST BEFORE RETURN============");
   return 1;
 }
 

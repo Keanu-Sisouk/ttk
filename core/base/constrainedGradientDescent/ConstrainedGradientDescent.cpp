@@ -50,12 +50,12 @@ void ConstrainedGradientDescent::projectionOnSimplex(
     weights[i] = std::max(weights[i] - theta, 0.);
   }
 
-  double sum = 0.;
-  for(int i = 0; i < n - 1; ++i) {
-    weights[i] = trunc(weights[i] * 1e6) / 1e6;
-    sum += weights[i];
-  }
-  weights[n - 1] = 1. - sum;
+  //double sum = 0.;
+  //for(int i = 0; i < n - 1; ++i) {
+    //weights[i] = trunc(weights[i] * 1e6) / 1e6;
+    //sum += weights[i];
+  //}
+  //weights[n - 1] = 1. - sum;
 }
 
 void ConstrainedGradientDescent::gradientDescentWeights(
@@ -109,6 +109,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
 
   std::vector<std::vector<int>> checker(Barycenter.size());
   std::vector<int> tracker(Barycenter.size(), 0);
+  std::vector<std::vector<int>> tracker_diagonal(Barycenter.size());
   // std::vector<int> tracker2(Barycenter.size(), 0);
   std::vector<std::vector<int>> tracker_match(Barycenter.size());
 
@@ -129,7 +130,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
       const SimplexId Id1 = std::get<0>(t);
       // Id in barycenter
       const SimplexId Id2 = std::get<1>(t);
-      if(Id2 < 0 || Id2 >= grad_list.size() || Id1 >= DictDiagrams[i].size()) {
+      if(Id2 < 0 || Id2 >= grad_list.size() || Id1 >= static_cast<int>(DictDiagrams[i].size())) {
         continue;
       } else if(Id1 < 0) {
         const DiagramTuple &t3 = Barycenter[Id2];
@@ -144,6 +145,8 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
         grad_list[Id2][i] = std::move(point);
         checker[Id2].push_back(i);
         tracker[Id2] = 1;
+        tracker_match[Id2].push_back(-1);
+        tracker_diagonal[Id2].push_back(1);
 
       } else {
         // this->printMsg("====UPDATE GRADLIST========");
@@ -158,6 +161,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
         checker[Id2].push_back(i);
         tracker[Id2] = 1;
         tracker_match[Id2].push_back(Id1);
+        tracker_diagonal[Id2].push_back(0);
       }
     }
   }
@@ -261,10 +265,14 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
       continue;
     } else {
       for(int j = 0; j < checker[i].size(); ++j) {
-        std::vector<double> &t2 = grad_list[i][checker[i][j]];
-        DiagramTuple &t1 = DictDiagrams[checker[i][j]][tracker_match[i][j]];
-        std::get<6>(t1) = t2[0];
-        std::get<10>(t1) = t2[1];
+        if (tracker_diagonal[i][j] == 1 || tracker_match[i][j] == -1){
+          continue;
+        } else {
+          std::vector<double> &t2 = grad_list[i][checker[i][j]];
+          DiagramTuple &t1 = DictDiagrams[checker[i][j]][tracker_match[i][j]];
+          std::get<6>(t1) = t2[0];
+          std::get<10>(t1) = t2[1];
+        }
       }
     }
   }
