@@ -163,7 +163,7 @@ void PersistenceDiagramDictEncoding::execute(
       for(int i = 0; i < barycenter.size(); ++i) {
         DiagramTuple &t = barycenter[i];
         std::cout << "Pair: " << std::get<6>(t) << ", " << std::get<10>(t)
-                << std::endl;
+                  << std::endl;
       }
     }
     std::vector<Diagram> BarycentersMin(nDiags);
@@ -328,10 +328,10 @@ void PersistenceDiagramDictEncoding::execute(
       // this->printMsg(std::to_string(sum_temp));
       std::vector<std::vector<MatchingTuple>> &matchings = allMatchingsAtoms[i];
       computeWeightedBarycenter(dictDiagrams, weight, barycenter, matchings);
-      //for(int i = 0; i < barycenter.size(); ++i) {
-        //DiagramTuple &t = barycenter[i];
-        //std::cout << "Pair: " << std::get<6>(t) << ", " << std::get<10>(t)
-        //          << std::endl;
+      // for(int i = 0; i < barycenter.size(); ++i) {
+      // DiagramTuple &t = barycenter[i];
+      // std::cout << "Pair: " << std::get<6>(t) << ", " << std::get<10>(t)
+      //          << std::endl;
       //}
     }
 
@@ -483,14 +483,14 @@ void PersistenceDiagramDictEncoding::execute(
     }
 
     for(size_t i = 0; i < dictDiagrams.size(); ++i) {
-        std::cout << "Atom " << i << std::endl;
-        for(size_t j = 0; j < dictDiagrams[i].size(); ++j) {
-          DiagramTuple &t = dictDiagrams[i][j];
-          std::cout << "Pair atoms: " << std::get<6>(t) << ", " << std::get<10>(t)
-            << " and " << (0. <= std::get<6>(t) ) << " and "
-            << (std::get<10>(t) >= std::get<6>(t)) << std::endl;
-            }
-          }
+      std::cout << "Atom " << i << std::endl;
+      for(size_t j = 0; j < dictDiagrams[i].size(); ++j) {
+        DiagramTuple &t = dictDiagrams[i][j];
+        std::cout << "Pair atoms: " << std::get<6>(t) << ", " << std::get<10>(t)
+                  << " and " << (0. <= std::get<6>(t)) << " and "
+                  << (std::get<10>(t) >= std::get<6>(t)) << std::endl;
+      }
+    }
 
     this->printMsg("=====================================================");
 
@@ -605,7 +605,8 @@ std::vector<double> PersistenceDiagramDictEncoding::computeGradientWeights(
       // Id in barycenter
       const SimplexId Id2 = std::get<1>(t);
       // if(Id2 < 0) {
-      if(Id2 < 0 || Id2 >= grad_list.size() || Id1 >= static_cast<int>(dictDiagrams[i].size())) {
+      if(Id2 < 0 || Id2 >= grad_list.size()
+         || Id1 >= static_cast<int>(dictDiagrams[i].size())) {
         continue;
       } else if(Id1 < 0) {
         this->printMsg("========DIAGONAL=========");
@@ -812,7 +813,7 @@ std::vector<Matrice> PersistenceDiagramDictEncoding::computeGradientAtoms(
     const SimplexId Id1 = std::get<0>(t);
     // Id in barycenter
     const SimplexId Id2 = std::get<1>(t);
-    //std::cout << Id1 << ""
+    // std::cout << Id1 << ""
 
     if(Id2 < 0) {
       k += 1;
