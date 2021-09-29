@@ -177,7 +177,7 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
   // dictDiagrams, vectorWeights,  nInputs);
   this->execute(intermediateDiagrams, dictDiagrams, vectorWeights, nInputs);
   // zero-padd column name to keep Row Data columns ordered
-  this->printMsg("============WE ARE HERE 173 AFTER EXECUTE============");
+  //this->printMsg("============WE ARE HERE 173 AFTER EXECUTE============");
   output_weights->SetNumberOfRows(numAtom);
 
   const auto zeroPad
@@ -188,7 +188,7 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
         colName.append(zer).append(cur);
       };
   // output_weights->SetNumberOfTuples(3);
-  this->printMsg("============WE ARE HERE 184 AFTER EXECUTE============");
+  //this->printMsg("============WE ARE HERE 184 AFTER EXECUTE============");
   for(int i = 0; i < nDiags; ++i) {
     std::string name{"weights"};
     zeroPad(name, nDiags, i);
@@ -208,7 +208,7 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
     output_weights->AddColumn(col);
   }
 
-  this->printMsg("============WE ARE HERE 204 AFTER EXECUTE============");
+  //this->printMsg("============WE ARE HERE 204 AFTER EXECUTE============");
 
   for(int i = 0 ; i < numAtom ; ++i ){
     //vtkUnstructuredGrid temp = vtkUnstructuredGrid::SafeDownCast(output_dgm->GetBlock(i));
@@ -216,11 +216,11 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
     Diagram &diagram = dictDiagrams[i];
     double max_persistence = getMaxPersistence(diagram);
     diagramToVTU(vtu , diagram , max_persistence);
-    this->printMsg("=====HERE?======");
+    //this->printMsg("=====HERE?======");
     output_dgm->SetBlock(i, vtu);
-    this->printMsg("=====HERE2?=====");
+    //this->printMsg("=====HERE2?=====");
   }
-  this->printMsg("========JUST BEFORE RETURN============");
+  //this->printMsg("========JUST BEFORE RETURN============");
   return 1;
 }
 
