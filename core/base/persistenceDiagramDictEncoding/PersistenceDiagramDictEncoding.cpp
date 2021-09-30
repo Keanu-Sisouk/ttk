@@ -34,7 +34,7 @@ void PersistenceDiagramDictEncoding::execute(
   }
 
   // inputDiagrams = newDatas here
-  //tracking the original indices
+  // tracking the original indices
   std::vector<Diagram> inputDiagramsMin(nDiags);
   std::vector<Diagram> inputDiagramsSad(nDiags);
   std::vector<Diagram> inputDiagramsMax(nDiags);
@@ -168,7 +168,7 @@ void PersistenceDiagramDictEncoding::execute(
       }
     }
 
-    //tracking the original indices
+    // tracking the original indices
     std::vector<Diagram> BarycentersMin(nDiags);
     std::vector<Diagram> BarycentersSad(nDiags);
     std::vector<Diagram> BarycentersMax(nDiags);
@@ -238,7 +238,7 @@ void PersistenceDiagramDictEncoding::execute(
     //#pragma omp parallel for num_threads(threadNumber_)
     //#endif // TTK_ENABLE_OPENMP
 
-    //Compute distance and matchings
+    // Compute distance and matchings
     for(size_t i = 0; i < nDiags; ++i) {
       std::vector<MatchingTuple> matching_min;
       std::vector<MatchingTuple> matching_sad;
@@ -297,7 +297,7 @@ void PersistenceDiagramDictEncoding::execute(
       const std::vector<size_t> &indexDataMin = origin_index_datasMin[i];
       const std::vector<size_t> &indexDataSad = origin_index_datasSad[i];
       const std::vector<size_t> &indexDataMax = origin_index_datasMax[i];
-      //this->printMsg("Barycenter" + std::to_string(i));
+      // this->printMsg("Barycenter" + std::to_string(i));
       gradientsWeights[i] = std::move(computeGradientWeights(
         dictDiagrams, matchingsAtoms, Barycenter, Data, matchingsMin,
         matchingsMax, matchingsSad, indexBaryMin, indexBaryMax, indexBarySad,
@@ -308,8 +308,7 @@ void PersistenceDiagramDictEncoding::execute(
     //#pragma omp parallel for num_threads(threadNumber_)
     //#endif // TTK_ENABLE_OPENMP
 
-
-    //Computing the nDiags gradients and gradient steps
+    // Computing the nDiags gradients and gradient steps
     for(int i = 0; i < nDiags; ++i) {
       // const std::vector<double> gradWeight = computeGradientWeights(
       // dictDiagrams, matchingsAtoms, Barycenter, Data, matchingsMin,
@@ -598,26 +597,26 @@ std::vector<double> PersistenceDiagramDictEncoding::computeGradientWeights(
   // this->printMsg("error?2");
   // computing gradients
   for(int i = 0; i < matchingsAtoms.size(); ++i) {
-    //this->printMsg("Atom " + std::to_string(i));
-    //this->printMsg("======================= atom size: "
-      //             + std::to_string(static_cast<int>(dictDiagrams[i].size()))
-      //             + ", and nb matchings: "
-      //             + std::to_string(static_cast<int>(matchingsAtoms[i].size()))
-      //             + ", and bary size: "
-      //             + std::to_string(static_cast<int>(Barycenter.size()))
-      //             + "=====================================");
+    // this->printMsg("Atom " + std::to_string(i));
+    // this->printMsg("======================= atom size: "
+    //             + std::to_string(static_cast<int>(dictDiagrams[i].size()))
+    //             + ", and nb matchings: "
+    //             + std::to_string(static_cast<int>(matchingsAtoms[i].size()))
+    //             + ", and bary size: "
+    //             + std::to_string(static_cast<int>(Barycenter.size()))
+    //             + "=====================================");
     for(int j = 0; j < matchingsAtoms[i].size(); ++j) {
       const MatchingTuple &t = matchingsAtoms[i][j];
       // Id in atom
       const SimplexId Id1 = std::get<0>(t);
       // Id in barycenter
       const SimplexId Id2 = std::get<1>(t);
-      if(Id2 < 0) {
-      //if(Id2 < 0 || Id2 >= grad_list.size()
-        // || Id1 >= static_cast<int>(dictDiagrams[i].size())) {
+      // if(Id2 < 0) {
+      if(Id2 < 0 || Id2 >= grad_list.size()
+        || Id1 >= static_cast<int>(dictDiagrams[i].size())) {
         continue;
       } else if(Id1 < 0) {
-        //this->printMsg("========DIAGONAL=========");
+        // this->printMsg("========DIAGONAL=========");
         const DiagramTuple &t3 = Barycenter[Id2];
         std::vector<double> point(2);
         const double birth_barycenter = std::get<6>(t3);
@@ -929,10 +928,10 @@ std::vector<Matrice> PersistenceDiagramDictEncoding::computeGradientAtoms(
 
   for(size_t i = 0; i < Barycenter.size(); ++i) {
     if(checker[i] == 0) {
-      //this->printMsg("NOT CHECKED");
-      //printf("NOT CHECKED")
+      // this->printMsg("NOT CHECKED");
+      // printf("NOT CHECKED")
       std::cout << "NOT CHECKED" << std::endl;
-      //continue;
+      // continue;
     } else {
       for(size_t j = 0; j < weights.size(); ++j) {
         std::vector<double> temp(2);
