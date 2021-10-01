@@ -51,10 +51,10 @@ void ConstrainedGradientDescent::projectionOnSimplex(
   }
 
   double sum = 0.;
-    for(int i = 0; i < n - 1; ++i) {
-      weights[i] = trunc(weights[i] * 1e6) / 1e6;
-      sum += weights[i];
-    }
+  for(int i = 0; i < n - 1; ++i) {
+    weights[i] = trunc(weights[i] * 1e6) / 1e6;
+    sum += weights[i];
+  }
   weights[n - 1] = 1. - sum;
 }
 
@@ -132,7 +132,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
       const SimplexId Id2 = std::get<1>(t);
       // if(Id2 < 0) {
       if(Id2 < 0 || Id2 >= grad_list.size()
-        || Id1 >= static_cast<int>(DictDiagrams[i].size())) {
+         || Id1 >= static_cast<int>(DictDiagrams[i].size())) {
         continue;
       } else if(Id1 < 0) {
         const DiagramTuple &t3 = Barycenter[Id2];
@@ -171,9 +171,9 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
   // printf("=========ATOM GRADIENT STEP==============");
   for(int i = 0; i < grad_list.size(); ++i) {
     if(tracker[i] == 0 || checkerAtomsExt[i] == 0) {
-       // printf("SAUT!!!!!!!!");
-       // std::cout << "SAUT!!!!!!" << std::endl;
-       continue;
+      // printf("SAUT!!!!!!!!");
+      // std::cout << "SAUT!!!!!!" << std::endl;
+      continue;
     } else {
       std::vector<double> pos(grad_list[i].size(), 0.);
       int k = 0;
@@ -195,7 +195,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
       if(k > 0) {
         // printf("==============BOOL VERIFIED==============");
         std::vector<bool> pos2(pos.size(), false);
-        //std::vector<double> temp2(pos.size(), 0.);
+        // std::vector<double> temp2(pos.size(), 0.);
         std::vector<double> temp2;
         // for(int p = 0; p < pos.size(); ++p) {
         for(int p = 0; p < checker[i].size(); ++p) {
@@ -207,30 +207,30 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
           pos2[p] = birth == 0;
           if(birth > 0) {
             temp2.push_back(birth);
-            //temp2[p] = birth;
+            // temp2[p] = birth;
           }
         }
-        //std::vector<double> temp(pos.size(), 0.);
+        // std::vector<double> temp(pos.size(), 0.);
         std::vector<double> temp;
         for(int p = 0; p < pos.size(); ++p) {
           double val = pos[p];
           if(val > 0.) {
             temp.push_back(val);
-            //temp[p] = val;
+            // temp[p] = val;
           }
         }
         double mini = *std::min_element(temp.begin(), temp.end());
         double step;
-        if (temp2.size() == 0){
-          step = std::min(1.,mini)/1e1;
+        if(temp2.size() == 0) {
+          step = std::min(1., mini) / 1e1;
         } else {
           double mini2 = *std::min_element(temp2.begin(), temp2.end());
           // double maxi = std::max_element(pos.begin() ; pos.end());
           step = std::min(std::min(1., mini), mini2) / 1e1;
         }
-        std::cout << "STEP : " << step << std::endl;
+        //std::cout << "STEP : " << step << std::endl;
         // std::cout << "STEP : " << step << std::endl;
-        //double step = 1. / 1e1;
+        // double step = 1. / 1e1;
         // for(int p = 0; p < pos.size(); ++p) {
         for(int p = 0; p < checker[i].size(); ++p) {
           if(pos2[p]) {

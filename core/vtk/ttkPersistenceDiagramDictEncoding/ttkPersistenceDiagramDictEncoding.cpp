@@ -141,19 +141,19 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
     }
   }
 
-  // std::vector<ttk::Diagram> inputDiagram(1);
-  this->printMsg("==============COUCHE TTK=======================");
+  //std::vector<ttk::Diagram> inputDiagram(1);
+  //this->printMsg("==============COUCHE TTK=======================");
   std::vector<ttk::Diagram> dictDiagrams(numAtom);
   double max_dimension_total2 = 0.0;
   for(int i = 0; i < numAtom; ++i) {
     ttk::Diagram &atom = dictDiagrams[i];
     double max_dimension2 = getPersistenceDiagram(
       atom, vtkUnstructuredGrid::SafeDownCast(output_dgm->GetBlock(i)));
-    for(size_t k = 0; k < atom.size(); ++k) {
-      DiagramTuple &t = atom[k];
-      std::cout << "Pair atoms: " << std::get<6>(t) << ", " << std::get<10>(t)
-                << std::endl;
-    }
+    // for(size_t k = 0; k < atom.size(); ++k) {
+    //   DiagramTuple &t = atom[k];
+    //   std::cout << "Pair atoms: " << std::get<6>(t) << ", " << std::get<10>(t)
+    //             << std::endl;
+    // }
     if(max_dimension2 < 0.0) {
       this->printErr("Could not read Persistence Diagram");
       return 0;
@@ -163,7 +163,7 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
     }
   }
 
-  this->printMsg("==============COUCHE TTK=======================");
+  //this->printMsg("==============COUCHE TTK=======================");
 
   std::vector<std::vector<double>> vectorWeights(nDiags);
   for(int i = 0; i < vectorWeights.size(); ++i) {

@@ -613,7 +613,7 @@ std::vector<double> PersistenceDiagramDictEncoding::computeGradientWeights(
       const SimplexId Id2 = std::get<1>(t);
       // if(Id2 < 0) {
       if(Id2 < 0 || Id2 >= grad_list.size()
-        || Id1 >= static_cast<int>(dictDiagrams[i].size())) {
+         || Id1 >= static_cast<int>(dictDiagrams[i].size())) {
         continue;
       } else if(Id1 < 0) {
         // this->printMsg("========DIAGONAL=========");
@@ -930,8 +930,8 @@ std::vector<Matrice> PersistenceDiagramDictEncoding::computeGradientAtoms(
     if(checker[i] == 0) {
       // this->printMsg("NOT CHECKED");
       // printf("NOT CHECKED")
-      std::cout << "NOT CHECKED" << std::endl;
-      // continue;
+      //std::cout << "NOT CHECKED" << std::endl;
+      continue;
     } else {
       for(size_t j = 0; j < weights.size(); ++j) {
         std::vector<double> temp(2);
