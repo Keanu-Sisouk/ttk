@@ -193,7 +193,8 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
         }
       }
       if(k > 0) {
-        // printf("==============BOOL VERIFIED==============");
+
+        //printf("==============BOOL VERIFIED==============");
         std::vector<bool> pos2(pos.size(), false);
         // std::vector<double> temp2(pos.size(), 0.);
         std::vector<double> temp2;
@@ -212,6 +213,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
         }
         // std::vector<double> temp(pos.size(), 0.);
         std::vector<double> temp;
+
         for(int p = 0; p < pos.size(); ++p) {
           double val = pos[p];
           if(val > 0.) {
@@ -219,7 +221,9 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
             // temp[p] = val;
           }
         }
+        //std::cout << "TEMP SIZE " <<temp.size() << std::endl;
         double mini = *std::min_element(temp.begin(), temp.end());
+
         double step;
         if(temp2.size() == 0) {
           step = std::min(1., mini) / 1e1;
@@ -228,7 +232,10 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
           // double maxi = std::max_element(pos.begin() ; pos.end());
           step = std::min(std::min(1., mini), mini2) / 1e1;
         }
-        //std::cout << "STEP : " << step << std::endl;
+
+
+
+        // std::cout << "STEP : " << step << std::endl;
         // std::cout << "STEP : " << step << std::endl;
         // double step = 1. / 1e1;
         // for(int p = 0; p < pos.size(); ++p) {
@@ -255,11 +262,14 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
             // std::vector<double> &t = grad_list[i][p];
             // t[0] = t[0] - step * gradsLists[i][p][0];
             // t[1] = t[1] - step * gradsLists[i][p][1];
-            std::vector<double> &t = grad_list[i][checker[i][p]];
-            t[0] = t[0] - step * gradsLists[i][checker[i][p]][0];
-            t[1] = t[1] - step * gradsLists[i][checker[i][p]][1];
+            std::vector<double> &t0 = grad_list[i][checker[i][p]];
+            t0[0] = t0[0] - step * gradsLists[i][checker[i][p]][0];
+            t0[1] = t0[1] - step * gradsLists[i][checker[i][p]][1];
           }
         }
+        //printf("PASSED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+      } else {
+        continue;
       }
     }
   }
@@ -275,6 +285,9 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
   // std::get<10>(t1) = t2[1];
   //}
   //}
+
+
+  //printf("PASSED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
   for(int i = 0; i < checker.size(); ++i) {
     if(tracker[i] == 0 || checkerAtomsExt[i] == 0) {
       // this->printMsg("SAUT1");
@@ -309,4 +322,5 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
       }
     }
   }
+  printf("PASSED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 }

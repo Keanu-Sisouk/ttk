@@ -930,7 +930,7 @@ std::vector<Matrice> PersistenceDiagramDictEncoding::computeGradientAtoms(
     if(checker[i] == 0) {
       // this->printMsg("NOT CHECKED");
       // printf("NOT CHECKED")
-      //std::cout << "NOT CHECKED" << std::endl;
+      // std::cout << "NOT CHECKED" << std::endl;
       continue;
     } else {
       for(size_t j = 0; j < weights.size(); ++j) {
