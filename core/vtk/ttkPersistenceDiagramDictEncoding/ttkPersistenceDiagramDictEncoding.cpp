@@ -284,7 +284,7 @@ double ttkPersistenceDiagramDictEncoding::getPersistenceDiagram(
 
   // skip diagonal cell (corresponding points already dealt with)
   for(int i = 0; i < pairingsSize; ++i) {
-    //this->printMsg("=====" + std::to_string(i) + "=====DEBUT=====");
+    // this->printMsg("=====" + std::to_string(i) + "=====DEBUT=====");
     int vertexId1 = vertexIdentifierScalars->GetValue(2 * i);
     int vertexId2 = vertexIdentifierScalars->GetValue(2 * i + 1);
     int nodeType1 = nodeTypeScalars->GetValue(2 * i);
@@ -376,9 +376,10 @@ double ttkPersistenceDiagramDictEncoding::getPersistenceDiagram(
 //     = vtkIntArray::SafeDownCast(cd->GetArray("PairType"));
 //   const auto persistenceScalars
 //     = vtkDoubleArray::SafeDownCast(cd->GetArray("Persistence"));
-//   const auto birthScalars = vtkDoubleArray::SafeDownCast(pd->GetArray("Birth"));
-//   const auto deathScalars = vtkDoubleArray::SafeDownCast(pd->GetArray("Death"));
-//   const auto critCoordinates
+//   const auto birthScalars =
+//   vtkDoubleArray::SafeDownCast(pd->GetArray("Birth")); const auto
+//   deathScalars = vtkDoubleArray::SafeDownCast(pd->GetArray("Death")); const
+//   auto critCoordinates
 //     = vtkFloatArray::SafeDownCast(pd->GetArray("Coordinates"));
 //
 //   const bool embed = birthScalars != nullptr && deathScalars != nullptr;
@@ -449,13 +450,13 @@ double ttkPersistenceDiagramDictEncoding::getPersistenceDiagram(
 //         diagram[0] = std::make_tuple(
 //           vertexId1, ttk::CriticalType::Local_minimum, vertexId2,
 //           ttk::CriticalType::Saddle1, persistence, pairType, birth,
-//           coordsBirth[0], coordsBirth[1], coordsBirth[2], death, coordsDeath[0],
-//           coordsDeath[1], coordsDeath[2]);
+//           coordsBirth[0], coordsBirth[1], coordsBirth[2], death,
+//           coordsDeath[0], coordsDeath[1], coordsDeath[2]);
 //         diagram[pairingsSize] = std::make_tuple(
 //           vertexId1, ttk::CriticalType::Saddle1, vertexId2,
 //           ttk::CriticalType::Local_maximum, persistence, pairType, birth,
-//           coordsBirth[0], coordsBirth[1], coordsBirth[2], death, coordsDeath[0],
-//           coordsDeath[1], coordsDeath[2]);
+//           coordsBirth[0], coordsBirth[1], coordsBirth[2], death,
+//           coordsDeath[0], coordsDeath[1], coordsDeath[2]);
 //
 //       } else {
 //         diagram[pairIdentifier] = std::make_tuple(
@@ -468,7 +469,8 @@ double ttkPersistenceDiagramDictEncoding::getPersistenceDiagram(
 //     if(pairIdentifier >= pairingsSize) {
 //       nbNonCompact++;
 //       if(nbNonCompact == 0) {
-//         this->printWrn("Diagram pair identifiers must be compact (not exceed "
+//         this->printWrn("Diagram pair identifiers must be compact (not exceed
+//         "
 //                        "the diagram size).");
 //       }
 //     }
@@ -482,9 +484,6 @@ double ttkPersistenceDiagramDictEncoding::getPersistenceDiagram(
 //   return max_dimension;
 // }
 //
-
-
-
 
 void ttkPersistenceDiagramDictEncoding::diagramToVTU(
   vtkUnstructuredGrid *output,

@@ -194,7 +194,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
       }
       if(k > 0) {
 
-        //printf("==============BOOL VERIFIED==============");
+        // printf("==============BOOL VERIFIED==============");
         std::vector<bool> pos2(pos.size(), false);
         // std::vector<double> temp2(pos.size(), 0.);
         std::vector<double> temp2;
@@ -221,7 +221,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
             // temp[p] = val;
           }
         }
-        //std::cout << "TEMP SIZE " <<temp.size() << std::endl;
+        // std::cout << "TEMP SIZE " <<temp.size() << std::endl;
         double mini = *std::min_element(temp.begin(), temp.end());
 
         double step;
@@ -232,8 +232,6 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
           // double maxi = std::max_element(pos.begin() ; pos.end());
           step = std::min(std::min(1., mini), mini2) / 1e1;
         }
-
-
 
         // std::cout << "STEP : " << step << std::endl;
         // std::cout << "STEP : " << step << std::endl;
@@ -267,7 +265,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
             t0[1] = t0[1] - step * gradsLists[i][checker[i][p]][1];
           }
         }
-        //printf("PASSED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        // printf("PASSED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
       } else {
         continue;
       }
@@ -286,8 +284,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
   //}
   //}
 
-
-  //printf("PASSED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+  // printf("PASSED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
   for(int i = 0; i < checker.size(); ++i) {
     if(tracker[i] == 0 || checkerAtomsExt[i] == 0) {
       // this->printMsg("SAUT1");
@@ -322,5 +319,4 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
       }
     }
   }
-  printf("PASSED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 }

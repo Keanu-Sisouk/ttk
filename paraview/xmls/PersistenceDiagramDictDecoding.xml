@@ -19,9 +19,8 @@
       </Documentation>
 
       <InputProperty
-          name="Input"
-          command="AddInputConnection"
-          clean_command="RemoveAllInputs"
+          name="Dict"
+          command="SetInputConnection"
           port_index = "0">
         <ProxyGroupDomain name="groups">
           <Group name="sources"/>
@@ -39,9 +38,8 @@
       </InputProperty>
 
       <InputProperty
-          name="Input"
-          command="AddInputConnection"
-          clean_command="RemoveAllInputs"
+          name="Weights"
+          command="SetInputConnection"
           port_index = "1">
         <ProxyGroupDomain name="groups">
           <Group name="sources"/>

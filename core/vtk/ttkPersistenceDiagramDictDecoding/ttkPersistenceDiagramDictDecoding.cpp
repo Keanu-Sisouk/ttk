@@ -50,7 +50,8 @@ ttkPersistenceDiagramDictDecoding::ttkPersistenceDiagramDictDecoding() {
  * filter by adding the vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE() key to
  * the port information.
  */
-int ttkPersistenceDiagramDictDecoding::FillInputPortInformation(int port, vtkInformation *info) {
+int ttkPersistenceDiagramDictDecoding::FillInputPortInformation(
+  int port, vtkInformation *info) {
   if(port == 0) {
     /*info->Set(ttkAlgorithm::SAME_DATA_TYPE_AS_INPUT_PORT(), 0);*/
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet");
@@ -78,7 +79,8 @@ int ttkPersistenceDiagramDictDecoding::FillInputPortInformation(int port, vtkInf
  * Note: prior to the execution of the RequestData method the pipeline will
  * initialize empty output data objects based on this information.
  */
-int ttkPersistenceDiagramDictDecoding::FillOutputPortInformation(int port, vtkInformation *info) {
+int ttkPersistenceDiagramDictDecoding::FillOutputPortInformation(
+  int port, vtkInformation *info) {
   if(port == 0) {
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkMultiBlockDataSet");
     // info->Set(vtkAlgorithm::INPUT_IS_REPEATABLE(), 1);
@@ -100,20 +102,18 @@ int ttkPersistenceDiagramDictDecoding::FillOutputPortInformation(int port, vtkIn
  *     2) The output objects are already initialized based on the information
  *        provided by the FillOutputPortInformation method.
  */
-int ttkPersistenceDiagramDictDecoding::RequestData(vtkInformation *request,
-                               vtkInformationVector **inputVector,
-                               vtkInformationVector *outputVector) {
+int ttkPersistenceDiagramDictDecoding::RequestData(
+  vtkInformation *request,
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector) {
 
-  auto blocks = vtkMultiBlockDataSet::GetData(inputVector[0], 0);
-  auto weights_vtk = vtkTable::GetData(inputVector[0] , 1);
-
+  auto blocks = vtkMultiBlockDataSet::GetData(inputVector[0]);
+  auto weights_vtk = vtkTable::GetData(inputVector[1]);
 
   std::vector<vtkUnstructuredGrid *> inputDiagrams;
 
   // Number of input diagrams
   // int numInputs = 0;
-
-
 
   if(blocks != nullptr) {
     int numInputs = blocks->GetNumberOfBlocks();
@@ -132,9 +132,9 @@ int ttkPersistenceDiagramDictDecoding::RequestData(vtkInformation *request,
   double max_dimension_total2 = 0.0;
   for(int i = 0; i < nDiags; ++i) {
     ttk::Diagram &atom = dictDiagrams[i];
-    //double max_dimension2 = getPersistenceDiagram(
-      //atom, vtkUnstructuredGrid::SafeDownCast(inputDiagrams[i]));
-    double max_dimension2 = getPersistenceDiagram(atom , inputDiagrams[i]);
+    // double max_dimension2 = getPersistenceDiagram(
+    // atom, vtkUnstructuredGrid::SafeDownCast(inputDiagrams[i]));
+    double max_dimension2 = getPersistenceDiagram(atom, inputDiagrams[i]);
     // for(size_t k = 0; k < atom.size(); ++k) {
     //   DiagramTuple &t = atom[k];
     //   std::cout << "Pair atoms: " << std::get<6>(t) << ", " <<
@@ -150,7 +150,6 @@ int ttkPersistenceDiagramDictDecoding::RequestData(vtkInformation *request,
     }
   }
 
-
   // Sanity check
   for(const auto vtu : inputDiagrams) {
     if(vtu == nullptr) {
@@ -159,10 +158,12 @@ int ttkPersistenceDiagramDictDecoding::RequestData(vtkInformation *request,
     }
   }
 
-
   std::vector<vtkDoubleArray *> inputWeights;
+  int numWeights = weights_vtk->GetNumberOfColumns();
+  //this->printMsg(std::to_string(numWeights));
   if(weights_vtk != nullptr) {
-    int numWeights = weights_vtk->GetNumberOfColumns();
+    //int numWeights = weights_vtk->GetNumberOfColumns();
+    //this->printMsg(std::to_string(numWeights));
     inputWeights.resize(numWeights);
     for(int i = 0; i < numWeights; ++i) {
       inputWeights[i] = vtkDoubleArray::SafeDownCast(weights_vtk->GetColumn(i));
@@ -172,51 +173,47 @@ int ttkPersistenceDiagramDictDecoding::RequestData(vtkInformation *request,
     }
   }
 
-
-
   const int nWeights = inputWeights.size();
   std::vector<std::vector<double>> vectorWeights(nWeights);
-  for (int i = 0 ; i < nWeights ; ++i){
+  for(int i = 0; i < nWeights; ++i) {
     std::vector<double> &t1 = vectorWeights[i];
-    //vtkDoubleArray &t2 = inputWeights[i];
-    for (int j = 0 ; j < nDiags ; ++j){
+    // vtkDoubleArray &t2 = inputWeights[i];
+    for(int j = 0; j < nDiags; ++j) {
       double weight = inputWeights[i]->GetValue(j);
       t1.push_back(weight);
     }
   }
 
-
   std::vector<Diagram> Barycenters(nWeights);
 
-  this->execute(dictDiagrams , vectorWeights, Barycenters);
-
+  this->execute(dictDiagrams, vectorWeights, Barycenters);
+  //this->printMsg("=====ICI?======");
   auto output_dgm = vtkMultiBlockDataSet::GetData(outputVector, 0);
   output_dgm->SetNumberOfBlocks(nWeights);
-
-  for(int i = 0 ; i < nWeights ; ++i ){
-    //vtkUnstructuredGrid temp = vtkUnstructuredGrid::SafeDownCast(output_dgm->GetBlock(i));
+  this->printMsg(std::to_string(nWeights));
+  for(int i = 0; i < nWeights; ++i) {
+    // vtkUnstructuredGrid temp =
+    // vtkUnstructuredGrid::SafeDownCast(output_dgm->GetBlock(i));
     vtkNew<vtkUnstructuredGrid> vtu;
     Diagram &diagram = Barycenters[i];
     double max_persistence = getMaxPersistence(diagram);
-    diagramToVTU(vtu , diagram , max_persistence);
-    // this->printMsg("=====HERE?======");
+    diagramToVTU(vtu, diagram, max_persistence);
+    //this->printMsg("=====HERE?======");
     output_dgm->SetBlock(i, vtu);
-    // this->printMsg("=====HERE2?=====");
+    //this->printMsg("=====HERE2?=====");
   }
   // Get input object from input vector
   // Note: has to be a vtkDataSet as required by FillInputPortInformation
 
   // make a SHALLOW copy of the input
-  //outputDataSet->ShallowCopy(inputDataSet);
+  // outputDataSet->ShallowCopy(inputDataSet);
 
   // add to the output point data the computed output array
-  //outputDataSet->GetPointData()->AddArray(outputArray);
+  // outputDataSet->GetPointData()->AddArray(outputArray);
 
   // return success
   return 1;
 }
-
-
 
 double ttkPersistenceDiagramDictDecoding::getPersistenceDiagram(
   ttk::Diagram &diagram, vtkUnstructuredGrid *CTPersistenceDiagram_) {
@@ -277,7 +274,7 @@ double ttkPersistenceDiagramDictDecoding::getPersistenceDiagram(
 
   // skip diagonal cell (corresponding points already dealt with)
   for(int i = 0; i < pairingsSize; ++i) {
-    //this->printMsg("=====" + std::to_string(i) + "=====DEBUT=====");
+    // this->printMsg("=====" + std::to_string(i) + "=====DEBUT=====");
     int vertexId1 = vertexIdentifierScalars->GetValue(2 * i);
     int vertexId2 = vertexIdentifierScalars->GetValue(2 * i + 1);
     int nodeType1 = nodeTypeScalars->GetValue(2 * i);
@@ -346,7 +343,6 @@ double ttkPersistenceDiagramDictDecoding::getPersistenceDiagram(
 
   return max_dimension;
 }
-
 
 void ttkPersistenceDiagramDictDecoding::diagramToVTU(
   vtkUnstructuredGrid *output,
@@ -457,9 +453,9 @@ void ttkPersistenceDiagramDictDecoding::diagramToVTU(
   pairPers->SetTuple1(diagram.size(), 2.0 * max_persistence);
 }
 
-double ttkPersistenceDiagramDictDecoding::getMaxPersistence(Diagram &diagram){
+double ttkPersistenceDiagramDictDecoding::getMaxPersistence(Diagram &diagram) {
   double max_persistence{0};
-  for (size_t i = 0; i<diagram.size(); ++i){
+  for(size_t i = 0; i < diagram.size(); ++i) {
     const DiagramTuple &t = diagram[i];
     const double pers = std::get<4>(t);
     max_persistence = std::max(pers, max_persistence);

@@ -1,5 +1,5 @@
-#include <algorithm>
 #include <PersistenceDiagramDictDecoding.h>
+#include <algorithm>
 using namespace ttk;
 
 void PersistenceDiagramDictDecoding::execute(
@@ -7,7 +7,8 @@ void PersistenceDiagramDictDecoding::execute(
   std::vector<std::vector<double>> &vectorWeights,
   std::vector<Diagram> &Barycenters) const {
 
-  std::vector<std::vector<std::vector<MatchingTuple>>> AllMatchingsAtoms(Barycenters.size());
+  std::vector<std::vector<std::vector<MatchingTuple>>> AllMatchingsAtoms(
+    Barycenters.size());
   for(int i = 0; i < Barycenters.size(); ++i) {
     Diagram &barycenter = Barycenters[i];
     std::vector<double> &weight = vectorWeights[i];
@@ -16,6 +17,6 @@ void PersistenceDiagramDictDecoding::execute(
     // std::cout << "================================================="
     //          << std::endl;
     std::vector<std::vector<MatchingTuple>> &matchings = AllMatchingsAtoms[i];
-    //computeWeightedBarycenter(dictDiagrams, weight, barycenter, matchings);
+    computeWeightedBarycenter(dictDiagrams, weight, barycenter, matchings);
   }
 }

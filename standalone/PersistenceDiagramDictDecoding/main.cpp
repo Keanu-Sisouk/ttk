@@ -61,7 +61,8 @@ int main(int argc, char **argv) {
   // ---------------------------------------------------------------------------
   // Initialize ttkPersistenceDiagramDictDecoding module (adjust parameters)
   // ---------------------------------------------------------------------------
-  auto persistenceDiagramDictDecoding = vtkSmartPointer<ttkPersistenceDiagramDictDecoding>::New();
+  auto persistenceDiagramDictDecoding
+    = vtkSmartPointer<ttkPersistenceDiagramDictDecoding>::New();
 
   // ---------------------------------------------------------------------------
   // TODO 14: Pass custom arguments and options to the module
@@ -109,7 +110,8 @@ int main(int argc, char **argv) {
       }
     } else {
       // feed input object to ttkPersistenceDiagramDictDecoding filter
-      persistenceDiagramDictDecoding->SetInputDataObject(i, reader->GetOutput());
+      persistenceDiagramDictDecoding->SetInputDataObject(
+        i, reader->GetOutput());
 
       // default arrays
       if(!defaultArray) {
@@ -133,7 +135,8 @@ int main(int argc, char **argv) {
       inputArrayNames.push_back(defaultArray->GetName());
   }
   for(size_t i = 0; i < inputArrayNames.size(); i++)
-    persistenceDiagramDictDecoding->SetInputArrayToProcess(i, 0, 0, 0, inputArrayNames[i].data());
+    persistenceDiagramDictDecoding->SetInputArrayToProcess(
+      i, 0, 0, 0, inputArrayNames[i].data());
 
   // ---------------------------------------------------------------------------
   // Execute ttkPersistenceDiagramDictDecoding filter
@@ -144,7 +147,8 @@ int main(int argc, char **argv) {
   // If output prefix is specified then write all output objects to disk
   // ---------------------------------------------------------------------------
   if(!outputPathPrefix.empty()) {
-    for(int i = 0; i < persistenceDiagramDictDecoding->GetNumberOfOutputPorts(); i++) {
+    for(int i = 0; i < persistenceDiagramDictDecoding->GetNumberOfOutputPorts();
+        i++) {
       auto output = persistenceDiagramDictDecoding->GetOutputDataObject(i);
       auto writer
         = vtkXMLDataObjectWriter::NewWriter(output->GetDataObjectType());

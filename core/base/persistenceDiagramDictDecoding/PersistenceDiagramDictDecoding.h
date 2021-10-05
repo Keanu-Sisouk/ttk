@@ -5,8 +5,9 @@
 /// \author Your Name Here <Your Email Address Here>
 /// \date The Date Here.
 ///
-/// This module defines the %PersistenceDiagramDictDecoding class that computes for each vertex of a
-/// triangulation the average scalar value of itself and its direct neighbors.
+/// This module defines the %PersistenceDiagramDictDecoding class that computes
+/// for each vertex of a triangulation the average scalar value of itself and
+/// its direct neighbors.
 ///
 /// \b Related \b publication: \n
 /// 'PersistenceDiagramDictDecoding'
@@ -56,8 +57,9 @@ namespace ttk {
   using MatchingTuple = std::tuple<ttk::SimplexId, ttk::SimplexId, double>;
 
   /**
-   * The PersistenceDiagramDictDecoding class provides methods to compute for each vertex of a
-   * triangulation the average scalar value of itself and its direct neighbors.
+   * The PersistenceDiagramDictDecoding class provides methods to compute for
+   * each vertex of a triangulation the average scalar value of itself and its
+   * direct neighbors.
    */
   class PersistenceDiagramDictDecoding : virtual public Debug {
 
@@ -74,9 +76,9 @@ namespace ttk {
      *         Note: If the algorithm does not require a triangulation then
      *               this method can be deleted.
      */
-     void execute(std::vector<Diagram> &dictDiagrams,
-                  std::vector<std::vector<double>> &vectorWeights,
-                  std::vector<Diagram> &Barycenters) const;
+    void execute(std::vector<Diagram> &dictDiagrams,
+                 std::vector<std::vector<double>> &vectorWeights,
+                 std::vector<Diagram> &Barycenters) const;
 
   }; // PersistenceDiagramDictDecoding class
 

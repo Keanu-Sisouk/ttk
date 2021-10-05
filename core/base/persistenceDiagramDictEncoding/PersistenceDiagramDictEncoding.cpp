@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <math.h>
 
 #include <PersistenceDiagramDictEncoding.h>
 
@@ -144,9 +145,15 @@ void PersistenceDiagramDictEncoding::execute(
   ConstrainedGradientDescent gradActor;
   double loss;
   double loss1;
-  for(int epoch = 1; epoch < 100; ++epoch) {
-    int k = 0;
+  //int epoch = 1;
+
+  //bool condition = true;
+  //while (condition && epoch < 100) {
+  for(int epoch = 1; epoch < 2; ++epoch) {
+
     loss = 0;
+    std::vector<std::vector<double>> vectorWeightsOld;
+    std::copy(vectorWeights.begin() , vectorWeights.end() , back_inserter(vectorWeightsOld));
     // this->printMsg("Epoch: " + std::to_string(epoch));
 //#ifdef TTK_ENABLE_OPENMP
 //#pragma omp parallel for num_threads(threadNumber_)
@@ -270,6 +277,11 @@ void PersistenceDiagramDictEncoding::execute(
       matchingsDatasMax[i] = std::move(matching_max);
     }
 
+
+    // this->printMsg("Epoch" + std::to_string(epoch) + "==================");
+    // this->printMsg("loss " + std::to_string(loss) + "===================");
+
+
     if(epoch == 1) {
       loss1 = loss;
     }
@@ -340,6 +352,33 @@ void PersistenceDiagramDictEncoding::execute(
       // std::cout << "Pair: " << std::get<6>(t) << ", " << std::get<10>(t)
       //          << std::endl;
       //}
+    }
+
+    for(size_t i = 0; i < dictDiagrams.size(); ++i) {
+      std::cout << "Atom " << i << std::endl;
+      for(size_t j = 0; j < dictDiagrams[i].size(); ++j) {
+        DiagramTuple &t = dictDiagrams[i][j];
+        std::cout << "Pair atoms: " << std::get<6>(t) << ", " << std::get<10>(t)
+                  << " and " << (0. <= std::get<6>(t)) << " and "
+                  << (std::get<10>(t) >= std::get<6>(t)) << std::endl;
+      }
+    }
+
+    this->printMsg("=====================================================");
+    for(size_t i = 0; i < allMatchingsAtoms[0].size(); ++i) {
+      std::cout << "matchings atom" << i << std::endl;
+      for(size_t j = 0; j < allMatchingsAtoms[0][i].size(); ++j) {
+        MatchingTuple &t = allMatchingsAtoms[0][i][j];
+        std::cout << "Matching: " << std::get<0>(t) << ", " << std::get<1>(t)
+             << std::endl;
+        }
+      }
+
+    this->printMsg("=====================================================");
+
+    for (size_t i = 0 ; i < Barycenters[0].size() ; ++i){
+      DiagramTuple &t = Barycenters[0][i];
+      std::cout << "Pair:" << i << ", " << std::get<6>(t) << ", " << std::get<10>(t);
     }
 
     // this->printMsg("====================NOW ATOM======================");
@@ -500,6 +539,39 @@ void PersistenceDiagramDictEncoding::execute(
     }
 
     this->printMsg("=====================================================");
+    for(size_t i = 0; i < allMatchingsAtoms[0].size(); ++i) {
+      std::cout << "matchings atom" << i << std::endl;
+      for(size_t j = 0; j < allMatchingsAtoms[0][i].size(); ++j) {
+        MatchingTuple &t = allMatchingsAtoms[0][i][j];
+        std::cout << "Matching: " << std::get<0>(t) << ", " << std::get<1>(t)
+             << std::endl;
+        }
+      }
+
+    this->printMsg("=====================================================");
+
+    for (size_t i = 0 ; i < Barycenters[0].size() ; ++i){
+      DiagramTuple &t = Barycenters[0][i];
+      std::cout << "Pair:" << i << ", " << std::get<6>(t) << ", " << std::get<10>(t);
+    }
+
+
+    // double dist = 0.;
+    // for (int i = 0 ; i < vectorWeights.size() ; ++i){
+    //   std::vector<double> &weights1 = vectorWeights[i];
+    //   std::vector<double> &weights2 = vectorWeightsOld[i];
+    //   dist = dist + distVect(weights1 , weights2);
+    // }
+    // if (dist < 1e-3){
+    //   condition = false;
+    // } else {
+    //   continue;
+    // }
+    //epoch = epoch + 1;
+    // this->printMsg("Epoch" + std::to_string(epoch) + "==================");
+    // this->printMsg("loss " + std::to_string(loss) + "===================");
+
+    this->printMsg("=====================================================");
 
     // for(size_t i = 0; i < vectorWeights.size(); ++i) {
     //  std::cout << "Weight" << i << "================" << std::endl;
@@ -509,24 +581,32 @@ void PersistenceDiagramDictEncoding::execute(
     //}
     //}
 
-    // this->printMsg("=====================================================");
-    // for(size_t i = 0; i < allMatchingsAtoms[0].size(); ++i) {
-    // std::cout << "matchings atom" << i << std::endl;
-    // for(size_t j = 0; j < allMatchingsAtoms[0][i].size(); ++j) {
-    // MatchingTuple &t = allMatchingsAtoms[0][i][j];
-    // std::cout << "Matching: " << std::get<0>(t) << ", " << std::get<1>(t)
-    //          << std::endl;
-    //}
-    //}
 
-    // this->printMsg("=====================================================");
+
+    this->printMsg("=====================================================");
+
 
   } // return distMat;
+  // this->printMsg("Epoch" + std::to_string(epoch) + "==================");
   this->printMsg("loss1 " + std::to_string(loss1) + "=================");
   this->printMsg("loss " + std::to_string(loss) + "===================");
 
   this->printMsg("Complete", 1.0, tm.getElapsedTime(), this->threadNumber_);
 }
+
+double PersistenceDiagramDictEncoding::distVect(
+  std::vector<double> &vec1,
+  std::vector<double> &vec2) const {
+
+  double dist = 0.;
+  for (int i = 0 ; i < vec1.size() ; ++i){
+    dist = dist + (vec1[i] - vec2[i])*(vec1[i] - vec2[i]);
+  }
+  return sqrt(dist);
+}
+
+
+
 
 double PersistenceDiagramDictEncoding::getMostPersistent(
   const std::vector<BidderDiagram<double>> &bidder_diags) const {

@@ -9,7 +9,6 @@
 // VTK Includes
 #include <ttkAlgorithm.h>
 
-
 // TTK Base Includes
 #include <PersistenceDiagramDictDecoding.h>
 
@@ -17,21 +16,21 @@ class TTKPERSISTENCEDIAGRAMDICTDECODING_EXPORT ttkPersistenceDiagramDictDecoding
   : public ttkAlgorithm,
     protected ttk::PersistenceDiagramDictDecoding {
 
-//private:
+private:
+
+  
 
 public:
-
   static ttkPersistenceDiagramDictDecoding *New();
   vtkTypeMacro(ttkPersistenceDiagramDictDecoding, ttkAlgorithm);
 
 protected:
-   ttkPersistenceDiagramDictDecoding();
-   ~ttkPersistenceDiagramDictDecoding() override = default;
+  ttkPersistenceDiagramDictDecoding();
+  ~ttkPersistenceDiagramDictDecoding() override = default;
 
   int FillInputPortInformation(int port, vtkInformation *info) override;
 
   int FillOutputPortInformation(int port, vtkInformation *info) override;
-
 
   double getPersistenceDiagram(ttk::Diagram &diagram,
                                vtkUnstructuredGrid *CTPersistenceDiagram_);
@@ -41,7 +40,6 @@ protected:
                     const double max_persistence) const;
 
   double getMaxPersistence(Diagram &diagram);
-
 
   /**
    * TODO 10: Pass VTK data to the base code and convert base code output to VTK
