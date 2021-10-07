@@ -160,10 +160,10 @@ int ttkPersistenceDiagramDictDecoding::RequestData(
 
   std::vector<vtkDoubleArray *> inputWeights;
   int numWeights = weights_vtk->GetNumberOfColumns();
-  //this->printMsg(std::to_string(numWeights));
+  // this->printMsg(std::to_string(numWeights));
   if(weights_vtk != nullptr) {
-    //int numWeights = weights_vtk->GetNumberOfColumns();
-    //this->printMsg(std::to_string(numWeights));
+    // int numWeights = weights_vtk->GetNumberOfColumns();
+    // this->printMsg(std::to_string(numWeights));
     inputWeights.resize(numWeights);
     for(int i = 0; i < numWeights; ++i) {
       inputWeights[i] = vtkDoubleArray::SafeDownCast(weights_vtk->GetColumn(i));
@@ -187,7 +187,7 @@ int ttkPersistenceDiagramDictDecoding::RequestData(
   std::vector<Diagram> Barycenters(nWeights);
 
   this->execute(dictDiagrams, vectorWeights, Barycenters);
-  //this->printMsg("=====ICI?======");
+  // this->printMsg("=====ICI?======");
   auto output_dgm = vtkMultiBlockDataSet::GetData(outputVector, 0);
   output_dgm->SetNumberOfBlocks(nWeights);
   this->printMsg(std::to_string(nWeights));
@@ -198,9 +198,9 @@ int ttkPersistenceDiagramDictDecoding::RequestData(
     Diagram &diagram = Barycenters[i];
     double max_persistence = getMaxPersistence(diagram);
     diagramToVTU(vtu, diagram, max_persistence);
-    //this->printMsg("=====HERE?======");
+    // this->printMsg("=====HERE?======");
     output_dgm->SetBlock(i, vtu);
-    //this->printMsg("=====HERE2?=====");
+    // this->printMsg("=====HERE2?=====");
   }
   // Get input object from input vector
   // Note: has to be a vtkDataSet as required by FillInputPortInformation

@@ -17,9 +17,6 @@ class TTKPERSISTENCEDIAGRAMDICTDECODING_EXPORT ttkPersistenceDiagramDictDecoding
     protected ttk::PersistenceDiagramDictDecoding {
 
 private:
-
-  
-
 public:
   static ttkPersistenceDiagramDictDecoding *New();
   vtkTypeMacro(ttkPersistenceDiagramDictDecoding, ttkAlgorithm);
