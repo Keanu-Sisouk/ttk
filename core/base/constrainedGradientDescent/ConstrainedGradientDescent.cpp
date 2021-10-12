@@ -43,7 +43,7 @@ void ConstrainedGradientDescent::projectionOnSimplex(
   double theta = (somme_u - 1.) / K;
   while(K < n && (somme_u + copy_temp[K] - 1.) / (K + 1.) < copy_temp[K]) {
     somme_u += copy_temp[K];
-    K += 1;
+    K += 1.;
     theta = (somme_u - 1.) / K;
   }
   for(int i = 0; i < n; ++i) {

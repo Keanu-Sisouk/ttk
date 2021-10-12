@@ -585,13 +585,12 @@ void PersistenceDiagramDictEncoding::execute(
 
     this->printMsg("=====================================================");
 
-
   } // return distMat;
   // this->printMsg("Epoch" + std::to_string(epoch) + "==================");
   this->printMsg("loss1 " + std::to_string(loss1) + "=================");
   this->printMsg("loss " + std::to_string(loss) + "===================");
 
-  for (size_t i = 0 ; i < loss_tab.size() ; ++i){
+  for(size_t i = 0; i < loss_tab.size(); ++i) {
     std::cout << loss_tab[i] << "," << std::endl;
   }
 
