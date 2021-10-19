@@ -55,7 +55,8 @@ namespace ttk {
                       const Diagram &Barycenter,
                       const std::vector<Matrice> &gradsLists,
                       const int nb_points,
-                      const std::vector<int> &checkerAtomsExt);
+                      const std::vector<int> &checkerAtomsExt,
+                      int epoch);
     // void executeAtoms(std::vector<Diagram> &DictDiagrams);
 
     // inline void setNbAtoms(const int nbAtoms) {
@@ -76,6 +77,7 @@ namespace ttk {
       const Diagram &Barycenter,
       const std::vector<Matrice> &gradsLists,
       const int nb_points,
-      const std::vector<int> &checkerAtomsExt);
+      const std::vector<int> &checkerAtomsExt,
+      int epoch);
   };
 } // namespace ttk

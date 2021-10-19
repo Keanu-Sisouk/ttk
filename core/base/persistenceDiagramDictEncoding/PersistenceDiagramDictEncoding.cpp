@@ -527,7 +527,7 @@ void PersistenceDiagramDictEncoding::execute(
         indexBaryMin, indexBaryMax, indexBarySad, indexDataMin, indexDataMax,
         indexDataSad, checkerAtoms);
       gradActor.executeAtoms(dictDiagrams, matchingsAtoms, Barycenter,
-                             gradsAtoms, nb_points, checkerAtoms);
+                             gradsAtoms, nb_points, checkerAtoms, epoch);
     }
 
     for(size_t i = 0; i < dictDiagrams.size(); ++i) {

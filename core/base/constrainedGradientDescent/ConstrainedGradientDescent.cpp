@@ -19,10 +19,11 @@ void ConstrainedGradientDescent::executeAtoms(
   const Diagram &Barycenter,
   const std::vector<Matrice> &gradsLists,
   const int nb_points,
-  const std::vector<int> &checkerAtomsExt) {
+  const std::vector<int> &checkerAtomsExt,
+  int epoch) {
   // this->printMsg("==========ATOM UPDATING=============");
   gradientDescentAtoms(DictDiagrams, matchings, Barycenter, gradsLists,
-                       nb_points, checkerAtomsExt);
+                       nb_points, checkerAtomsExt, epoch);
 }
 
 // simple projection on simplex, aka where a vector has positive elements and
@@ -97,7 +98,8 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
   const Diagram &Barycenter,
   const std::vector<Matrice> &gradsLists,
   const int nb_points,
-  const std::vector<int> &checkerAtomsExt) {
+  const std::vector<int> &checkerAtomsExt,
+  int epoch) {
   // Here vector of diagramTuple because it is not a persistence diagram per
   // say.
   // we get the right pairs to update for each barycenter pair.
@@ -226,11 +228,11 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
 
         double step;
         if(temp2.size() == 0) {
-          step = std::min(1., mini) / 1e1;
+          step = std::min(1., mini) / (1e1 + 1.0*epoch);
         } else {
           double mini2 = *std::min_element(temp2.begin(), temp2.end());
           // double maxi = std::max_element(pos.begin() ; pos.end());
-          step = std::min(std::min(1., mini), mini2) / 1e1;
+          step = std::min(std::min(1., mini), mini2) / (1e1 + 1.0*epoch);
         }
 
         // std::cout << "STEP : " << step << std::endl;
