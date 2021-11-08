@@ -228,11 +228,11 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
 
         double step;
         if(temp2.size() == 0) {
-          step = std::min(1., mini) / (1e1 + 1.0*epoch);
+          step = std::min(1., mini) / (1e1 + 1.0 * epoch);
         } else {
           double mini2 = *std::min_element(temp2.begin(), temp2.end());
           // double maxi = std::max_element(pos.begin() ; pos.end());
-          step = std::min(std::min(1., mini), mini2) / (1e1 + 1.0*epoch);
+          step = std::min(std::min(1., mini), mini2) / (1e1 + 1.0 * epoch);
         }
 
         // std::cout << "STEP : " << step << std::endl;
