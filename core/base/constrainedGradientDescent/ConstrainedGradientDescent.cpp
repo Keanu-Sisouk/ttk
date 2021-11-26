@@ -4,12 +4,13 @@
 using namespace ttk;
 
 void ConstrainedGradientDescent::executeWeightsProjected(
+  std::vector<Matrice> &hessianList,
   std::vector<double> &weights,
   const std::vector<double> &grad,
   const int epoch,
   const int nb_points) {
   // printf("===========WEIGHT UPDATE=============");
-  gradientDescentWeights(weights, grad, epoch, nb_points);
+  gradientDescentWeights(hessianList, weights, grad, epoch, nb_points);
   projectionOnSimplex(weights);
 }
 
@@ -60,6 +61,7 @@ void ConstrainedGradientDescent::projectionOnSimplex(
 }
 
 void ConstrainedGradientDescent::gradientDescentWeights(
+  std::vector<Matrice> &hessianList,
   std::vector<double> &weights,
   const std::vector<double> &grad,
   const int epoch,
@@ -72,21 +74,32 @@ void ConstrainedGradientDescent::gradientDescentWeights(
     norm_grad += grad[i] * grad[i];
   }
   double step;
-  if(nb_points < 100) {
-    step = mini / (5e3 * (epoch + 1.));
-    // step = mini / 5e3 * (epoch + 1.);
-  } else if(100 <= nb_points < 700) {
-    step = std::min(mini, 1.) / (norm_grad); // * pow(2, 10));
-    // step = std::min(mini , 1.) / norm_grad;
-  } else {
-    if(epoch < 10) {
-      // float step = 1 / 2 * *(epoch + 1);
-      step = std::min(mini, 1.) / pow(2, epoch + 1);
-    } else {
-      // float step = 1 / 2 * *11;
-      step = std::min(mini, 1.) / pow(2, epoch + 1);
+  double L = 0.;
+  for(int i = 0 ; i < hessianList.size() ; ++i){
+    for(int j = 0 ; j < hessianList[i].size() ; ++j){
+      double diag = hessianList[i][j][j];
+      L+= 2*diag*diag;
     }
   }
+  step = 1/L;
+  std::cout << "STEP = " << step << std::endl;
+
+
+  // if(nb_points < 100) {
+  //   step = mini / (5e3 * (epoch + 1.));
+  //   // step = mini / 5e3 * (epoch + 1.);
+  // } else if(100 <= nb_points < 700) {
+  //   step = std::min(mini, 1.) / (norm_grad); // * pow(2, 10));
+  //   // step = std::min(mini , 1.) / norm_grad;
+  // } else {
+  //   if(epoch < 10) {
+  //     // float step = 1 / 2 * *(epoch + 1);
+  //     step = std::min(mini, 1.) / pow(2, epoch + 1);
+  //   } else {
+  //     // float step = 1 / 2 * *11;
+  //     step = std::min(mini, 1.) / pow(2, epoch + 1);
+  //   }
+  // }
   for(int i = 0; i < n; ++i) {
     weights[i] = weights[i] - step * grad[i];
   }

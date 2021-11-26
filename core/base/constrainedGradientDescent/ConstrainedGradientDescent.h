@@ -45,7 +45,8 @@ namespace ttk {
       this->setDebugMsgPrefix("ConstrainedGradientDescent");
     };
 
-    void executeWeightsProjected(std::vector<double> &weights,
+    void executeWeightsProjected(std::vector<Matrice> &hessianList,
+                                 std::vector<double> &weights,
                                  const std::vector<double> &grad,
                                  const int epoch,
                                  const int nb_points);
@@ -66,7 +67,8 @@ namespace ttk {
   protected:
     void projectionOnSimplex(std::vector<double> &weights);
 
-    void gradientDescentWeights(std::vector<double> &weights,
+    void gradientDescentWeights(std::vector<Matrice> &hessianList,
+                                std::vector<double> &weights,
                                 const std::vector<double> &grad,
                                 const int epoch,
                                 const int nb_points);

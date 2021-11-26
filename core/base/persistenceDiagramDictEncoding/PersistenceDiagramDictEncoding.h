@@ -114,6 +114,7 @@ namespace ttk {
                            std::vector<MatchingTuple> &matching) const;
 
     std::vector<double> computeGradientWeights(
+      std::vector<Matrice> &hessianList,
       const std::vector<Diagram> &dictDiagrams,
       const std::vector<std::vector<MatchingTuple>> &matchingsAtoms,
       const Diagram &Barycenter,
