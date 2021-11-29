@@ -78,7 +78,7 @@ void ConstrainedGradientDescent::gradientDescentWeights(
   for(int i = 0 ; i < hessianList.size() ; ++i){
     for(int j = 0 ; j < hessianList[i].size() ; ++j){
       double diag = hessianList[i][j][j];
-      L+= 2*diag*diag;
+      L+= 2*diag;
     }
   }
   step = 1/L;

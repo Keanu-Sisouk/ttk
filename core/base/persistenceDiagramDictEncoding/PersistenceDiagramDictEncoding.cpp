@@ -149,7 +149,7 @@ void PersistenceDiagramDictEncoding::execute(
   std::vector<double> loss_tab;
   // bool condition = true;
   // while (condition && epoch < 100) {
-  for(int epoch = 1; epoch < 300; ++epoch) {
+  for(int epoch = 1; epoch < 100; ++epoch) {
 
     loss = 0;
     std::vector<std::vector<double>> vectorWeightsOld;
