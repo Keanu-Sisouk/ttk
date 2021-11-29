@@ -346,9 +346,16 @@ void PersistenceDiagramDictEncoding::execute(
 //#ifdef TTK_ENABLE_OPENMP
 //#pragma omp parallel for num_threads(threadNumber_)
 //#endif // TTK_ENABLE_OPENMP
+  this->printMsg("========================ATOM NOW=============================");
     for(int i = 0; i < nDiags; ++i) {
       Diagram &barycenter = Barycenters[i];
       std::vector<double> &weight = vectorWeights[i];
+      double sum = 0.;
+      for (int q = 0 ; q < weight.size() ; ++q ){
+        sum+= weight[q];
+        std::cout << weight[q] << std::endl;
+      }
+      std::cout << "sum: " << sum << std::endl;
       // this->printMsg(std::to_string(sum_temp));
       std::vector<std::vector<MatchingTuple>> &matchings = allMatchingsAtoms[i];
       computeWeightedBarycenter(dictDiagrams, weight, barycenter, matchings);
@@ -509,30 +516,30 @@ void PersistenceDiagramDictEncoding::execute(
     // this->printMsg("====================NOW ATOM
     // UPDATE======================");
     // ATOM OPTIMIZATION
-    // for(size_t i = 0; i < nDiags; ++i) {
-    //   std::vector<std::vector<MatchingTuple>> &matchingsAtoms
-    //     = allMatchingsAtoms[i];
-    //   Diagram &Barycenter = Barycenters[i];
-    //   const Diagram &Data = intermediateDiagrams[i];
-    //   const std::vector<MatchingTuple> &matchingsMin = matchingsDatasMin[i];
-    //   const std::vector<MatchingTuple> &matchingsMax = matchingsDatasMax[i];
-    //   const std::vector<MatchingTuple> &matchingsSad = matchingsDatasSad[i];
-    //   const std::vector<size_t> &indexBaryMin = origin_index_barysMin[i];
-    //   const std::vector<size_t> &indexBarySad = origin_index_barysSad[i];
-    //   const std::vector<size_t> &indexBaryMax = origin_index_barysMax[i];
-    //   const std::vector<size_t> &indexDataMin = origin_index_datasMin[i];
-    //   const std::vector<size_t> &indexDataSad = origin_index_datasSad[i];
-    //   const std::vector<size_t> &indexDataMax = origin_index_datasMax[i];
-    //   const std::vector<double> &weights = vectorWeights[i];
-    //   int nb_points = Barycenters[i].size();
-    //   std::vector<int> checkerAtoms(Barycenter.size(), 0);
-    //   std::vector<Matrice> gradsAtoms = computeGradientAtoms(
-    //     weights, Barycenter, Data, matchingsMin, matchingsMax, matchingsSad,
-    //     indexBaryMin, indexBaryMax, indexBarySad, indexDataMin, indexDataMax,
-    //     indexDataSad, checkerAtoms);
-    //   gradActor.executeAtoms(dictDiagrams, matchingsAtoms, Barycenter,
-    //                          gradsAtoms, nb_points, checkerAtoms, epoch);
-    // }
+    for(size_t i = 0; i < nDiags; ++i) {
+      std::vector<std::vector<MatchingTuple>> &matchingsAtoms
+        = allMatchingsAtoms[i];
+      Diagram &Barycenter = Barycenters[i];
+      const Diagram &Data = intermediateDiagrams[i];
+      const std::vector<MatchingTuple> &matchingsMin = matchingsDatasMin[i];
+      const std::vector<MatchingTuple> &matchingsMax = matchingsDatasMax[i];
+      const std::vector<MatchingTuple> &matchingsSad = matchingsDatasSad[i];
+      const std::vector<size_t> &indexBaryMin = origin_index_barysMin[i];
+      const std::vector<size_t> &indexBarySad = origin_index_barysSad[i];
+      const std::vector<size_t> &indexBaryMax = origin_index_barysMax[i];
+      const std::vector<size_t> &indexDataMin = origin_index_datasMin[i];
+      const std::vector<size_t> &indexDataSad = origin_index_datasSad[i];
+      const std::vector<size_t> &indexDataMax = origin_index_datasMax[i];
+      const std::vector<double> &weights = vectorWeights[i];
+      int nb_points = Barycenters[i].size();
+      std::vector<int> checkerAtoms(Barycenter.size(), 0);
+      std::vector<Matrice> gradsAtoms = computeGradientAtoms(
+        weights, Barycenter, Data, matchingsMin, matchingsMax, matchingsSad,
+        indexBaryMin, indexBaryMax, indexBarySad, indexDataMin, indexDataMax,
+        indexDataSad, checkerAtoms);
+      gradActor.executeAtoms(dictDiagrams, matchingsAtoms, Barycenter,
+                             gradsAtoms, nb_points, checkerAtoms, epoch);
+    }
     // ATOM OPTIMIZATION
 
     for(size_t i = 0; i < dictDiagrams.size(); ++i) {

@@ -52,12 +52,12 @@ void ConstrainedGradientDescent::projectionOnSimplex(
     weights[i] = std::max(weights[i] - theta, 0.);
   }
 
-  double sum = 0.;
-  for(int i = 0; i < n - 1; ++i) {
-    weights[i] = trunc(weights[i] * 1e6) / 1e6;
-    sum += weights[i];
-  }
-  weights[n - 1] = 1. - sum;
+  // double sum = 0.;
+  // for(int i = 0; i < n - 1; ++i) {
+  //   weights[i] = trunc(weights[i] * 1e6) / 1e6;
+  //   sum += weights[i];
+  // }
+  // weights[n - 1] = 1. - sum;
 }
 
 void ConstrainedGradientDescent::gradientDescentWeights(
@@ -101,7 +101,7 @@ void ConstrainedGradientDescent::gradientDescentWeights(
   //   }
   // }
   for(int i = 0; i < n; ++i) {
-    weights[i] = weights[i] - step * grad[i];
+    weights[i] = weights[i] - mini*step * grad[i];
   }
 }
 
