@@ -101,7 +101,7 @@ void ConstrainedGradientDescent::gradientDescentWeights(
   //   }
   // }
   for(int i = 0; i < n; ++i) {
-    weights[i] = weights[i] - mini*step * grad[i];
+    weights[i] = weights[i] - mini * step * grad[i];
   }
 }
 

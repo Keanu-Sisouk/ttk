@@ -377,10 +377,10 @@ void PersistenceDiagramDictEncoding::execute(
     }
 
     this->printMsg("=====================================================");
-    for(size_t i = 0; i < allMatchingsAtoms[0].size(); ++i) {
+    for(size_t i = 0; i < allMatchingsAtoms[3].size(); ++i) {
       std::cout << "matchings atom" << i << std::endl;
-      for(size_t j = 0; j < allMatchingsAtoms[0][i].size(); ++j) {
-        MatchingTuple &t = allMatchingsAtoms[0][i][j];
+      for(size_t j = 0; j < allMatchingsAtoms[3][i].size(); ++j) {
+        MatchingTuple &t = allMatchingsAtoms[3][i][j];
         std::cout << "Matching: " << std::get<0>(t) << ", " << std::get<1>(t)
                   << std::endl;
       }
@@ -706,7 +706,7 @@ std::vector<double> PersistenceDiagramDictEncoding::computeGradientWeights(
       // Id in barycenter
       const SimplexId Id2 = std::get<1>(t);
       // if(Id2 < 0) {
-      if(Id2 < 0 || Id2 >= grad_list.size()
+      if(Id2 < 0 || Id2 >= static_cast<int>(grad_list.size())
          || Id1 >= static_cast<int>(dictDiagrams[i].size())) {
         continue;
       } else if(Id1 < 0) {
@@ -716,7 +716,7 @@ std::vector<double> PersistenceDiagramDictEncoding::computeGradientWeights(
         const double birth_barycenter = std::get<6>(t3);
         const double death_barycenter = std::get<10>(t3);
         const double birth_death_atom
-          = birth_barycenter + (death_barycenter - birth_barycenter) / 2;
+          = birth_barycenter + (death_barycenter - birth_barycenter) / 2.;
         point[0] = birth_death_atom;
         point[1] = birth_death_atom;
         // this->printMsg(std::to_string(Id2));
@@ -764,7 +764,7 @@ std::vector<double> PersistenceDiagramDictEncoding::computeGradientWeights(
       std::vector<double> direction(2);
       if(Id1 < 0) {
         const double birth_death_data
-          = birth_barycenter + (death_barycenter - birth_barycenter) / 2;
+          = birth_barycenter + (death_barycenter - birth_barycenter) / 2.;
         direction[0] = birth_death_data - birth_barycenter;
         direction[1] = birth_death_data - death_barycenter;
         std::vector<double> t2(2);
@@ -811,7 +811,7 @@ std::vector<double> PersistenceDiagramDictEncoding::computeGradientWeights(
       std::vector<double> direction(2);
       if(Id1 < 0) {
         const double birth_death_data
-          = birth_barycenter + (death_barycenter - birth_barycenter) / 2;
+          = birth_barycenter + (death_barycenter - birth_barycenter) / 2.;
         direction[0] = birth_death_data - birth_barycenter;
         direction[1] = birth_death_data - death_barycenter;
         std::vector<double> t2(2);
@@ -857,7 +857,7 @@ std::vector<double> PersistenceDiagramDictEncoding::computeGradientWeights(
       std::vector<double> direction(2);
       if(Id1 < 0) {
         const double birth_death_data
-          = birth_barycenter + (death_barycenter - birth_barycenter) / 2;
+          = birth_barycenter + (death_barycenter - birth_barycenter) / 2.;
         direction[0] = birth_death_data - birth_barycenter;
         direction[1] = birth_death_data - death_barycenter;
         std::vector<double> t2(2);
