@@ -155,7 +155,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
         const double birth_barycenter = std::get<6>(t3);
         const double death_barycenter = std::get<10>(t3);
         const double birth_death_atom
-          = birth_barycenter + (death_barycenter - birth_barycenter) / 2;
+          = birth_barycenter + (death_barycenter - birth_barycenter) / 2.;
         point[0] = birth_death_atom;
         point[1] = birth_death_atom;
         // grad_list[Id2].push_back(point);
@@ -184,6 +184,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
   }
 
   // printf("=========ATOM GRADIENT STEP==============");
+  std::cout << "GRAD_LIST SIZE = LOOP NB: "<< grad_list.size() << std::endl;
   for(int i = 0; i < grad_list.size(); ++i) {
     if(tracker[i] == 0 || checkerAtomsExt[i] == 0) {
       // printf("SAUT!!!!!!!!");
@@ -250,7 +251,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
           step = std::min(std::min(1.,mini) , mini2) / (1e1);
         }
 
-        // std::cout << "STEP : " << step << std::endl;
+        std::cout << "STEP : " << step << std::endl;
         // std::cout << "STEP : " << step << std::endl;
         // double step = 1. / 1e1;
         // for(int p = 0; p < pos.size(); ++p) {
@@ -278,6 +279,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
             // t[0] = t[0] - step * gradsLists[i][p][0];
             // t[1] = t[1] - step * gradsLists[i][p][1];
             std::vector<double> &t0 = grad_list[i][checker[i][p]];
+            std::cout << "GRADS" << gradsLists[i][checker[i][p]][0] << "," << gradsLists[i][checker[i][p]][1] << std::endl;
             t0[0] = t0[0] - step * gradsLists[i][checker[i][p]][0];
             t0[1] = t0[1] - step * gradsLists[i][checker[i][p]][1];
           }
@@ -318,10 +320,21 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
         } else {
           std::vector<double> &t2 = grad_list[i][checker[i][j]];
 
-          if(t2[1] - t2[0] < 1e-17) {
-            DictDiagrams[checker[i][j]].erase(
-              DictDiagrams[checker[i][j]].begin() + tracker_match[i][j]);
-          } else {
+          // if(t2[1] - t2[0] < 1e-17) {
+          //   DictDiagrams[checker[i][j]].erase(
+          //     DictDiagrams[checker[i][j]].begin() + tracker_match[i][j]);
+          // } else {
+          //   DiagramTuple &t1 = DictDiagrams[checker[i][j]][tracker_match[i][j]];
+          //   // printf("ATOM" + std::to_string(checker[i][j]) " , PAIR " +
+          //   // std::to_string(tracker_match[i][j]));
+          //   // std::cout << "ATOM " << checker[i][j] << " , SIZE"
+          //   //           << DictDiagrams[checker[i][j]].size() << std::endl;
+          //   // std::cout << "ATOM " << checker[i][j] << " , PAIR"
+          //   //           << tracker_match[i][j] << std::endl;
+          //   std::get<6>(t1) = t2[0];
+          //   std::get<10>(t1) = t2[1];
+          // }
+          if(t2[1] > t2[0]) {
             DiagramTuple &t1 = DictDiagrams[checker[i][j]][tracker_match[i][j]];
             // printf("ATOM" + std::to_string(checker[i][j]) " , PAIR " +
             // std::to_string(tracker_match[i][j]));
@@ -331,6 +344,9 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
             //           << tracker_match[i][j] << std::endl;
             std::get<6>(t1) = t2[0];
             std::get<10>(t1) = t2[1];
+          } else {
+            DictDiagrams[checker[i][j]].erase(
+              DictDiagrams[checker[i][j]].begin() + tracker_match[i][j]);
           }
         }
       }

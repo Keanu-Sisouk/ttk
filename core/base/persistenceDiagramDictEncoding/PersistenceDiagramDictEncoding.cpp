@@ -149,7 +149,7 @@ void PersistenceDiagramDictEncoding::execute(
   std::vector<double> loss_tab;
   // bool condition = true;
   // while (condition && epoch < 100) {
-  for(int epoch = 1; epoch < 100; ++epoch) {
+  for(int epoch = 1; epoch < 12; ++epoch) {
 
     loss = 0;
     std::vector<std::vector<double>> vectorWeightsOld;
@@ -293,228 +293,231 @@ void PersistenceDiagramDictEncoding::execute(
     //}
     this->printMsg("====================PRINT WEIGHT======================");
 
-    std::vector<std::vector<double>> gradientsWeights(nDiags);
+    //std::vector<std::vector<double>> gradientsWeights(nDiags);
     std::vector<std::vector<Matrice>> allHessianLists(nDiags);
     //#ifdef TTK_ENABLE_OPENMP
     //#pragma omp parallel for num_threads(threadNumber_)
     //#endif // TTK_ENABLE_OPENMP
 
     // WEIGHT OPTIMIZATION
-    for(size_t i = 0; i < nDiags; ++i) {
-      const std::vector<std::vector<MatchingTuple>> &matchingsAtoms
-        = allMatchingsAtoms[i];
-      const Diagram &Barycenter = Barycenters[i];
-      const Diagram &Data = intermediateDiagrams[i];
-      std::vector<Matrice> &hessianList = allHessianLists[i];
-      const std::vector<MatchingTuple> &matchingsMin = matchingsDatasMin[i];
-      const std::vector<MatchingTuple> &matchingsMax = matchingsDatasMax[i];
-      const std::vector<MatchingTuple> &matchingsSad = matchingsDatasSad[i];
-      const std::vector<size_t> &indexBaryMin = origin_index_barysMin[i];
-      const std::vector<size_t> &indexBarySad = origin_index_barysSad[i];
-      const std::vector<size_t> &indexBaryMax = origin_index_barysMax[i];
-      const std::vector<size_t> &indexDataMin = origin_index_datasMin[i];
-      const std::vector<size_t> &indexDataSad = origin_index_datasSad[i];
-      const std::vector<size_t> &indexDataMax = origin_index_datasMax[i];
-      // this->printMsg("Barycenter" + std::to_string(i));
-      gradientsWeights[i] = std::move(computeGradientWeights(
-        hessianList, dictDiagrams, matchingsAtoms, Barycenter, Data, matchingsMin,
-        matchingsMax, matchingsSad, indexBaryMin, indexBaryMax, indexBarySad,
-        indexDataMin, indexDataMax, indexDataSad));
-    }
+    // for(size_t i = 0; i < nDiags; ++i) {
+    //   const std::vector<std::vector<MatchingTuple>> &matchingsAtoms
+    //     = allMatchingsAtoms[i];
+    //   const Diagram &Barycenter = Barycenters[i];
+    //   const Diagram &Data = intermediateDiagrams[i];
+    //   std::vector<Matrice> &hessianList = allHessianLists[i];
+    //   const std::vector<MatchingTuple> &matchingsMin = matchingsDatasMin[i];
+    //   const std::vector<MatchingTuple> &matchingsMax = matchingsDatasMax[i];
+    //   const std::vector<MatchingTuple> &matchingsSad = matchingsDatasSad[i];
+    //   const std::vector<size_t> &indexBaryMin = origin_index_barysMin[i];
+    //   const std::vector<size_t> &indexBarySad = origin_index_barysSad[i];
+    //   const std::vector<size_t> &indexBaryMax = origin_index_barysMax[i];
+    //   const std::vector<size_t> &indexDataMin = origin_index_datasMin[i];
+    //   const std::vector<size_t> &indexDataSad = origin_index_datasSad[i];
+    //   const std::vector<size_t> &indexDataMax = origin_index_datasMax[i];
+    //   std::vector<double> &weights = vectorWeights[i];
+    //   // this->printMsg("Barycenter" + std::to_string(i));
+    //   std::vector<double> gradWeights = std::move(computeGradientWeights(
+    //     hessianList, dictDiagrams, matchingsAtoms, Barycenter, Data, matchingsMin,
+    //     matchingsMax, matchingsSad, indexBaryMin, indexBaryMax, indexBarySad,
+    //     indexDataMin, indexDataMax, indexDataSad));
+    //   int nb_points = Barycenter.size();
+    //   gradActor.executeWeightsProjected(hessianList, weights, gradWeights, epoch, nb_points);
+    // }
 
     //#ifdef TTK_ENABLE_OPENMP
     //#pragma omp parallel for num_threads(threadNumber_)
     //#endif // TTK_ENABLE_OPENMP
 
     // Computing the nDiags gradients and gradient steps
-    for(int i = 0; i < nDiags; ++i) {
-      // const std::vector<double> gradWeight = computeGradientWeights(
-      // dictDiagrams, matchingsAtoms, Barycenter, Data, matchingsMin,
-      // matchingsMax, matchingsSad, indexBaryMin, indexBaryMax, indexBarySad,
-      // indexDataMin, indexDataMax, indexDataSad);
-      int nb_points = Barycenters[i].size();
-      std::vector<double> &weights = vectorWeights[i];
-      std::vector<double> &gradWeights = gradientsWeights[i];
-      std::vector<Matrice> &hessianList = allHessianLists[i];
-      gradActor.executeWeightsProjected(hessianList, weights, gradWeights, epoch, nb_points);
-    }
+    // for(int i = 0; i < nDiags; ++i) {
+    //   // const std::vector<double> gradWeight = computeGradientWeights(
+    //   // dictDiagrams, matchingsAtoms, Barycenter, Data, matchingsMin,
+    //   // matchingsMax, matchingsSad, indexBaryMin, indexBaryMax, indexBarySad,
+    //   // indexDataMin, indexDataMax, indexDataSad);
+    //   int nb_points = Barycenters[i].size();
+    //   std::vector<double> &weights = vectorWeights[i];
+    //   std::vector<double> &gradWeights = gradientsWeights[i];
+    //   std::vector<Matrice> &hessianList = allHessianLists[i];
+    //   gradActor.executeWeightsProjected(hessianList, weights, gradWeights, epoch, nb_points);
+    // }
     // WEIGHT OPTIMIZATION
-    Barycenters.clear();
-    Barycenters.resize(nDiags);
-    allMatchingsAtoms.clear();
-    allMatchingsAtoms.resize(nDiags);
+    // Barycenters.clear();
+    // Barycenters.resize(nDiags);
+    // allMatchingsAtoms.clear();
+    // allMatchingsAtoms.resize(nDiags);
     ////////////////////////////////ATOM////////////////////////////////////////
 
 //#ifdef TTK_ENABLE_OPENMP
 //#pragma omp parallel for num_threads(threadNumber_)
 //#endif // TTK_ENABLE_OPENMP
     this->printMsg("========================ATOM NOW=============================");
-    for(int i = 0; i < nDiags; ++i) {
-      Diagram &barycenter = Barycenters[i];
-      std::vector<double> &weight = vectorWeights[i];
-      double sum = 0.;
-      for (int q = 0 ; q < weight.size() ; ++q ){
-        sum+= weight[q];
-        std::cout << weight[q] << std::endl;
-      }
-      std::cout << "sum: " << sum << std::endl;
-      // this->printMsg(std::to_string(sum_temp));
-      std::vector<std::vector<MatchingTuple>> &matchings = allMatchingsAtoms[i];
-      computeWeightedBarycenter(dictDiagrams, weight, barycenter, matchings);
-      // for(int i = 0; i < barycenter.size(); ++i) {
-      // DiagramTuple &t = barycenter[i];
-      // std::cout << "Pair: " << std::get<6>(t) << ", " << std::get<10>(t)
-      //          << std::endl;
-      //}
-    }
-
-    for(size_t i = 0; i < dictDiagrams.size(); ++i) {
-      std::cout << "Atom " << i << std::endl;
-      for(size_t j = 0; j < dictDiagrams[i].size(); ++j) {
-        DiagramTuple &t = dictDiagrams[i][j];
-        std::cout << "Pair atoms: " << std::get<6>(t) << ", " << std::get<10>(t)
-                  << " and " << (0. <= std::get<6>(t)) << " and "
-                  << (std::get<10>(t) >= std::get<6>(t)) << std::endl;
-      }
-    }
-
-    this->printMsg("=====================================================");
-    for(size_t i = 0; i < allMatchingsAtoms[0].size(); ++i) {
-      std::cout << "matchings atom" << i << std::endl;
-      for(size_t j = 0; j < allMatchingsAtoms[0][i].size(); ++j) {
-        MatchingTuple &t = allMatchingsAtoms[0][i][j];
-        std::cout << "Matching: " << std::get<0>(t) << ", " << std::get<1>(t)
-                  << std::endl;
-      }
-    }
-
-    this->printMsg("=====================================================");
-
-    for(size_t i = 0; i < Barycenters[0].size(); ++i) {
-      DiagramTuple &t = Barycenters[0][i];
-      std::cout << "Pair:" << i << ", " << std::get<6>(t) << ", "
-                << std::get<10>(t);
-    }
+    // for(int i = 0; i < nDiags; ++i) {
+    //   Diagram &barycenter = Barycenters[i];
+    //   std::vector<double> &weight = vectorWeights[i];
+    //   double sum = 0.;
+    //   for (int q = 0 ; q < weight.size() ; ++q ){
+    //     sum+= weight[q];
+    //     std::cout << weight[q] << std::endl;
+    //   }
+    //   std::cout << "sum: " << sum << std::endl;
+    //   // this->printMsg(std::to_string(sum_temp));
+    //   std::vector<std::vector<MatchingTuple>> &matchings = allMatchingsAtoms[i];
+    //   computeWeightedBarycenter(dictDiagrams, weight, barycenter, matchings);
+    //   // for(int i = 0; i < barycenter.size(); ++i) {
+    //   // DiagramTuple &t = barycenter[i];
+    //   // std::cout << "Pair: " << std::get<6>(t) << ", " << std::get<10>(t)
+    //   //          << std::endl;
+    //   //}
+    // }
+    //
+    // for(size_t i = 0; i < dictDiagrams.size(); ++i) {
+    //   std::cout << "Atom " << i << std::endl;
+    //   for(size_t j = 0; j < dictDiagrams[i].size(); ++j) {
+    //     DiagramTuple &t = dictDiagrams[i][j];
+    //     std::cout << "Pair atoms: " << std::get<6>(t) << ", " << std::get<10>(t)
+    //               << " and " << (0. <= std::get<6>(t)) << " and "
+    //               << (std::get<10>(t) >= std::get<6>(t)) << std::endl;
+    //   }
+    // }
+    //
+    // this->printMsg("=====================================================");
+    // for(size_t i = 0; i < allMatchingsAtoms[0].size(); ++i) {
+    //   std::cout << "matchings atom" << i << std::endl;
+    //   for(size_t j = 0; j < allMatchingsAtoms[0][i].size(); ++j) {
+    //     MatchingTuple &t = allMatchingsAtoms[0][i][j];
+    //     std::cout << "Matching: " << std::get<0>(t) << ", " << std::get<1>(t)
+    //               << std::endl;
+    //   }
+    // }
+    //
+    // this->printMsg("=====================================================");
+    //
+    // for(size_t i = 0; i < Barycenters[0].size(); ++i) {
+    //   DiagramTuple &t = Barycenters[0][i];
+    //   std::cout << "Pair:" << i << ", " << std::get<6>(t) << ", "
+    //             << std::get<10>(t);
+    // }
 
     // this->printMsg("====================NOW ATOM======================");
 
-    // std::vector<Diagram> BarycentersMin(nDiags);
-    // std::vector<Diagram> BarycentersSad(nDiags);
-    // std::vector<Diagram> BarycentersMax(nDiags);
-    BarycentersMin.clear();
-    BarycentersSad.clear();
-    BarycentersMax.clear();
-
-    BarycentersMin.resize(nDiags);
-    BarycentersSad.resize(nDiags);
-    BarycentersMax.resize(nDiags);
-
-    bidder_barycenters_min.clear();
-    bidder_barycenters_sad.clear();
-    bidder_barycenters_max.clear();
-
-    origin_index_barysMin.clear();
-    origin_index_barysSad.clear();
-    origin_index_barysMax.clear();
-
-    origin_index_barysMin.resize(nDiags);
-    origin_index_barysSad.resize(nDiags);
-    origin_index_barysMax.resize(nDiags);
-
-    matchingsDatasMin.clear();
-    matchingsDatasSad.clear();
-    matchingsDatasMax.clear();
-
-    matchingsDatasMin.resize(nDiags);
-    matchingsDatasSad.resize(nDiags);
-    matchingsDatasMax.resize(nDiags);
-    // std::vector<BidderDiagram<double>> bidder_barycenters_min{};
-    // std::vector<BidderDiagram<double>> bidder_barycenters_sad{};
-    // std::vector<BidderDiagram<double>> bidder_barycenters_max{};
-
-    //#ifdef TTK_ENABLE_OPENMP
-    //#pragma omp parallel for num_threads(threadNumber_)
-    //#endif // TTK_ENABLE_OPENMP
-    for(size_t i = 0; i < nDiags; i++) {
-      const Diagram &barycenter = Barycenters[i];
-
-      for(size_t j = 0; j < barycenter.size(); ++j) {
-        const DiagramTuple &t = barycenter[j];
-        const ttk::CriticalType nt1 = std::get<1>(t);
-        const ttk::CriticalType nt2 = std::get<3>(t);
-        const double pers = std::get<4>(t);
-        // maxDiagPersistence[i] = std::max(pers, maxDiagPersistence[i]);
-
-        if(pers > 0) {
-          if(nt1 == CriticalType::Local_minimum
-             && nt2 == CriticalType::Local_maximum) {
-            BarycentersMax[i].emplace_back(t);
-            origin_index_barysMax[i].push_back(j);
-          } else {
-            if(nt1 == CriticalType::Local_maximum
-               || nt2 == CriticalType::Local_maximum) {
-              BarycentersMax[i].emplace_back(t);
-              origin_index_barysMax[i].push_back(j);
-            }
-            if(nt1 == CriticalType::Local_minimum
-               || nt2 == CriticalType::Local_minimum) {
-              BarycentersMin[i].emplace_back(t);
-              origin_index_barysMin[i].push_back(j);
-            }
-            if((nt1 == CriticalType::Saddle1 && nt2 == CriticalType::Saddle2)
-               || (nt1 == CriticalType::Saddle2
-                   && nt2 == CriticalType::Saddle1)) {
-              BarycentersSad[i].emplace_back(t);
-              origin_index_barysSad[i].push_back(j);
-            }
-          }
-        }
-      }
-    }
-    if(this->do_min_) {
-      setBidderDiagrams(nDiags, BarycentersMin, bidder_barycenters_min);
-    }
-    if(this->do_sad_) {
-      setBidderDiagrams(nDiags, BarycentersSad, bidder_barycenters_sad);
-    }
-    if(this->do_max_) {
-      setBidderDiagrams(nDiags, BarycentersMax, bidder_barycenters_max);
-    }
-    double temp2 = 0;
+    // // std::vector<Diagram> BarycentersMin(nDiags);
+    // // std::vector<Diagram> BarycentersSad(nDiags);
+    // // std::vector<Diagram> BarycentersMax(nDiags);
+    // BarycentersMin.clear();
+    // BarycentersSad.clear();
+    // BarycentersMax.clear();
+    //
+    // BarycentersMin.resize(nDiags);
+    // BarycentersSad.resize(nDiags);
+    // BarycentersMax.resize(nDiags);
+    //
+    // bidder_barycenters_min.clear();
+    // bidder_barycenters_sad.clear();
+    // bidder_barycenters_max.clear();
+    //
+    // origin_index_barysMin.clear();
+    // origin_index_barysSad.clear();
+    // origin_index_barysMax.clear();
+    //
+    // origin_index_barysMin.resize(nDiags);
+    // origin_index_barysSad.resize(nDiags);
+    // origin_index_barysMax.resize(nDiags);
+    //
+    // matchingsDatasMin.clear();
+    // matchingsDatasSad.clear();
+    // matchingsDatasMax.clear();
+    //
+    // matchingsDatasMin.resize(nDiags);
+    // matchingsDatasSad.resize(nDiags);
+    // matchingsDatasMax.resize(nDiags);
+    // // std::vector<BidderDiagram<double>> bidder_barycenters_min{};
+    // // std::vector<BidderDiagram<double>> bidder_barycenters_sad{};
+    // // std::vector<BidderDiagram<double>> bidder_barycenters_max{};
 
     //#ifdef TTK_ENABLE_OPENMP
     //#pragma omp parallel for num_threads(threadNumber_)
     //#endif // TTK_ENABLE_OPENMP
-    for(size_t i = 0; i < nDiags; ++i) {
-      std::vector<MatchingTuple> matching_min;
-      std::vector<MatchingTuple> matching_sad;
-      std::vector<MatchingTuple> matching_max;
-      if(this->do_min_) {
-        auto &barycentermin = bidder_barycenters_min[i];
-        auto &datamin = bidder_diagrams_min[i];
-        temp2 += computeDistance(datamin, barycentermin, matching_min);
-      }
-      if(this->do_max_) {
-        auto &barycentermax = bidder_barycenters_max[i];
-        auto &datamax = bidder_diagrams_max[i];
-        temp2 += computeDistance(datamax, barycentermax, matching_max);
-      }
-      if(this->do_sad_) {
-        auto &barycentersad = bidder_barycenters_sad[i];
-        auto &datasad = bidder_diagrams_sad[i];
-        temp2 += computeDistance(datasad, barycentersad, matching_sad);
-      }
-      // matching_sad.insert(matching_sad.end(),
-      //                    std::make_move_iterator(matching_max.begin()),
-      //                    std::make_move_iterator(matching_max.end()));
-      // matching_min.insert(matching_min.end(),
-      //                    std::make_move_iterator(matching_sad.begin()),
-      //                    std::make_move_iterator(matching_sad.end()));
-      // matchingsDatas[i] = matching_min.insert()
-      matchingsDatasMin[i] = std::move(matching_min);
-      matchingsDatasSad[i] = std::move(matching_sad);
-      matchingsDatasMax[i] = std::move(matching_max);
-    }
+    // for(size_t i = 0; i < nDiags; i++) {
+    //   const Diagram &barycenter = Barycenters[i];
+    //
+    //   for(size_t j = 0; j < barycenter.size(); ++j) {
+    //     const DiagramTuple &t = barycenter[j];
+    //     const ttk::CriticalType nt1 = std::get<1>(t);
+    //     const ttk::CriticalType nt2 = std::get<3>(t);
+    //     const double pers = std::get<4>(t);
+    //     // maxDiagPersistence[i] = std::max(pers, maxDiagPersistence[i]);
+    //
+    //     if(pers > 0) {
+    //       if(nt1 == CriticalType::Local_minimum
+    //          && nt2 == CriticalType::Local_maximum) {
+    //         BarycentersMax[i].emplace_back(t);
+    //         origin_index_barysMax[i].push_back(j);
+    //       } else {
+    //         if(nt1 == CriticalType::Local_maximum
+    //            || nt2 == CriticalType::Local_maximum) {
+    //           BarycentersMax[i].emplace_back(t);
+    //           origin_index_barysMax[i].push_back(j);
+    //         }
+    //         if(nt1 == CriticalType::Local_minimum
+    //            || nt2 == CriticalType::Local_minimum) {
+    //           BarycentersMin[i].emplace_back(t);
+    //           origin_index_barysMin[i].push_back(j);
+    //         }
+    //         if((nt1 == CriticalType::Saddle1 && nt2 == CriticalType::Saddle2)
+    //            || (nt1 == CriticalType::Saddle2
+    //                && nt2 == CriticalType::Saddle1)) {
+    //           BarycentersSad[i].emplace_back(t);
+    //           origin_index_barysSad[i].push_back(j);
+    //         }
+    //       }
+    //     }
+    //   }
+    // }
+    // if(this->do_min_) {
+    //   setBidderDiagrams(nDiags, BarycentersMin, bidder_barycenters_min);
+    // }
+    // if(this->do_sad_) {
+    //   setBidderDiagrams(nDiags, BarycentersSad, bidder_barycenters_sad);
+    // }
+    // if(this->do_max_) {
+    //   setBidderDiagrams(nDiags, BarycentersMax, bidder_barycenters_max);
+    // }
+    // double temp2 = 0;
+    //
+    // //#ifdef TTK_ENABLE_OPENMP
+    // //#pragma omp parallel for num_threads(threadNumber_)
+    // //#endif // TTK_ENABLE_OPENMP
+    // for(size_t i = 0; i < nDiags; ++i) {
+    //   std::vector<MatchingTuple> matching_min;
+    //   std::vector<MatchingTuple> matching_sad;
+    //   std::vector<MatchingTuple> matching_max;
+    //   if(this->do_min_) {
+    //     auto &barycentermin = bidder_barycenters_min[i];
+    //     auto &datamin = bidder_diagrams_min[i];
+    //     temp2 += computeDistance(datamin, barycentermin, matching_min);
+    //   }
+    //   if(this->do_max_) {
+    //     auto &barycentermax = bidder_barycenters_max[i];
+    //     auto &datamax = bidder_diagrams_max[i];
+    //     temp2 += computeDistance(datamax, barycentermax, matching_max);
+    //   }
+    //   if(this->do_sad_) {
+    //     auto &barycentersad = bidder_barycenters_sad[i];
+    //     auto &datasad = bidder_diagrams_sad[i];
+    //     temp2 += computeDistance(datasad, barycentersad, matching_sad);
+    //   }
+    //   // matching_sad.insert(matching_sad.end(),
+    //   //                    std::make_move_iterator(matching_max.begin()),
+    //   //                    std::make_move_iterator(matching_max.end()));
+    //   // matching_min.insert(matching_min.end(),
+    //   //                    std::make_move_iterator(matching_sad.begin()),
+    //   //                    std::make_move_iterator(matching_sad.end()));
+    //   // matchingsDatas[i] = matching_min.insert()
+    //   matchingsDatasMin[i] = std::move(matching_min);
+    //   matchingsDatasSad[i] = std::move(matching_sad);
+    //   matchingsDatasMax[i] = std::move(matching_max);
+    // }
     this->printMsg("====================NOW ATOM UPDATE======================");
     // ATOM OPTIMIZATION
     for(size_t i = 0; i < nDiags; ++i) {
@@ -1077,8 +1080,8 @@ std::vector<Matrice> PersistenceDiagramDictEncoding::computeGradientAtoms(
     if(checker[i] == 0) {
       // this->printMsg("NOT CHECKED");
       // printf("NOT CHECKED")
-      // std::cout << "NOT CHECKED" << std::endl;
-      continue;
+      std::cout << "NOT CHECKED" << std::endl;
+      // continue;
     } else {
       for(size_t j = 0; j < weights.size(); ++j) {
         std::vector<double> temp(2);
