@@ -5,7 +5,6 @@ ttk_add_base_library(constrainedGradientDescent
     ConstrainedGradientDescent.h
   DEPENDS
     common
-    persistenceDiagramClustering
 )
 
 target_compile_options(constrainedGradientDescent

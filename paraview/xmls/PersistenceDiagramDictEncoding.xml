@@ -38,7 +38,7 @@
         </Documentation>
       </InputProperty>
 
-      <IntVectorProperty
+      <!-- <IntVectorProperty
          name="BackEnd"
          label="Backend"
          command="SetBackEnd"
@@ -50,10 +50,9 @@
          <Entry value="1" text="Random initialization"/>
        </EnumerationDomain>
        <Documentation>
-           Backend for the computation of the persistence diagram.
-           The progressive approach only allows the computation of saddle-extremum pairs.
+           Backend for the computation of the dictionary of the persistence diagrams.
        </Documentation>
-     </IntVectorProperty>
+     </IntVectorProperty> -->
 
       <!-- INPUT PARAMETER WIDGETS -->
 
