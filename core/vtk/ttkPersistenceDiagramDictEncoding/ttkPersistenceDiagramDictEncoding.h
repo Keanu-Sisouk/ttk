@@ -27,6 +27,7 @@
 
 // ttk code includes
 #include <PersistenceDiagramDictEncoding.h>
+#include <InitDictPersistenceDiagram.h>
 #include <ttkAlgorithm.h>
 
 class TTKPERSISTENCEDIAGRAMDICTENCODING_EXPORT ttkPersistenceDiagramDictEncoding
@@ -36,7 +37,10 @@ class TTKPERSISTENCEDIAGRAMDICTENCODING_EXPORT ttkPersistenceDiagramDictEncoding
 private:
   int atomNumber_{3};
 
+
 public:
+  enum class BACKEND{BORDER_INIT = 0 , RANDOM_INIT = 1};
+
   static ttkPersistenceDiagramDictEncoding *New();
 
   vtkTypeMacro(ttkPersistenceDiagramDictEncoding, ttkAlgorithm);
@@ -70,6 +74,10 @@ public:
 
   vtkSetMacro(Lambda, double);
   vtkGetMacro(Lambda, double);
+
+  vtkSetEnumMacro(BackEnd, BACKEND);
+  vtkGetEnumMacro(BackEnd, BACKEND);
+
 
   void SetPairType(const int data) {
     switch(data) {
@@ -147,4 +155,6 @@ protected:
   int RequestData(vtkInformation *request,
                   vtkInformationVector **inputVector,
                   vtkInformationVector *outputVector) override;
+
+  BACKEND BackEnd{BACKEND::BORDER_INIT};
 };

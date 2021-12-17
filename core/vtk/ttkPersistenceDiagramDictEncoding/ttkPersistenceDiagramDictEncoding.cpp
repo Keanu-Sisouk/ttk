@@ -126,26 +126,13 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
     output_dgm->SetBlock(i, vtu);
   }
 
-  // std::vector<ttk::Diagram> intermediateDiagrams(nDiags);
-  std::vector<ttk::Diagram> intermediateDiagrams(1);
-
-  // double max_dimension_total = 0.0;
-  // for(int i = 0; i < nDiags; ++i) {
-  //   double max_dimension
-  //     = getPersistenceDiagram(intermediateDiagrams[i], inputDiagrams[i]);
-  //   if(max_dimension < 0.0) {
-  //     this->printErr("Could not read Persistence Diagram");
-  //     return 0;
-  //   }
-  //   if(max_dimension_total < max_dimension) {
-  //     max_dimension_total = max_dimension;
-  //   }
-  // }
+  std::vector<ttk::Diagram> intermediateDiagrams(nDiags);
+  // std::vector<ttk::Diagram> intermediateDiagrams(1);
 
   double max_dimension_total = 0.0;
-  for(int i = 0; i < 1; ++i) {
+  for(int i = 0; i < nDiags; ++i) {
     double max_dimension
-      = getPersistenceDiagram(intermediateDiagrams[i], inputDiagrams[i + nDiags - 1]);
+      = getPersistenceDiagram(intermediateDiagrams[i], inputDiagrams[i]);
     if(max_dimension < 0.0) {
       this->printErr("Could not read Persistence Diagram");
       return 0;
@@ -154,6 +141,19 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
       max_dimension_total = max_dimension;
     }
   }
+
+  // double max_dimension_total = 0.0;
+  // for(int i = 0; i < 1; ++i) {
+  //   double max_dimension = getPersistenceDiagram(
+  //     intermediateDiagrams[i], inputDiagrams[i + nDiags - 1]);
+  //   if(max_dimension < 0.0) {
+  //     this->printErr("Could not read Persistence Diagram");
+  //     return 0;
+  //   }
+  //   if(max_dimension_total < max_dimension) {
+  //     max_dimension_total = max_dimension;
+  //   }
+  // }
 
   // std::vector<ttk::Diagram> inputDiagram(1);
   // this->printMsg("==============COUCHE TTK=======================");
@@ -180,21 +180,21 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
 
   // this->printMsg("==============COUCHE TTK=======================");
 
-  // std::vector<std::vector<double>> vectorWeights(nDiags);
-  // for(int i = 0; i < vectorWeights.size(); ++i) {
-  //   // std::vector<double> weights{0.333, 0.333, 0.334};
-  //   // std::vector<double> weights{1. / 3., 1. / 3., 1. / 3.};
-  //   std::vector<double> weights(numAtom, 1. / (numAtom * 1.));
-  //   vectorWeights[i] = std::move(weights);
-  // }
-
-  std::vector<std::vector<double>> vectorWeights(1);
+  std::vector<std::vector<double>> vectorWeights(nDiags);
   for(int i = 0; i < vectorWeights.size(); ++i) {
     // std::vector<double> weights{0.333, 0.333, 0.334};
     // std::vector<double> weights{1. / 3., 1. / 3., 1. / 3.};
     std::vector<double> weights(numAtom, 1. / (numAtom * 1.));
     vectorWeights[i] = std::move(weights);
   }
+
+  // std::vector<std::vector<double>> vectorWeights(1);
+  // for(int i = 0; i < vectorWeights.size(); ++i) {
+  //   // std::vector<double> weights{0.333, 0.333, 0.334};
+  //   // std::vector<double> weights{1. / 3., 1. / 3., 1. / 3.};
+  //   std::vector<double> weights(numAtom, 1. / (numAtom * 1.));
+  //   vectorWeights[i] = std::move(weights);
+  // }
 
   // const auto diagramsDistMat = this->execute(intermediateDiagrams,
   // dictDiagrams, vectorWeights,  nInputs);
@@ -212,9 +212,9 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
       };
   // output_weights->SetNumberOfTuples(3);
   // this->printMsg("============WE ARE HERE 184 AFTER EXECUTE============");
-  for(int i = 0; i < 1; ++i) {
+  for(int i = 0; i < nDiags; ++i) {
     std::string name{"weights"};
-    zeroPad(name, 1, i);
+    zeroPad(name, nDiags, i);
     // name
     vtkNew<vtkDoubleArray> col{};
     // vtkDoubleArray *col=vtkDoubleArray::New();

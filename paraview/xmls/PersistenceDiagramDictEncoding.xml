@@ -38,6 +38,23 @@
         </Documentation>
       </InputProperty>
 
+      <IntVectorProperty
+         name="BackEnd"
+         label="Backend"
+         command="SetBackEnd"
+         number_of_elements="1"
+        default_values="0"
+        panel_visibility="advanced" >
+    <EnumerationDomain name="enum">
+         <Entry value="0" text="Border initialization"/>
+         <Entry value="1" text="Random initialization"/>
+       </EnumerationDomain>
+       <Documentation>
+           Backend for the computation of the persistence diagram.
+           The progressive approach only allows the computation of saddle-extremum pairs.
+       </Documentation>
+     </IntVectorProperty>
+
       <!-- INPUT PARAMETER WIDGETS -->
 
       <!-- This is the VTK way of selecting arrays for processing by calling the SetInputArrayToProcess method -->

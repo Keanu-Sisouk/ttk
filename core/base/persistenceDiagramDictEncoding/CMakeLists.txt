@@ -1,8 +1,10 @@
 ttk_add_base_library(persistenceDiagramDictEncoding
   SOURCES
     PersistenceDiagramDictEncoding.cpp
+    InitDictPersistenceDiagram.cpp
   HEADERS
     PersistenceDiagramDictEncoding.h
+    InitDictPersistenceDiagram.h
   DEPENDS
     common
     persistenceDiagramAuction
