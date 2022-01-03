@@ -155,6 +155,13 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
   //   }
   // }
 
+  
+  // std::vector<ttk::Diagram> dictDiagrams;
+  // InitFarBorderDict initializer;
+  // initializer.execute(dictionary , intermediateDiagrams , numAtom);
+
+
+
   // std::vector<ttk::Diagram> inputDiagram(1);
   // this->printMsg("==============COUCHE TTK=======================");
   std::vector<ttk::Diagram> dictDiagrams(numAtom);

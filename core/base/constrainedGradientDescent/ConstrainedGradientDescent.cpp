@@ -69,19 +69,19 @@ void ConstrainedGradientDescent::gradientDescentWeights(
 
   double mini = *std::min_element(weights.begin(), weights.end());
   int n = weights.size();
-  double norm_grad = 0.;
-  for(int i = 0; i < n; ++i) {
-    norm_grad += grad[i] * grad[i];
-  }
+  // double norm_grad = 0.;
+  // for(int i = 0; i < n; ++i) {
+  //   norm_grad += grad[i] * grad[i];
+  // }
   double step;
   double L = 0.;
   for(int i = 0 ; i < hessianList.size() ; ++i){
     for(int j = 0 ; j < hessianList[i].size() ; ++j){
       double diag = hessianList[i][j][j];
-      L+= 2*diag;
+      L+= 2.*diag;
     }
   }
-  step = 1/L;
+  step = 1./L;
   std::cout << "STEP = " << step << std::endl;
 
 

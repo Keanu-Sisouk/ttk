@@ -149,7 +149,7 @@ void PersistenceDiagramDictEncoding::execute(
   std::vector<double> loss_tab;
   // bool condition = true;
   // while (condition && epoch < 100) {
-  for(int epoch = 1; epoch < 14; ++epoch) {
+  for(int epoch = 1; epoch < 3; ++epoch) {
 
     loss = 0;
     std::vector<std::vector<double>> vectorWeightsOld;
@@ -163,8 +163,8 @@ void PersistenceDiagramDictEncoding::execute(
     for(int i = 0; i < nDiags; ++i) {
       Diagram &barycenter = Barycenters[i];
       std::vector<double> &weight = vectorWeights[i];
-      //  std::cout << "Poids: " << weight[0] << weight[1] << weight[2]
-      //          << std::endl;
+      std::cout << "Poids: " << weight[0] << weight[1] << weight[2]
+               << std::endl;
       // std::cout << "================================================="
       //          << std::endl;
       std::vector<std::vector<MatchingTuple>> &matchings = allMatchingsAtoms[i];
@@ -322,6 +322,11 @@ void PersistenceDiagramDictEncoding::execute(
         matchingsMin, matchingsMax, matchingsSad, indexBaryMin, indexBaryMax,
         indexBarySad, indexDataMin, indexDataMax, indexDataSad));
       int nb_points = Barycenter.size();
+      this->printMsg("gradient ==============================================");
+      for (size_t k = 0 ; k < gradWeights.size() ; ++k){
+          std::cout << gradWeights[k] << std::endl;
+      }
+      this->printMsg("=======================================================");
       gradActor.executeWeightsProjected(hessianList, weights, gradWeights,
       epoch, nb_points);
     }
@@ -345,6 +350,35 @@ void PersistenceDiagramDictEncoding::execute(
     //   epoch, nb_points);
     // }
     // WEIGHT OPTIMIZATION
+    for(size_t i = 0; i < dictDiagrams.size(); ++i) {
+      std::cout << "Atom " << i << std::endl;
+      for(size_t j = 0; j < dictDiagrams[i].size(); ++j) {
+        DiagramTuple &t = dictDiagrams[i][j];
+        std::cout << "Pair atoms: " << std::get<6>(t) << ", " << std::get<10>(t)
+                  << " and " << (0. <= std::get<6>(t)) << " and "
+                  << (std::get<10>(t) >= std::get<6>(t)) << std::endl;
+      }
+    }
+
+    this->printMsg("=====================================================");
+    for(size_t i = 0; i < allMatchingsAtoms[0].size(); ++i) {
+      std::cout << "matchings atom" << i << std::endl;
+      for(size_t j = 0; j < allMatchingsAtoms[0][i].size(); ++j) {
+        MatchingTuple &t = allMatchingsAtoms[0][i][j];
+        std::cout << "Matching: " << std::get<0>(t) << ", " << std::get<1>(t)
+                  << std::endl;
+      }
+    }
+
+    this->printMsg("=====================================================");
+
+    for(size_t i = 0; i < Barycenters[0].size(); ++i) {
+      DiagramTuple &t = Barycenters[0][i];
+      std::cout << "Pair:" << i << ", " << std::get<6>(t) << ", "
+                << std::get<10>(t);
+    }
+
+
     Barycenters.clear();
     Barycenters.resize(nDiags);
     allMatchingsAtoms.clear();
@@ -365,9 +399,8 @@ void PersistenceDiagramDictEncoding::execute(
       }
       std::cout << "sum: " << sum << std::endl;
       // this->printMsg(std::to_string(sum_temp));
-      std::vector<std::vector<MatchingTuple>> &matchings =
-      allMatchingsAtoms[i]; computeWeightedBarycenter(dictDiagrams, weight,
-      barycenter, matchings);
+      std::vector<std::vector<MatchingTuple>> &matchings = allMatchingsAtoms[i];
+      computeWeightedBarycenter(dictDiagrams, weight, barycenter, matchings);
       // for(int i = 0; i < barycenter.size(); ++i) {
       // DiagramTuple &t = barycenter[i];
       // std::cout << "Pair: " << std::get<6>(t) << ", " << std::get<10>(t)
@@ -551,33 +584,33 @@ void PersistenceDiagramDictEncoding::execute(
     // }
     // ATOM OPTIMIZATION
 
-    for(size_t i = 0; i < dictDiagrams.size(); ++i) {
-      std::cout << "Atom " << i << std::endl;
-      for(size_t j = 0; j < dictDiagrams[i].size(); ++j) {
-        DiagramTuple &t = dictDiagrams[i][j];
-        std::cout << "Pair atoms: " << std::get<6>(t) << ", " << std::get<10>(t)
-                  << " and " << (0. <= std::get<6>(t)) << " and "
-                  << (std::get<10>(t) >= std::get<6>(t)) << std::endl;
-      }
-    }
-
-    this->printMsg("=====================================================");
-    for(size_t i = 0; i < allMatchingsAtoms[0].size(); ++i) {
-      std::cout << "matchings atom" << i << std::endl;
-      for(size_t j = 0; j < allMatchingsAtoms[0][i].size(); ++j) {
-        MatchingTuple &t = allMatchingsAtoms[0][i][j];
-        std::cout << "Matching: " << std::get<0>(t) << ", " << std::get<1>(t)
-                  << std::endl;
-      }
-    }
-
-    this->printMsg("=====================================================");
-
-    for(size_t i = 0; i < Barycenters[0].size(); ++i) {
-      DiagramTuple &t = Barycenters[0][i];
-      std::cout << "Pair:" << i << ", " << std::get<6>(t) << ", "
-                << std::get<10>(t);
-    }
+    // for(size_t i = 0; i < dictDiagrams.size(); ++i) {
+    //   std::cout << "Atom " << i << std::endl;
+    //   for(size_t j = 0; j < dictDiagrams[i].size(); ++j) {
+    //     DiagramTuple &t = dictDiagrams[i][j];
+    //     std::cout << "Pair atoms: " << std::get<6>(t) << ", " << std::get<10>(t)
+    //               << " and " << (0. <= std::get<6>(t)) << " and "
+    //               << (std::get<10>(t) >= std::get<6>(t)) << std::endl;
+    //   }
+    // }
+    //
+    // this->printMsg("=====================================================");
+    // for(size_t i = 0; i < allMatchingsAtoms[0].size(); ++i) {
+    //   std::cout << "matchings atom" << i << std::endl;
+    //   for(size_t j = 0; j < allMatchingsAtoms[0][i].size(); ++j) {
+    //     MatchingTuple &t = allMatchingsAtoms[0][i][j];
+    //     std::cout << "Matching: " << std::get<0>(t) << ", " << std::get<1>(t)
+    //               << std::endl;
+    //   }
+    // }
+    //
+    // this->printMsg("=====================================================");
+    //
+    // for(size_t i = 0; i < Barycenters[0].size(); ++i) {
+    //   DiagramTuple &t = Barycenters[0][i];
+    //   std::cout << "Pair:" << i << ", " << std::get<6>(t) << ", "
+    //             << std::get<10>(t);
+    // }
 
     // double dist = 0.;
     // for (int i = 0 ; i < vectorWeights.size() ; ++i){
@@ -605,7 +638,10 @@ void PersistenceDiagramDictEncoding::execute(
     //}
 
     this->printMsg("=====================================================");
-
+    Barycenters.clear();
+    Barycenters.resize(nDiags);
+    allMatchingsAtoms.clear();
+    allMatchingsAtoms.resize(nDiags);
   } // return distMat;
   // this->printMsg("Epoch" + std::to_string(epoch) + "==================");
   this->printMsg("loss1 " + std::to_string(loss1) + "=================");
@@ -728,6 +764,7 @@ std::vector<double> PersistenceDiagramDictEncoding::computeGradientWeights(
           = birth_barycenter + (death_barycenter - birth_barycenter) / 2.;
         point[0] = birth_death_atom;
         point[1] = birth_death_atom;
+        std::cout << "Proj coordinates" << birth_death_atom << std::endl;
         // this->printMsg(std::to_string(Id2));
         // grad_list[Id2].push_back(point);
         grad_list[Id2][i] = std::move(point);
