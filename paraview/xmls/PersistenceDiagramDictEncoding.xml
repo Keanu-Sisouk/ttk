@@ -38,9 +38,9 @@
         </Documentation>
       </InputProperty>
 
-      <!-- <IntVectorProperty
+      <IntVectorProperty
          name="BackEnd"
-         label="Backend"
+         label="BackEnd"
          command="SetBackEnd"
          number_of_elements="1"
         default_values="0"
@@ -48,11 +48,12 @@
     <EnumerationDomain name="enum">
          <Entry value="0" text="Border initialization"/>
          <Entry value="1" text="Random initialization"/>
+         <Entry value="2" text="First Elem initialization"/>
        </EnumerationDomain>
        <Documentation>
            Backend for the computation of the dictionary of the persistence diagrams.
        </Documentation>
-     </IntVectorProperty> -->
+     </IntVectorProperty>
 
       <!-- INPUT PARAMETER WIDGETS -->
 

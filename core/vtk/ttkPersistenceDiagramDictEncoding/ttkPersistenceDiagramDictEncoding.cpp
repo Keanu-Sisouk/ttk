@@ -155,35 +155,37 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
   //   }
   // }
 
-  
-  // std::vector<ttk::Diagram> dictDiagrams;
+
+  std::vector<ttk::Diagram> dictDiagrams;
   // InitFarBorderDict initializer;
   // initializer.execute(dictionary , intermediateDiagrams , numAtom);
-
-
+  std::cout << "================HALOHA!!!!!!!!!==================" << std::endl;
+  this->InitDictionary(dictDiagrams , intermediateDiagrams , numAtom);
 
   // std::vector<ttk::Diagram> inputDiagram(1);
   // this->printMsg("==============COUCHE TTK=======================");
-  std::vector<ttk::Diagram> dictDiagrams(numAtom);
-  double max_dimension_total2 = 0.0;
-  for(int i = 0; i < numAtom; ++i) {
-    ttk::Diagram &atom = dictDiagrams[i];
-    double max_dimension2 = getPersistenceDiagram(
-      atom, vtkUnstructuredGrid::SafeDownCast(output_dgm->GetBlock(i)));
-    // for(size_t k = 0; k < atom.size(); ++k) {
-    //   DiagramTuple &t = atom[k];
-    //   std::cout << "Pair atoms: " << std::get<6>(t) << ", " <<
-    //   std::get<10>(t)
-    //             << std::endl;
-    // }
-    if(max_dimension2 < 0.0) {
-      this->printErr("Could not read Persistence Diagram");
-      return 0;
-    }
-    if(max_dimension_total2 < max_dimension2) {
-      max_dimension_total2 = max_dimension2;
-    }
-  }
+  //=======================DICTIONARY NAIVE INIT===============================
+
+  // std::vector<ttk::Diagram> dictDiagrams(numAtom);
+  // double max_dimension_total2 = 0.0;
+  // for(int i = 0; i < numAtom; ++i) {
+  //   ttk::Diagram &atom = dictDiagrams[i];
+  //   double max_dimension2 = getPersistenceDiagram(
+  //     atom, vtkUnstructuredGrid::SafeDownCast(output_dgm->GetBlock(i)));
+  //   // for(size_t k = 0; k < atom.size(); ++k) {
+  //   //   DiagramTuple &t = atom[k];
+  //   //   std::cout << "Pair atoms: " << std::get<6>(t) << ", " <<
+  //   //   std::get<10>(t)
+  //   //             << std::endl;
+  //   // }
+  //   if(max_dimension2 < 0.0) {
+  //     this->printErr("Could not read Persistence Diagram");
+  //     return 0;
+  //   }
+  //   if(max_dimension_total2 < max_dimension2) {
+  //     max_dimension_total2 = max_dimension2;
+  //   }
+  // }
 
   // this->printMsg("==============COUCHE TTK=======================");
 
@@ -631,4 +633,31 @@ double ttkPersistenceDiagramDictEncoding::getMaxPersistence(Diagram &diagram){
     max_persistence = std::max(pers, max_persistence);
   }
   return max_persistence;
+}
+
+int ttkPersistenceDiagramDictEncoding::InitDictionary(
+  std::vector<ttk::Diagram> &dictDiagrams,
+  std::vector<ttk::Diagram> &datas,
+  int nbAtom){
+    std::cout << "================HALO==================" << std::endl;
+    switch(this->BackEnd){
+      case BACKEND::BORDER_INIT:
+        InitFarBorderDict{}.execute(dictDiagrams, datas , nbAtom);
+        break;
+
+      case BACKEND::RANDOM_INIT:
+        InitRandomDict{}.execute(dictDiagrams , datas , nbAtom);
+        break;
+
+      case BACKEND::FIRST_DIAGS:{
+        for(int i = 0 ; i < nbAtom ; ++i){
+          ttk::Diagram t = datas[i];
+          dictDiagrams.push_back(t);
+        }
+        break;
+      }
+      default:
+        break;
+    }
+    return 0;
 }
