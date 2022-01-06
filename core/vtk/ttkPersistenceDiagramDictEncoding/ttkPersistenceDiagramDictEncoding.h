@@ -68,6 +68,7 @@ public:
     }
     Modified();
   }
+
   vtkGetMacro(Alpha, double);
 
   vtkSetMacro(atomNumber_, int);
@@ -163,5 +164,8 @@ protected:
 
   int InitDictionary(std::vector<Diagram> &dictDiagrams,
                       std::vector<Diagram> &datas,
-                      int nbAtom);
+                      int nbAtom,
+                      bool do_min_,
+                      bool do_sad_,
+                      bool do_max_);
 };

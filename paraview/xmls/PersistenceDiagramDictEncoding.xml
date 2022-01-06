@@ -65,7 +65,7 @@
       <!-- OUTPUT PARAMETER WIDGETS -->
 
       <IntVectorProperty name = "atomNumber_" label = "Number of Atoms" command="SetatomNumber_" number_of_elements = "1" default_values="3" >
-      <IntRangeDomain name = "Range" min = "0" max = "5" />
+      <IntRangeDomain name = "Range" min = "0" max = "10" />
       </IntVectorProperty>
 
 

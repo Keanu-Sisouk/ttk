@@ -149,9 +149,9 @@ void PersistenceDiagramDictEncoding::execute(
   std::vector<double> loss_tab;
   // bool condition = true;
   // while (condition && epoch < 100) {
-  for(int epoch = 1; epoch < 3; ++epoch) {
+  for(int epoch = 1; epoch < 150; ++epoch) {
 
-    loss = 0;
+    loss = 0.;
     std::vector<std::vector<double>> vectorWeightsOld;
     std::copy(vectorWeights.begin(), vectorWeights.end(),
               back_inserter(vectorWeightsOld));
@@ -558,30 +558,30 @@ void PersistenceDiagramDictEncoding::execute(
     }
     this->printMsg("====================NOW ATOM UPDATE======================");
     // ATOM OPTIMIZATION
-    // for(size_t i = 0; i < nDiags; ++i) {
-    //   std::vector<std::vector<MatchingTuple>> &matchingsAtoms
-    //     = allMatchingsAtoms[i];
-    //   Diagram &Barycenter = Barycenters[i];
-    //   const Diagram &Data = intermediateDiagrams[i];
-    //   const std::vector<MatchingTuple> &matchingsMin = matchingsDatasMin[i];
-    //   const std::vector<MatchingTuple> &matchingsMax = matchingsDatasMax[i];
-    //   const std::vector<MatchingTuple> &matchingsSad = matchingsDatasSad[i];
-    //   const std::vector<size_t> &indexBaryMin = origin_index_barysMin[i];
-    //   const std::vector<size_t> &indexBarySad = origin_index_barysSad[i];
-    //   const std::vector<size_t> &indexBaryMax = origin_index_barysMax[i];
-    //   const std::vector<size_t> &indexDataMin = origin_index_datasMin[i];
-    //   const std::vector<size_t> &indexDataSad = origin_index_datasSad[i];
-    //   const std::vector<size_t> &indexDataMax = origin_index_datasMax[i];
-    //   const std::vector<double> &weights = vectorWeights[i];
-    //   int nb_points = Barycenters[i].size();
-    //   std::vector<int> checkerAtoms(Barycenter.size(), 0);
-    //   std::vector<Matrice> gradsAtoms = computeGradientAtoms(
-    //     weights, Barycenter, Data, matchingsMin, matchingsMax, matchingsSad,
-    //     indexBaryMin, indexBaryMax, indexBarySad, indexDataMin, indexDataMax,
-    //     indexDataSad, checkerAtoms);
-    //   gradActor.executeAtoms(dictDiagrams, matchingsAtoms, Barycenter,
-    //                          gradsAtoms, nb_points, checkerAtoms, epoch);
-    // }
+    for(size_t i = 0; i < nDiags; ++i) {
+      std::vector<std::vector<MatchingTuple>> &matchingsAtoms
+        = allMatchingsAtoms[i];
+      Diagram &Barycenter = Barycenters[i];
+      const Diagram &Data = intermediateDiagrams[i];
+      const std::vector<MatchingTuple> &matchingsMin = matchingsDatasMin[i];
+      const std::vector<MatchingTuple> &matchingsMax = matchingsDatasMax[i];
+      const std::vector<MatchingTuple> &matchingsSad = matchingsDatasSad[i];
+      const std::vector<size_t> &indexBaryMin = origin_index_barysMin[i];
+      const std::vector<size_t> &indexBarySad = origin_index_barysSad[i];
+      const std::vector<size_t> &indexBaryMax = origin_index_barysMax[i];
+      const std::vector<size_t> &indexDataMin = origin_index_datasMin[i];
+      const std::vector<size_t> &indexDataSad = origin_index_datasSad[i];
+      const std::vector<size_t> &indexDataMax = origin_index_datasMax[i];
+      const std::vector<double> &weights = vectorWeights[i];
+      int nb_points = Barycenters[i].size();
+      std::vector<int> checkerAtoms(Barycenter.size(), 0);
+      std::vector<Matrice> gradsAtoms = computeGradientAtoms(
+        weights, Barycenter, Data, matchingsMin, matchingsMax, matchingsSad,
+        indexBaryMin, indexBaryMax, indexBarySad, indexDataMin, indexDataMax,
+        indexDataSad, checkerAtoms);
+      gradActor.executeAtoms(dictDiagrams, matchingsAtoms, Barycenter,
+                             gradsAtoms, nb_points, checkerAtoms, epoch);
+    }
     // ATOM OPTIMIZATION
 
     // for(size_t i = 0; i < dictDiagrams.size(); ++i) {
@@ -760,6 +760,7 @@ std::vector<double> PersistenceDiagramDictEncoding::computeGradientWeights(
         std::vector<double> point(2);
         const double birth_barycenter = std::get<6>(t3);
         const double death_barycenter = std::get<10>(t3);
+        std::cout << "Barycenter Pair:" << birth_barycenter << " " << death_barycenter << std::endl;
         const double birth_death_atom
           = birth_barycenter + (death_barycenter - birth_barycenter) / 2.;
         point[0] = birth_death_atom;

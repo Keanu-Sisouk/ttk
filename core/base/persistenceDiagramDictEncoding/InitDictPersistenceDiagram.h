@@ -48,7 +48,10 @@ namespace ttk {
 
     void execute(std::vector<Diagram> &DictDiagrams,
                  const std::vector<Diagram> &datas,
-                 const int nbAtoms);
+                 const int nbAtoms,
+                 bool do_min_,
+                 bool do_sad_,
+                 bool do_max_);
 
     // void executeAtoms(std::vector<Diagram> &DictDiagrams);
 
@@ -80,7 +83,7 @@ namespace ttk {
     double Lambda{0};
     size_t MaxNumberOfPairs{20};
     double MinPersistence{0.1};
-    bool do_min_{true}, do_sad_{true}, do_max_{true};
+    // bool do_min_{true}, do_sad_{true}, do_max_{true};
   };
 
   class InitRandomDict : public Debug {

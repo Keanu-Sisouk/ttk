@@ -160,7 +160,8 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
   // InitFarBorderDict initializer;
   // initializer.execute(dictionary , intermediateDiagrams , numAtom);
   std::cout << "================HALOHA!!!!!!!!!==================" << std::endl;
-  this->InitDictionary(dictDiagrams , intermediateDiagrams , numAtom);
+  this->InitDictionary(dictDiagrams , intermediateDiagrams , numAtom , this->do_min_,
+              this->do_sad_, this->do_max_);
 
   // std::vector<ttk::Diagram> inputDiagram(1);
   // this->printMsg("==============COUCHE TTK=======================");
@@ -385,7 +386,7 @@ double ttkPersistenceDiagramDictEncoding::getPersistenceDiagram(
   return max_dimension;
 }
 
-// double ttkPersistenceDiagramDistanceMatrix::getPersistenceDiagram(
+// double ttkPersistenceDiagramDictEncoding::getPersistenceDiagram(
 //   ttk::Diagram &diagram, vtkUnstructuredGrid *CTPersistenceDiagram_) {
 //
 //   const auto pd = CTPersistenceDiagram_->GetPointData();
@@ -500,9 +501,7 @@ double ttkPersistenceDiagramDictEncoding::getPersistenceDiagram(
 //     if(pairIdentifier >= pairingsSize) {
 //       nbNonCompact++;
 //       if(nbNonCompact == 0) {
-//         this->printWrn("Diagram pair identifiers must be compact (not exceed
-//         "
-//                        "the diagram size).");
+//         this->printWrn("Diagram pair identifiers must be compact (not exceed the diagram size).");
 //       }
 //     }
 //   }
@@ -514,7 +513,7 @@ double ttkPersistenceDiagramDictEncoding::getPersistenceDiagram(
 //
 //   return max_dimension;
 // }
-//
+
 
 void ttkPersistenceDiagramDictEncoding::diagramToVTU(
   vtkUnstructuredGrid *output,
@@ -638,11 +637,15 @@ double ttkPersistenceDiagramDictEncoding::getMaxPersistence(Diagram &diagram){
 int ttkPersistenceDiagramDictEncoding::InitDictionary(
   std::vector<ttk::Diagram> &dictDiagrams,
   std::vector<ttk::Diagram> &datas,
-  int nbAtom){
+  int nbAtom,
+  bool do_min_,
+  bool do_sad_,
+  bool do_max_){
     std::cout << "================HALO==================" << std::endl;
     switch(this->BackEnd){
       case BACKEND::BORDER_INIT:
-        InitFarBorderDict{}.execute(dictDiagrams, datas , nbAtom);
+        InitFarBorderDict{}.execute(dictDiagrams, datas , nbAtom , do_min_,
+                do_sad_, do_max_);
         break;
 
       case BACKEND::RANDOM_INIT:
