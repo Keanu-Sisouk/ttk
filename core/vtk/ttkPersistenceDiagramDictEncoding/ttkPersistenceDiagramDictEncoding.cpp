@@ -157,9 +157,6 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
 
 
   std::vector<ttk::Diagram> dictDiagrams;
-  // InitFarBorderDict initializer;
-  // initializer.execute(dictionary , intermediateDiagrams , numAtom);
-  std::cout << "================HALOHA!!!!!!!!!==================" << std::endl;
   this->InitDictionary(dictDiagrams, intermediateDiagrams, numAtom,
                        this->do_min_, this->do_sad_, this->do_max_);
 
@@ -641,7 +638,6 @@ int ttkPersistenceDiagramDictEncoding::InitDictionary(
   bool do_min_,
   bool do_sad_,
   bool do_max_) {
-  std::cout << "================HALO==================" << std::endl;
   switch(this->BackEnd) {
     case BACKEND::BORDER_INIT:
       InitFarBorderDict{}.execute(
@@ -649,7 +645,7 @@ int ttkPersistenceDiagramDictEncoding::InitDictionary(
       break;
 
     case BACKEND::RANDOM_INIT:
-      InitRandomDict{}.execute(dictDiagrams, datas, nbAtom);
+      InitRandomDict{}.execute(dictDiagrams, datas, nbAtom, 0); // TODO
       break;
 
     case BACKEND::FIRST_DIAGS: {

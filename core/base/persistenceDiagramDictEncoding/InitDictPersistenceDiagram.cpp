@@ -1,4 +1,7 @@
 #include <InitDictPersistenceDiagram.h>
+#include <Shuffle.h>
+
+#include <random>
 
 using namespace ttk;
 
@@ -31,8 +34,7 @@ void InitFarBorderDict::execute(std::vector<Diagram> &DictDiagrams,
   std::vector<BidderDiagram<double>> bidder_diagrams_sad{};
   std::vector<BidderDiagram<double>> bidder_diagrams_max{};
 
-
-  for(size_t i = 0; i < nDiags; i++) {
+  for(int i = 0; i < nDiags; i++) {
     const Diagram &CTDiagram = datas[i];
 
     for(size_t j = 0; j < CTDiagram.size(); ++j) {
@@ -82,9 +84,9 @@ void InitFarBorderDict::execute(std::vector<Diagram> &DictDiagrams,
     setBidderDiagrams(nDiags, inputDiagramsMax, bidder_diagrams_max);
   }
 
-  std::vector<std::vector<double>> allDists(nDiags);
+  Matrice allDists(nDiags);
   for(int i = 0; i < nDiags; ++i) {
-    std::vector<double> &dists = allDists[i];
+    auto &dists = allDists[i];
     for(int j = 0; j < nDiags; ++j) {
       dists.push_back(0.);
     }
@@ -136,9 +138,11 @@ void InitFarBorderDict::execute(std::vector<Diagram> &DictDiagrams,
         - distsToPtsSummed.begin();
     indices.push_back(newId);
   }
+
+  DictDiagrams.resize(nbAtoms);
   for(int i = 0; i < nbAtoms; ++i) {
-    Diagram atom = datas[indices[i]];
-    DictDiagrams.push_back(atom);
+    const Diagram &atom = datas[indices[i]];
+    DictDiagrams[i] = atom;
   }
 }
 
@@ -189,15 +193,17 @@ double
 
 void InitRandomDict::execute(std::vector<Diagram> &DictDiagrams,
                              const std::vector<Diagram> &datas,
-                             const int nbAtom){
+                             const int nbAtom,
+                             const int seed) {
   int nDiags = datas.size();
-  std::vector<int> indices;
-  for (int i = 0 ; i < nDiags ; ++i){
-    indices.push_back(i);
-  }
-  std::random_shuffle(indices.begin() , indices.end());
+  DictDiagrams.resize(nbAtom);
+  std::vector<int> indices(nDiags);
+  std::iota(indices.begin(), indices.end(), 0);
+  std::mt19937 random_engine{};
+  random_engine.seed(seed);
+  ttk::shuffle(indices, random_engine);
   for (int i = 0 ; i < nbAtom ; ++i){
-    Diagram atom = datas[indices[i]];
-    DictDiagrams.push_back(atom);
+    const Diagram &atom = datas[indices[i]];
+    DictDiagrams[i] = atom;
   }
 }

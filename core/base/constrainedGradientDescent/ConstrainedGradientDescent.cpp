@@ -295,13 +295,15 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
     } else {
       // bool test = false;
       for(int j = 0; j < checker[i].size(); ++j) {
-        if(tracker_diagonal[i][j] == 1 || tracker_match[i][j] == -1) {
+        auto &tracker = tracker_match[i][j];
+        if(tracker_diagonal[i][j] == 1 || tracker == -1) {
           // if(test){
           // this->printMsg("SAUT2");
           // printf("SAUT2");
           // continue;
         } else {
-          auto &t2 = grad_list[i][checker[i][j]];
+          auto &index = checker[i][j];
+          auto &t2 = grad_list[i][index];
 
           // if(t2[1] - t2[0] < 1e-17) {
           //   DictDiagrams[checker[i][j]].erase(
@@ -319,7 +321,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
           //   std::get<10>(t1) = t2[1];
           // }
           if(t2[1] > t2[0]) {
-            DiagramTuple &t1 = DictDiagrams[checker[i][j]][tracker_match[i][j]];
+            DiagramTuple &t1 = DictDiagrams[index][tracker];
             // printf("ATOM" + std::to_string(checker[i][j]) " , PAIR " +
             // std::to_string(tracker_match[i][j]));
             // std::cout << "ATOM " << checker[i][j] << " , SIZE"
@@ -329,8 +331,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
             std::get<6>(t1) = t2[0];
             std::get<10>(t1) = t2[1];
           } else {
-            DictDiagrams[checker[i][j]].erase(
-              DictDiagrams[checker[i][j]].begin() + tracker_match[i][j]);
+            DictDiagrams[index].erase(DictDiagrams[index].begin() + tracker);
           }
         }
       }

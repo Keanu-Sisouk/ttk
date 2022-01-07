@@ -53,16 +53,6 @@ namespace ttk {
                  bool do_sad_,
                  bool do_max_);
 
-    // void executeAtoms(std::vector<Diagram> &DictDiagrams);
-
-    // inline void setNbAtoms(const int nbAtoms) {
-    // NbAtoms = nbAtoms;
-    //}
-    // inline void setDos(const bool min, const bool sad, const bool max) {
-    //   do_min_ = min;
-    //   do_sad_ = sad;
-    //   do_max_ = max;
-    // }
   protected:
     void
       setBidderDiagrams(const size_t nInputs,
@@ -75,11 +65,6 @@ namespace ttk {
     int Wasserstein{2};
     double Alpha{1.0};
     double DeltaLim{0.01};
-    // lambda : 0<=lambda<=1
-    // parametrizes the point used for the physical (critical) coordinates of
-    // the persistence paired lambda = 1 : extremum (min if pair min-sad, max if
-    // pair sad-max) lambda = 0 : saddle (bad stability) lambda = 1/2 : middle
-    // of the 2 critical points of the pair
     double Lambda{0};
     size_t MaxNumberOfPairs{20};
     double MinPersistence{0.1};
@@ -95,25 +80,9 @@ namespace ttk {
 
     void execute(std::vector<Diagram> &DictDiagrams,
                  const std::vector<Diagram> &datas,
-                 const int nbAtoms);
+                 const int nbAtoms,
+                 const int seed);
 
-    // void executeAtoms(std::vector<Diagram> &DictDiagrams);
-
-    // inline void setNbAtoms(const int nbAtoms) {
-    // NbAtoms = nbAtoms;
-    //}
-    // inline void setDos(const bool min, const bool sad, const bool max) {
-    //   do_min_ = min;
-    //   do_sad_ = sad;
-    //   do_max_ = max;
-    // }
   protected:
-    // void
-    //   setBidderDiagrams(const size_t nInputs,
-    //                     std::vector<Diagram> &inputDiagrams,
-    //                     std::vector<BidderDiagram<double>> &bidder_diags) const;
-    //
-    // double computeDistance(const BidderDiagram<double> &D1,
-    //                        const BidderDiagram<double> &D2) const;
   };
 } // namespace ttk
