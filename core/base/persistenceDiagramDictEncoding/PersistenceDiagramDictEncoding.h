@@ -73,7 +73,8 @@ namespace ttk {
     }
 
   protected:
-    double distVect(std::vector<double> &vec1, std::vector<double> &vec2) const;
+    double distVect(const std::vector<double> &vec1,
+                    const std::vector<double> &vec2) const;
 
     double getMostPersistent(
       const std::vector<BidderDiagram<double>> &bidder_diags) const;
