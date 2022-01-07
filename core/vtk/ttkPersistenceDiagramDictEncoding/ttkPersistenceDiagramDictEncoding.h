@@ -163,9 +163,9 @@ protected:
                   vtkInformationVector *outputVector) override;
 
   int InitDictionary(std::vector<Diagram> &dictDiagrams,
-                      std::vector<Diagram> &datas,
-                      int nbAtom,
-                      bool do_min_,
-                      bool do_sad_,
-                      bool do_max_);
+                     std::vector<Diagram> &datas,
+                     int nbAtom,
+                     bool do_min_,
+                     bool do_sad_,
+                     bool do_max_);
 };

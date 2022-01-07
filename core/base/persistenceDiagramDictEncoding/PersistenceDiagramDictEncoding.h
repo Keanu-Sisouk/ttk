@@ -23,38 +23,6 @@
 #include <Wrapper.h>
 
 namespace ttk {
-
-  using DiagramTuple = std::tuple<
-    /** Vertex Id of low pair element */
-    ttk::SimplexId,
-    /** Critical Type of low pair element */
-    ttk::CriticalType,
-    /** Vertex Id of high pair element */
-    ttk::SimplexId,
-    /** Critical Type of high pair element */
-    ttk::CriticalType,
-    /** Pair persistence value */
-    double,
-    /** Pair type */
-    ttk::SimplexId,
-    /** Pair birth */
-    double,
-    /** Low pair element 3D coordinates */
-    // TODO use std::array<float, 3>
-    float,
-    float,
-    float,
-    /** Pair death */
-    double,
-    /** High pair element 3D coordinates */
-    // TODO use std::array<float, 3>
-    float,
-    float,
-    float>;
-
-  using Diagram = std::vector<DiagramTuple>;
-  using Matrice = std::vector<std::vector<double>>;
-  using MatchingTuple = std::tuple<ttk::SimplexId, ttk::SimplexId, double>;
   class PersistenceDiagramDictEncoding : virtual public Debug {
 
   public:

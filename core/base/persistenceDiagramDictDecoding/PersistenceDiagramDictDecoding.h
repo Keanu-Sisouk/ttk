@@ -55,6 +55,7 @@ namespace ttk {
   using Diagram = std::vector<DiagramTuple>;
   using Matrice = std::vector<std::vector<double>>;
   using MatchingTuple = std::tuple<ttk::SimplexId, ttk::SimplexId, double>;
+  using VectorMatchingTuple = std::vector<MatchingTuple>;
 
   /**
    * The PersistenceDiagramDictDecoding class provides methods to compute for

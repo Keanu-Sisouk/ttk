@@ -221,7 +221,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
           std::vector<double> &t = grad_list[i][checker[i][p]];
           // double birth = std::get<6>(t);
           double birth = t[0];
-          pos2[p] = birth == 0;
+          pos2[p] = birth == 0.;
           if(birth > 0) {
             temp2.push_back(birth);
             // temp2[p] = birth;
@@ -243,20 +243,23 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
         double step;
         if(temp2.size() == 0) {
           // step = std::min(1., mini) / (1e1 + 1.0 * epoch);
-          step = std::min(1. , mini) / (5e1);
+          step = std::min(1., mini) / (5e1);
         } else {
           double mini2 = *std::min_element(temp2.begin(), temp2.end());
           // double maxi = std::max_element(pos.begin() ; pos.end());
           // step = std::min(std::min(1., mini), mini2) / (1e1 + 1.0 * epoch);
-          step = std::min(std::min(1.,mini) , mini2) / (5e1);
+          step = std::min(std::min(1., mini), mini2) / (5e1);
         }
 
         std::cout << "STEP : " << step << std::endl;
         // std::cout << "STEP : " << step << std::endl;
         // double step = 1. / 1e1;
         // for(int p = 0; p < pos.size(); ++p) {
+        // int memory_of_p;
         for(int p = 0; p < checker[i].size(); ++p) {
           if(pos2[p]) {
+            std::cout << "THIS IS THE GLOBAL P" << p << std::endl;
+            // memory_of_p = p
             // if(pos2[checker[i][p]]) {
             // printf("==========ATOM UPDATING2=============");
             // DiagramTuple &t = grad_list[i][p];

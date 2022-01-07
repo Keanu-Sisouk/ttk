@@ -160,8 +160,8 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
   // InitFarBorderDict initializer;
   // initializer.execute(dictionary , intermediateDiagrams , numAtom);
   std::cout << "================HALOHA!!!!!!!!!==================" << std::endl;
-  this->InitDictionary(dictDiagrams , intermediateDiagrams , numAtom , this->do_min_,
-              this->do_sad_, this->do_max_);
+  this->InitDictionary(dictDiagrams, intermediateDiagrams, numAtom,
+                       this->do_min_, this->do_sad_, this->do_max_);
 
   // std::vector<ttk::Diagram> inputDiagram(1);
   // this->printMsg("==============COUCHE TTK=======================");
@@ -501,7 +501,8 @@ double ttkPersistenceDiagramDictEncoding::getPersistenceDiagram(
 //     if(pairIdentifier >= pairingsSize) {
 //       nbNonCompact++;
 //       if(nbNonCompact == 0) {
-//         this->printWrn("Diagram pair identifiers must be compact (not exceed the diagram size).");
+//         this->printWrn("Diagram pair identifiers must be compact (not exceed
+//         the diagram size).");
 //       }
 //     }
 //   }
@@ -513,7 +514,6 @@ double ttkPersistenceDiagramDictEncoding::getPersistenceDiagram(
 //
 //   return max_dimension;
 // }
-
 
 void ttkPersistenceDiagramDictEncoding::diagramToVTU(
   vtkUnstructuredGrid *output,
@@ -640,27 +640,27 @@ int ttkPersistenceDiagramDictEncoding::InitDictionary(
   int nbAtom,
   bool do_min_,
   bool do_sad_,
-  bool do_max_){
-    std::cout << "================HALO==================" << std::endl;
-    switch(this->BackEnd){
-      case BACKEND::BORDER_INIT:
-        InitFarBorderDict{}.execute(dictDiagrams, datas , nbAtom , do_min_,
-                do_sad_, do_max_);
-        break;
+  bool do_max_) {
+  std::cout << "================HALO==================" << std::endl;
+  switch(this->BackEnd) {
+    case BACKEND::BORDER_INIT:
+      InitFarBorderDict{}.execute(
+        dictDiagrams, datas, nbAtom, do_min_, do_sad_, do_max_);
+      break;
 
-      case BACKEND::RANDOM_INIT:
-        InitRandomDict{}.execute(dictDiagrams , datas , nbAtom);
-        break;
+    case BACKEND::RANDOM_INIT:
+      InitRandomDict{}.execute(dictDiagrams, datas, nbAtom);
+      break;
 
-      case BACKEND::FIRST_DIAGS:{
-        for(int i = 0 ; i < nbAtom ; ++i){
-          ttk::Diagram t = datas[i];
-          dictDiagrams.push_back(t);
-        }
-        break;
+    case BACKEND::FIRST_DIAGS: {
+      for(int i = 0; i < nbAtom; ++i) {
+        ttk::Diagram t = datas[i];
+        dictDiagrams.push_back(t);
       }
-      default:
-        break;
+      break;
     }
-    return 0;
+    default:
+      break;
+  }
+  return 0;
 }

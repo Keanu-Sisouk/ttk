@@ -111,31 +111,32 @@ void InitFarBorderDict::execute(std::vector<Diagram> &DictDiagrams,
   indices.push_back(Id1);
   // Diagram atom1 = datas[Id1];
 
-  for (int i = 1 ; i < nbAtoms ; ++i){
+  for(int i = 1; i < nbAtoms; ++i) {
     std::vector<double> distsToPtsSummed(nDiags, 0);
-    for (int j = 0 ; j < nDiags ; ++j){
-        if (std::find(indices.begin() , indices.end() , j) != indices.end()){
-          continue;
-        } else {
-          auto &dataMin = bidder_diagrams_min[j];
-          auto &dataMax = bidder_diagrams_max[j];
-          auto &dataSad = bidder_diagrams_sad[j];
-          for (size_t k = 0 ; k < indices.size() ; ++k){
-            auto &dataMinAtom = bidder_diagrams_min[indices[k]];
-            auto &dataMaxAtom = bidder_diagrams_max[indices[k]];
-            auto &dataSadAtom = bidder_diagrams_sad[indices[k]];
-            double dist = computeDistance(dataMinAtom, dataMin)
-                          + computeDistance(dataMaxAtom, dataMax)
-                          + computeDistance(dataSadAtom, dataSad);
-            distsToPtsSummed[j]+= dist;
-          }
+    for(int j = 0; j < nDiags; ++j) {
+      if(std::find(indices.begin(), indices.end(), j) != indices.end()) {
+        continue;
+      } else {
+        auto &dataMin = bidder_diagrams_min[j];
+        auto &dataMax = bidder_diagrams_max[j];
+        auto &dataSad = bidder_diagrams_sad[j];
+        for(size_t k = 0; k < indices.size(); ++k) {
+          auto &dataMinAtom = bidder_diagrams_min[indices[k]];
+          auto &dataMaxAtom = bidder_diagrams_max[indices[k]];
+          auto &dataSadAtom = bidder_diagrams_sad[indices[k]];
+          double dist = computeDistance(dataMinAtom, dataMin)
+                        + computeDistance(dataMaxAtom, dataMax)
+                        + computeDistance(dataSadAtom, dataSad);
+          distsToPtsSummed[j] += dist;
         }
+      }
     }
-    int newId = std::max_element(distsToPtsSummed.begin(), distsToPtsSummed.end())
-              - distsToPtsSummed.begin();
+    int newId
+      = std::max_element(distsToPtsSummed.begin(), distsToPtsSummed.end())
+        - distsToPtsSummed.begin();
     indices.push_back(newId);
   }
-  for (int i = 0 ; i < nbAtoms ; ++i ){
+  for(int i = 0; i < nbAtoms; ++i) {
     Diagram atom = datas[indices[i]];
     DictDiagrams.push_back(atom);
   }

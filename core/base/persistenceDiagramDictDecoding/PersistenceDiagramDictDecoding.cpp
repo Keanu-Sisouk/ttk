@@ -7,16 +7,12 @@ void PersistenceDiagramDictDecoding::execute(
   std::vector<std::vector<double>> &vectorWeights,
   std::vector<Diagram> &Barycenters) const {
 
-  std::vector<std::vector<std::vector<MatchingTuple>>> AllMatchingsAtoms(
+  std::vector<std::vector<VectorMatchingTuple>> AllMatchingsAtoms(
     Barycenters.size());
   for(int i = 0; i < Barycenters.size(); ++i) {
-    Diagram &barycenter = Barycenters[i];
-    std::vector<double> &weight = vectorWeights[i];
-    //  std::cout << "Poids: " << weight[0] << weight[1] << weight[2]
-    //          << std::endl;
-    // std::cout << "================================================="
-    //          << std::endl;
-    std::vector<std::vector<MatchingTuple>> &matchings = AllMatchingsAtoms[i];
+    auto &barycenter = Barycenters[i];
+    auto &weight = vectorWeights[i];
+    auto &matchings = AllMatchingsAtoms[i];
     computeWeightedBarycenter(dictDiagrams, weight, barycenter, matchings);
   }
 }

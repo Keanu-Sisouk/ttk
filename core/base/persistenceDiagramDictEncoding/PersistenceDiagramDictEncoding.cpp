@@ -149,7 +149,7 @@ void PersistenceDiagramDictEncoding::execute(
   std::vector<double> loss_tab;
   // bool condition = true;
   // while (condition && epoch < 100) {
-  for(int epoch = 1; epoch < 150; ++epoch) {
+  for(int epoch = 1; epoch < 100; ++epoch) {
 
     loss = 0.;
     std::vector<std::vector<double>> vectorWeightsOld;
@@ -408,16 +408,15 @@ void PersistenceDiagramDictEncoding::execute(
       //}
     }
     //
-    // for(size_t i = 0; i < dictDiagrams.size(); ++i) {
-    //   std::cout << "Atom " << i << std::endl;
-    //   for(size_t j = 0; j < dictDiagrams[i].size(); ++j) {
-    //     DiagramTuple &t = dictDiagrams[i][j];
-    //     std::cout << "Pair atoms: " << std::get<6>(t) << ", " <<
-    //     std::get<10>(t)
-    //               << " and " << (0. <= std::get<6>(t)) << " and "
-    //               << (std::get<10>(t) >= std::get<6>(t)) << std::endl;
-    //   }
-    // }
+    for(size_t i = 0; i < dictDiagrams.size(); ++i) {
+      std::cout << "Atom " << i << std::endl;
+      for(size_t j = 0; j < dictDiagrams[i].size(); ++j) {
+        DiagramTuple &t = dictDiagrams[i][j];
+        std::cout << "Pair atoms: " << std::get<6>(t) << ", " << std::get<10>(t)
+                  << " and " << (0. <= std::get<6>(t)) << " and "
+                  << (std::get<10>(t) >= std::get<6>(t)) << std::endl;
+      }
+    }
     //
     // this->printMsg("=====================================================");
     // for(size_t i = 0; i < allMatchingsAtoms[0].size(); ++i) {
@@ -760,7 +759,8 @@ std::vector<double> PersistenceDiagramDictEncoding::computeGradientWeights(
         std::vector<double> point(2);
         const double birth_barycenter = std::get<6>(t3);
         const double death_barycenter = std::get<10>(t3);
-        std::cout << "Barycenter Pair:" << birth_barycenter << " " << death_barycenter << std::endl;
+        std::cout << "Barycenter Pair:" << birth_barycenter << " "
+                  << death_barycenter << std::endl;
         const double birth_death_atom
           = birth_barycenter + (death_barycenter - birth_barycenter) / 2.;
         point[0] = birth_death_atom;
