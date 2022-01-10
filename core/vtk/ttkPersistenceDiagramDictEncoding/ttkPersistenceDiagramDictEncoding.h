@@ -39,6 +39,7 @@ class TTKPERSISTENCEDIAGRAMDICTENCODING_EXPORT ttkPersistenceDiagramDictEncoding
 
 private:
   int atomNumber_{3};
+  int seed_{0};
 
 
 public:
@@ -73,6 +74,9 @@ public:
 
   vtkSetMacro(atomNumber_, int);
   vtkGetMacro(atomNumber_, int);
+
+  vtkSetMacro(seed_ , int);
+  vtkGetMacro(seed_ , int);
 
   vtkSetMacro(DeltaLim, double);
   vtkGetMacro(DeltaLim, double);
@@ -167,5 +171,6 @@ protected:
                      int nbAtom,
                      bool do_min_,
                      bool do_sad_,
-                     bool do_max_);
+                     bool do_max_,
+                     int seed);
 };

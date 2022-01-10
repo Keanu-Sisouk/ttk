@@ -144,9 +144,13 @@ void PersistenceDiagramDictEncoding::execute(
   std::vector<std::vector<MatchingTuple>> matchingsDatasMax(nDiags);
   ConstrainedGradientDescent gradActor;
   double loss;
-  double loss1;
+  // double loss1;
   // int epoch = 1;
   std::vector<double> loss_tab;
+  int lag = 0;
+  int lagLimit = 20;
+  std::vector<Diagram> histoDictDiagrams(dictDiagrams.size());
+  std::vector<std::vector<double>> histoVectorWeights(nDiags);
   // bool condition = true;
   // while (condition && epoch < 100) {
   for(int epoch = 1; epoch < 100; ++epoch) {
@@ -273,10 +277,37 @@ void PersistenceDiagramDictEncoding::execute(
 
     // this->printMsg("Epoch" + std::to_string(epoch) + "==================");
     // this->printMsg("loss " + std::to_string(loss) + "===================");
-
-    if(epoch == 1) {
-      loss1 = loss;
+    if (epoch > 1){
+      if (loss < loss_tab[epoch-2]){
+        for (size_t p = 0 ; p < dictDiagrams.size() ; ++p){
+          const auto &atom = dictDiagrams[p];
+          histoDictDiagrams[p] = atom;
+        }
+        for (size_t p = 0 ; p < nDiags ; ++p){
+          const auto &weights = vectorWeights[p];
+          histoVectorWeights[p] = weights;
+        }
+        lag = 0;
+      } else {
+        lag +=1;
+      }
     }
+
+    if (lag > lagLimit){
+      for (size_t p = 0 ; p < dictDiagrams.size() ; ++p){
+        const auto &atom = histoDictDiagrams[p];
+        dictDiagrams[p] = atom;
+      }
+      for (size_t p = 0 ; p < nDiags ; ++p){
+        const auto &weights = histoVectorWeights[p];
+        vectorWeights[p] = weights;
+      }
+      break;
+    }
+
+    // if(epoch == 1) {
+    //   loss1 = loss;
+    // }
     // this->printMsg("====================PRINT WEIGHT======================");
     // for(int j = 0; j < vectorWeights[3].size(); ++j) {
     //  std::cout << vectorWeights[3][j] << std::endl;
@@ -503,17 +534,17 @@ void PersistenceDiagramDictEncoding::execute(
       if(this->do_min_) {
         auto &barycentermin = bidder_barycenters_min[i];
         auto &datamin = bidder_diagrams_min[i];
-        loss += computeDistance(datamin, barycentermin, matching_min);
+        temp2 += computeDistance(datamin, barycentermin, matching_min);
       }
       if(this->do_max_) {
         auto &barycentermax = bidder_barycenters_max[i];
         auto &datamax = bidder_diagrams_max[i];
-        loss += computeDistance(datamax, barycentermax, matching_max);
+        temp2 += computeDistance(datamax, barycentermax, matching_max);
       }
       if(this->do_sad_) {
         auto &barycentersad = bidder_barycenters_sad[i];
         auto &datasad = bidder_diagrams_sad[i];
-        loss += computeDistance(datasad, barycentersad, matching_sad);
+        temp2 += computeDistance(datasad, barycentersad, matching_sad);
       }
       matchingsDatasMin[i] = std::move(matching_min);
       matchingsDatasSad[i] = std::move(matching_sad);
@@ -608,7 +639,7 @@ void PersistenceDiagramDictEncoding::execute(
     allMatchingsAtoms.resize(nDiags);
   } // return distMat;
   // this->printMsg("Epoch" + std::to_string(epoch) + "==================");
-  this->printMsg("loss1 " + std::to_string(loss1) + "=================");
+  // this->printMsg("loss1 " + std::to_string(loss1) + "=================");
   this->printMsg("loss " + std::to_string(loss) + "===================");
 
   for(size_t i = 0; i < loss_tab.size(); ++i) {

@@ -68,6 +68,10 @@
       <IntRangeDomain name = "Range" min = "0" max = "10" />
       </IntVectorProperty>
 
+      <IntVectorProperty name = "seed_" label = "Seed for random init" command="Setseed_" number_of_elements = "1" default_values="0" >
+      <IntRangeDomain name = "Range" min = "0" max = "1000" />
+      </IntVectorProperty>
+
 
       <!-- A string parameter that controls the name of the output array -->
 

@@ -155,10 +155,10 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
   //   }
   // }
 
-
+  const int seed = this->Getseed_();
   std::vector<ttk::Diagram> dictDiagrams;
   this->InitDictionary(dictDiagrams, intermediateDiagrams, numAtom,
-                       this->do_min_, this->do_sad_, this->do_max_);
+                       this->do_min_, this->do_sad_, this->do_max_, seed);
 
   // std::vector<ttk::Diagram> inputDiagram(1);
   // this->printMsg("==============COUCHE TTK=======================");
@@ -637,7 +637,8 @@ int ttkPersistenceDiagramDictEncoding::InitDictionary(
   int nbAtom,
   bool do_min_,
   bool do_sad_,
-  bool do_max_) {
+  bool do_max_,
+  int seed) {
   switch(this->BackEnd) {
     case BACKEND::BORDER_INIT:
       InitFarBorderDict{}.execute(
@@ -645,7 +646,7 @@ int ttkPersistenceDiagramDictEncoding::InitDictionary(
       break;
 
     case BACKEND::RANDOM_INIT:
-      InitRandomDict{}.execute(dictDiagrams, datas, nbAtom, 0); // TODO
+      InitRandomDict{}.execute(dictDiagrams, datas, nbAtom, seed); // TODO
       break;
 
     case BACKEND::FIRST_DIAGS: {
