@@ -277,28 +277,28 @@ void PersistenceDiagramDictEncoding::execute(
 
     // this->printMsg("Epoch" + std::to_string(epoch) + "==================");
     // this->printMsg("loss " + std::to_string(loss) + "===================");
-    if (epoch > 1){
-      if (loss < loss_tab[epoch-2]){
-        for (size_t p = 0 ; p < dictDiagrams.size() ; ++p){
+    if(epoch > 1) {
+      if(loss < loss_tab[epoch - 2]) {
+        for(size_t p = 0; p < dictDiagrams.size(); ++p) {
           const auto &atom = dictDiagrams[p];
           histoDictDiagrams[p] = atom;
         }
-        for (size_t p = 0 ; p < nDiags ; ++p){
+        for(size_t p = 0; p < nDiags; ++p) {
           const auto &weights = vectorWeights[p];
           histoVectorWeights[p] = weights;
         }
         lag = 0;
       } else {
-        lag +=1;
+        lag += 1;
       }
     }
 
-    if (lag > lagLimit){
-      for (size_t p = 0 ; p < dictDiagrams.size() ; ++p){
+    if(lag > lagLimit) {
+      for(size_t p = 0; p < dictDiagrams.size(); ++p) {
         const auto &atom = histoDictDiagrams[p];
         dictDiagrams[p] = atom;
       }
-      for (size_t p = 0 ; p < nDiags ; ++p){
+      for(size_t p = 0; p < nDiags; ++p) {
         const auto &weights = histoVectorWeights[p];
         vectorWeights[p] = weights;
       }

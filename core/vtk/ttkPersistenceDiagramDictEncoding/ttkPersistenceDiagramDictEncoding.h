@@ -41,7 +41,6 @@ private:
   int atomNumber_{3};
   int seed_{0};
 
-
 public:
 
   enum class BACKEND{BORDER_INIT = 0 , RANDOM_INIT = 1 , FIRST_DIAGS = 2};
@@ -75,8 +74,8 @@ public:
   vtkSetMacro(atomNumber_, int);
   vtkGetMacro(atomNumber_, int);
 
-  vtkSetMacro(seed_ , int);
-  vtkGetMacro(seed_ , int);
+  vtkSetMacro(seed_, int);
+  vtkGetMacro(seed_, int);
 
   vtkSetMacro(DeltaLim, double);
   vtkGetMacro(DeltaLim, double);
