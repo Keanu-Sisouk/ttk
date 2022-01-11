@@ -553,10 +553,15 @@ void PersistenceDiagramDictEncoding::execute(
 
     this->printMsg("====================NOW ATOM UPDATE======================");
     // ATOM OPTIMIZATION
+    // std::vector<std::vector<Matrice>> gradsAtomsList(nDiags);
+
+
+
     for(size_t i = 0; i < nDiags; ++i) {
       auto &matchingsAtoms = allMatchingsAtoms[i];
       Diagram &Barycenter = Barycenters[i];
       const Diagram &Data = intermediateDiagrams[i];
+      // std::vector<Matrice> &gradsAtoms = gradsAtomsList[i];
       const std::vector<MatchingTuple> &matchingsMin = matchingsDatasMin[i];
       const std::vector<MatchingTuple> &matchingsMax = matchingsDatasMax[i];
       const std::vector<MatchingTuple> &matchingsSad = matchingsDatasSad[i];

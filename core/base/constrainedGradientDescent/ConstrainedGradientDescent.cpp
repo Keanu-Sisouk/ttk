@@ -100,6 +100,10 @@ void ConstrainedGradientDescent::gradientDescentWeights(
   }
 }
 
+// TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+// METTRE TIMER POUR VOIR QUOI PARALELLISER
+// TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+
 void ConstrainedGradientDescent::gradientDescentAtoms(
   std::vector<Diagram> &DictDiagrams,
   const std::vector<std::vector<MatchingTuple>> &matchings,
@@ -164,6 +168,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
 
   // printf("=========ATOM GRADIENT STEP==============");
   std::cout << "GRAD_LIST SIZE = LOOP NB: " << grad_list.size() << std::endl;
+
   for(int i = 0; i < grad_list.size(); ++i) {
     if(tracker[i] == 0 || checkerAtomsExt[i] == 0) {
       // printf("SAUT!!!!!!!!");
