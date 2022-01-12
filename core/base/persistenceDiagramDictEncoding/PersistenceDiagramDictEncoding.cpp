@@ -555,8 +555,6 @@ void PersistenceDiagramDictEncoding::execute(
     // ATOM OPTIMIZATION
     // std::vector<std::vector<Matrice>> gradsAtomsList(nDiags);
 
-
-
     for(size_t i = 0; i < nDiags; ++i) {
       auto &matchingsAtoms = allMatchingsAtoms[i];
       Diagram &Barycenter = Barycenters[i];
