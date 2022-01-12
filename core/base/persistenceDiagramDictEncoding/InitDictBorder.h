@@ -37,7 +37,7 @@ namespace ttk {
     float>;
 
   using Diagram = std::vector<DiagramTuple>;
-  using Matrice = std::vector<std::vector<double>>;
+  using Matrix = std::vector<std::vector<double>>;
   using MatchingTuple = std::tuple<ttk::SimplexId, ttk::SimplexId, double>;
   class InitFarBorderDict : public Debug {
 

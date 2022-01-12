@@ -83,7 +83,7 @@ namespace ttk {
                            std::vector<MatchingTuple> &matching) const;
 
     std::vector<double> computeGradientWeights(
-      std::vector<Matrice> &hessianList,
+      std::vector<Matrix> &hessianList,
       const std::vector<Diagram> &dictDiagrams,
       const std::vector<std::vector<MatchingTuple>> &matchingsAtoms,
       const Diagram &Barycenter,
@@ -98,7 +98,7 @@ namespace ttk {
       const std::vector<size_t> &indexDataMax,
       const std::vector<size_t> &indexDataSad) const;
 
-    std::vector<Matrice>
+    std::vector<Matrix>
       computeGradientAtoms(const std::vector<double> &weights,
                            const Diagram &Barycenter,
                            const Diagram &newData,

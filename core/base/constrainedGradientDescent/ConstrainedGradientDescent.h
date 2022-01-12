@@ -36,7 +36,7 @@ namespace ttk {
     float>;
 
   using Diagram = std::vector<DiagramTuple>;
-  using Matrice = std::vector<std::vector<double>>;
+  using Matrix = std::vector<std::vector<double>>;
   using MatchingTuple = std::tuple<ttk::SimplexId, ttk::SimplexId, double>;
   class ConstrainedGradientDescent : public Debug {
 
@@ -45,7 +45,7 @@ namespace ttk {
       this->setDebugMsgPrefix("ConstrainedGradientDescent");
     };
 
-    void executeWeightsProjected(std::vector<Matrice> &hessianList,
+    void executeWeightsProjected(std::vector<Matrix> &hessianList,
                                  std::vector<double> &weights,
                                  const std::vector<double> &grad,
                                  const int epoch,
@@ -54,7 +54,7 @@ namespace ttk {
     void executeAtoms(std::vector<Diagram> &DictDiagrams,
                       const std::vector<std::vector<MatchingTuple>> &matchings,
                       const Diagram &Barycenter,
-                      const std::vector<Matrice> &gradsLists,
+                      const std::vector<Matrix> &gradsLists,
                       const int nb_points,
                       const std::vector<int> &checkerAtomsExt,
                       int epoch);
@@ -67,7 +67,7 @@ namespace ttk {
   protected:
     void projectionOnSimplex(std::vector<double> &weights);
 
-    void gradientDescentWeights(std::vector<Matrice> &hessianList,
+    void gradientDescentWeights(std::vector<Matrix> &hessianList,
                                 std::vector<double> &weights,
                                 const std::vector<double> &grad,
                                 const int epoch,
@@ -77,7 +77,7 @@ namespace ttk {
       std::vector<Diagram> &DictDiagrams,
       const std::vector<std::vector<MatchingTuple>> &matchings,
       const Diagram &Barycenter,
-      const std::vector<Matrice> &gradsLists,
+      const std::vector<Matrix> &gradsLists,
       const int nb_points,
       const std::vector<int> &checkerAtomsExt,
       int epoch);

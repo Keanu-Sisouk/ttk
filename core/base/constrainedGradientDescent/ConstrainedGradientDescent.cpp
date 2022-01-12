@@ -4,7 +4,7 @@
 using namespace ttk;
 
 void ConstrainedGradientDescent::executeWeightsProjected(
-  std::vector<Matrice> &hessianList,
+  std::vector<Matrix> &hessianList,
   std::vector<double> &weights,
   const std::vector<double> &grad,
   const int epoch,
@@ -17,7 +17,7 @@ void ConstrainedGradientDescent::executeAtoms(
   std::vector<Diagram> &DictDiagrams,
   const std::vector<std::vector<MatchingTuple>> &matchings,
   const Diagram &Barycenter,
-  const std::vector<Matrice> &gradsLists,
+  const std::vector<Matrix> &gradsLists,
   const int nb_points,
   const std::vector<int> &checkerAtomsExt,
   int epoch) {
@@ -56,7 +56,7 @@ void ConstrainedGradientDescent::projectionOnSimplex(
 }
 
 void ConstrainedGradientDescent::gradientDescentWeights(
-  std::vector<Matrice> &hessianList,
+  std::vector<Matrix> &hessianList,
   std::vector<double> &weights,
   const std::vector<double> &grad,
   const int epoch,
@@ -108,7 +108,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
   std::vector<Diagram> &DictDiagrams,
   const std::vector<std::vector<MatchingTuple>> &matchings,
   const Diagram &Barycenter,
-  const std::vector<Matrice> &gradsLists,
+  const std::vector<Matrix> &gradsLists,
   const int nb_points,
   const std::vector<int> &checkerAtomsExt,
   int epoch) {

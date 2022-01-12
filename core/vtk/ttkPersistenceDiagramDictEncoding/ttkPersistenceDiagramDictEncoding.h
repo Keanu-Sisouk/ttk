@@ -27,7 +27,8 @@
 
 // ttk code includes
 #include <PersistenceDiagramDictEncoding.h>
-#include <InitDictPersistenceDiagram.h>
+#include <InitDictBorder.h>
+#include <InitDictRandomly.h>
 #include <ttkAlgorithm.h>
 #include <ttkMacros.h>
 

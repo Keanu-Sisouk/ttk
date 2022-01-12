@@ -153,7 +153,7 @@ void PersistenceDiagramDictEncoding::execute(
   std::vector<std::vector<double>> histoVectorWeights(nDiags);
   // bool condition = true;
   // while (condition && epoch < 100) {
-  for(int epoch = 1; epoch < 100; ++epoch) {
+  for(int epoch = 1; epoch < 3; ++epoch) {
 
     loss = 0.;
     // auto vectorWeightsOld = vectorWeights;
@@ -315,17 +315,17 @@ void PersistenceDiagramDictEncoding::execute(
     this->printMsg("====================PRINT WEIGHT======================");
 
     // std::vector<std::vector<double>> gradientsWeights(nDiags);
-    std::vector<std::vector<Matrice>> allHessianLists(nDiags);
+    std::vector<std::vector<Matrix>> allHessianLists(nDiags);
     //#ifdef TTK_ENABLE_OPENMP
     //#pragma omp parallel for num_threads(threadNumber_)
     //#endif // TTK_ENABLE_OPENMP
-
+    std::vector<std::vector<double>> gradWeightsList;
     // WEIGHT OPTIMIZATION
     for(size_t i = 0; i < nDiags; ++i) {
       const auto &matchingsAtoms = allMatchingsAtoms[i];
       const Diagram &Barycenter = Barycenters[i];
       const Diagram &Data = intermediateDiagrams[i];
-      std::vector<Matrice> &hessianList = allHessianLists[i];
+      std::vector<Matrix> &hessianList = allHessianLists[i];
       const std::vector<MatchingTuple> &matchingsMin = matchingsDatasMin[i];
       const std::vector<MatchingTuple> &matchingsMax = matchingsDatasMax[i];
       const std::vector<MatchingTuple> &matchingsSad = matchingsDatasSad[i];
@@ -553,32 +553,32 @@ void PersistenceDiagramDictEncoding::execute(
 
     this->printMsg("====================NOW ATOM UPDATE======================");
     // ATOM OPTIMIZATION
-    // std::vector<std::vector<Matrice>> gradsAtomsList(nDiags);
+    // std::vector<std::vector<Matrix>> gradsAtomsList(nDiags);
 
-    for(size_t i = 0; i < nDiags; ++i) {
-      auto &matchingsAtoms = allMatchingsAtoms[i];
-      Diagram &Barycenter = Barycenters[i];
-      const Diagram &Data = intermediateDiagrams[i];
-      // std::vector<Matrice> &gradsAtoms = gradsAtomsList[i];
-      const std::vector<MatchingTuple> &matchingsMin = matchingsDatasMin[i];
-      const std::vector<MatchingTuple> &matchingsMax = matchingsDatasMax[i];
-      const std::vector<MatchingTuple> &matchingsSad = matchingsDatasSad[i];
-      const std::vector<size_t> &indexBaryMin = origin_index_barysMin[i];
-      const std::vector<size_t> &indexBarySad = origin_index_barysSad[i];
-      const std::vector<size_t> &indexBaryMax = origin_index_barysMax[i];
-      const std::vector<size_t> &indexDataMin = origin_index_datasMin[i];
-      const std::vector<size_t> &indexDataSad = origin_index_datasSad[i];
-      const std::vector<size_t> &indexDataMax = origin_index_datasMax[i];
-      const std::vector<double> &weights = vectorWeights[i];
-      int nb_points = Barycenters[i].size();
-      std::vector<int> checkerAtoms(Barycenter.size(), 0);
-      std::vector<Matrice> gradsAtoms = computeGradientAtoms(
-        weights, Barycenter, Data, matchingsMin, matchingsMax, matchingsSad,
-        indexBaryMin, indexBaryMax, indexBarySad, indexDataMin, indexDataMax,
-        indexDataSad, checkerAtoms);
-      gradActor.executeAtoms(dictDiagrams, matchingsAtoms, Barycenter,
-                             gradsAtoms, nb_points, checkerAtoms, epoch);
-    }
+    // for(size_t i = 0; i < nDiags; ++i) {
+    //   auto &matchingsAtoms = allMatchingsAtoms[i];
+    //   Diagram &Barycenter = Barycenters[i];
+    //   const Diagram &Data = intermediateDiagrams[i];
+    //   // std::vector<Matrix> &gradsAtoms = gradsAtomsList[i];
+    //   const std::vector<MatchingTuple> &matchingsMin = matchingsDatasMin[i];
+    //   const std::vector<MatchingTuple> &matchingsMax = matchingsDatasMax[i];
+    //   const std::vector<MatchingTuple> &matchingsSad = matchingsDatasSad[i];
+    //   const std::vector<size_t> &indexBaryMin = origin_index_barysMin[i];
+    //   const std::vector<size_t> &indexBarySad = origin_index_barysSad[i];
+    //   const std::vector<size_t> &indexBaryMax = origin_index_barysMax[i];
+    //   const std::vector<size_t> &indexDataMin = origin_index_datasMin[i];
+    //   const std::vector<size_t> &indexDataSad = origin_index_datasSad[i];
+    //   const std::vector<size_t> &indexDataMax = origin_index_datasMax[i];
+    //   const std::vector<double> &weights = vectorWeights[i];
+    //   int nb_points = Barycenters[i].size();
+    //   std::vector<int> checkerAtoms(Barycenter.size(), 0);
+    //   std::vector<Matrix> gradsAtoms = computeGradientAtoms(
+    //     weights, Barycenter, Data, matchingsMin, matchingsMax, matchingsSad,
+    //     indexBaryMin, indexBaryMax, indexBarySad, indexDataMin, indexDataMax,
+    //     indexDataSad, checkerAtoms);
+    //   gradActor.executeAtoms(dictDiagrams, matchingsAtoms, Barycenter,
+    //                          gradsAtoms, nb_points, checkerAtoms, epoch);
+    // }
     // ATOM OPTIMIZATION
 
     // for(size_t i = 0; i < dictDiagrams.size(); ++i) {
@@ -702,7 +702,7 @@ double PersistenceDiagramDictEncoding::computeDistance(
 }
 
 std::vector<double> PersistenceDiagramDictEncoding::computeGradientWeights(
-  std::vector<Matrice> &hessianList,
+  std::vector<Matrix> &hessianList,
   const std::vector<Diagram> &dictDiagrams,
   const std::vector<std::vector<MatchingTuple>> &matchingsAtoms,
   const Diagram &Barycenter,
@@ -936,7 +936,7 @@ std::vector<double> PersistenceDiagramDictEncoding::computeGradientWeights(
   // this->printMsg("======================PASSED2==========================");
   hessianList.resize(Barycenter.size());
   for(int i = 0; i < Barycenter.size(); ++i) {
-    Matrice &hessian = hessianList[i];
+    Matrix &hessian = hessianList[i];
     hessian.resize(checker[i].size());
     for(int j = 0; j < checker[i].size(); ++j) {
       auto &line = hessian[j];
@@ -962,7 +962,7 @@ std::vector<double> PersistenceDiagramDictEncoding::computeGradientWeights(
 // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
 // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
 
-std::vector<Matrice> PersistenceDiagramDictEncoding::computeGradientAtoms(
+std::vector<Matrix> PersistenceDiagramDictEncoding::computeGradientAtoms(
   const std::vector<double> &weights,
   const Diagram &Barycenter,
   const Diagram &newData,
@@ -978,7 +978,7 @@ std::vector<Matrice> PersistenceDiagramDictEncoding::computeGradientAtoms(
   std::vector<int> &checker) const {
 
   // std::vector<MatchingTuple> matching;
-  std::vector<Matrice> gradsLists(Barycenter.size());
+  std::vector<Matrix> gradsLists(Barycenter.size());
   std::vector<std::vector<double>> directions(Barycenter.size());
   // std::vector<int> checker(Barycenter.size(), 0);
   // computeDistance(newDataBidder, barycenterBidder, matching);
