@@ -26,13 +26,11 @@
 #include <ttkPersistenceDiagramDictEncodingModule.h>
 
 // ttk code includes
-#include <PersistenceDiagramDictEncoding.h>
 #include <InitDictBorder.h>
 #include <InitDictRandomly.h>
+#include <PersistenceDiagramDictEncoding.h>
 #include <ttkAlgorithm.h>
 #include <ttkMacros.h>
-
-
 
 class TTKPERSISTENCEDIAGRAMDICTENCODING_EXPORT ttkPersistenceDiagramDictEncoding
   : public ttkAlgorithm,

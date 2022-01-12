@@ -4,7 +4,6 @@
 #include <algorithm>
 #include <array>
 
-
 namespace ttk {
   using DiagramTuple = std::tuple<
     /** Vertex Id of low pair element */
