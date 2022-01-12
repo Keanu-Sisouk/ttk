@@ -70,19 +70,4 @@ namespace ttk {
     double MinPersistence{0.1};
     // bool do_min_{true}, do_sad_{true}, do_max_{true};
   };
-
-  // class InitRandomDict : public Debug {
-  //
-  // public:
-  //   InitRandomDict() {
-  //     this->setDebugMsgPrefix("InitRandomDict");
-  //   };
-  //
-  //   void execute(std::vector<Diagram> &DictDiagrams,
-  //                const std::vector<Diagram> &datas,
-  //                const int nbAtoms,
-  //                const int seed);
-  //
-  // protected:
-  // };
 } // namespace ttk

@@ -82,7 +82,8 @@ namespace ttk {
                            const BidderDiagram<double> &D2,
                            std::vector<MatchingTuple> &matching) const;
 
-    std::vector<double> computeGradientWeights(
+    void computeGradientWeights(
+      std::vector<double> &gradWeights,
       std::vector<Matrix> &hessianList,
       const std::vector<Diagram> &dictDiagrams,
       const std::vector<std::vector<MatchingTuple>> &matchingsAtoms,
