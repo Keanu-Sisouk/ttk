@@ -169,6 +169,10 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
   // printf("=========ATOM GRADIENT STEP==============");
   std::cout << "GRAD_LIST SIZE = LOOP NB: " << grad_list.size() << std::endl;
 
+  // #ifdef TTK_ENABLE_OPENMP
+  // #pragma omp parallel for num_threads(threadNumber_)
+  // #endif // TTK_ENABLE_OPENMP
+
   for(int i = 0; i < grad_list.size(); ++i) {
     if(tracker[i] == 0 || checkerAtomsExt[i] == 0) {
       // printf("SAUT!!!!!!!!");

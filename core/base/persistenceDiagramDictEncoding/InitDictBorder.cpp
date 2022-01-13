@@ -31,6 +31,10 @@ void InitFarBorderDict::execute(std::vector<Diagram> &DictDiagrams,
   std::vector<BidderDiagram<double>> bidder_diagrams_sad{};
   std::vector<BidderDiagram<double>> bidder_diagrams_max{};
 
+  // #ifdef TTK_ENABLE_OPENMP
+  // #pragma omp parallel for num_threads(threadNumber_)
+  // #endif // TTK_ENABLE_OPENMP
+
   for(int i = 0; i < nDiags; i++) {
     const Diagram &CTDiagram = datas[i];
 
@@ -89,6 +93,10 @@ void InitFarBorderDict::execute(std::vector<Diagram> &DictDiagrams,
     }
   }
   std::vector<double> allDistsSummed(nDiags, 0.);
+
+  // #ifdef TTK_ENABLE_OPENMP
+  // #pragma omp parallel for num_threads(threadNumber_)
+  // #endif // TTK_ENABLE_OPENMP
   for(int i = 0; i < nDiags; ++i) {
     std::vector<double> &dists = allDists[i];
     auto &datamin1 = bidder_diagrams_min[i];
