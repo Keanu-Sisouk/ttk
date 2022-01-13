@@ -565,43 +565,43 @@ void PersistenceDiagramDictEncoding::execute(
     //   checkerAtoms.resize()
     // }
 
-    for(size_t i = 0; i < nDiags; ++i) {
-      auto &gradsAtoms = gradsAtomsList[i];
-      auto &checkerAtoms = checkerAtomsList[i];
-      const auto &matchingsAtoms = allMatchingsAtoms[i];
-      const Diagram &Barycenter = Barycenters[i];
-      const Diagram &Data = intermediateDiagrams[i];
-      // std::vector<Matrix> &gradsAtoms = gradsAtomsList[i];
-      const std::vector<MatchingTuple> &matchingsMin = matchingsDatasMin[i];
-      const std::vector<MatchingTuple> &matchingsMax = matchingsDatasMax[i];
-      const std::vector<MatchingTuple> &matchingsSad = matchingsDatasSad[i];
-      const std::vector<size_t> &indexBaryMin = origin_index_barysMin[i];
-      const std::vector<size_t> &indexBarySad = origin_index_barysSad[i];
-      const std::vector<size_t> &indexBaryMax = origin_index_barysMax[i];
-      const std::vector<size_t> &indexDataMin = origin_index_datasMin[i];
-      const std::vector<size_t> &indexDataSad = origin_index_datasSad[i];
-      const std::vector<size_t> &indexDataMax = origin_index_datasMax[i];
-      const std::vector<double> &weights = vectorWeights[i];
-      int nb_points = Barycenters[i].size();
-      // std::vector<int> checkerAtoms(Barycenter.size(), 0);
-      computeGradientAtoms(gradsAtoms, weights, Barycenter, Data, matchingsMin,
-                           matchingsMax, matchingsSad, indexBaryMin,
-                           indexBaryMax, indexBarySad, indexDataMin,
-                           indexDataMax, indexDataSad, checkerAtoms);
-      gradActor.executeAtoms(dictDiagrams, matchingsAtoms, Barycenter,
-                             gradsAtoms, nb_points, checkerAtoms, epoch);
-    }
-
-    for(size_t i = 0; i < nDiags; ++i) {
-      auto &gradsAtoms = gradsAtomsList[i];
-      const auto &matchingsAtoms = allMatchingsAtoms[i];
-      const Diagram &Barycenter = Barycenters[i];
-      const auto &checkerAtoms = checkerAtomsList[i];
-      int nb_points = Barycenters[i].size();
-
-      gradActor.executeAtoms(dictDiagrams, matchingsAtoms, Barycenter,
-                             gradsAtoms, nb_points, checkerAtoms, epoch);
-    }
+    // for(size_t i = 0; i < nDiags; ++i) {
+    //   auto &gradsAtoms = gradsAtomsList[i];
+    //   auto &checkerAtoms = checkerAtomsList[i];
+    //   const auto &matchingsAtoms = allMatchingsAtoms[i];
+    //   const Diagram &Barycenter = Barycenters[i];
+    //   const Diagram &Data = intermediateDiagrams[i];
+    //   // std::vector<Matrix> &gradsAtoms = gradsAtomsList[i];
+    //   const std::vector<MatchingTuple> &matchingsMin = matchingsDatasMin[i];
+    //   const std::vector<MatchingTuple> &matchingsMax = matchingsDatasMax[i];
+    //   const std::vector<MatchingTuple> &matchingsSad = matchingsDatasSad[i];
+    //   const std::vector<size_t> &indexBaryMin = origin_index_barysMin[i];
+    //   const std::vector<size_t> &indexBarySad = origin_index_barysSad[i];
+    //   const std::vector<size_t> &indexBaryMax = origin_index_barysMax[i];
+    //   const std::vector<size_t> &indexDataMin = origin_index_datasMin[i];
+    //   const std::vector<size_t> &indexDataSad = origin_index_datasSad[i];
+    //   const std::vector<size_t> &indexDataMax = origin_index_datasMax[i];
+    //   const std::vector<double> &weights = vectorWeights[i];
+    //   int nb_points = Barycenters[i].size();
+    //   // std::vector<int> checkerAtoms(Barycenter.size(), 0);
+    //   computeGradientAtoms(gradsAtoms, weights, Barycenter, Data, matchingsMin,
+    //                        matchingsMax, matchingsSad, indexBaryMin,
+    //                        indexBaryMax, indexBarySad, indexDataMin,
+    //                        indexDataMax, indexDataSad, checkerAtoms);
+    //   gradActor.executeAtoms(dictDiagrams, matchingsAtoms, Barycenter,
+    //                          gradsAtoms, nb_points, checkerAtoms, epoch);
+    // }
+    //
+    // for(size_t i = 0; i < nDiags; ++i) {
+    //   auto &gradsAtoms = gradsAtomsList[i];
+    //   const auto &matchingsAtoms = allMatchingsAtoms[i];
+    //   const Diagram &Barycenter = Barycenters[i];
+    //   const auto &checkerAtoms = checkerAtomsList[i];
+    //   int nb_points = Barycenters[i].size();
+    //
+    //   gradActor.executeAtoms(dictDiagrams, matchingsAtoms, Barycenter,
+    //                          gradsAtoms, nb_points, checkerAtoms, epoch);
+    // }
     // ATOM OPTIMIZATION
 
     // for(size_t i = 0; i < dictDiagrams.size(); ++i) {
