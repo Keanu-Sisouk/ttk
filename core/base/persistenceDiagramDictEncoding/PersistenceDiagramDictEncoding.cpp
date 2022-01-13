@@ -565,9 +565,6 @@ void PersistenceDiagramDictEncoding::execute(
     //   checkerAtoms.resize()
     // }
 
-
-
-
     for(size_t i = 0; i < nDiags; ++i) {
       auto &gradsAtoms = gradsAtomsList[i];
       auto &checkerAtoms = checkerAtomsList[i];
@@ -588,12 +585,12 @@ void PersistenceDiagramDictEncoding::execute(
       int nb_points = Barycenters[i].size();
       // std::vector<int> checkerAtoms(Barycenter.size(), 0);
       computeGradientAtoms(gradsAtoms, weights, Barycenter, Data, matchingsMin,
-        matchingsMax, matchingsSad, indexBaryMin, indexBaryMax, indexBarySad,
-        indexDataMin, indexDataMax, indexDataSad, checkerAtoms);
+                           matchingsMax, matchingsSad, indexBaryMin,
+                           indexBaryMax, indexBarySad, indexDataMin,
+                           indexDataMax, indexDataSad, checkerAtoms);
       gradActor.executeAtoms(dictDiagrams, matchingsAtoms, Barycenter,
                              gradsAtoms, nb_points, checkerAtoms, epoch);
     }
-
 
     for(size_t i = 0; i < nDiags; ++i) {
       auto &gradsAtoms = gradsAtomsList[i];
@@ -1013,7 +1010,7 @@ void PersistenceDiagramDictEncoding::computeGradientAtoms(
   // std::vector<MatchingTuple> matching;
   gradsAtoms.resize(Barycenter.size());
   checker.resize(Barycenter.size());
-  for(size_t i = 0 ; i < Barycenter.size() ; ++i){
+  for(size_t i = 0; i < Barycenter.size(); ++i) {
     checker[i] = 0;
   }
   std::vector<std::vector<double>> directions(Barycenter.size());
