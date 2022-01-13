@@ -99,8 +99,9 @@ namespace ttk {
       const std::vector<size_t> &indexDataMax,
       const std::vector<size_t> &indexDataSad) const;
 
-    std::vector<Matrix>
-      computeGradientAtoms(const std::vector<double> &weights,
+    void
+      computeGradientAtoms(std::vector<Matrix> &gradsAtoms,
+                           const std::vector<double> &weights,
                            const Diagram &Barycenter,
                            const Diagram &newData,
                            const std::vector<MatchingTuple> &matchingsMin,
