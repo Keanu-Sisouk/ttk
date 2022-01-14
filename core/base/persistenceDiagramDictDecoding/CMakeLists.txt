@@ -7,5 +7,3 @@ ttk_add_base_library(persistenceDiagramDictDecoding
     common
     persistenceDiagramClustering
   )
-  target_compile_options(persistenceDiagramDictDecoding PRIVATE -O0 -ggdb
-  )

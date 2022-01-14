@@ -77,8 +77,7 @@ void ConstrainedGradientDescent::gradientDescentWeights(
     }
   }
   step = 1./L;
-  std::cout << "STEP = " << step << std::endl;
-
+  // std::cout << "STEP = " << step << std::endl;
 
   // if(nb_points < 100) {
   //   step = mini / (5e3 * (epoch + 1.));
@@ -167,7 +166,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
   }
 
   // printf("=========ATOM GRADIENT STEP==============");
-  std::cout << "GRAD_LIST SIZE = LOOP NB: " << grad_list.size() << std::endl;
+  // std::cout << "GRAD_LIST SIZE = LOOP NB: " << grad_list.size() << std::endl;
 
   // #ifdef TTK_ENABLE_OPENMP
   // #pragma omp parallel for num_threads(threadNumber_)
@@ -239,14 +238,14 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
           step = std::min(std::min(1., mini), mini2) / (5e1);
         }
 
-        std::cout << "STEP : " << step << std::endl;
+        // std::cout << "STEP : " << step << std::endl;
         // std::cout << "STEP : " << step << std::endl;
         // double step = 1. / 1e1;
         // for(int p = 0; p < pos.size(); ++p) {
         // int memory_of_p;
         for(int p = 0; p < checker[i].size(); ++p) {
           if(pos2[p]) {
-            std::cout << "THIS IS THE GLOBAL P" << p << std::endl;
+            // std::cout << "THIS IS THE GLOBAL P" << p << std::endl;
             // memory_of_p = p
             // if(pos2[checker[i][p]]) {
             // printf("==========ATOM UPDATING2=============");
@@ -270,8 +269,8 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
             // t[0] = t[0] - step * gradsLists[i][p][0];
             // t[1] = t[1] - step * gradsLists[i][p][1];
             auto &t0 = grad_list[i][checker[i][p]];
-            std::cout << "GRADS" << gradsLists[i][checker[i][p]][0] << ","
-                      << gradsLists[i][checker[i][p]][1] << std::endl;
+            // std::cout << "GRADS" << gradsLists[i][checker[i][p]][0] << ","
+            //           << gradsLists[i][checker[i][p]][1] << std::endl;
             t0[0] = t0[0] - step * gradsLists[i][checker[i][p]][0];
             t0[1] = t0[1] - step * gradsLists[i][checker[i][p]][1];
           }

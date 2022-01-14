@@ -372,7 +372,7 @@ double ttkPersistenceDiagramDictEncoding::getPersistenceDiagram(
                        "the diagram size).");
       }
     }
-    this->printMsg("=====" + std::to_string(i) + "=====FIN=====");
+    // this->printMsg("=====" + std::to_string(i) + "=====FIN=====");
   }
 
   if(nbNonCompact > 0) {
