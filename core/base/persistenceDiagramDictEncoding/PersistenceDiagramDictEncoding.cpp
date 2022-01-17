@@ -17,8 +17,7 @@ void PersistenceDiagramDictEncoding::execute(
   //   std::cout << "Atom " << i << std::endl;
   //   for(size_t j = 0; j < dictDiagrams[i].size(); ++j) {
   //     DiagramTuple &t = dictDiagrams[i][j];
-  //     std::cout << "Pair atoms: " << std::get<6>(t) << ", " <<
-  //     std::get<10>(t)
+  //     std::cout << "Pair atoms: " << std::get<6>(t) << ", " << std::get<10>(t)
   //               << std::endl;
   //   }
   // }
@@ -160,15 +159,15 @@ void PersistenceDiagramDictEncoding::execute(
     loss = 0.;
     // auto vectorWeightsOld = vectorWeights;
     // this->printMsg("Epoch: " + std::to_string(epoch));
-#ifdef TTK_ENABLE_OPENMP
-#pragma omp parallel for num_threads(threadNumber_)
-#endif // TTK_ENABLE_OPENMP
+    #ifdef TTK_ENABLE_OPENMP
+    #pragma omp parallel for num_threads(threadNumber_)
+    #endif // TTK_ENABLE_OPENMP
     //////////////////////////////WEIGHTS///////////////////////////////////
     for(int i = 0; i < nDiags; ++i) {
       Diagram &barycenter = Barycenters[i];
       std::vector<double> &weight = vectorWeights[i];
       // std::cout << "Poids: " << weight[0] << weight[1] << weight[2]
-      // << std::endl;
+                // << std::endl;
       // std::cout << "================================================="
       //          << std::endl;
       std::vector<std::vector<MatchingTuple>> &matchings = allMatchingsAtoms[i];
@@ -179,10 +178,7 @@ void PersistenceDiagramDictEncoding::execute(
       //             << std::endl;
       // }
     }
-    this->printMsg(
-      "Computed 1st Barycenters for epoch " + std::to_string(epoch),
-      epoch / static_cast<double>(MAX_EPOCH), tm_it.getElapsedTime(),
-      threadNumber_, debug::LineMode::NEW, debug::Priority::DETAIL);
+    this->printMsg("Computed 1st Barycenters for epoch " + std::to_string(epoch), epoch/static_cast<double>(MAX_EPOCH), tm_it.getElapsedTime(), threadNumber_, debug::LineMode::NEW, debug::Priority::DETAIL);
     // this->printMsg(
     //   "====================BARYCENTER FINISHED======================");
 
@@ -369,9 +365,8 @@ void PersistenceDiagramDictEncoding::execute(
         Data, matchingsMin, matchingsMax, matchingsSad, indexBaryMin,
         indexBaryMax, indexBarySad, indexDataMin, indexDataMax, indexDataSad);
       int nb_points = Barycenter.size();
-      // this->printMsg("gradient
-      // =============================================="); for(size_t k = 0; k <
-      // gradWeights.size(); ++k) {
+      // this->printMsg("gradient ==============================================");
+      // for(size_t k = 0; k < gradWeights.size(); ++k) {
       //   std::cout << gradWeights[k] << std::endl;
       // }
       // this->printMsg("=======================================================");
@@ -379,18 +374,15 @@ void PersistenceDiagramDictEncoding::execute(
         hessianList, weights, gradWeights, epoch, nb_points);
     }
 
-    this->printMsg("Computed 1st opt for epoch " + std::to_string(epoch),
-                   epoch / static_cast<double>(MAX_EPOCH),
-                   tm_opt1.getElapsedTime(), 1, debug::LineMode::NEW,
-                   debug::Priority::DETAIL);
+    this->printMsg("Computed 1st opt for epoch " + std::to_string(epoch), epoch/static_cast<double>(MAX_EPOCH), tm_opt1.getElapsedTime(), 1, debug::LineMode::NEW, debug::Priority::DETAIL);
+
 
     // WEIGHT OPTIMIZATION
     // for(size_t i = 0; i < dictDiagrams.size(); ++i) {
     //   std::cout << "Atom " << i << std::endl;
     //   for(size_t j = 0; j < dictDiagrams[i].size(); ++j) {
     //     DiagramTuple &t = dictDiagrams[i][j];
-    //     std::cout << "Pair atoms: " << std::get<6>(t) << ", " <<
-    //     std::get<10>(t)
+    //     std::cout << "Pair atoms: " << std::get<6>(t) << ", " << std::get<10>(t)
     //               << " and " << (0. <= std::get<6>(t)) << " and "
     //               << (std::get<10>(t) >= std::get<6>(t)) << std::endl;
     //   }
@@ -420,8 +412,9 @@ void PersistenceDiagramDictEncoding::execute(
     allMatchingsAtoms.resize(nDiags);
     ////////////////////////////////ATOM////////////////////////////////////////
 
+
     // this->printMsg(
-    // "========================ATOM NOW=============================");
+      // "========================ATOM NOW=============================");
 
     Timer tm_it2{};
 #ifdef TTK_ENABLE_OPENMP
@@ -445,17 +438,13 @@ void PersistenceDiagramDictEncoding::execute(
       //          << std::endl;
       //}
     }
-    this->printMsg(
-      "Computed 2nd Barycenters for epoch " + std::to_string(epoch),
-      epoch / static_cast<double>(MAX_EPOCH), tm_it2.getElapsedTime(),
-      threadNumber_, debug::LineMode::NEW, debug::Priority::DETAIL);
+    this->printMsg("Computed 2nd Barycenters for epoch " + std::to_string(epoch), epoch/static_cast<double>(MAX_EPOCH), tm_it2.getElapsedTime(), threadNumber_, debug::LineMode::NEW, debug::Priority::DETAIL);
     //
     // for(size_t i = 0; i < dictDiagrams.size(); ++i) {
     //   std::cout << "Atom " << i << std::endl;
     //   for(size_t j = 0; j < dictDiagrams[i].size(); ++j) {
     //     DiagramTuple &t = dictDiagrams[i][j];
-    //     std::cout << "Pair atoms: " << std::get<6>(t) << ", " <<
-    //     std::get<10>(t)
+    //     std::cout << "Pair atoms: " << std::get<6>(t) << ", " << std::get<10>(t)
     //               << " and " << (0. <= std::get<6>(t)) << " and "
     //               << (std::get<10>(t) >= std::get<6>(t)) << std::endl;
     //   }
@@ -592,8 +581,8 @@ void PersistenceDiagramDictEncoding::execute(
       matchingsDatasMax[i] = std::move(matching_max);
     }
 
-    // this->printMsg("====================NOW ATOM
-    // UPDATE======================"); ATOM OPTIMIZATION
+    // this->printMsg("====================NOW ATOM UPDATE======================");
+    // ATOM OPTIMIZATION
     std::vector<std::vector<Matrix>> gradsAtomsList(nDiags);
     std::vector<std::vector<int>> checkerAtomsList(nDiags);
     // for(size_t i = 0 ; i < nDiags ; ++i){
@@ -631,10 +620,8 @@ void PersistenceDiagramDictEncoding::execute(
       //                        gradsAtoms, nb_points, checkerAtoms, epoch);
     }
 
-    this->printMsg("Computed 2nd opt for epoch " + std::to_string(epoch),
-                   epoch / static_cast<double>(MAX_EPOCH),
-                   tm_opt2.getElapsedTime(), 1, debug::LineMode::NEW,
-                   debug::Priority::DETAIL);
+    this->printMsg("Computed 2nd opt for epoch " + std::to_string(epoch), epoch/static_cast<double>(MAX_EPOCH), tm_opt2.getElapsedTime(), 1, debug::LineMode::NEW, debug::Priority::DETAIL);
+
 
     for(size_t i = 0; i < nDiags; ++i) {
       auto &gradsAtoms = gradsAtomsList[i];
@@ -729,8 +716,7 @@ void PersistenceDiagramDictEncoding::execute(
   //   std::cout << "Atom " << i << std::endl;
   //   for(size_t j = 0; j < dictDiagrams[i].size(); ++j) {
   //     DiagramTuple &t = dictDiagrams[i][j];
-  //     std::cout << "Pair atoms: " << std::get<6>(t) << ", " <<
-  //     std::get<10>(t)
+  //     std::cout << "Pair atoms: " << std::get<6>(t) << ", " << std::get<10>(t)
   //               << " and " << (0. <= std::get<6>(t)) << " and "
   //               << (std::get<10>(t) >= std::get<6>(t)) << std::endl;
   //   }
