@@ -159,9 +159,9 @@ void PersistenceDiagramDictEncoding::execute(
     loss = 0.;
     // auto vectorWeightsOld = vectorWeights;
     // this->printMsg("Epoch: " + std::to_string(epoch));
-    #ifdef TTK_ENABLE_OPENMP
-    #pragma omp parallel for num_threads(threadNumber_)
-    #endif // TTK_ENABLE_OPENMP
+#ifdef TTK_ENABLE_OPENMP
+#pragma omp parallel for num_threads(threadNumber_)
+#endif // TTK_ENABLE_OPENMP
     //////////////////////////////WEIGHTS///////////////////////////////////
     for(int i = 0; i < nDiags; ++i) {
       Diagram &barycenter = Barycenters[i];
@@ -245,10 +245,11 @@ void PersistenceDiagramDictEncoding::execute(
       setBidderDiagrams(nDiags, BarycentersMax, bidder_barycenters_max);
     }
 
+
+    // Compute distance and matchings
 #ifdef TTK_ENABLE_OPENMP
 #pragma omp parallel for num_threads(threadNumber_)
 #endif // TTK_ENABLE_OPENMP
-    // Compute distance and matchings
     for(size_t i = 0; i < nDiags; ++i) {
       std::vector<MatchingTuple> matching_min;
       std::vector<MatchingTuple> matching_sad;
@@ -256,16 +257,27 @@ void PersistenceDiagramDictEncoding::execute(
       if(this->do_min_) {
         auto &barycentermin = bidder_barycenters_min[i];
         auto &datamin = bidder_diagrams_min[i];
+#ifdef TTK_ENABLE_OPENMP
+#pragma omp atomic update
+#endif // TTK_ENABLE_OPENMP
         loss += computeDistance(datamin, barycentermin, matching_min);
       }
       if(this->do_max_) {
         auto &barycentermax = bidder_barycenters_max[i];
         auto &datamax = bidder_diagrams_max[i];
+
+#ifdef TTK_ENABLE_OPENMP
+#pragma omp atomic update
+#endif // TTK_ENABLE_OPENMP
         loss += computeDistance(datamax, barycentermax, matching_max);
       }
       if(this->do_sad_) {
         auto &barycentersad = bidder_barycenters_sad[i];
         auto &datasad = bidder_diagrams_sad[i];
+
+#ifdef TTK_ENABLE_OPENMP
+#pragma omp atomic update
+#endif // TTK_ENABLE_OPENMP
         loss += computeDistance(datasad, barycentersad, matching_sad);
       }
       matchingsDatasMin[i] = std::move(matching_min);
@@ -335,10 +347,11 @@ void PersistenceDiagramDictEncoding::execute(
     std::vector<std::vector<Matrix>> allHessianLists(nDiags);
     std::vector<std::vector<double>> gradWeightsList(nDiags);
     Timer tm_opt1{};
+    // WEIGHT OPTIMIZATION
+
 #ifdef TTK_ENABLE_OPENMP
 #pragma omp parallel for num_threads(threadNumber_)
 #endif // TTK_ENABLE_OPENMP
-    // WEIGHT OPTIMIZATION
     for(size_t i = 0; i < nDiags; ++i) {
       auto &gradWeights = gradWeightsList[i];
       const auto &matchingsAtoms = allMatchingsAtoms[i];
@@ -504,9 +517,9 @@ void PersistenceDiagramDictEncoding::execute(
     // std::vector<BidderDiagram<double>> bidder_barycenters_sad{};
     // std::vector<BidderDiagram<double>> bidder_barycenters_max{};
 
-    // #ifdef TTK_ENABLE_OPENMP
-    // #pragma omp parallel for num_threads(threadNumber_)
-    // #endif // TTK_ENABLE_OPENMP
+#ifdef TTK_ENABLE_OPENMP
+#pragma omp parallel for num_threads(threadNumber_)
+#endif // TTK_ENABLE_OPENMP
     for(size_t i = 0; i < nDiags; i++) {
       const Diagram &barycenter = Barycenters[i];
 
@@ -554,9 +567,9 @@ void PersistenceDiagramDictEncoding::execute(
     }
     double temp2 = 0;
 
-    //#ifdef TTK_ENABLE_OPENMP
-    //#pragma omp parallel for num_threads(threadNumber_)
-    //#endif // TTK_ENABLE_OPENMP
+#ifdef TTK_ENABLE_OPENMP
+#pragma omp parallel for num_threads(threadNumber_)
+#endif // TTK_ENABLE_OPENMP
     for(size_t i = 0; i < nDiags; ++i) {
       std::vector<MatchingTuple> matching_min;
       std::vector<MatchingTuple> matching_sad;
@@ -564,16 +577,27 @@ void PersistenceDiagramDictEncoding::execute(
       if(this->do_min_) {
         auto &barycentermin = bidder_barycenters_min[i];
         auto &datamin = bidder_diagrams_min[i];
+#ifdef TTK_ENABLE_OPENMP
+#pragma omp atomic update
+#endif // TTK_ENABLE_OPENMP
         temp2 += computeDistance(datamin, barycentermin, matching_min);
       }
       if(this->do_max_) {
         auto &barycentermax = bidder_barycenters_max[i];
         auto &datamax = bidder_diagrams_max[i];
+
+#ifdef TTK_ENABLE_OPENMP
+#pragma omp atomic update
+#endif // TTK_ENABLE_OPENMP
         temp2 += computeDistance(datamax, barycentermax, matching_max);
       }
       if(this->do_sad_) {
         auto &barycentersad = bidder_barycenters_sad[i];
         auto &datasad = bidder_diagrams_sad[i];
+
+#ifdef TTK_ENABLE_OPENMP
+#pragma omp atomic update
+#endif // TTK_ENABLE_OPENMP
         temp2 += computeDistance(datasad, barycentersad, matching_sad);
       }
       matchingsDatasMin[i] = std::move(matching_min);
