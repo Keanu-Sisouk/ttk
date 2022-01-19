@@ -103,7 +103,7 @@ int ttkPersistenceDiagramDictDecoding::FillOutputPortInformation(
  *        provided by the FillOutputPortInformation method.
  */
 int ttkPersistenceDiagramDictDecoding::RequestData(
-  vtkInformation *request,
+  vtkInformation * /*request*/,
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector) {
 
@@ -184,7 +184,7 @@ int ttkPersistenceDiagramDictDecoding::RequestData(
     }
   }
 
-  std::vector<Diagram> Barycenters(nWeights);
+  std::vector<ttk::Diagram> Barycenters(nWeights);
 
   this->execute(dictDiagrams, vectorWeights, Barycenters);
   // this->printMsg("=====ICI?======");
@@ -195,7 +195,7 @@ int ttkPersistenceDiagramDictDecoding::RequestData(
     // vtkUnstructuredGrid temp =
     // vtkUnstructuredGrid::SafeDownCast(output_dgm->GetBlock(i));
     vtkNew<vtkUnstructuredGrid> vtu;
-    Diagram &diagram = Barycenters[i];
+    ttk::Diagram &diagram = Barycenters[i];
     double max_persistence = getMaxPersistence(diagram);
     diagramToVTU(vtu, diagram, max_persistence);
     // this->printMsg("=====HERE?======");
@@ -437,11 +437,11 @@ void ttkPersistenceDiagramDictDecoding::diagramToVTU(
   }
 
   // add diagonal
-  const auto minmax_birth
-    = std::minmax_element(diagram.begin(), diagram.end(),
-                          [](const DiagramTuple &a, const DiagramTuple &b) {
-                            return std::get<6>(a) < std::get<6>(b);
-                          });
+  const auto minmax_birth = std::minmax_element(
+    diagram.begin(), diagram.end(),
+    [](const ttk::DiagramTuple &a, const ttk::DiagramTuple &b) {
+      return std::get<6>(a) < std::get<6>(b);
+    });
   const std::array<vtkIdType, 2> ids{
     2 * (minmax_birth.first - diagram.begin()),
     2 * (minmax_birth.second - diagram.begin()),
@@ -453,10 +453,11 @@ void ttkPersistenceDiagramDictDecoding::diagramToVTU(
   pairPers->SetTuple1(diagram.size(), 2.0 * max_persistence);
 }
 
-double ttkPersistenceDiagramDictDecoding::getMaxPersistence(Diagram &diagram) {
+double
+  ttkPersistenceDiagramDictDecoding::getMaxPersistence(ttk::Diagram &diagram) {
   double max_persistence{0};
   for(size_t i = 0; i < diagram.size(); ++i) {
-    const DiagramTuple &t = diagram[i];
+    const auto &t = diagram[i];
     const double pers = std::get<4>(t);
     max_persistence = std::max(pers, max_persistence);
   }

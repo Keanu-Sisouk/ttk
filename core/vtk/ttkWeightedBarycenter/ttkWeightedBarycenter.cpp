@@ -49,7 +49,7 @@ void ttkWeightedBarycenter::Modified() {
   ttkAlgorithm::Modified();
 }
 
-int ttkWeightedBarycenter::RequestData(vtkInformation *request,
+int ttkWeightedBarycenter::RequestData(vtkInformation * /*request*/,
                                        vtkInformationVector **inputVector,
                                        vtkInformationVector *outputVector) {
 
@@ -110,24 +110,26 @@ int ttkWeightedBarycenter::RequestData(vtkInformation *request,
         inv_clustering_[i_input] = 0;
       }
 
-    std::vector<double> weights;
-    weights.resize(3);
-    weights[0]=0.4;
-    weights[1]=0.4;
-    weights[2]=0.2;
-    diagramType barycenter;
-    std::vector<std::vector<matchingType>> matchings;
+      std::vector<double> weights;
+      weights.resize(3);
+      weights[0] = 0.4;
+      weights[1] = 0.4;
+      weights[2] = 0.2;
+      diagramType barycenter;
+      std::vector<std::vector<matchingType>> matchings;
 
       computeWeightedBarycenter<double>(
         intermediateDiagrams_, weights, barycenter, matchings);
 
-  std::cout<<"PRINT MATCHINGS"<<std::endl;
-    for(int ii = 0; ii<matchings.size(); ii++){
-      std::cout<<" j = "<<ii<<std::endl;
-      for(int jj = 0; jj<matchings[ii].size(); jj++){
-        std::cout<<"    "<<get<0>(matchings[ii][jj])<<" "<<get<1>(matchings[ii][jj])<<" "<<get<2>(matchings[ii][jj])<<std::endl;
+      std::cout << "PRINT MATCHINGS" << std::endl;
+      for(size_t ii = 0; ii < matchings.size(); ii++) {
+        std::cout << " j = " << ii << std::endl;
+        for(size_t jj = 0; jj < matchings[ii].size(); jj++) {
+          std::cout << "    " << std::get<0>(matchings[ii][jj]) << " "
+                    << std::get<1>(matchings[ii][jj]) << " "
+                    << std::get<2>(matchings[ii][jj]) << std::endl;
+        }
       }
-    }
       final_centroids_.resize(1);
       final_centroids_[0] = std::move(barycenter);
       all_matchings_[0] = std::move(matchings);
@@ -705,13 +707,13 @@ void ttkWeightedBarycenter::outputMatchings(
 
       std::array<double, 3> coords1{};
 
-      if(bidderId >=0){
+      if(bidderId >= 0) {
         const auto &p1{diag[bidderId]};
         coords1[0] = std::get<6>(p1);
         coords1[1] = std::get<10>(p1);
         coords1[2] = 0;
         isDiagonal->SetTuple1(j, 0);
-      }else{
+      } else {
         double diagonal_projection = (std::get<6>(p0) + std::get<10>(p0)) / 2;
         coords1[0] = diagonal_projection;
         coords1[1] = diagonal_projection;

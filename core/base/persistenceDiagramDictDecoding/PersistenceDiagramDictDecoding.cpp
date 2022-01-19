@@ -9,7 +9,7 @@ void PersistenceDiagramDictDecoding::execute(
 
   std::vector<std::vector<VectorMatchingTuple>> AllMatchingsAtoms(
     Barycenters.size());
-  for(int i = 0; i < Barycenters.size(); ++i) {
+  for(size_t i = 0; i < Barycenters.size(); ++i) {
     auto &barycenter = Barycenters[i];
     auto &weight = vectorWeights[i];
     auto &matchings = AllMatchingsAtoms[i];

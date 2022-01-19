@@ -33,10 +33,10 @@ protected:
                                vtkUnstructuredGrid *CTPersistenceDiagram_);
 
   void diagramToVTU(vtkUnstructuredGrid *output,
-                    const Diagram &diagram,
+                    const ttk::Diagram &diagram,
                     const double max_persistence) const;
 
-  double getMaxPersistence(Diagram &diagram);
+  double getMaxPersistence(ttk::Diagram &diagram);
 
   /**
    * TODO 10: Pass VTK data to the base code and convert base code output to VTK

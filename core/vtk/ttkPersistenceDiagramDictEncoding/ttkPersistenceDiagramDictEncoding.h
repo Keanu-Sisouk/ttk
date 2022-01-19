@@ -150,12 +150,12 @@ protected:
   double getPersistenceDiagram(ttk::Diagram &diagram,
                                vtkUnstructuredGrid *CTPersistenceDiagram_);
 
-  void VTUToDiagram(Diagram &diagram, vtkUnstructuredGrid *vtu) const;
+  void VTUToDiagram(ttk::Diagram &diagram, vtkUnstructuredGrid *vtu) const;
   void diagramToVTU(vtkUnstructuredGrid *output,
-                    const Diagram &diagram,
+                    const ttk::Diagram &diagram,
                     const double max_persistence) const;
 
-  double getMaxPersistence(Diagram &diagram);
+  double getMaxPersistence(ttk::Diagram &diagram);
 
   int FillInputPortInformation(int port, vtkInformation *info) override;
   int FillOutputPortInformation(int port, vtkInformation *info) override;
@@ -164,8 +164,8 @@ protected:
                   vtkInformationVector **inputVector,
                   vtkInformationVector *outputVector) override;
 
-  int InitDictionary(std::vector<Diagram> &dictDiagrams,
-                     std::vector<Diagram> &datas,
+  int InitDictionary(std::vector<ttk::Diagram> &dictDiagrams,
+                     std::vector<ttk::Diagram> &datas,
                      int nbAtom,
                      bool do_min_,
                      bool do_sad_,
