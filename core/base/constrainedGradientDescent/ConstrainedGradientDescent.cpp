@@ -1,5 +1,5 @@
 #include <ConstrainedGradientDescent.h>
-#include <math.h>
+#include <cmath>
 
 using namespace ttk;
 
@@ -59,8 +59,8 @@ void ConstrainedGradientDescent::gradientDescentWeights(
   std::vector<Matrix> &hessianList,
   std::vector<double> &weights,
   const std::vector<double> &grad,
-  const int epoch,
-  const int nb_points) {
+  const int /*epoch*/,
+  const int /*nb_points*/) {
 
   double mini = *std::min_element(weights.begin(), weights.end());
   int n = weights.size();
@@ -69,15 +69,6 @@ void ConstrainedGradientDescent::gradientDescentWeights(
   //   norm_grad += grad[i] * grad[i];
   // }
   double step;
-  // double L = 0.;
-  // for(int i = 0 ; i < hessianList.size() ; ++i){
-  //   for(int j = 0 ; j < hessianList[i].size() ; ++j){
-  //     double diag = hessianList[i][j][j];
-  //     L+= 2.*diag;
-  //   }
-  // }
-  // step = 1./L;
-  step = 1./2.;
   // std::cout << "STEP = " << step << std::endl;
 
   // if(nb_points < 100) {
@@ -109,15 +100,15 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
   const std::vector<std::vector<MatchingTuple>> &matchings,
   const Diagram &Barycenter,
   const std::vector<Matrix> &gradsLists,
-  const int nb_points,
+  const int /*nb_points*/,
   const std::vector<int> &checkerAtomsExt,
-  int epoch) {
+  int /*epoch*/) {
   // Here vector of diagramTuple because it is not a persistence diagram per
   // say.
   // we get the right pairs to update for each barycenter pair.
   std::vector<std::vector<std::array<double, 2>>> grad_list(Barycenter.size());
 
-  for(int i = 0; i < grad_list.size(); ++i) {
+  for(size_t i = 0; i < grad_list.size(); ++i) {
     grad_list[i].resize(matchings.size());
   }
 
@@ -126,14 +117,14 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
   std::vector<std::vector<int>> tracker_diagonal(Barycenter.size());
   std::vector<std::vector<int>> tracker_match(Barycenter.size());
 
-  for(int i = 0; i < matchings.size(); ++i) {
-    for(int j = 0; j < matchings[i].size(); ++j) {
+  for(size_t i = 0; i < matchings.size(); ++i) {
+    for(size_t j = 0; j < matchings[i].size(); ++j) {
       const MatchingTuple &t = matchings[i][j];
       // Id in atom
       const SimplexId Id1 = std::get<0>(t);
       // Id in barycenter
       const SimplexId Id2 = std::get<1>(t);
-      if(Id2 < 0 || Id2 >= grad_list.size()
+      if(Id2 < 0 || Id2 >= static_cast<SimplexId>(grad_list.size())
          || Id1 >= static_cast<SimplexId>(DictDiagrams[i].size())) {
         continue;
       } else if(Id1 < 0) {
@@ -173,7 +164,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
   // #pragma omp parallel for num_threads(threadNumber_)
   // #endif // TTK_ENABLE_OPENMP
 
-  for(int i = 0; i < grad_list.size(); ++i) {
+  for(size_t i = 0; i < grad_list.size(); ++i) {
     if(tracker[i] == 0 || checkerAtomsExt[i] == 0) {
       // printf("SAUT!!!!!!!!");
       // std::cout << "SAUT!!!!!!" << std::endl;
@@ -182,7 +173,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
       std::vector<double> pos(grad_list[i].size(), 0.);
       int k = 0;
       // for(int j = 0; j < grad_list[i].size(); ++j) {
-      for(int j = 0; j < checker[i].size(); ++j) {
+      for(size_t j = 0; j < checker[i].size(); ++j) {
         // DiagramTuple &t = grad_list[i][j];
         // std::vector<double> &t = grad_list[i][j];
         auto &t = grad_list[i][checker[i][j]];
@@ -191,7 +182,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
         double birth = t[0];
         double death = t[1];
         pos[j] = death - birth;
-        //std::cout << "PERSISTENCE: " << pos[j] << std::endl;
+        // std::cout << "PERSISTENCE: " << pos[j] << std::endl;
         if(death - birth > 1e-10) {
           k += 1;
         }
@@ -203,7 +194,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
         // std::vector<double> temp2(pos.size(), 0.);
         std::vector<double> temp2;
         // for(int p = 0; p < pos.size(); ++p) {
-        for(int p = 0; p < checker[i].size(); ++p) {
+        for(size_t p = 0; p < checker[i].size(); ++p) {
           // DiagramTuple &t = grad_list[i][p];
           // std::vector<double> &t = grad_list[i][p];
           auto &t = grad_list[i][checker[i][p]];
@@ -218,7 +209,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
         // std::vector<double> temp(pos.size(), 0.);
         std::vector<double> temp;
 
-        for(int p = 0; p < pos.size(); ++p) {
+        for(size_t p = 0; p < pos.size(); ++p) {
           double val = pos[p];
           if(val > 0.) {
             temp.push_back(val);
@@ -244,7 +235,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
         // double step = 1. / 1e1;
         // for(int p = 0; p < pos.size(); ++p) {
         // int memory_of_p;
-        for(int p = 0; p < checker[i].size(); ++p) {
+        for(size_t p = 0; p < checker[i].size(); ++p) {
           if(pos2[p]) {
             // std::cout << "THIS IS THE GLOBAL P" << p << std::endl;
             // memory_of_p = p
@@ -296,14 +287,14 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
   //}
 
   // printf("PASSED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-  for(int i = 0; i < checker.size(); ++i) {
+  for(size_t i = 0; i < checker.size(); ++i) {
     if(tracker[i] == 0 || checkerAtomsExt[i] == 0) {
       // this->printMsg("SAUT1");
       // printf("SAUT1");
       // continue;
     } else {
       // bool test = false;
-      for(int j = 0; j < checker[i].size(); ++j) {
+      for(size_t j = 0; j < checker[i].size(); ++j) {
         auto &tracker = tracker_match[i][j];
         if(tracker_diagonal[i][j] == 1 || tracker == -1) {
           // if(test){
