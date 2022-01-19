@@ -69,14 +69,15 @@ void ConstrainedGradientDescent::gradientDescentWeights(
   //   norm_grad += grad[i] * grad[i];
   // }
   double step;
-  double L = 0.;
-  for(int i = 0 ; i < hessianList.size() ; ++i){
-    for(int j = 0 ; j < hessianList[i].size() ; ++j){
-      double diag = hessianList[i][j][j];
-      L+= 2.*diag;
-    }
-  }
-  step = 1./L;
+  // double L = 0.;
+  // for(int i = 0 ; i < hessianList.size() ; ++i){
+  //   for(int j = 0 ; j < hessianList[i].size() ; ++j){
+  //     double diag = hessianList[i][j][j];
+  //     L+= 2.*diag;
+  //   }
+  // }
+  // step = 1./L;
+  step = 1./2.;
   // std::cout << "STEP = " << step << std::endl;
 
   // if(nb_points < 100) {
