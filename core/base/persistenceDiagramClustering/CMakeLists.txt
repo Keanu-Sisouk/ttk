@@ -14,7 +14,3 @@ ttk_add_base_library(persistenceDiagramClustering
     persistenceDiagramAuction
     kdTree
   )
-
-target_compile_options(persistenceDiagramClustering
-  PRIVATE -ggdb
-)

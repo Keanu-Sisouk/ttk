@@ -7,7 +7,3 @@ ttk_add_base_library(initDictPersistenceDiagram
     common
     persistenceDiagramAuction
 )
-
-target_compile_options(initDictPersistenceDiagram
-  PRIVATE -ggdb
-)
