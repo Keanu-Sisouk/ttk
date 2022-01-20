@@ -156,10 +156,11 @@ void PersistenceDiagramDictEncoding::execute(
   // bool condition = true;
   // while (condition && epoch < 100) {
   for(int epoch = 1; epoch < MAX_EPOCH; ++epoch) {
-    Timer tm_it{};
+
     loss = 0.;
     // auto vectorWeightsOld = vectorWeights;
     // this->printMsg("Epoch: " + std::to_string(epoch));
+    Timer tm_it{};
 #ifdef TTK_ENABLE_OPENMP
 #pragma omp parallel for num_threads(threadNumber_)
 #endif // TTK_ENABLE_OPENMP
@@ -358,7 +359,7 @@ void PersistenceDiagramDictEncoding::execute(
         hessianList, weights, gradWeights, epoch, nb_points);
     }
 
-    this->printMsg("Computed 1st opt for epoch " + std::to_string(epoch), epoch/static_cast<double>(MAX_EPOCH), tm_opt1.getElapsedTime(), 1, debug::LineMode::NEW, debug::Priority::DETAIL);
+    this->printMsg("Computed 1st opt for epoch " + std::to_string(epoch), epoch/static_cast<double>(MAX_EPOCH), tm_opt1.getElapsedTime(),threadNumber_, debug::LineMode::NEW, debug::Priority::DETAIL);
 
 
 
@@ -563,7 +564,7 @@ void PersistenceDiagramDictEncoding::execute(
       //                        gradsAtoms, nb_points, checkerAtoms, epoch);
     }
 
-    this->printMsg("Computed 2nd opt for epoch " + std::to_string(epoch), epoch/static_cast<double>(MAX_EPOCH), tm_opt2.getElapsedTime(), 1, debug::LineMode::NEW, debug::Priority::DETAIL);
+    this->printMsg("Computed 2nd opt for epoch " + std::to_string(epoch), epoch/static_cast<double>(MAX_EPOCH), tm_opt2.getElapsedTime(), threadNumber_, debug::LineMode::NEW, debug::Priority::DETAIL);
 
 
     for(size_t i = 0; i < nDiags; ++i) {
