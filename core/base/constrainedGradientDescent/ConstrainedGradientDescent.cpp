@@ -70,11 +70,12 @@ void ConstrainedGradientDescent::gradientDescentWeights(
   for (size_t i = 0 ; i < hessianList.size() ; ++i){
     auto &hessian = hessianList[i];
     for(size_t k = 0; k < hessian.size() ; ++k){
-      L+= 2.*hessian[k][k];
+      double diag = hessian[k][k];
+      L+= 2.*diag;
     }
   }
 
-  step = mini/L;
+  step = 1./L;
   // std::cout << "STEP" << step << std::endl;
 
   for(int i = 0; i < n; ++i) {
