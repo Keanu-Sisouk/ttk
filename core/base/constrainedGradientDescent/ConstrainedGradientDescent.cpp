@@ -59,33 +59,24 @@ void ConstrainedGradientDescent::gradientDescentWeights(
   std::vector<Matrix> &hessianList,
   std::vector<double> &weights,
   const std::vector<double> &grad,
-  const int /*epoch*/,
-  const int /*nb_points*/) {
+  const int epoch,
+  const int nb_points) {
 
   double mini = *std::min_element(weights.begin(), weights.end());
   int n = weights.size();
-  // double norm_grad = 0.;
-  // for(int i = 0; i < n; ++i) {
-  //   norm_grad += grad[i] * grad[i];
-  // }
   double step;
+  double L = 0.;
   // std::cout << "STEP = " << step << std::endl;
+  for (size_t i = 0 ; i < hessianList.size() ; ++i){
+    auto &hessian = hessianList[i];
+    for(size_t k = 0; k < hessian.size() ; ++k){
+      L+= 2.*hessian[k][k];
+    }
+  }
 
-  // if(nb_points < 100) {
-  //   step = mini / (5e3 * (epoch + 1.));
-  //   // step = mini / 5e3 * (epoch + 1.);
-  // } else if(100 <= nb_points < 700) {
-  //   step = std::min(mini, 1.) / (norm_grad); // * pow(2, 10));
-  //   // step = std::min(mini , 1.) / norm_grad;
-  // } else {
-  //   if(epoch < 10) {
-  //     // float step = 1 / 2 * *(epoch + 1);
-  //     step = std::min(mini, 1.) / pow(2, epoch + 1);
-  //   } else {
-  //     // float step = 1 / 2 * *11;
-  //     step = std::min(mini, 1.) / pow(2, epoch + 1);
-  //   }
-  // }
+  step = mini/L;
+  // std::cout << "STEP" << step << std::endl;
+
   for(int i = 0; i < n; ++i) {
     weights[i] = weights[i] - mini * step * grad[i];
   }
@@ -295,8 +286,8 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
     } else {
       // bool test = false;
       for(size_t j = 0; j < checker[i].size(); ++j) {
-        auto &tracker = tracker_match[i][j];
-        if(tracker_diagonal[i][j] == 1 || tracker == -1) {
+        auto &tracker_temp = tracker_match[i][j];
+        if(tracker_diagonal[i][j] == 1 || tracker_temp == -1) {
           // if(test){
           // this->printMsg("SAUT2");
           // printf("SAUT2");
@@ -321,7 +312,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
           //   std::get<10>(t1) = t2[1];
           // }
           if(t2[1] > t2[0]) {
-            DiagramTuple &t1 = DictDiagrams[index][tracker];
+            DiagramTuple &t1 = DictDiagrams[index][tracker_temp];
             // printf("ATOM" + std::to_string(checker[i][j]) " , PAIR " +
             // std::to_string(tracker_match[i][j]));
             // std::cout << "ATOM " << checker[i][j] << " , SIZE"
@@ -331,7 +322,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
             std::get<6>(t1) = t2[0];
             std::get<10>(t1) = t2[1];
           } else {
-            DictDiagrams[index].erase(DictDiagrams[index].begin() + tracker);
+            DictDiagrams[index].erase(DictDiagrams[index].begin() + tracker_temp);
           }
         }
       }

@@ -150,7 +150,7 @@ void PersistenceDiagramDictEncoding::execute(
   std::vector<double> loss_tab;
   int lag = 0;
   int lagLimit = 20;
-  int MAX_EPOCH = 11;
+  int MAX_EPOCH = 51;
   std::vector<Diagram> histoDictDiagrams(dictDiagrams.size());
   std::vector<std::vector<double>> histoVectorWeights(nDiags);
   // bool condition = true;
@@ -527,56 +527,56 @@ void PersistenceDiagramDictEncoding::execute(
 
     // this->printMsg("====================NOW ATOM UPDATE======================");
     // ATOM OPTIMIZATION
-    std::vector<std::vector<Matrix>> gradsAtomsList(nDiags);
-    std::vector<std::vector<int>> checkerAtomsList(nDiags);
-    // for(size_t i = 0 ; i < nDiags ; ++i){
-    //   auto &checkerAtoms = checkerAtomsList[i];
-    //   checkerAtoms.resize()
-    // }
-    Timer tm_opt2{};
-#ifdef TTK_ENABLE_OPENMP
-#pragma omp parallel for num_threads(threadNumber_)
-#endif // TTK_ENABLE_OPENMP
-    for(size_t i = 0; i < nDiags; ++i) {
-      auto &gradsAtoms = gradsAtomsList[i];
-      auto &checkerAtoms = checkerAtomsList[i];
-      const auto &matchingsAtoms = allMatchingsAtoms[i];
-      const Diagram &Barycenter = Barycenters[i];
-      const Diagram &Data = intermediateDiagrams[i];
-      // std::vector<Matrix> &gradsAtoms = gradsAtomsList[i];
-      const std::vector<MatchingTuple> &matchingsMin = matchingsDatasMin[i];
-      const std::vector<MatchingTuple> &matchingsMax = matchingsDatasMax[i];
-      const std::vector<MatchingTuple> &matchingsSad = matchingsDatasSad[i];
-      const std::vector<size_t> &indexBaryMin = origin_index_barysMin[i];
-      const std::vector<size_t> &indexBarySad = origin_index_barysSad[i];
-      const std::vector<size_t> &indexBaryMax = origin_index_barysMax[i];
-      const std::vector<size_t> &indexDataMin = origin_index_datasMin[i];
-      const std::vector<size_t> &indexDataSad = origin_index_datasSad[i];
-      const std::vector<size_t> &indexDataMax = origin_index_datasMax[i];
-      const std::vector<double> &weights = vectorWeights[i];
-      int nb_points = Barycenters[i].size();
-      // std::vector<int> checkerAtoms(Barycenter.size(), 0);
-      computeGradientAtoms(gradsAtoms, weights, Barycenter, Data, matchingsMin,
-                           matchingsMax, matchingsSad, indexBaryMin,
-                           indexBaryMax, indexBarySad, indexDataMin,
-                           indexDataMax, indexDataSad, checkerAtoms);
-      // gradActor.executeAtoms(dictDiagrams, matchingsAtoms, Barycenter,
-      //                        gradsAtoms, nb_points, checkerAtoms, epoch);
-    }
-
-    this->printMsg("Computed 2nd opt for epoch " + std::to_string(epoch), epoch/static_cast<double>(MAX_EPOCH), tm_opt2.getElapsedTime(), threadNumber_, debug::LineMode::NEW, debug::Priority::DETAIL);
-
-
-    for(size_t i = 0; i < nDiags; ++i) {
-      auto &gradsAtoms = gradsAtomsList[i];
-      const auto &matchingsAtoms = allMatchingsAtoms[i];
-      const Diagram &Barycenter = Barycenters[i];
-      const auto &checkerAtoms = checkerAtomsList[i];
-      int nb_points = Barycenters[i].size();
-
-      gradActor.executeAtoms(dictDiagrams, matchingsAtoms, Barycenter,
-                             gradsAtoms, nb_points, checkerAtoms, epoch);
-    }
+//     std::vector<std::vector<Matrix>> gradsAtomsList(nDiags);
+//     std::vector<std::vector<int>> checkerAtomsList(nDiags);
+//     // for(size_t i = 0 ; i < nDiags ; ++i){
+//     //   auto &checkerAtoms = checkerAtomsList[i];
+//     //   checkerAtoms.resize()
+//     // }
+//     Timer tm_opt2{};
+// #ifdef TTK_ENABLE_OPENMP
+// #pragma omp parallel for num_threads(threadNumber_)
+// #endif // TTK_ENABLE_OPENMP
+//     for(size_t i = 0; i < nDiags; ++i) {
+//       auto &gradsAtoms = gradsAtomsList[i];
+//       auto &checkerAtoms = checkerAtomsList[i];
+//       const auto &matchingsAtoms = allMatchingsAtoms[i];
+//       const Diagram &Barycenter = Barycenters[i];
+//       const Diagram &Data = intermediateDiagrams[i];
+//       // std::vector<Matrix> &gradsAtoms = gradsAtomsList[i];
+//       const std::vector<MatchingTuple> &matchingsMin = matchingsDatasMin[i];
+//       const std::vector<MatchingTuple> &matchingsMax = matchingsDatasMax[i];
+//       const std::vector<MatchingTuple> &matchingsSad = matchingsDatasSad[i];
+//       const std::vector<size_t> &indexBaryMin = origin_index_barysMin[i];
+//       const std::vector<size_t> &indexBarySad = origin_index_barysSad[i];
+//       const std::vector<size_t> &indexBaryMax = origin_index_barysMax[i];
+//       const std::vector<size_t> &indexDataMin = origin_index_datasMin[i];
+//       const std::vector<size_t> &indexDataSad = origin_index_datasSad[i];
+//       const std::vector<size_t> &indexDataMax = origin_index_datasMax[i];
+//       const std::vector<double> &weights = vectorWeights[i];
+//       int nb_points = Barycenters[i].size();
+//       // std::vector<int> checkerAtoms(Barycenter.size(), 0);
+//       computeGradientAtoms(gradsAtoms, weights, Barycenter, Data, matchingsMin,
+//                            matchingsMax, matchingsSad, indexBaryMin,
+//                            indexBaryMax, indexBarySad, indexDataMin,
+//                            indexDataMax, indexDataSad, checkerAtoms);
+//       // gradActor.executeAtoms(dictDiagrams, matchingsAtoms, Barycenter,
+//       //                        gradsAtoms, nb_points, checkerAtoms, epoch);
+//     }
+//
+//     this->printMsg("Computed 2nd opt for epoch " + std::to_string(epoch), epoch/static_cast<double>(MAX_EPOCH), tm_opt2.getElapsedTime(), threadNumber_, debug::LineMode::NEW, debug::Priority::DETAIL);
+//
+//
+//     for(size_t i = 0; i < nDiags; ++i) {
+//       auto &gradsAtoms = gradsAtomsList[i];
+//       const auto &matchingsAtoms = allMatchingsAtoms[i];
+//       const Diagram &Barycenter = Barycenters[i];
+//       const auto &checkerAtoms = checkerAtomsList[i];
+//       int nb_points = Barycenters[i].size();
+//
+//       gradActor.executeAtoms(dictDiagrams, matchingsAtoms, Barycenter,
+//                              gradsAtoms, nb_points, checkerAtoms, epoch);
+//     }
     // ATOM OPTIMIZATION
 
 
