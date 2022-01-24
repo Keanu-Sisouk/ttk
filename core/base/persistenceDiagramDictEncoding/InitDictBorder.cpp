@@ -94,9 +94,11 @@ void InitFarBorderDict::execute(std::vector<Diagram> &DictDiagrams,
   }
   std::vector<double> allDistsSummed(nDiags, 0.);
 
-  // #ifdef TTK_ENABLE_OPENMP
-  // #pragma omp parallel for num_threads(threadNumber_)
-  // #endif // TTK_ENABLE_OPENMP
+  Timer tm1{};
+
+#ifdef TTK_ENABLE_OPENMP
+#pragma omp parallel for num_threads(threadNumber_)
+#endif // TTK_ENABLE_OPENMP
   for(int i = 0; i < nDiags; ++i) {
     std::vector<double> &dists = allDists[i];
     auto &datamin1 = bidder_diagrams_min[i];
@@ -120,6 +122,11 @@ void InitFarBorderDict::execute(std::vector<Diagram> &DictDiagrams,
 
   for(int i = 1; i < nbAtoms; ++i) {
     std::vector<double> distsToPtsSummed(nDiags, 0);
+
+#ifdef TTK_ENABLE_OPENMP
+#pragma omp parallel for num_threads(threadNumber_)
+#endif // TTK_ENABLE_OPENMP
+
     for(int j = 0; j < nDiags; ++j) {
       if(std::find(indices.begin(), indices.end(), j) != indices.end()) {
         continue;
@@ -143,6 +150,9 @@ void InitFarBorderDict::execute(std::vector<Diagram> &DictDiagrams,
         - distsToPtsSummed.begin();
     indices.push_back(newId);
   }
+
+  this->printMsg("Initialisation time", 1, tm1.getElapsedTime(),threadNumber_, debug::LineMode::NEW, debug::Priority::DETAIL);
+
 
   DictDiagrams.resize(nbAtoms);
   for(int i = 0; i < nbAtoms; ++i) {
