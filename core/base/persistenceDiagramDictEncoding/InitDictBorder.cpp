@@ -94,7 +94,7 @@ void InitFarBorderDict::execute(std::vector<Diagram> &DictDiagrams,
   }
   std::vector<double> allDistsSummed(nDiags, 0.);
 
-  Timer tm1{};
+
 
 #ifdef TTK_ENABLE_OPENMP
 #pragma omp parallel for num_threads(threadNumber_)
@@ -119,6 +119,8 @@ void InitFarBorderDict::execute(std::vector<Diagram> &DictDiagrams,
             - allDistsSummed.begin();
   indices.push_back(Id1);
   // Diagram atom1 = datas[Id1];
+
+  // Timer tm1{};
 
   for(int i = 1; i < nbAtoms; ++i) {
     std::vector<double> distsToPtsSummed(nDiags, 0);
@@ -151,7 +153,7 @@ void InitFarBorderDict::execute(std::vector<Diagram> &DictDiagrams,
     indices.push_back(newId);
   }
 
-  this->printMsg("Initialisation time", 1, tm1.getElapsedTime(),threadNumber_, debug::LineMode::NEW, debug::Priority::DETAIL);
+  // this->printMsg("Initialisation time", 1, tm1.getElapsedTime(),threadNumber_, debug::LineMode::NEW, debug::Priority::DETAIL);
 
 
   DictDiagrams.resize(nbAtoms);

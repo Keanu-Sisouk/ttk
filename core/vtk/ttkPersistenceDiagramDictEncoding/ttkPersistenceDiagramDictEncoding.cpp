@@ -157,8 +157,11 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
 
   const int seed = this->Getseed_();
   std::vector<ttk::Diagram> dictDiagrams;
+  Timer tm_dict{};
   this->InitDictionary(dictDiagrams, intermediateDiagrams, numAtom,
                        this->do_min_, this->do_sad_, this->do_max_, seed);
+
+  this->printMsg("Initialisation time", 1, tm_dict.getElapsedTime(),threadNumber_, debug::LineMode::NEW, debug::Priority::DETAIL);
 
   // std::vector<ttk::Diagram> inputDiagram(1);
   // this->printMsg("==============COUCHE TTK=======================");
