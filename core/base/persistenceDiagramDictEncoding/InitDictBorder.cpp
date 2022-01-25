@@ -96,10 +96,10 @@ void InitFarBorderDict::execute(std::vector<Diagram> &DictDiagrams,
   }
   std::vector<double> allDistsSummed(nDiags, 0.);
 
-
+  // std::cout << "threadNumber_ in init" << threadNumber_ << std::endl;
 
 #ifdef TTK_ENABLE_OPENMP
-#pragma omp parallel for num_threads(threadNumber_)
+#pragma omp parallel for num_threads(8)
 #endif // TTK_ENABLE_OPENMP
   for(int i = 0; i < nDiags; ++i) {
     std::vector<double> &dists = allDists[i];
@@ -116,6 +116,7 @@ void InitFarBorderDict::execute(std::vector<Diagram> &DictDiagrams,
       allDistsSummed[i] += dists[j];
     }
   }
+
   std::vector<int> indices;
   int Id1 = std::max_element(allDistsSummed.begin(), allDistsSummed.end())
             - allDistsSummed.begin();
@@ -127,9 +128,8 @@ void InitFarBorderDict::execute(std::vector<Diagram> &DictDiagrams,
     std::vector<double> distsToPtsSummed(nDiags, 0);
 
 #ifdef TTK_ENABLE_OPENMP
-#pragma omp parallel for num_threads(threadNumber_)
+#pragma omp parallel for num_threads(8)
 #endif // TTK_ENABLE_OPENMP
-
     for(int j = 0; j < nDiags; ++j) {
       if(std::find(indices.begin(), indices.end(), j) != indices.end()) {
         continue;
@@ -148,6 +148,7 @@ void InitFarBorderDict::execute(std::vector<Diagram> &DictDiagrams,
         }
       }
     }
+
     int newId
       = std::max_element(distsToPtsSummed.begin(), distsToPtsSummed.end())
         - distsToPtsSummed.begin();
