@@ -7,11 +7,12 @@ void InitFarBorderDict::execute(std::vector<Diagram> &DictDiagrams,
                                 const int nbAtoms,
                                 bool do_min_,
                                 bool do_sad_,
-                                bool do_max_) {
+                                bool do_max_,
+                                int threadNumber_) {
 
 
   const int nDiags = datas.size();
-  Timer tm1{};
+  // Timer tm1{};
 
   // if(do_min_ && do_sad_ && do_max_) {
   //   this->printMsg("Processing all critical pairs types");
@@ -162,7 +163,7 @@ void InitFarBorderDict::execute(std::vector<Diagram> &DictDiagrams,
     DictDiagrams[i] = atom;
   }
 
-  this->printMsg("Initialisation time", 1, tm1.getElapsedTime(),threadNumber_, debug::LineMode::NEW, debug::Priority::DETAIL);
+  // this->printMsg("Initialisation time", 1, tm1.getElapsedTime(),threadNumber_, debug::LineMode::NEW, debug::Priority::DETAIL);
 
 }
 
