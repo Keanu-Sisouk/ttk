@@ -159,7 +159,7 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
   std::vector<ttk::Diagram> dictDiagrams;
   Timer tm_dict{};
   this->InitDictionary(dictDiagrams, intermediateDiagrams, numAtom,
-                       this->do_min_, this->do_sad_, this->do_max_, seed, threadNumber_);
+                       this->do_min_, this->do_sad_, this->do_max_, seed);
 
   this->printMsg("Initialisation time", 1, tm_dict.getElapsedTime(),threadNumber_, debug::LineMode::NEW, debug::Priority::DETAIL);
 
@@ -643,12 +643,11 @@ int ttkPersistenceDiagramDictEncoding::InitDictionary(
   bool do_min,
   bool do_sad,
   bool do_max,
-  int seed,
-  int threadNumber_) {
+  int seed) {
   switch(this->BackEnd) {
     case BACKEND::BORDER_INIT:
       ttk::InitFarBorderDict{}.execute(
-        dictDiagrams, datas, nbAtom, do_min, do_sad, do_max, threadNumber_);
+        dictDiagrams, datas, nbAtom, do_min, do_sad, do_max);
       break;
 
     case BACKEND::RANDOM_INIT:

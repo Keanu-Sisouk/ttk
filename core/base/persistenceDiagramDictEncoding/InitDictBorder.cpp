@@ -7,8 +7,7 @@ void InitFarBorderDict::execute(std::vector<Diagram> &DictDiagrams,
                                 const int nbAtoms,
                                 bool do_min_,
                                 bool do_sad_,
-                                bool do_max_,
-                                int threadNumber_) {
+                                bool do_max_) {
 
 
   const int nDiags = datas.size();

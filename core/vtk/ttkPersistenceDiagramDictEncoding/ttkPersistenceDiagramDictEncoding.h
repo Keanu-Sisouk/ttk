@@ -170,6 +170,5 @@ protected:
                      bool do_min_,
                      bool do_sad_,
                      bool do_max_,
-                     int seed
-                     int threadNumber_);
+                     int seed);
 };
