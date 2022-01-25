@@ -9,7 +9,9 @@ void InitFarBorderDict::execute(std::vector<Diagram> &DictDiagrams,
                                 bool do_sad_,
                                 bool do_max_) {
 
+
   const int nDiags = datas.size();
+  Timer tm1{};
 
   // if(do_min_ && do_sad_ && do_max_) {
   //   this->printMsg("Processing all critical pairs types");
@@ -120,7 +122,6 @@ void InitFarBorderDict::execute(std::vector<Diagram> &DictDiagrams,
   indices.push_back(Id1);
   // Diagram atom1 = datas[Id1];
 
-  // Timer tm1{};
 
   for(int i = 1; i < nbAtoms; ++i) {
     std::vector<double> distsToPtsSummed(nDiags, 0);
@@ -153,7 +154,6 @@ void InitFarBorderDict::execute(std::vector<Diagram> &DictDiagrams,
     indices.push_back(newId);
   }
 
-  // this->printMsg("Initialisation time", 1, tm1.getElapsedTime(),threadNumber_, debug::LineMode::NEW, debug::Priority::DETAIL);
 
 
   DictDiagrams.resize(nbAtoms);
@@ -161,6 +161,9 @@ void InitFarBorderDict::execute(std::vector<Diagram> &DictDiagrams,
     const Diagram &atom = datas[indices[i]];
     DictDiagrams[i] = atom;
   }
+
+  this->printMsg("Initialisation time", 1, tm1.getElapsedTime(),threadNumber_, debug::LineMode::NEW, debug::Priority::DETAIL);
+
 }
 
 void InitFarBorderDict::setBidderDiagrams(
