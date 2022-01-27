@@ -3,6 +3,7 @@
 //#include <PDClustering.h>
 //#include <PersistenceDiagramBarycenter.h>
 #include <PersistenceDiagramAuction.h>
+#include <PersistenceDiagramDistanceMatrix.h>
 #include <Wrapper.h>
 #include <algorithm>
 #include <array>
@@ -61,6 +62,9 @@ namespace ttk {
 
     double computeDistance(const BidderDiagram<double> &D1,
                            const BidderDiagram<double> &D2) const;
+
+    int getNextIndex(const Matrix &distMatrix,
+                     const std::vector<int> indices) const;
 
     int Wasserstein{2};
     double Alpha{1.0};

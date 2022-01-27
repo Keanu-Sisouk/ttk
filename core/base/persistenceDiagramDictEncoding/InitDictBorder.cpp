@@ -211,3 +211,15 @@ double
   loss = auction.run();
   return loss;
 }
+
+int InitFarBorderDict::getNextIndex(const Matrix &distMatrix,
+                                    const std::vecotr<int> indices) const{
+  std::vector<double> allSumCumul(distMatrix.size());
+  for(size_t k = 0 ; k < indices.size() ; ++k){
+    for(size_t i = 0 ; i < distMatrix.size() ; ++i){
+        const auto &line = distMatrix[i];
+        allSumCumul[i]+=line[indices[k]];
+    }
+  }
+  int NewId;
+}

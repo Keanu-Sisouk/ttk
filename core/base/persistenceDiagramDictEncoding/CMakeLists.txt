@@ -12,4 +12,5 @@ ttk_add_base_library(persistenceDiagramDictEncoding
     persistenceDiagramAuction
     constrainedGradientDescent
     persistenceDiagramClustering
+    persistenceDiagramDistanceMatrix
   )
