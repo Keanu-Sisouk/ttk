@@ -168,6 +168,12 @@ void PersistenceDiagramDictEncoding::execute(
     for(int i = 0; i < nDiags; ++i) {
       Diagram &barycenter = Barycenters[i];
       std::vector<double> &weight = vectorWeights[i];
+      double sum = 0.;
+      for(int q = 0; q < weight.size(); ++q) {
+        sum += weight[q];
+        std::cout << weight[q] << std::endl;
+      }
+      std::cout << "sum: " << sum << std::endl;
       // std::cout << "Poids: " << weight[0] << weight[1] << weight[2]
       //           << std::endl;
       // std::cout << "================================================="
@@ -388,12 +394,12 @@ void PersistenceDiagramDictEncoding::execute(
     for(int i = 0; i < nDiags; ++i) {
       Diagram &barycenter = Barycenters[i];
       std::vector<double> &weight = vectorWeights[i];
-      // double sum = 0.;
-      // for(int q = 0; q < weight.size(); ++q) {
-      //   sum += weight[q];
-      //   std::cout << weight[q] << std::endl;
-      // }
-      // std::cout << "sum: " << sum << std::endl;
+      double sum = 0.;
+      for(int q = 0; q < weight.size(); ++q) {
+        sum += weight[q];
+        std::cout << weight[q] << std::endl;
+      }
+      std::cout << "sum: " << sum << std::endl;
       // this->printMsg(std::to_string(sum_temp));
       std::vector<std::vector<MatchingTuple>> &matchings = allMatchingsAtoms[i];
       computeWeightedBarycenter(dictDiagrams, weight, barycenter, matchings);
