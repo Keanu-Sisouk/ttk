@@ -1,5 +1,6 @@
 #include <ConstrainedGradientDescent.h>
 #include <cmath>
+#include <csignal>
 
 using namespace ttk;
 
@@ -105,9 +106,18 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
   }
 
   std::vector<std::vector<int>> checker(Barycenter.size());
+  for(size_t i = 0; i < checker.size(); ++i) {
+    checker[i].resize(matchings.size());
+  }
   std::vector<int> tracker(Barycenter.size(), 0);
   std::vector<std::vector<int>> tracker_diagonal(Barycenter.size());
   std::vector<std::vector<int>> tracker_match(Barycenter.size());
+  for(size_t i = 0; i < tracker_diagonal.size(); ++i) {
+    tracker_diagonal[i].resize(matchings.size());
+  }
+  for(size_t i = 0; i < tracker_match.size(); ++i) {
+    tracker_match[i].resize(matchings.size());
+  }
 
   for(size_t i = 0; i < matchings.size(); ++i) {
     for(size_t j = 0; j < matchings[i].size(); ++j) {
@@ -116,35 +126,54 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
       const SimplexId Id1 = std::get<0>(t);
       // Id in barycenter
       const SimplexId Id2 = std::get<1>(t);
-      if(Id2 < 0 || Id2 >= static_cast<SimplexId>(grad_list.size())
-         || Id1 >= static_cast<SimplexId>(DictDiagrams[i].size())) {
+      if(Id2 < 0 || static_cast<SimplexId>(grad_list.size()) <= Id2
+         || static_cast<SimplexId>(DictDiagrams[i].size()) <= Id1) {
         continue;
-      } else if(Id1 < 0) {
-        const DiagramTuple &t3 = Barycenter[Id2];
-        auto &point = grad_list[Id2][i];
-        const double birth_barycenter = std::get<6>(t3);
-        const double death_barycenter = std::get<10>(t3);
-        const double birth_death_atom
-          = birth_barycenter + (death_barycenter - birth_barycenter) / 2.;
-        point[0] = birth_death_atom;
-        point[1] = birth_death_atom;
-        checker[Id2].push_back(i);
-        tracker[Id2] = 1;
-        tracker_match[Id2].push_back(-1);
-        tracker_diagonal[Id2].push_back(1);
-
       } else {
-        // this->printMsg("====UPDATE GRADLIST========");
-        const DiagramTuple &t2 = DictDiagrams[i][Id1];
-        auto &point = grad_list[Id2][i];
-        const double birth_atom = std::get<6>(t2);
-        const double death_atom = std::get<10>(t2);
-        point[0] = birth_atom;
-        point[1] = death_atom;
-        checker[Id2].push_back(i);
-        tracker[Id2] = 1;
-        tracker_match[Id2].push_back(Id1);
-        tracker_diagonal[Id2].push_back(0);
+        if(Id1 < 0) {
+          const DiagramTuple &t3 = Barycenter[Id2];
+          auto &point = grad_list[Id2][i];
+          const double birth_barycenter = std::get<6>(t3);
+          const double death_barycenter = std::get<10>(t3);
+          const double birth_death_atom
+            = birth_barycenter + (death_barycenter - birth_barycenter) / 2.;
+          point[0] = birth_death_atom;
+          point[1] = birth_death_atom;
+
+          // checker[Id2].push_back(i);
+          checker[Id2][i] = i;
+          if (checker[Id2].size() > 3){
+            std::raise(SIGINT);
+          }
+          tracker[Id2] = 1;
+          // tracker_match[Id2].push_back(Id1);
+          tracker_match[Id2][i] = Id1;
+          if(static_cast<SimplexId>(DictDiagrams[i].size()) <= Id1){
+            std::cout << "ID1: " << Id1 << std::endl;
+          }
+          tracker_diagonal[Id2][i] = 1;
+
+        } else {
+          // this->printMsg("====UPDATE GRADLIST========");
+          const DiagramTuple &t2 = DictDiagrams[i][Id1];
+          auto &point = grad_list[Id2][i];
+          const double birth_atom = std::get<6>(t2);
+          const double death_atom = std::get<10>(t2);
+          point[0] = birth_atom;
+          point[1] = death_atom;
+          // checker[Id2].push_back(i);
+          checker[Id2][i] = i;
+          if (checker[Id2].size() > 3){
+            std::raise(SIGINT);
+          }
+          tracker[Id2] = 1;
+          // tracker_match[Id2].push_back(Id1);
+          tracker_match[Id2][i] = Id1;
+          if(static_cast<SimplexId>(DictDiagrams[i].size()) <= Id1){
+            std::cout << "ID1: " << Id1 << std::endl;
+          }
+          tracker_diagonal[Id2][i] = 0;
+        }
       }
     }
   }
@@ -288,7 +317,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
       // bool test = false;
       for(size_t j = 0; j < checker[i].size(); ++j) {
         auto &tracker_temp = tracker_match[i][j];
-        if(tracker_diagonal[i][j] == 1 || tracker_temp == -1) {
+        if(tracker_diagonal[i][j] == 1 || tracker_temp == -1 || tracker_temp > 10000) {
           // if(test){
           // this->printMsg("SAUT2");
           // printf("SAUT2");

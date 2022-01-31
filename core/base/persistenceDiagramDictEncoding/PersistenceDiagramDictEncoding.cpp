@@ -14,6 +14,10 @@ void PersistenceDiagramDictEncoding::execute(
   Timer tm{};
   double tm_part = 0.;
 
+  for(size_t i = 0 ; i < dictDiagrams.size() ; ++i){
+    std::cout << "SIZE: " << dictDiagrams[i].size();
+  }
+
   // for(size_t i = 0; i < dictDiagrams.size(); ++i) {
   //   std::cout << "Atom " << i << std::endl;
   //   for(size_t j = 0; j < dictDiagrams[i].size(); ++j) {
@@ -168,12 +172,12 @@ void PersistenceDiagramDictEncoding::execute(
     for(int i = 0; i < nDiags; ++i) {
       Diagram &barycenter = Barycenters[i];
       std::vector<double> &weight = vectorWeights[i];
-      double sum = 0.;
-      for(int q = 0; q < weight.size(); ++q) {
-        sum += weight[q];
-        std::cout << weight[q] << std::endl;
-      }
-      std::cout << "sum: " << sum << std::endl;
+      // double sum = 0.;
+      // for(int q = 0; q < weight.size(); ++q) {
+      //   sum += weight[q];
+      //   std::cout << weight[q] << std::endl;
+      // }
+      // std::cout << "sum: " << sum << std::endl;
       // std::cout << "Poids: " << weight[0] << weight[1] << weight[2]
       //           << std::endl;
       // std::cout << "================================================="
@@ -394,12 +398,12 @@ void PersistenceDiagramDictEncoding::execute(
     for(int i = 0; i < nDiags; ++i) {
       Diagram &barycenter = Barycenters[i];
       std::vector<double> &weight = vectorWeights[i];
-      double sum = 0.;
-      for(int q = 0; q < weight.size(); ++q) {
-        sum += weight[q];
-        std::cout << weight[q] << std::endl;
-      }
-      std::cout << "sum: " << sum << std::endl;
+      // double sum = 0.;
+      // for(int q = 0; q < weight.size(); ++q) {
+      //   sum += weight[q];
+      //   std::cout << weight[q] << std::endl;
+      // }
+      // std::cout << "sum: " << sum << std::endl;
       // this->printMsg(std::to_string(sum_temp));
       std::vector<std::vector<MatchingTuple>> &matchings = allMatchingsAtoms[i];
       computeWeightedBarycenter(dictDiagrams, weight, barycenter, matchings);
@@ -722,8 +726,8 @@ void PersistenceDiagramDictEncoding::computeGradientWeights(
       // Id in barycenter
       const SimplexId Id2 = std::get<1>(t);
       // if(Id2 < 0) {
-      if(Id2 < 0 || Id2 >= static_cast<int>(grad_list.size())
-         || Id1 >= static_cast<int>(dictDiagrams[i].size())) {
+      if(Id2 < 0 || static_cast<int>(grad_list.size() <= Id2)
+         ||  static_cast<int>(dictDiagrams[i].size()) <= Id1) {
         continue;
       } else if(Id1 < 0) {
         // this->printMsg("========DIAGONAL=========");
@@ -976,8 +980,6 @@ void PersistenceDiagramDictEncoding::computeGradientAtoms(
       k += 1;
       // this->printMsg("k = " + std::to_string(k));
     } else {
-      // this->printMsg("==Here?==");
-      this->printMsg(std::to_string(static_cast<int>(indexBaryMin[Id2])));
       const DiagramTuple &t3 = Barycenter[indexBaryMin[Id2]];
       const double birth_barycenter = std::get<6>(t3);
       const double death_barycenter = std::get<10>(t3);

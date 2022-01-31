@@ -231,13 +231,13 @@ double
 }
 
 int InitFarBorderDict::getNextIndex(const Matrix &distMatrix,
-                                    const std::vector<int> indices) const {
+                                    const std::vector<int> &indices) const {
   std::vector<double> allSumCumul(distMatrix.size());
   for(size_t k = 0 ; k < indices.size() ; ++k){
     const auto &line = distMatrix[indices[k]];
 
 #ifdef TTK_ENABLE_OPENMP
-#pragma omp parallel for num_threads(1)
+#pragma omp parallel for num_threads(8)
 #endif // TTK_ENABLE_OPENMP
     for(size_t i = 0 ; i < distMatrix.size() ; ++i){
         allSumCumul[i]+=line[indices[k]];
