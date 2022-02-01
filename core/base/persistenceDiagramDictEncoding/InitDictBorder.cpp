@@ -232,15 +232,15 @@ double
 
 int InitFarBorderDict::getNextIndex(const Matrix &distMatrix,
                                     const std::vector<int> &indices) const {
-  std::vector<double> allSumCumul(distMatrix.size());
+  std::vector<double> allSumCumul(distMatrix.size() , 0.);
   for(size_t k = 0 ; k < indices.size() ; ++k){
     const auto &line = distMatrix[indices[k]];
-
-#ifdef TTK_ENABLE_OPENMP
-#pragma omp parallel for num_threads(8)
-#endif // TTK_ENABLE_OPENMP
     for(size_t i = 0 ; i < distMatrix.size() ; ++i){
-        allSumCumul[i]+=line[indices[k]];
+      if(std::find(indices.begin(), indices.end(), i) != indices.end()) {
+        allSumCumul[i]+=0.;
+      } else {
+        allSumCumul[i]+=line[i];
+      }
     }
   }
   int newId = std::max_element(allSumCumul.begin(), allSumCumul.end())

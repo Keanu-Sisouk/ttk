@@ -154,7 +154,7 @@ void PersistenceDiagramDictEncoding::execute(
   std::vector<double> loss_tab;
   int lag = 0;
   int lagLimit = 20;
-  int MAX_EPOCH = 151;
+  int MAX_EPOCH = 101;
   std::vector<Diagram> histoDictDiagrams(dictDiagrams.size());
   std::vector<std::vector<double>> histoVectorWeights(nDiags);
   // bool condition = true;

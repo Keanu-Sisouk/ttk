@@ -119,6 +119,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
     tracker_match[i].resize(matchings.size());
   }
 
+
   for(size_t i = 0; i < matchings.size(); ++i) {
     for(size_t j = 0; j < matchings[i].size(); ++j) {
       const MatchingTuple &t = matchings[i][j];
