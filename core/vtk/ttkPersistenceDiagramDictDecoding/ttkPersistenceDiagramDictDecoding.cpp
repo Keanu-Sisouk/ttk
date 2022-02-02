@@ -190,7 +190,7 @@ int ttkPersistenceDiagramDictDecoding::RequestData(
   // this->printMsg("=====ICI?======");
   auto output_dgm = vtkMultiBlockDataSet::GetData(outputVector, 0);
   output_dgm->SetNumberOfBlocks(nWeights);
-  this->printMsg(std::to_string(nWeights));
+  // this->printMsg(std::to_string(nWeights));
   for(int i = 0; i < nWeights; ++i) {
     // vtkUnstructuredGrid temp =
     // vtkUnstructuredGrid::SafeDownCast(output_dgm->GetBlock(i));
@@ -333,7 +333,7 @@ double ttkPersistenceDiagramDictDecoding::getPersistenceDiagram(
                        "the diagram size).");
       }
     }
-    this->printMsg("=====" + std::to_string(i) + "=====FIN=====");
+    // this->printMsg("=====" + std::to_string(i) + "=====FIN=====");
   }
 
   if(nbNonCompact > 0) {
