@@ -156,6 +156,7 @@ void InitFarBorderDict::execute(std::vector<Diagram> &DictDiagrams,
   PersistenceDiagramDistanceMatrix MatrixCalculator;
   std::array<size_t, 2> nInputs{nDiags, 0};
   MatrixCalculator.setDos(do_min_, do_sad_, do_max_);
+  MatrixCalculator.setThreadNumber(threadNumber_);
   Matrix distMatrix = MatrixCalculator.execute(datas, nInputs);
   // std::vector<int> indices;
   std::vector<double> allDistsSummed(nDiags);
