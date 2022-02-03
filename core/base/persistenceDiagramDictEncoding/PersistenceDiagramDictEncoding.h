@@ -17,6 +17,8 @@
 #include <array>
 #include <limits>
 
+#include <InitDictBorder.h>
+#include <InitDictRandomly.h>
 #include <ConstrainedGradientDescent.h>
 #include <PersistenceDiagramAuction.h>
 #include <PersistenceDiagramClustering.h>
@@ -33,7 +35,11 @@ namespace ttk {
     void execute(const std::vector<Diagram> &intermediateDiagrams,
                  std::vector<Diagram> &dictDiagrams,
                  std::vector<std::vector<double>> &vectorWeights,
-                 const std::array<size_t, 2> &nInputs) const;
+                 const std::array<size_t, 2> &nInputs,
+                 const int seed,
+                 const int numAtom);
+
+    enum class BACKEND{BORDER_INIT = 0 , RANDOM_INIT = 1 , FIRST_DIAGS = 2};
 
     inline void setWasserstein(const int data) {
       Wasserstein = data;
@@ -73,6 +79,7 @@ namespace ttk {
     }
 
   protected:
+    BACKEND BackEnd{BACKEND::BORDER_INIT};
     double distVect(const std::vector<double> &vec1,
                     const std::vector<double> &vec2) const;
 
@@ -125,6 +132,15 @@ namespace ttk {
       const std::vector<BidderDiagram<double>> &bidder_diags,
       std::vector<BidderDiagram<double>> &current_bidder_diags,
       const std::vector<double> &maxDiagPersistence) const;
+
+
+    int InitDictionary(std::vector<ttk::Diagram> &dictDiagrams,
+                       const std::vector<ttk::Diagram> &datas,
+                       const int nbAtom,
+                       bool do_min_,
+                       bool do_sad_,
+                       bool do_max_,
+                       int seed);
 
     int Wasserstein{2};
     double Alpha{1.0};

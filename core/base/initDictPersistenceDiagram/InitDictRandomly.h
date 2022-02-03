@@ -1,9 +1,5 @@
 #pragma once
 
-//#include <PDClustering.h>
-//#include <PersistenceDiagramBarycenter.h>
-#include <PersistenceDiagramAuction.h>
-#include <PersistenceDiagramDistanceMatrix.h>
 #include <Wrapper.h>
 #include <algorithm>
 #include <array>
@@ -40,38 +36,18 @@ namespace ttk {
   using Diagram = std::vector<DiagramTuple>;
   using Matrix = std::vector<std::vector<double>>;
   using MatchingTuple = std::tuple<ttk::SimplexId, ttk::SimplexId, double>;
-  class InitFarBorderDict : public Debug {
+  class InitRandomDict : public Debug {
 
   public:
-    InitFarBorderDict() {
-      this->setDebugMsgPrefix("InitFarBorderDict");
+    InitRandomDict() {
+      this->setDebugMsgPrefix("InitRandomDict");
     };
 
     void execute(std::vector<Diagram> &DictDiagrams,
                  const std::vector<Diagram> &datas,
                  const int nbAtoms,
-                 bool do_min_,
-                 bool do_sad_,
-                 bool do_max_) ;
+                 const int seed);
 
   protected:
-    void
-      setBidderDiagrams(const size_t nInputs,
-                        std::vector<Diagram> &inputDiagrams,
-                        std::vector<BidderDiagram<double>> &bidder_diags) const;
-
-    double computeDistance(const BidderDiagram<double> &D1,
-                           const BidderDiagram<double> &D2) const;
-
-    int getNextIndex(const Matrix &distMatrix,
-                     const std::vector<int> &indices) const;
-
-    int Wasserstein{2};
-    double Alpha{1.0};
-    double DeltaLim{0.01};
-    double Lambda{0};
-    size_t MaxNumberOfPairs{20};
-    double MinPersistence{0.1};
-    // bool do_min_{true}, do_sad_{true}, do_max_{true};
   };
 } // namespace ttk

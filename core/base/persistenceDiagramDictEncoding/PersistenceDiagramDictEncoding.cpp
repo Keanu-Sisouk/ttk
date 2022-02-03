@@ -9,10 +9,20 @@ void PersistenceDiagramDictEncoding::execute(
   const std::vector<Diagram> &intermediateDiagrams,
   std::vector<Diagram> &dictDiagrams,
   std::vector<std::vector<double>> &vectorWeights,
-  const std::array<size_t, 2> &nInputs) const {
+  const std::array<size_t, 2> &nInputs,
+  const int seed,
+  const int numAtom) {
+
 
   Timer tm{};
   double tm_part = 0.;
+
+
+
+  InitDictionary(dictDiagrams, intermediateDiagrams, numAtom,
+                       this->do_min_, this->do_sad_, this->do_max_, seed);
+
+
 
   for(size_t i = 0 ; i < dictDiagrams.size() ; ++i){
     std::cout << "SIZE: " << dictDiagrams[i].size();
@@ -1225,4 +1235,38 @@ void PersistenceDiagramDictEncoding::enrichCurrentBidderDiagrams(
       }
     }
   }
+}
+
+int PersistenceDiagramDictEncoding::InitDictionary(
+  std::vector<ttk::Diagram> &dictDiagrams,
+  const std::vector<ttk::Diagram> &datas,
+  const int nbAtom,
+  bool do_min,
+  bool do_sad,
+  bool do_max,
+  int seed) {
+  switch(this->BackEnd){
+    case BACKEND::BORDER_INIT:{
+      ttk::InitFarBorderDict initializer;
+      initializer.setThreadNumber(this->threadNumber_);
+      initializer.execute(
+        dictDiagrams, datas, nbAtom, do_min, do_sad, do_max);
+      break;
+    }
+
+    case BACKEND::RANDOM_INIT:
+      ttk::InitRandomDict{}.execute(dictDiagrams, datas, nbAtom, seed); // TODO
+      break;
+
+    case BACKEND::FIRST_DIAGS: {
+      for(int i = 0; i < nbAtom; ++i) {
+        const auto &t = datas[i];
+        dictDiagrams.push_back(t);
+      }
+      break;
+    }
+    default:
+      break;
+  }
+  return 0;
 }

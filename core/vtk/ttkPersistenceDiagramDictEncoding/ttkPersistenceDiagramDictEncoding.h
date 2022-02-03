@@ -26,8 +26,7 @@
 #include <ttkPersistenceDiagramDictEncodingModule.h>
 
 // ttk code includes
-#include <InitDictBorder.h>
-#include <InitDictRandomly.h>
+
 #include <PersistenceDiagramDictEncoding.h>
 #include <ttkAlgorithm.h>
 #include <ttkMacros.h>
@@ -42,7 +41,7 @@ private:
 
 public:
 
-  enum class BACKEND{BORDER_INIT = 0 , RANDOM_INIT = 1 , FIRST_DIAGS = 2};
+  // enum class BACKEND{BORDER_INIT = 0 , RANDOM_INIT = 1 , FIRST_DIAGS = 2};
 
   static ttkPersistenceDiagramDictEncoding *New();
 
@@ -146,7 +145,7 @@ protected:
   ttkPersistenceDiagramDictEncoding();
   ~ttkPersistenceDiagramDictEncoding() override = default;
 
-  BACKEND BackEnd{BACKEND::BORDER_INIT};
+  // BACKEND BackEnd{BACKEND::BORDER_INIT};
   double getPersistenceDiagram(ttk::Diagram &diagram,
                                vtkUnstructuredGrid *CTPersistenceDiagram_);
 
@@ -164,11 +163,5 @@ protected:
                   vtkInformationVector **inputVector,
                   vtkInformationVector *outputVector) override;
 
-  int InitDictionary(std::vector<ttk::Diagram> &dictDiagrams,
-                     std::vector<ttk::Diagram> &datas,
-                     int nbAtom,
-                     bool do_min_,
-                     bool do_sad_,
-                     bool do_max_,
-                     int seed);
+
 };

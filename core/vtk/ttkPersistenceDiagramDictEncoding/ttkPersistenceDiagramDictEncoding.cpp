@@ -155,13 +155,14 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
   //   }
   // }
 
-  const int seed = this->Getseed_();
   std::vector<ttk::Diagram> dictDiagrams;
-  ttk::Timer tm_dict{};
-  this->InitDictionary(dictDiagrams, intermediateDiagrams, numAtom,
-                       this->do_min_, this->do_sad_, this->do_max_, seed);
+  const int seed = this->Getseed_();
 
-  this->printMsg("Initialisation time", 1, tm_dict.getElapsedTime(),threadNumber_, ttk::debug::LineMode::NEW, ttk::debug::Priority::DETAIL);
+  // ttk::Timer tm_dict{};
+  // this->InitDictionary(dictDiagrams, intermediateDiagrams, numAtom,
+  //                      this->do_min_, this->do_sad_, this->do_max_, seed);
+  //
+  // this->printMsg("Initialisation time", 1, tm_dict.getElapsedTime(),threadNumber_, ttk::debug::LineMode::NEW, ttk::debug::Priority::DETAIL);
 
   // std::vector<ttk::Diagram> inputDiagram(1);
   // this->printMsg("==============COUCHE TTK=======================");
@@ -208,7 +209,7 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
 
   // const auto diagramsDistMat = this->execute(intermediateDiagrams,
   // dictDiagrams, vectorWeights,  nInputs);
-  this->execute(intermediateDiagrams, dictDiagrams, vectorWeights, nInputs);
+  this->execute(intermediateDiagrams, dictDiagrams, vectorWeights, nInputs, seed, numAtom);
   // zero-padd column name to keep Row Data columns ordered
   // this->printMsg("============WE ARE HERE 173 AFTER EXECUTE============");
   output_weights->SetNumberOfRows(numAtom);
@@ -634,35 +635,4 @@ double
     max_persistence = std::max(pers, max_persistence);
   }
   return max_persistence;
-}
-
-int ttkPersistenceDiagramDictEncoding::InitDictionary(
-  std::vector<ttk::Diagram> &dictDiagrams,
-  std::vector<ttk::Diagram> &datas,
-  int nbAtom,
-  bool do_min,
-  bool do_sad,
-  bool do_max,
-  int seed) {
-  switch(this->BackEnd) {
-    case BACKEND::BORDER_INIT:
-      ttk::InitFarBorderDict{}.execute(
-        dictDiagrams, datas, nbAtom, do_min, do_sad, do_max);
-      break;
-
-    case BACKEND::RANDOM_INIT:
-      ttk::InitRandomDict{}.execute(dictDiagrams, datas, nbAtom, seed); // TODO
-      break;
-
-    case BACKEND::FIRST_DIAGS: {
-      for(int i = 0; i < nbAtom; ++i) {
-        const auto &t = datas[i];
-        dictDiagrams.push_back(t);
-      }
-      break;
-    }
-    default:
-      break;
-  }
-  return 0;
 }
