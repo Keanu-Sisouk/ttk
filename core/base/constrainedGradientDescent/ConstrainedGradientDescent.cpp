@@ -80,7 +80,7 @@ void ConstrainedGradientDescent::gradientDescentWeights(
   // std::cout << "STEP" << step << std::endl;
 
   for(int i = 0; i < n; ++i) {
-    weights[i] = weights[i] - step * grad[i];
+    weights[i] = weights[i] - mini * step * grad[i];
   }
 }
 
