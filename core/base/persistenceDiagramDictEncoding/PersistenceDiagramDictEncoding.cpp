@@ -584,8 +584,6 @@ void PersistenceDiagramDictEncoding::execute(
       //                        gradsAtoms, nb_points, checkerAtoms, epoch);
     }
 
-    this->printMsg("Computed 2nd opt for epoch " + std::to_string(epoch), epoch/static_cast<double>(MAX_EPOCH), tm_opt2.getElapsedTime(), threadNumber_, debug::LineMode::NEW, debug::Priority::DETAIL);
-
 
     for(size_t i = 0; i < nDiags; ++i) {
       auto &gradsAtoms = gradsAtomsList[i];
@@ -597,6 +595,8 @@ void PersistenceDiagramDictEncoding::execute(
       gradActor.executeAtoms(dictDiagrams, matchingsAtoms, Barycenter,
                              gradsAtoms, nb_points, checkerAtoms, epoch);
     }
+
+    this->printMsg("Computed 2nd opt for epoch " + std::to_string(epoch), epoch/static_cast<double>(MAX_EPOCH), tm_opt2.getElapsedTime(), threadNumber_, debug::LineMode::NEW, debug::Priority::DETAIL);
     // ATOM OPTIMIZATION
 
 
