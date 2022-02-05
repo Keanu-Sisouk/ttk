@@ -68,15 +68,15 @@ void ConstrainedGradientDescent::gradientDescentWeights(
   double step;
   double L = 0.;
   // std::cout << "STEP = " << step << std::endl;
-  for (size_t i = 0 ; i < hessianList.size() ; ++i){
+  for(size_t i = 0; i < hessianList.size(); ++i) {
     auto &hessian = hessianList[i];
-    for(size_t k = 0; k < hessian.size() ; ++k){
+    for(size_t k = 0; k < hessian.size(); ++k) {
       double diag = hessian[k][k];
       L += diag;
     }
   }
 
-  step = 1./L;
+  step = 1. / L;
   // std::cout << "STEP" << step << std::endl;
 
   for(int i = 0; i < n; ++i) {
@@ -119,7 +119,6 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
     tracker_match[i].resize(matchings.size());
   }
 
-
   for(size_t i = 0; i < matchings.size(); ++i) {
     for(size_t j = 0; j < matchings[i].size(); ++j) {
       const MatchingTuple &t = matchings[i][j];
@@ -143,13 +142,13 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
 
           // checker[Id2].push_back(i);
           checker[Id2][i] = i;
-          if (checker[Id2].size() > 3){
+          if(checker[Id2].size() > 3) {
             std::raise(SIGINT);
           }
           tracker[Id2] = 1;
           // tracker_match[Id2].push_back(Id1);
           tracker_match[Id2][i] = Id1;
-          if(static_cast<SimplexId>(DictDiagrams[i].size()) <= Id1){
+          if(static_cast<SimplexId>(DictDiagrams[i].size()) <= Id1) {
             std::cout << "ID1: " << Id1 << std::endl;
           }
           tracker_diagonal[Id2][i] = 1;
@@ -164,13 +163,13 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
           point[1] = death_atom;
           // checker[Id2].push_back(i);
           checker[Id2][i] = i;
-          if (checker[Id2].size() > 3){
+          if(checker[Id2].size() > 3) {
             std::raise(SIGINT);
           }
           tracker[Id2] = 1;
           // tracker_match[Id2].push_back(Id1);
           tracker_match[Id2][i] = Id1;
-          if(static_cast<SimplexId>(DictDiagrams[i].size()) <= Id1){
+          if(static_cast<SimplexId>(DictDiagrams[i].size()) <= Id1) {
             std::cout << "ID1: " << Id1 << std::endl;
           }
           tracker_diagonal[Id2][i] = 0;
@@ -318,7 +317,8 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
       // bool test = false;
       for(size_t j = 0; j < checker[i].size(); ++j) {
         auto &tracker_temp = tracker_match[i][j];
-        if(tracker_diagonal[i][j] == 1 || tracker_temp == -1 || tracker_temp > 10000) {
+        if(tracker_diagonal[i][j] == 1 || tracker_temp == -1
+           || tracker_temp > 10000) {
           // if(test){
           // this->printMsg("SAUT2");
           // printf("SAUT2");
@@ -353,7 +353,8 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
             std::get<6>(t1) = t2[0];
             std::get<10>(t1) = t2[1];
           } else {
-            DictDiagrams[index].erase(DictDiagrams[index].begin() + tracker_temp);
+            DictDiagrams[index].erase(DictDiagrams[index].begin()
+                                      + tracker_temp);
           }
         }
       }

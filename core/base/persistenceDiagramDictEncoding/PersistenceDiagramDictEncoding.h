@@ -17,9 +17,9 @@
 #include <array>
 #include <limits>
 
+#include <ConstrainedGradientDescent.h>
 #include <InitDictBorder.h>
 #include <InitDictRandomly.h>
-#include <ConstrainedGradientDescent.h>
 #include <PersistenceDiagramAuction.h>
 #include <PersistenceDiagramClustering.h>
 #include <Wrapper.h>
@@ -39,7 +39,7 @@ namespace ttk {
                  const int seed,
                  const int numAtom);
 
-    enum class BACKEND{BORDER_INIT = 0 , RANDOM_INIT = 1 , FIRST_DIAGS = 2};
+    enum class BACKEND { BORDER_INIT = 0, RANDOM_INIT = 1, FIRST_DIAGS = 2 };
 
     inline void setWasserstein(const int data) {
       Wasserstein = data;
@@ -132,7 +132,6 @@ namespace ttk {
       const std::vector<BidderDiagram<double>> &bidder_diags,
       std::vector<BidderDiagram<double>> &current_bidder_diags,
       const std::vector<double> &maxDiagPersistence) const;
-
 
     int InitDictionary(std::vector<ttk::Diagram> &dictDiagrams,
                        const std::vector<ttk::Diagram> &datas,

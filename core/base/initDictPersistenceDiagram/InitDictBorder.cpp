@@ -40,8 +40,9 @@ void InitFarBorderDict::execute(std::vector<Diagram> &DictDiagrams,
     DictDiagrams[i] = atom;
   }
 
-  // this->printMsg("Initialisation time", 1, tm1.getElapsedTime(),threadNumber_, debug::LineMode::NEW, debug::Priority::DETAIL);
-
+  // this->printMsg("Initialisation time", 1,
+  // tm1.getElapsedTime(),threadNumber_, debug::LineMode::NEW,
+  // debug::Priority::DETAIL);
 }
 
 void InitFarBorderDict::setBidderDiagrams(
@@ -91,14 +92,14 @@ double
 
 int InitFarBorderDict::getNextIndex(const Matrix &distMatrix,
                                     const std::vector<int> &indices) const {
-  std::vector<double> allSumCumul(distMatrix.size() , 0.);
-  for(size_t k = 0 ; k < indices.size() ; ++k){
+  std::vector<double> allSumCumul(distMatrix.size(), 0.);
+  for(size_t k = 0; k < indices.size(); ++k) {
     const auto &line = distMatrix[indices[k]];
-    for(size_t i = 0 ; i < distMatrix.size() ; ++i){
+    for(size_t i = 0; i < distMatrix.size(); ++i) {
       if(std::find(indices.begin(), indices.end(), i) != indices.end()) {
-        allSumCumul[i]+=0.;
+        allSumCumul[i] += 0.;
       } else {
-        allSumCumul[i]+=line[i];
+        allSumCumul[i] += line[i];
       }
     }
   }

@@ -40,7 +40,6 @@ private:
   int seed_{0};
 
 public:
-
   // enum class BACKEND{BORDER_INIT = 0 , RANDOM_INIT = 1 , FIRST_DIAGS = 2};
 
   static ttkPersistenceDiagramDictEncoding *New();
@@ -89,7 +88,6 @@ public:
 
   ttkSetEnumMacro(BackEnd, BACKEND);
   vtkGetEnumMacro(BackEnd, BACKEND);
-
 
   void SetPairType(const int data) {
     switch(data) {
@@ -168,6 +166,4 @@ protected:
   int RequestData(vtkInformation *request,
                   vtkInformationVector **inputVector,
                   vtkInformationVector *outputVector) override;
-
-
 };

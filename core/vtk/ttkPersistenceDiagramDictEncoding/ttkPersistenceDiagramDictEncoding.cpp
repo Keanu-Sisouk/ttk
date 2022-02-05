@@ -162,7 +162,9 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
   // this->InitDictionary(dictDiagrams, intermediateDiagrams, numAtom,
   //                      this->do_min_, this->do_sad_, this->do_max_, seed);
   //
-  // this->printMsg("Initialisation time", 1, tm_dict.getElapsedTime(),threadNumber_, ttk::debug::LineMode::NEW, ttk::debug::Priority::DETAIL);
+  // this->printMsg("Initialisation time", 1,
+  // tm_dict.getElapsedTime(),threadNumber_, ttk::debug::LineMode::NEW,
+  // ttk::debug::Priority::DETAIL);
 
   // std::vector<ttk::Diagram> inputDiagram(1);
   // this->printMsg("==============COUCHE TTK=======================");
@@ -209,7 +211,8 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
 
   // const auto diagramsDistMat = this->execute(intermediateDiagrams,
   // dictDiagrams, vectorWeights,  nInputs);
-  this->execute(intermediateDiagrams, dictDiagrams, vectorWeights, nInputs, seed, numAtom);
+  this->execute(
+    intermediateDiagrams, dictDiagrams, vectorWeights, nInputs, seed, numAtom);
   // zero-padd column name to keep Row Data columns ordered
   // this->printMsg("============WE ARE HERE 173 AFTER EXECUTE============");
   output_weights->SetNumberOfRows(numAtom);
