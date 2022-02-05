@@ -52,6 +52,9 @@ public:
     AUCTION = 1,
   };
 
+  vtkSetMacro(DataString, const std::string &);
+  vtkGetMacro(DataString, std::string);
+
   vtkSetMacro(WassersteinMetric, int);
   vtkGetMacro(WassersteinMetric, int);
 
@@ -189,6 +192,8 @@ private:
   std::vector<std::vector<std::vector<matchingType>>> all_matchings_{};
   std::vector<diagramType> final_centroids_{};
   std::vector<int> inv_clustering_{};
+
+  std::string DataString{""};
 
   double Spacing{1.0};
   double max_dimension_total_{};

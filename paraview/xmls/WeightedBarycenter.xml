@@ -117,6 +117,21 @@
         </Documentation>
       </IntVectorProperty>
 
+      <StringVectorProperty name="DataString" label="List of weights" command="SetDataString" number_of_elements="1" default_values="">
+        <Documentation>CSV string that will be used to create new 'vtkDataArrays'. Each row is converted into an array named after the first value (e.g. 'Time,0,0.23,0.5,1').</Documentation>
+        <Hints>
+          <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="EditorMode" value="0" />
+          <!-- <Widget type="multi_line" /> -->
+        </Hints>
+        <Documentation>
+            Specify weights used in the barycenter computation.
+            Weights must be n floating point numbers separated by commas and summing to 1, where n is the number of input diagrams.
+            Example for 4 input diagrams:
+            0.1, 0.2, 0.5, 0.2
+            An empty string defaults to uniform weights.
+        </Documentation>
+      </StringVectorProperty>
+
       <IntVectorProperty
           name="NumberOfClusters"
           label="Number of clusters"

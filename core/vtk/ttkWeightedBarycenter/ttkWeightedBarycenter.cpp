@@ -109,12 +109,29 @@ int ttkWeightedBarycenter::RequestData(vtkInformation * /*request*/,
       for(int i_input = 0; i_input < numInputs; i_input++) {
         inv_clustering_[i_input] = 0;
       }
+      
+      std::vector<double> weights{};
 
-      std::vector<double> weights;
-      weights.resize(3);
-      weights[0] = 0.4;
-      weights[1] = 0.4;
-      weights[2] = 0.2;
+      // Read weights from data string
+      // If the weights are not correct (the number does not match the number of inputs, or they do not sum to 1),
+      // the function computeWeighterBarycenter defaults to compute with uniform weights
+      if(!DataString.empty()){
+        std::string weights_string = DataString;
+        std::replace(weights_string.begin(), weights_string.end(), ',' , ' ');
+
+        std::stringstream ss(weights_string);
+        std::istream_iterator<std::string> begin(ss);
+        std::istream_iterator<std::string> end;
+        std::vector<std::string> vstrings(begin, end);
+
+        weights.resize(vstrings.size());
+
+        for(int iweight = 0; iweight<vstrings.size(); iweight++){
+          double w = std::stod(vstrings[iweight]);
+          weights[iweight] = w;
+        }
+      }
+
       diagramType barycenter;
       std::vector<std::vector<matchingType>> matchings;
 
