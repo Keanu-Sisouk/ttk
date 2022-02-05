@@ -69,6 +69,12 @@ public:
 
   vtkGetMacro(Alpha, double);
 
+  vtkSetMacro(OptimizeWeights, int);
+  vtkGetMacro(OptimizeWeights, int);
+
+  vtkSetMacro(OptimizeAtoms, int);
+  vtkGetMacro(OptimizeAtoms, int);
+
   vtkSetMacro(atomNumber_, int);
   vtkGetMacro(atomNumber_, int);
 

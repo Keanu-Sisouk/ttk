@@ -17,6 +17,16 @@ void PersistenceDiagramDictEncoding::execute(
   Timer tm{};
   double tm_part = 0.;
 
+  if(OptimizeWeights){
+    printMsg("Weight Optimization activated");
+  }else{
+    printWrn("Weight Optimization desactivated");
+  }
+  if(OptimizeAtoms){
+    printMsg("Atom Optimization activated")
+  }else{
+    printWrn("Atom Optimization desactivated");
+  }
 
   Timer tm_init{};
   InitDictionary(dictDiagrams, intermediateDiagrams, numAtom,
@@ -349,8 +359,9 @@ void PersistenceDiagramDictEncoding::execute(
     std::vector<std::vector<Matrix>> allHessianLists(nDiags);
     std::vector<std::vector<double>> gradWeightsList(nDiags);
     Timer tm_opt1{};
-    // WEIGHT OPTIMIZATION
 
+    // WEIGHT OPTIMIZATION
+if(OptimizeWeights){
 #ifdef TTK_ENABLE_OPENMP
 #pragma omp parallel for num_threads(threadNumber_)
 #endif // TTK_ENABLE_OPENMP
@@ -380,6 +391,7 @@ void PersistenceDiagramDictEncoding::execute(
     }
 
     this->printMsg("Computed 1st opt for epoch " + std::to_string(epoch), epoch/static_cast<double>(MAX_EPOCH), tm_opt1.getElapsedTime(),threadNumber_, debug::LineMode::NEW, debug::Priority::DETAIL);
+}
 
 
 
@@ -547,6 +559,8 @@ void PersistenceDiagramDictEncoding::execute(
 
     // this->printMsg("====================NOW ATOM UPDATE======================");
     // ATOM OPTIMIZATION
+    if(OptimizeAtoms){
+
     std::vector<std::vector<Matrix>> gradsAtomsList(nDiags);
     std::vector<std::vector<int>> checkerAtomsList(nDiags);
     // for(size_t i = 0 ; i < nDiags ; ++i){
@@ -599,6 +613,7 @@ void PersistenceDiagramDictEncoding::execute(
     this->printMsg("Computed 2nd opt for epoch " + std::to_string(epoch), epoch/static_cast<double>(MAX_EPOCH), tm_opt2.getElapsedTime(), threadNumber_, debug::LineMode::NEW, debug::Priority::DETAIL);
     // ATOM OPTIMIZATION
 
+    }
 
     // this->printMsg("=====================================================");
     Barycenters.clear();

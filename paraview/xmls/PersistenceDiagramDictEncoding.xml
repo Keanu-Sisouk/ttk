@@ -68,6 +68,32 @@
       <IntRangeDomain name = "Range" min = "0" max = "10" />
       </IntVectorProperty>
 
+        <IntVectorProperty
+        name="OptimizeWeights"
+        command="SetOptimizeWeights"
+        label="Optimize weights"
+        number_of_elements="1"
+        default_values="1"
+        panel_visibility="advanced">
+        <BooleanDomain name="bool"/>
+        <Documentation>
+            Performs the weight optimization
+        </Documentation>
+      </IntVectorProperty>
+
+        <IntVectorProperty
+        name="OptimizeAtoms"
+        command="SetOptimizeAtoms"
+        label="Optimize atoms"
+        number_of_elements="1"
+        default_values="1"
+        panel_visibility="advanced">
+        <BooleanDomain name="bool"/>
+        <Documentation>
+            Performs the atoms optimization
+        </Documentation>
+        </IntVectorProperty>
+
       <IntVectorProperty name = "seed_" label = "Seed for random init" command="Setseed_" number_of_elements = "1" default_values="0" >
       <IntRangeDomain name = "Range" min = "0" max = "1000" />
       </IntVectorProperty>
