@@ -22,7 +22,7 @@ void PersistenceDiagramDictEncoding::execute(
     printWrn("Weight Optimization desactivated");
   }
   if(OptimizeAtoms) {
-    printMsg("Atom Optimization activated")
+    printMsg("Atom Optimization activated");
   } else {
     printWrn("Atom Optimization desactivated");
   }
