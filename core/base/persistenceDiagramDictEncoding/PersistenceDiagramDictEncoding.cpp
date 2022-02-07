@@ -30,7 +30,7 @@ void PersistenceDiagramDictEncoding::execute(
   Timer tm_init{};
   InitDictionary(dictDiagrams, intermediateDiagrams, numAtom, this->do_min_,
                  this->do_sad_, this->do_max_, seed);
-  this->printMsg("Initialization computed", tm_init.getElapsedTime(),
+  this->printMsg("Initialization computed ", 1, tm_init.getElapsedTime(),
                  threadNumber_, debug::LineMode::NEW, debug::Priority::DETAIL);
 
   for(size_t i = 0; i < dictDiagrams.size(); ++i) {

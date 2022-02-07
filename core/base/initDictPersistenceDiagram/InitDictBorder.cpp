@@ -40,9 +40,6 @@ void InitFarBorderDict::execute(std::vector<Diagram> &DictDiagrams,
     DictDiagrams[i] = atom;
   }
 
-  // this->printMsg("Initialisation time", 1,
-  // tm1.getElapsedTime(),threadNumber_, debug::LineMode::NEW,
-  // debug::Priority::DETAIL);
 }
 
 void InitFarBorderDict::setBidderDiagrams(
