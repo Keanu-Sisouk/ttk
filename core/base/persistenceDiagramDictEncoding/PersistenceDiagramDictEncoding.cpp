@@ -177,6 +177,15 @@ void PersistenceDiagramDictEncoding::execute(
   int MAX_EPOCH = 151;
   std::vector<Diagram> histoDictDiagrams(dictDiagrams.size());
   std::vector<std::vector<double>> histoVectorWeights(nDiags);
+
+  std::ofstream myFile("/home/keanu/ttk-data/weightsTimeLine.csv");
+  for(int j = 0 ; j < numAtom ; ++j){
+    myFile << "weight" + std::to_string(j+1);
+    if(j != numAtom - 1) myFile << ",";
+  }
+  myFile << "\n";
+
+
   // bool condition = true;
   // while (condition && epoch < 100) {
   for(int epoch = 1; epoch < MAX_EPOCH; ++epoch) {
@@ -396,6 +405,14 @@ void PersistenceDiagramDictEncoding::execute(
                      tm_opt1.getElapsedTime(), threadNumber_,
                      debug::LineMode::NEW, debug::Priority::DETAIL);
     }
+
+    std::vector<double> &weight = vectorWeights[0];
+    for(int j = 0 ; j < numAtom ; ++j){
+      myFile << weight.at(j);
+      if(j!= numAtom - 1) myFile << ",";
+    }
+    myFile << "\n";
+
 
     Barycenters.clear();
     Barycenters.resize(nDiags);
@@ -626,6 +643,8 @@ void PersistenceDiagramDictEncoding::execute(
     allMatchingsAtoms.clear();
     allMatchingsAtoms.resize(nDiags);
   } // return distMat;
+
+  myFile.close();
   // this->printMsg("Epoch" + std::to_string(epoch) + "==================");
   // this->printMsg("loss1 " + std::to_string(loss1) + "=================");
   // this->printMsg("loss " + std::to_string(loss) + "===================");
@@ -1138,6 +1157,10 @@ void PersistenceDiagramDictEncoding::setBidderDiagrams(
   std::vector<BidderDiagram<double>> &bidder_diags) const {
 
   bidder_diags.resize(nInputs);
+
+#ifdef TTK_ENABLE_OPENMP
+#pragma omp parallel for num_threads(threadNumber_)
+#endif // TTK_ENABLE_OPENMP
 
   for(size_t i = 0; i < nInputs; i++) {
     auto &diag = inputDiagrams[i];
