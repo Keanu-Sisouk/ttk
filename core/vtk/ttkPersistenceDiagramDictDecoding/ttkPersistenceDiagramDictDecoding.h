@@ -3,6 +3,7 @@
 #include <vtkInformation.h>
 #include <vtkInformationVector.h>
 #include <vtkUnstructuredGrid.h>
+#include <vtkMultiBlockDataSet.h>
 // VTK Module
 #include <ttkPersistenceDiagramDictDecodingModule.h>
 
@@ -21,6 +22,12 @@ public:
   static ttkPersistenceDiagramDictDecoding *New();
   vtkTypeMacro(ttkPersistenceDiagramDictDecoding, ttkAlgorithm);
 
+  vtkGetMacro(Spacing, double);
+  vtkSetMacro(Spacing, double);
+
+  vtkGetMacro(ShowAtoms, int);
+  vtkSetMacro(ShowAtoms, int);
+
 protected:
   ttkPersistenceDiagramDictDecoding();
   ~ttkPersistenceDiagramDictDecoding() override = default;
@@ -35,6 +42,13 @@ protected:
   void diagramToVTU(vtkUnstructuredGrid *output,
                     const ttk::Diagram &diagram,
                     const double max_persistence) const;
+void outputDiagrams(
+  vtkMultiBlockDataSet *output,
+  const std::vector<ttk::Diagram> &diags,
+  const std::vector<ttk::Diagram> &atoms,
+  const std::vector<std::vector<double>> &weights,
+  const double spacing,
+  const double max_persistence) const;
 
   double getMaxPersistence(ttk::Diagram &diagram);
 
@@ -45,4 +59,7 @@ protected:
   int RequestData(vtkInformation *request,
                   vtkInformationVector **inputVector,
                   vtkInformationVector *outputVector) override;
+
+  double Spacing{};
+  int ShowAtoms{1};
 };

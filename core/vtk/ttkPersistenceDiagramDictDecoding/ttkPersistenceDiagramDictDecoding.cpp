@@ -15,6 +15,8 @@
 #include <vtkObjectFactory.h>
 #include <vtkPointData.h>
 #include <vtkTable.h>
+#include <vtkTransform.h>
+#include <vtkTransformFilter.h>
 
 #include <ttkMacros.h>
 #include <ttkUtils.h>
@@ -191,17 +193,21 @@ int ttkPersistenceDiagramDictDecoding::RequestData(
   auto output_dgm = vtkMultiBlockDataSet::GetData(outputVector, 0);
   output_dgm->SetNumberOfBlocks(nWeights);
   // this->printMsg(std::to_string(nWeights));
-  for(int i = 0; i < nWeights; ++i) {
-    // vtkUnstructuredGrid temp =
-    // vtkUnstructuredGrid::SafeDownCast(output_dgm->GetBlock(i));
-    vtkNew<vtkUnstructuredGrid> vtu;
-    ttk::Diagram &diagram = Barycenters[i];
-    double max_persistence = getMaxPersistence(diagram);
-    diagramToVTU(vtu, diagram, max_persistence);
-    // this->printMsg("=====HERE?======");
-    output_dgm->SetBlock(i, vtu);
-    // this->printMsg("=====HERE2?=====");
-  }
+  // for(int i = 0; i < nWeights; ++i) {
+  //   // vtkUnstructuredGrid temp =
+  //   // vtkUnstructuredGrid::SafeDownCast(output_dgm->GetBlock(i));
+  //   vtkNew<vtkUnstructuredGrid> vtu;
+  //   ttk::Diagram &diagram = Barycenters[i];
+  //   double max_persistence = getMaxPersistence(diagram);
+  //   diagramToVTU(vtu, diagram, max_persistence);
+  //   // this->printMsg("=====HERE?======");
+  //   output_dgm->SetBlock(i, vtu);
+  //   // this->printMsg("=====HERE2?=====");
+  // }
+  //
+  // double max_persistence = getMaxPersistence(diagram);
+  outputDiagrams(output_dgm,Barycenters, dictDiagrams, vectorWeights,Spacing,1);
+
   // Get input object from input vector
   // Note: has to be a vtkDataSet as required by FillInputPortInformation
 
@@ -342,6 +348,70 @@ double ttkPersistenceDiagramDictDecoding::getPersistenceDiagram(
   }
 
   return max_dimension;
+}
+
+void ttkPersistenceDiagramDictDecoding::outputDiagrams(
+  vtkMultiBlockDataSet *output,
+  const std::vector<ttk::Diagram> &diags,
+  const std::vector<ttk::Diagram> &atoms,
+  const std::vector<std::vector<double>> &weights,
+  const double spacing,
+  const double max_persistence) const {
+
+  ttk::SimplexId nDiags = diags.size();
+  ttk::SimplexId nAtoms = atoms.size();
+
+  ttk::SimplexId n_existing_blocks = ShowAtoms ? nAtoms : 0;
+
+  output->SetNumberOfBlocks(nDiags+n_existing_blocks);
+  std::vector<std::pair<double,double>> coords(nAtoms);
+
+  for(size_t i = 0; i < nAtoms; ++i) {
+    const auto angle = 2.0 * M_PI * static_cast<double>(i)
+      / static_cast<double>(nAtoms);
+    double X = spacing * max_persistence * std::cos(angle);
+    double Y = spacing * max_persistence * std::sin(angle);
+    coords[i].first = X;
+    coords[i].second = Y;
+    
+    if(ShowAtoms){
+      vtkNew<vtkUnstructuredGrid> vtu{};
+      this->diagramToVTU(vtu, atoms[i], max_persistence);
+
+      vtkNew<vtkTransform> tr{};
+      tr->Translate(X,Y,0);
+
+      vtkNew<vtkTransformFilter> trf{};
+      trf->SetTransform(tr);
+      trf->SetInputData(vtu);
+      trf->Update();
+
+      output->SetBlock(i, trf->GetOutputDataObject(0));
+    }
+  }
+
+
+  for(size_t i = 0; i < diags.size(); ++i) {
+    vtkNew<vtkUnstructuredGrid> vtu{};
+    this->diagramToVTU(vtu, diags[i], max_persistence);
+
+
+      double X = 0;
+      double Y = 0;
+      for(size_t iAtom = 0; iAtom < nAtoms; ++iAtom) {
+        X += weights[i][iAtom]*coords[iAtom].first;
+        Y += weights[i][iAtom]*coords[iAtom].second;
+      }
+
+      vtkNew<vtkTransform> tr{};
+      tr->Translate(X,Y,0);
+      vtkNew<vtkTransformFilter> trf{};
+      trf->SetTransform(tr);
+      trf->SetInputData(vtu);
+      trf->Update();
+
+      output->SetBlock(i+n_existing_blocks, trf->GetOutputDataObject(0));
+  }
 }
 
 void ttkPersistenceDiagramDictDecoding::diagramToVTU(

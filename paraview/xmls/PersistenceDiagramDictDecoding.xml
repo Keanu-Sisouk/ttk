@@ -64,6 +64,32 @@
 
       <!-- Create a UI group that contains all input parameter widgets (here only one) -->
       <!-- OUTPUT PARAMETER WIDGETS -->
+      <DoubleVectorProperty
+        name="Spacing"
+        label="Spacing"
+        command="SetSpacing"
+        number_of_elements="1"
+        default_values="0"
+        panel_visibility="advanced">
+        >
+      <Documentation>
+          Ajust the spacing for the display of diagrams.
+      </Documentation>
+    </DoubleVectorProperty>
+
+      <IntVectorProperty
+        name="ShowAtoms"
+        label="Show atoms"
+        command="SetShowAtoms"
+        number_of_elements="1"
+        default_values="0"
+        panel_visibility="advanced">
+        >
+        <BooleanDomain name="bool"/>
+      <Documentation>
+          Includes the atoms of the dictionnary in the output representation
+      </Documentation>
+    </IntVectorProperty>
 
 
       <!-- A string parameter that controls the name of the output array -->
