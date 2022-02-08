@@ -178,7 +178,7 @@ void PersistenceDiagramDictEncoding::execute(
   std::vector<Diagram> histoDictDiagrams(dictDiagrams.size());
   std::vector<std::vector<double>> histoVectorWeights(nDiags);
 
-  std::ofstream myFile("/home/keanu/ttk-data/weightsTimeLine.csv");
+  std::ofstream myFile("/home/keanu/ttk-data/weightsTimeLine2.csv");
   for(int j = 0 ; j < numAtom ; ++j){
     myFile << "weight" + std::to_string(j+1);
     if(j != numAtom - 1) myFile << ",";
