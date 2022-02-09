@@ -192,21 +192,22 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
       continue;
     } else {
       std::vector<double> pos(grad_list[i].size(), 0.);
-      int k = 0;
+      // int k = 0;
+      int k = 1;
       // for(int j = 0; j < grad_list[i].size(); ++j) {
-      for(size_t j = 0; j < checker[i].size(); ++j) {
-        // DiagramTuple &t = grad_list[i][j];
-        // std::vector<double> &t = grad_list[i][j];
-        auto &t = grad_list[i][checker[i][j]];
-        // double birth = std::get<6>(t);
-        // double death = std::get<10>(t);
-        double birth = t[0];
-        double death = t[1];
-        pos[j] = death - birth;
-        // std::cout << "PERSISTENCE: " << pos[j] << std::endl;
-        if(death - birth > 1e-10) {
-          k += 1;
-        }
+      // for(size_t j = 0; j < checker[i].size(); ++j) {
+      //   // DiagramTuple &t = grad_list[i][j];
+      //   // std::vector<double> &t = grad_list[i][j];
+      //   auto &t = grad_list[i][checker[i][j]];
+      //   // double birth = std::get<6>(t);
+      //   // double death = std::get<10>(t);
+      //   double birth = t[0];
+      //   double death = t[1];
+      //   pos[j] = death - birth;
+      //   // std::cout << "PERSISTENCE: " << pos[j] << std::endl;
+      //   if(death - birth > 1e-10) {
+      //     k += 1;
+      //   }
       }
       if(k > 0) {
 
@@ -270,9 +271,9 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
             // std::get<10>(t) = std::get<10>(t) - step * gradsLists[i][p][1];
             // t[1] = t[1] - step * gradsLists[i][p][1];
             t[1] = t[1] - step * gradsLists[i][checker[i][p]][1];
-          } else if(pos[p] < 1e-17) {
-            //} else if(pos[checker[i][p]] < 1e-17) {
-            continue;
+          // } else if(pos[p] < 1e-17) {
+          //   //} else if(pos[checker[i][p]] < 1e-17) {
+          //   continue;
           } else {
             // printf("==========ATOM UPDATING3=============");
             // DiagramTuple &t = grad_list[i][p];
@@ -319,6 +320,8 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
         auto &tracker_temp = tracker_match[i][j];
         if(tracker_diagonal[i][j] == 1 || tracker_temp == -1
            || tracker_temp > 10000) {
+          auto &index = checker[i][j];
+          auto &t2 = grad_list[i][index]
           // if(test){
           // this->printMsg("SAUT2");
           // printf("SAUT2");
