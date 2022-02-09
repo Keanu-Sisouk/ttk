@@ -50,7 +50,7 @@ void ConstrainedGradientDescent::projectionOnSimplex(
 
   double sum = 0.;
   for(int i = 0; i < n - 1; ++i) {
-    weights[i] = trunc(weights[i] * 1e6) / 1e6;
+    weights[i] = trunc(weights[i] * 1e8) / 1e8;
     sum += weights[i];
   }
   weights[n - 1] = 1. - sum;
@@ -80,7 +80,7 @@ void ConstrainedGradientDescent::gradientDescentWeights(
   // std::cout << "STEP" << step << std::endl;
 
   for(int i = 0; i < n; ++i) {
-    weights[i] = weights[i] - mini * step * grad[i];
+    weights[i] = weights[i] - step * grad[i];
   }
 }
 
@@ -192,22 +192,22 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
       continue;
     } else {
       std::vector<double> pos(grad_list[i].size(), 0.);
-      // int k = 0;
-      int k = 1;
+      int k = 0;
+      // int k = 1;
       // for(int j = 0; j < grad_list[i].size(); ++j) {
-      // for(size_t j = 0; j < checker[i].size(); ++j) {
-      //   // DiagramTuple &t = grad_list[i][j];
-      //   // std::vector<double> &t = grad_list[i][j];
-      //   auto &t = grad_list[i][checker[i][j]];
-      //   // double birth = std::get<6>(t);
-      //   // double death = std::get<10>(t);
-      //   double birth = t[0];
-      //   double death = t[1];
-      //   pos[j] = death - birth;
-      //   // std::cout << "PERSISTENCE: " << pos[j] << std::endl;
-      //   if(death - birth > 1e-10) {
-      //     k += 1;
-      //   }
+      for(size_t j = 0; j < checker[i].size(); ++j) {
+        // DiagramTuple &t = grad_list[i][j];
+        // std::vector<double> &t = grad_list[i][j];
+        auto &t = grad_list[i][checker[i][j]];
+        // double birth = std::get<6>(t);
+        // double death = std::get<10>(t);
+        double birth = t[0];
+        double death = t[1];
+        pos[j] = death - birth;
+        // std::cout << "PERSISTENCE: " << pos[j] << std::endl;
+        if(death - birth > 1e-10) {
+          k += 1;
+        }
       }
       if(k > 0) {
 
@@ -244,12 +244,12 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
         double step;
         if(temp2.size() == 0) {
           // step = std::min(1., mini) / (1e1 + 1.0 * epoch);
-          step = std::min(1., mini) / (5e1);
+          step = std::min(1., mini) / (1e1);
         } else {
           double mini2 = *std::min_element(temp2.begin(), temp2.end());
           // double maxi = std::max_element(pos.begin() ; pos.end());
           // step = std::min(std::min(1., mini), mini2) / (1e1 + 1.0 * epoch);
-          step = std::min(std::min(1., mini), mini2) / (5e1);
+          step = std::min(std::min(1., mini), mini2) / (1e1);
         }
 
         // std::cout << "STEP : " << step << std::endl;
@@ -271,9 +271,13 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
             // std::get<10>(t) = std::get<10>(t) - step * gradsLists[i][p][1];
             // t[1] = t[1] - step * gradsLists[i][p][1];
             t[1] = t[1] - step * gradsLists[i][checker[i][p]][1];
-          // } else if(pos[p] < 1e-17) {
-          //   //} else if(pos[checker[i][p]] < 1e-17) {
-          //   continue;
+          } else if(pos[p] < 1e-17) {
+            //} else if(pos[checker[i][p]] < 1e-17) {
+            auto &t0 = grad_list[i][checker[i][p]];
+            // std::cout << "GRADS" << gradsLists[i][checker[i][p]][0] << ","
+            //           << gradsLists[i][checker[i][p]][1] << std::endl;
+            t0[0] = t0[0] - step * gradsLists[i][checker[i][p]][0];
+            t0[1] = t0[1] - step * gradsLists[i][checker[i][p]][1];
           } else {
             // printf("==========ATOM UPDATING3=============");
             // DiagramTuple &t = grad_list[i][p];
@@ -321,7 +325,21 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
         if(tracker_diagonal[i][j] == 1 || tracker_temp == -1
            || tracker_temp > 10000) {
           auto &index = checker[i][j];
-          auto &t2 = grad_list[i][index]
+          auto &t2 = grad_list[i][index];
+          if(t2[1] - t2[0] < 1e-10) {
+            continue;
+          } else {
+            const DiagramTuple &infos = Barycenter[i];
+            const CriticalType c1 = std::get<1>(infos);
+            const CriticalType c2 = std::get<3>(infos);
+            const SimplexId idTemp = std::get<5>(infos);
+            // std::cout << "Birth and death" << t2[0] << " , " << t2[1] <<
+            // std::endl;
+            DiagramTuple newPair{0,      c1,    0,  c2, t2[1] - t2[0],
+                                 idTemp, t2[0], 0., 0., 0.,
+                                 t2[1],  0.,    0., 0.};
+            DictDiagrams[index].push_back(newPair);
+          }
           // if(test){
           // this->printMsg("SAUT2");
           // printf("SAUT2");
