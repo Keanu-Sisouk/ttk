@@ -316,9 +316,7 @@ void PersistenceDiagramDictEncoding::execute(
         auto &barycentermin = bidder_barycenters_min[i];
         auto &datamin = bidder_diagrams_min[i];
 
-#ifdef TTK_ENABLE_OPENMP
-#pragma omp atomic update
-#endif // TTK_ENABLE_OPENMP
+
         allLosses[i] += computeDistance(datamin, barycentermin, matching_min);
         
       }
@@ -326,9 +324,7 @@ void PersistenceDiagramDictEncoding::execute(
         auto &barycentermax = bidder_barycenters_max[i];
         auto &datamax = bidder_diagrams_max[i];
 
-#ifdef TTK_ENABLE_OPENMP
-#pragma omp atomic update
-#endif // TTK_ENABLE_OPENMP
+
         allLosses[i] += computeDistance(datamax, barycentermax, matching_max);
         
       }
@@ -336,9 +332,7 @@ void PersistenceDiagramDictEncoding::execute(
         auto &barycentersad = bidder_barycenters_sad[i];
         auto &datasad = bidder_diagrams_sad[i];
 
-#ifdef TTK_ENABLE_OPENMP
-#pragma omp atomic update
-#endif // TTK_ENABLE_OPENMP
+
         allLosses[i] += computeDistance(datasad, barycentersad, matching_sad);
         
       }
