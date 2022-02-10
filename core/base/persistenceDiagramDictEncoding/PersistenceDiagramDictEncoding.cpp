@@ -173,13 +173,13 @@ void PersistenceDiagramDictEncoding::execute(
   // int epoch = 1;
   std::vector<double> loss_tab;
   int lag = 0;
-  int lagLimit = 50;
+  int lagLimit = 55;
   int MAX_EPOCH = 1000;
   bool cond = true;
   int epoch = 0;
   std::vector<Diagram> histoDictDiagrams(dictDiagrams.size());
   std::vector<std::vector<double>> histoVectorWeights(nDiags);
-
+  std::vector<double> allLosses(nDiags , 0.);
   std::ofstream myFile("/home/keanu/ttk-data/weightsTimeLine2.csv");
   for(int j = 0 ; j < numAtom ; ++j){
     myFile << "weight" + std::to_string(j+1);
@@ -188,10 +188,21 @@ void PersistenceDiagramDictEncoding::execute(
   myFile << "\n";
 
 
+  std::ofstream lossHisto("/home/keanu/Bureau/python_trash/loss_histo.csv");
+  lossHisto << "loss";
+  lossHisto << "\n";
+
+  std::ofstream allLossesEnd("/home/keanu/ttk-data/all_losses.csv");
+  for(size_t j = 0 ; j < nDiags ; ++j){
+    allLossesEnd << "diag" + std::to_string(j+1);
+    if(j != nDiags - 1) allLossesEnd << ",";
+  }
+  allLossesEnd << "\n";
+
   // bool condition = true;
   while(cond && epoch < MAX_EPOCH) {
     // for(int epoch = 1; epoch < MAX_EPOCH; ++epoch) {
-
+    
     loss = 0.;
     // auto vectorWeightsOld = vectorWeights;
     // this->printMsg("Epoch: " + std::to_string(epoch));
@@ -220,7 +231,7 @@ void PersistenceDiagramDictEncoding::execute(
       //   DiagramTuple &t = barycenter[j];
       //   std::cout << "Pair: " << std::get<6>(t) << ", " << std::get<10>(t)
       //             << std::endl;
-      // }
+      // 
     }
     this->printMsg(
       "Computed 1st Barycenters for epoch " + std::to_string(epoch),
@@ -308,7 +319,8 @@ void PersistenceDiagramDictEncoding::execute(
 #ifdef TTK_ENABLE_OPENMP
 #pragma omp atomic update
 #endif // TTK_ENABLE_OPENMP
-        loss += computeDistance(datamin, barycentermin, matching_min);
+        allLosses[i] += computeDistance(datamin, barycentermin, matching_min);
+        
       }
       if(this->do_max_) {
         auto &barycentermax = bidder_barycenters_max[i];
@@ -317,7 +329,8 @@ void PersistenceDiagramDictEncoding::execute(
 #ifdef TTK_ENABLE_OPENMP
 #pragma omp atomic update
 #endif // TTK_ENABLE_OPENMP
-        loss += computeDistance(datamax, barycentermax, matching_max);
+        allLosses[i] += computeDistance(datamax, barycentermax, matching_max);
+        
       }
       if(this->do_sad_) {
         auto &barycentersad = bidder_barycenters_sad[i];
@@ -326,14 +339,28 @@ void PersistenceDiagramDictEncoding::execute(
 #ifdef TTK_ENABLE_OPENMP
 #pragma omp atomic update
 #endif // TTK_ENABLE_OPENMP
-        loss += computeDistance(datasad, barycentersad, matching_sad);
+        allLosses[i] += computeDistance(datasad, barycentersad, matching_sad);
+        
       }
       matchingsDatasMin[i] = std::move(matching_min);
       matchingsDatasSad[i] = std::move(matching_sad);
       matchingsDatasMax[i] = std::move(matching_max);
     }
 
+    for(size_t p = 0 ; p < nDiags ; ++p){
+      loss+=allLosses[i];
+    }
+
+
+    for(size_t p = 0 ; p < nDiags ; ++p){
+      allLossesEnd << allLosses[i];
+      if(p != nDiags - 1) allLossesEnd << ","; 
+    }
+    allLossesEnd << "\n";
+
     loss_tab.push_back(loss);
+    lossHisto << loss;
+    lossHisto << "\n";
 
     double mini = *std::min_element(loss_tab.begin(), loss_tab.end() - 1);
     if(loss <= mini) {
@@ -426,7 +453,9 @@ void PersistenceDiagramDictEncoding::execute(
     }
     myFile << "\n";
 
-
+    for(size_t p = 0 ; p < nDiags ; ++p){
+      all_losses[i] = 0.;
+    }
     Barycenters.clear();
     Barycenters.resize(nDiags);
     allMatchingsAtoms.clear();
