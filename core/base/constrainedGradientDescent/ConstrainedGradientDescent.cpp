@@ -72,7 +72,7 @@ void ConstrainedGradientDescent::gradientDescentWeights(
     auto &hessian = hessianList[i];
     for(size_t k = 0; k < hessian.size(); ++k) {
       double diag = hessian[k][k];
-      L += diag;
+      L += 2 * diag;
     }
   }
 
@@ -378,6 +378,17 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
                                       + tracker_temp);
           }
         }
+      }
+    }
+  }
+  for(size_t i = 0 ; i < DictDiagrams.size() ; ++i){
+    auto &atom = DictDiagrams[i];
+    for(size_t j = 0 ; j < atom.size() ; ++j){
+      auto &t1 = atom[j];
+      double birth = std::get<6>(t1);
+      double death = std::get<10>(t1);
+      if(death - birth < 1e-6){
+        atom.erase(atom.begin() + j);
       }
     }
   }

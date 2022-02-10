@@ -173,13 +173,13 @@ void PersistenceDiagramDictEncoding::execute(
   // int epoch = 1;
   std::vector<double> loss_tab;
   int lag = 0;
-  int lagLimit = 55;
+  int lagLimit = 151;
   int MAX_EPOCH = 1000;
   bool cond = true;
   int epoch = 0;
   std::vector<Diagram> histoDictDiagrams(dictDiagrams.size());
   std::vector<std::vector<double>> histoVectorWeights(nDiags);
-  std::vector<double> allLosses(nDiags , 0.);
+  std::vector<double> allLosses(nDiags , 0.);
   std::ofstream myFile("/home/keanu/ttk-data/weightsTimeLine2.csv");
   for(int j = 0 ; j < numAtom ; ++j){
     myFile << "weight" + std::to_string(j+1);
@@ -348,12 +348,12 @@ void PersistenceDiagramDictEncoding::execute(
     }
 
     for(size_t p = 0 ; p < nDiags ; ++p){
-      loss+=allLosses[i];
+      loss+=allLosses[p];
     }
 
 
     for(size_t p = 0 ; p < nDiags ; ++p){
-      allLossesEnd << allLosses[i];
+      allLossesEnd << allLosses[p];
       if(p != nDiags - 1) allLossesEnd << ","; 
     }
     allLossesEnd << "\n";
@@ -377,8 +377,9 @@ void PersistenceDiagramDictEncoding::execute(
       lag += 1;
     }
 
+    this->printMsg("LAG" + std::to_string(lag));
     // std::cout << "LAG" << lag << std::endl;
-    if((epoch > 1) && (loss_tab[epoch] / loss_tab[epoch - 1] > 0.9999995)) {
+    if((epoch > 1) && (loss_tab[epoch] / loss_tab[epoch - 1] > 0.99995)) {
       if(loss_tab[epoch] < loss_tab[epoch - 1]) {
         this->printMsg("Loss not decreasing enough");
         OptimizeWeights = 0;
@@ -454,7 +455,7 @@ void PersistenceDiagramDictEncoding::execute(
     myFile << "\n";
 
     for(size_t p = 0 ; p < nDiags ; ++p){
-      all_losses[i] = 0.;
+      allLosses[p] = 0.;
     }
     Barycenters.clear();
     Barycenters.resize(nDiags);
