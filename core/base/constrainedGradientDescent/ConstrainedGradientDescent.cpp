@@ -4,6 +4,15 @@
 
 using namespace ttk;
 
+static bool testDiagonal(DiagramTuple &t){
+  bool alpha = false;
+  double birth = std::get<6>(t);
+  double death = std::get<10>(t);
+  if(death - birth < 1e-2) alpha = true;
+  return alpha;
+}
+
+
 void ConstrainedGradientDescent::executeWeightsProjected(
   std::vector<Matrix> &hessianList,
   std::vector<double> &weights,
@@ -72,7 +81,7 @@ void ConstrainedGradientDescent::gradientDescentWeights(
     auto &hessian = hessianList[i];
     for(size_t k = 0; k < hessian.size(); ++k) {
       double diag = hessian[k][k];
-      L += 2 * diag;
+      L += 1. * diag;
     }
   }
 
@@ -244,12 +253,12 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
         double step;
         if(temp2.size() == 0) {
           // step = std::min(1., mini) / (1e1 + 1.0 * epoch);
-          step = std::min(1., mini) / (1e1);
+          step = std::min(1., mini) / (5e1);
         } else {
           double mini2 = *std::min_element(temp2.begin(), temp2.end());
           // double maxi = std::max_element(pos.begin() ; pos.end());
           // step = std::min(std::min(1., mini), mini2) / (1e1 + 1.0 * epoch);
-          step = std::min(std::min(1., mini), mini2) / (1e1);
+          step = std::min(std::min(1., mini), mini2) / (5e1);
         }
 
         // std::cout << "STEP : " << step << std::endl;
@@ -326,7 +335,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
            || tracker_temp > 10000) {
           auto &index = checker[i][j];
           auto &t2 = grad_list[i][index];
-          if(t2[1] - t2[0] < 1e-10) {
+          if(t2[1] - t2[0] < 1e-3) {
             continue;
           } else {
             const DiagramTuple &infos = Barycenter[i];
@@ -363,7 +372,8 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
           //   std::get<6>(t1) = t2[0];
           //   std::get<10>(t1) = t2[1];
           // }
-          if(t2[1] > t2[0]) {
+          //if(t2[1] > t2[0]) {
+          if(true){  
             DiagramTuple &t1 = DictDiagrams[index][tracker_temp];
             // printf("ATOM" + std::to_string(checker[i][j]) " , PAIR " +
             // std::to_string(tracker_match[i][j]));
@@ -374,8 +384,9 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
             std::get<6>(t1) = t2[0];
             std::get<10>(t1) = t2[1];
           } else {
-            DictDiagrams[index].erase(DictDiagrams[index].begin()
-                                      + tracker_temp);
+            /* DictDiagrams[index].erase(DictDiagrams[index].begin() */
+            /*                           + tracker_temp); */
+            continue;
           }
         }
       }
@@ -383,13 +394,21 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
   }
   for(size_t i = 0 ; i < DictDiagrams.size() ; ++i){
     auto &atom = DictDiagrams[i];
-    for(size_t j = 0 ; j < atom.size() ; ++j){
-      auto &t1 = atom[j];
-      double birth = std::get<6>(t1);
-      double death = std::get<10>(t1);
-      if(death - birth < 1e-6){
-        atom.erase(atom.begin() + j);
-      }
-    }
+    /* for(size_t j = 0 ; j < atom.size() ; ++j){ */
+    /*   auto &t1 = atom[j]; */
+    /*   double birth = std::get<6>(t1); */
+    /*   double death = std::get<10>(t1); */
+    /*   if(death - birth < 1e-6){ */
+    /*     atom.erase(atom.begin() + j); */
+    /*   } */
+    /* } */
+    atom.erase(std::remove_if(atom.begin() , atom.end() , testDiagonal) , atom.end());
+
+
   }
 }
+
+
+
+
+

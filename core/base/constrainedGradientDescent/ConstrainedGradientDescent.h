@@ -81,5 +81,9 @@ namespace ttk {
       const int nb_points,
       const std::vector<int> &checkerAtomsExt,
       int epoch);
+  
+    
+
   };
+
 } // namespace ttk
