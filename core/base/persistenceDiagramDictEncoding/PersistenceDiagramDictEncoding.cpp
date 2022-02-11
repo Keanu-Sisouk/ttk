@@ -174,7 +174,7 @@ void PersistenceDiagramDictEncoding::execute(
   std::vector<double> loss_tab;
   int lag = 0;
   int lagLimit = 50;
-  int MAX_EPOCH = 500;
+  int MAX_EPOCH = 200;
   bool cond = true;
   int epoch = 0;
   std::vector<Diagram> histoDictDiagrams(dictDiagrams.size());
@@ -373,7 +373,7 @@ void PersistenceDiagramDictEncoding::execute(
 
     this->printMsg("LAG" + std::to_string(lag));
     // std::cout << "LAG" << lag << std::endl;
-    if((epoch > 1) && (loss_tab[epoch] / loss_tab[epoch - 1] > 0.9999)) {
+    if((epoch > 1) && (loss_tab[epoch] / loss_tab[epoch - 1] > 0.999999)) {
       if(loss_tab[epoch] < loss_tab[epoch - 1]) {
         this->printMsg("Loss not decreasing enough");
         OptimizeWeights = 0;
@@ -657,14 +657,17 @@ void PersistenceDiagramDictEncoding::execute(
       }
 
       for(size_t i = 0; i < nDiags; ++i) {
+        std::cout << " OPTIM DIAG: " << i << std::endl;
+        
         auto &gradsAtoms = gradsAtomsList[i];
         const auto &matchingsAtoms = allMatchingsAtoms[i];
         const Diagram &Barycenter = Barycenters[i];
         const auto &checkerAtoms = checkerAtomsList[i];
         int nb_points = Barycenters[i].size();
-
         gradActor.executeAtoms(dictDiagrams, matchingsAtoms, Barycenter,
                                gradsAtoms, nb_points, checkerAtoms, epoch);
+        std::cout << " OPTIM DIAG: " << i << std::endl;
+        std::cout << "==================================================" << std::endl;
       }
 
       this->printMsg("Computed 2nd opt for epoch " + std::to_string(epoch),
@@ -673,14 +676,14 @@ void PersistenceDiagramDictEncoding::execute(
                      debug::LineMode::NEW, debug::Priority::DETAIL);
       // ATOM OPTIMIZATION
     }
-
+    epoch +=1;
     // this->printMsg("=====================================================");
     Barycenters.clear();
     Barycenters.resize(nDiags);
     allMatchingsAtoms.clear();
     allMatchingsAtoms.resize(nDiags);
 
-    epoch += 1;
+    
   }
 
   myFile.close();

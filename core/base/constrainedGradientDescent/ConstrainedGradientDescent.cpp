@@ -5,11 +5,12 @@
 using namespace ttk;
 
 static bool testDiagonal(DiagramTuple &t){
-  bool alpha = false;
   double birth = std::get<6>(t);
   double death = std::get<10>(t);
-  if(death - birth < 1e-2) alpha = true;
-  return alpha;
+  double persistence = death - birth;
+  bool alph = persistence < 0.1;
+  std::cout << alph << std::endl;
+  return alph;
 }
 
 
@@ -59,7 +60,7 @@ void ConstrainedGradientDescent::projectionOnSimplex(
 
   double sum = 0.;
   for(int i = 0; i < n - 1; ++i) {
-    weights[i] = trunc(weights[i] * 1e8) / 1e8;
+    weights[i] = trunc(weights[i] * 1e6) / 1e6;
     sum += weights[i];
   }
   weights[n - 1] = 1. - sum;
@@ -102,9 +103,9 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
   const std::vector<std::vector<MatchingTuple>> &matchings,
   const Diagram &Barycenter,
   const std::vector<Matrix> &gradsLists,
-  const int /*nb_points*/,
+  const int nb_points,
   const std::vector<int> &checkerAtomsExt,
-  int /*epoch*/) {
+  int epoch) {
   // Here vector of diagramTuple because it is not a persistence diagram per
   // say.
   // we get the right pairs to update for each barycenter pair.
@@ -127,6 +128,15 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
   for(size_t i = 0; i < tracker_match.size(); ++i) {
     tracker_match[i].resize(matchings.size());
   }
+
+  std::cout << "PRINT MATCHINGS ATOM 0 " << std::endl;
+  for(size_t j = 0 ; j < matchings[0].size() ; ++j){
+    auto &t = matchings[0][j];
+    SimplexId Id1 = std::get<0>(t);
+    SimplexId Id2 = std::get<1>(t);
+    std::cout << "ID ATOM: " << Id1 << " AND ID BARYCENTER: " << Id2 << std::endl;
+  }
+  std::cout << "TAILLE ATOM 0: " << DictDiagrams[0].size() << std::endl;
 
   for(size_t i = 0; i < matchings.size(); ++i) {
     for(size_t j = 0; j < matchings[i].size(); ++j) {
@@ -177,10 +187,15 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
           }
           tracker[Id2] = 1;
           // tracker_match[Id2].push_back(Id1);
+
           tracker_match[Id2][i] = Id1;
-          if(static_cast<SimplexId>(DictDiagrams[i].size()) <= Id1) {
-            std::cout << "ID1: " << Id1 << std::endl;
+          if(i == 0 && (Id2 == 4 || Id2 == 5)) {
+            std::cout << "ID1 in ATOM0: " << Id1 << std::endl;
           }
+          if(i == 1 && (Id2 == 4 || Id2 == 5)){
+            std::cout << "ID1 in ATOM1: " << Id1 << std::endl;
+          }
+
           tracker_diagonal[Id2][i] = 0;
         }
       }
@@ -200,6 +215,13 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
       // std::cout << "SAUT!!!!!!" << std::endl;
       continue;
     } else {
+      if (i == 0){
+        auto &mat = grad_list[i];
+        for(size_t b = 0 ; b < mat.size() ; ++b){
+          auto &pair = mat[b];
+          std::cout << "PAIRE GLOBAL MATCHED: " << pair[0] << " and "<< pair[1] << std::endl;
+        }
+      }
       std::vector<double> pos(grad_list[i].size(), 0.);
       int k = 0;
       // int k = 1;
@@ -232,7 +254,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
           // double birth = std::get<6>(t);
           double birth = t[0];
           pos2[p] = birth == 0.;
-          if(birth > 0) {
+          if(birth > 0.) {
             temp2.push_back(birth);
             // temp2[p] = birth;
           }
@@ -251,14 +273,15 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
         double mini = *std::min_element(temp.begin(), temp.end());
 
         double step;
+        double factEquiv = DictDiagrams.size();
         if(temp2.size() == 0) {
           // step = std::min(1., mini) / (1e1 + 1.0 * epoch);
-          step = std::min(1., mini) / (5e1);
+          step = std::min(1., mini) / (factEquiv*1e1);
         } else {
           double mini2 = *std::min_element(temp2.begin(), temp2.end());
           // double maxi = std::max_element(pos.begin() ; pos.end());
           // step = std::min(std::min(1., mini), mini2) / (1e1 + 1.0 * epoch);
-          step = std::min(std::min(1., mini), mini2) / (5e1);
+          step = std::min(std::min(1., mini), mini2) / (factEquiv*1e1);
         }
 
         // std::cout << "STEP : " << step << std::endl;
@@ -288,18 +311,29 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
             t0[0] = t0[0] - step * gradsLists[i][checker[i][p]][0];
             t0[1] = t0[1] - step * gradsLists[i][checker[i][p]][1];
           } else {
-            // printf("==========ATOM UPDATING3=============");
+            printf("==========ATOM UPDATING3=============");
             // DiagramTuple &t = grad_list[i][p];
             // std::get<6>(t) = std::get<6>(t) - step * gradsLists[i][p][0];
             // std::get<10>(t) = std::get<10>(t) - step * gradsLists[i][p][1];
             // std::vector<double> &t = grad_list[i][p];
             // t[0] = t[0] - step * gradsLists[i][p][0];
             // t[1] = t[1] - step * gradsLists[i][p][1];
+            
+
             auto &t0 = grad_list[i][checker[i][p]];
+
+            if (i == 0){
+              std::cout << "P: " << p << " and " << checker[i][p] << std::endl;
+              std::cout << "COEFF GRADLIST: " <<gradsLists[i][checker[i][p]][0] << " and " << gradsLists[i][checker[i][p]][1] << std::endl;
+            }
             // std::cout << "GRADS" << gradsLists[i][checker[i][p]][0] << ","
             //           << gradsLists[i][checker[i][p]][1] << std::endl;
+            if (i== 0 && checker[i][p] == 0) std::cout << "PAIRE GLOBALE: " << t0[0] << " and " << t0[1] << std::endl;
+            if (i== 0 && checker[i][p] == 0) std::cout << "STEP: " << step << std::endl;
             t0[0] = t0[0] - step * gradsLists[i][checker[i][p]][0];
             t0[1] = t0[1] - step * gradsLists[i][checker[i][p]][1];
+            if (i == 0 && checker[i][p] == 0) std::cout << "PAIRE GLOBALE AFTER: " << t0[0] << " and " << t0[1] << std::endl;
+
           }
         }
         // printf("PASSED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
@@ -320,14 +354,25 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
   // std::get<10>(t1) = t2[1];
   //}
   //}
+  
+  std::cout << "CHECKER 4: " << checker[4][0] << " and " << checker[4][1] << std::endl;
+  std::cout << "CHECKER 5: " << checker[5][0] << " and " << checker[5][1] << std::endl;
+  std::cout << "TRACKER 4: " << tracker_match[4][0] << " and " << tracker_match[4][0] << std::endl;
+  std::cout << "TRACKER 5: " << tracker_match[5][0] << " and " << tracker_match[5][0] << std::endl;
 
   // printf("PASSED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
   for(size_t i = 0; i < checker.size(); ++i) {
     if(tracker[i] == 0 || checkerAtomsExt[i] == 0) {
       // this->printMsg("SAUT1");
       // printf("SAUT1");
-      // continue;
+      continue;
     } else {
+      if (i == 0){
+        for(size_t y = 0 ; y < tracker_match[i].size() ; ++y){
+          std::cout << "TRACKER_MATCH_ELEM: " << y << " IS " << tracker_match[i][y] << std::endl;
+
+        }
+      }
       // bool test = false;
       for(size_t j = 0; j < checker[i].size(); ++j) {
         auto &tracker_temp = tracker_match[i][j];
@@ -335,7 +380,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
            || tracker_temp > 10000) {
           auto &index = checker[i][j];
           auto &t2 = grad_list[i][index];
-          if(t2[1] - t2[0] < 1e-3) {
+          if(t2[1] - t2[0] < 1e-17) {
             continue;
           } else {
             const DiagramTuple &infos = Barycenter[i];
@@ -356,55 +401,58 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
         } else {
           auto &index = checker[i][j];
           auto &t2 = grad_list[i][index];
-
+          if (i == 0 && index == 0) std::cout << tracker_temp << std::endl;
+          if (i == 0 && index == 0) std::cout << "NEW PAIRE GLOBALE: " << t2[0] << " and " << t2[1] << std::endl;
           // if(t2[1] - t2[0] < 1e-17) {
           //   DictDiagrams[checker[i][j]].erase(
           //     DictDiagrams[checker[i][j]].begin() + tracker_match[i][j]);
           // } else {
           //   DiagramTuple &t1 =
           //   DictDiagrams[checker[i][j]][tracker_match[i][j]];
-          //   // printf("ATOM" + std::to_string(checker[i][j]) " , PAIR " +
-          //   // std::to_string(tracker_match[i][j]));
-          //   // std::cout << "ATOM " << checker[i][j] << " , SIZE"
-          //   //           << DictDiagrams[checker[i][j]].size() << std::endl;
-          //   // std::cout << "ATOM " << checker[i][j] << " , PAIR"
-          //   //           << tracker_match[i][j] << std::endl;
           //   std::get<6>(t1) = t2[0];
           //   std::get<10>(t1) = t2[1];
           // }
-          //if(t2[1] > t2[0]) {
-          if(true){  
+          // if(t2[1] > t2[0]) {
+          if(t2[1] > t2[0]){  
             DiagramTuple &t1 = DictDiagrams[index][tracker_temp];
-            // printf("ATOM" + std::to_string(checker[i][j]) " , PAIR " +
-            // std::to_string(tracker_match[i][j]));
-            // std::cout << "ATOM " << checker[i][j] << " , SIZE"
-            //           << DictDiagrams[checker[i][j]].size() << std::endl;
-            // std::cout << "ATOM " << checker[i][j] << " , PAIR"
-            //           << tracker_match[i][j] << std::endl;
+            if (index == 0 && tracker_temp == 0) std::cout << "NEW PAIRE GLOBALE TRACKER_TEMP: " << t2[0] << " and " << t2[1] << std::endl;
+            if (index == 0 && tracker_temp == 0) std::cout << "Index barycenter: " << i <<  " and which atom: " << j << std::endl;
             std::get<6>(t1) = t2[0];
             std::get<10>(t1) = t2[1];
           } else {
             /* DictDiagrams[index].erase(DictDiagrams[index].begin() */
             /*                           + tracker_temp); */
-            continue;
+           continue;
           }
         }
       }
     }
   }
-  for(size_t i = 0 ; i < DictDiagrams.size() ; ++i){
-    auto &atom = DictDiagrams[i];
-    /* for(size_t j = 0 ; j < atom.size() ; ++j){ */
-    /*   auto &t1 = atom[j]; */
-    /*   double birth = std::get<6>(t1); */
-    /*   double death = std::get<10>(t1); */
-    /*   if(death - birth < 1e-6){ */
-    /*     atom.erase(atom.begin() + j); */
-    /*   } */
-    /* } */
-    atom.erase(std::remove_if(atom.begin() , atom.end() , testDiagonal) , atom.end());
+  if(epoch > 5){
+    // std::cout << "OI" << std::endl;
+    for(size_t i = 0 ; i < DictDiagrams.size() ; ++i){
+      auto &atom = DictDiagrams[i];
+      if (i == 0){
+        for(size_t j = 0 ; j < atom.size() ; ++j){
+          auto &tuple = atom[j];
+          double birth = std::get<6>(tuple);
+          double death = std::get<10>(tuple);
+          std::cout << "BIRTH-DEATH: " << birth << " and " << death << std::endl;
+        }
+      }
+      std::cout << "SIZE BEFORE: " << atom.size() << std::endl;
+      // atom.erase(std::remove_if(atom.begin() , atom.end() , testDiagonal) , atom.end());
+      std::cout << "SIZE AFTER: " <<atom.size() << std::endl;
+      if (i == 0){
+        for(size_t j = 0 ; j < atom.size() ; ++j){
+          auto &tuple = atom[j];
+          double birth = std::get<6>(tuple);
+          double death = std::get<10>(tuple);
+          std::cout << "BIRTH-DEATH AFTER: " << birth << " and " << death << std::endl;
 
-
+        }
+      }
+    }
   }
 }
 
