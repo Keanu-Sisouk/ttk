@@ -182,7 +182,7 @@ void PersistenceDiagramDictEncoding::execute(
   std::vector<double> loss_tab;
   int lag = 0;
   int lagLimit = 50;
-  int MAX_EPOCH = 200;
+  int MAX_EPOCH = 10000;
   bool cond = true;
   int epoch = 0;
   std::vector<Diagram> histoDictDiagrams(dictDiagrams.size());
@@ -381,7 +381,7 @@ void PersistenceDiagramDictEncoding::execute(
 
     this->printMsg("LAG" + std::to_string(lag));
     // std::cout << "LAG" << lag << std::endl;
-    if((epoch > 1) && (loss_tab[epoch] / loss_tab[epoch - 1] > 0.999999)) {
+    if((epoch > 1) && (loss_tab[epoch] / loss_tab[epoch - 1] > 0.99995)) {
       if(loss_tab[epoch] < loss_tab[epoch - 1]) {
         this->printMsg("Loss not decreasing enough");
         OptimizeWeights = 0;

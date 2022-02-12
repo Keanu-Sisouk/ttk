@@ -84,7 +84,7 @@ void ConstrainedGradientDescent::gradientDescentWeights(
     auto &hessian = hessianList[i];
     for(size_t k = 0; k < hessian.size(); ++k) {
       double diag = hessian[k][k];
-      L += 2. * diag;
+      L += 4. * diag;
     }
   }
 
@@ -92,7 +92,7 @@ void ConstrainedGradientDescent::gradientDescentWeights(
   // std::cout << "STEP" << step << std::endl;
 
   for(int i = 0; i < n; ++i) {
-    weights[i] = weights[i] -mini * step * grad[i];
+    weights[i] = weights[i] - mini * step * grad[i];
   }
 }
 
@@ -285,7 +285,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
         double mini = *std::min_element(temp.begin(), temp.end());
 
         double step;
-        double factEquiv = DictDiagrams.size();
+        double factEquiv = sqrt(DictDiagrams.size());
         if(temp2.size() == 0) {
           // step = std::min(1., mini) / (1e1 + 1.0 * epoch);
           step = std::min(1., mini) / (factEquiv*1e1);
