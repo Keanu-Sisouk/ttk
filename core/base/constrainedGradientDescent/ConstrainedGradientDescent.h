@@ -57,7 +57,9 @@ namespace ttk {
                       const std::vector<Matrix> &gradsLists,
                       const int nb_points,
                       const std::vector<int> &checkerAtomsExt,
-                      int epoch);
+                      int epoch,
+                      std::vector<std::vector<double>> &projForDiag,
+                      std::vector<DiagramTuple> &featuresToAdd);
     // void executeAtoms(std::vector<Diagram> &DictDiagrams);
 
     // inline void setNbAtoms(const int nbAtoms) {
@@ -80,7 +82,9 @@ namespace ttk {
       const std::vector<Matrix> &gradsLists,
       const int nb_points,
       const std::vector<int> &checkerAtomsExt,
-      int epoch);
+      int epoch,
+      std::vector<std::vector<double>> &projForDiag,
+      std::vector<DiagramTuple> &featuresToAdd);
   
     
 

@@ -5,6 +5,14 @@
 
 using namespace ttk;
 
+
+static bool testDiagonal(DiagramTuple &t){
+  double birth = std::get<6>(t);
+  double death = std::get<10>(t);
+  return death - birth < 1e-1;
+}
+
+
 void PersistenceDiagramDictEncoding::execute(
   const std::vector<Diagram> &intermediateDiagrams,
   std::vector<Diagram> &dictDiagrams,
@@ -655,19 +663,76 @@ void PersistenceDiagramDictEncoding::execute(
         // gradActor.executeAtoms(dictDiagrams, matchingsAtoms, Barycenter,
         //                        gradsAtoms, nb_points, checkerAtoms, epoch);
       }
+      
+      std::vector<std::vector<std::vector<double>>> allProjectionsList(nDiags);
+      std::vector<std::vector<DiagramTuple>> allFeaturesToAdd(nDiags);
+      std::vector<std::vector<DiagramTuple>> allTrueFeaturesToAdd(numAtom);
+      std::vector<std::vector<double>> allTrueProj(numAtom);
+      // std::vector<std::vector<int>> allAtomIndices(nDiags);
 
       for(size_t i = 0; i < nDiags; ++i) {
-        std::cout << " OPTIM DIAG: " << i << std::endl;
-        
+        //std::cout << " OPTIM DIAG: " << i << std::endl;
+        auto &projForDiag = allProjectionsList[i];
+        auto &featuresToAdd = allFeaturesToAdd[i];
         auto &gradsAtoms = gradsAtomsList[i];
         const auto &matchingsAtoms = allMatchingsAtoms[i];
         const Diagram &Barycenter = Barycenters[i];
         const auto &checkerAtoms = checkerAtomsList[i];
         int nb_points = Barycenters[i].size();
         gradActor.executeAtoms(dictDiagrams, matchingsAtoms, Barycenter,
-                               gradsAtoms, nb_points, checkerAtoms, epoch);
-        std::cout << " OPTIM DIAG: " << i << std::endl;
-        std::cout << "==================================================" << std::endl;
+                               gradsAtoms, nb_points, checkerAtoms, epoch,
+                               projForDiag, featuresToAdd);
+        //std::cout << " OPTIM DIAG: " << i << std::endl;
+        //std::cout << "==================================================" << std::endl;
+      }
+      
+
+      for(size_t i = 0 ; i < nDiags ; ++i){
+        auto &projForDiag = allProjectionsList[i];
+        auto &featuresToAdd = allFeaturesToAdd[i];
+        for(size_t j = 0 ; j < projForDiag.size() ; ++j){
+          DiagramTuple &t = featuresToAdd[j];
+          std::vector<double> projAndIndex = projForDiag[j];
+          double proj = projAndIndex[0];
+          int atomIndex = static_cast<int>(projAndIndex[1]);
+          //auto it = std::find(allTrueProj[atomIndex].begin() , allTrueProj[atomIndex].end() , proj);
+          //bool ralph = it != allTrueProj[atomIndex].end();
+          bool lenNull = allTrueProj[atomIndex].size() == 0;
+          if (lenNull){
+            allTrueProj[atomIndex].push_back(proj);
+            allTrueFeaturesToAdd[atomIndex].push_back(t);
+          } else {
+            auto it = std::find(allTrueProj[atomIndex].begin() , allTrueProj[atomIndex].end() , proj);
+            bool ralph = it == allTrueProj[atomIndex].end();
+            if (ralph){
+              allTrueProj[atomIndex].push_back(proj);
+              allTrueFeaturesToAdd[atomIndex].push_back(t);
+            } else {
+              auto index = std::distance(allTrueProj[atomIndex].begin() , it);
+              auto &tReal = allTrueFeaturesToAdd[atomIndex][index];
+              std::get<6>(tReal)+=std::get<6>(t);
+              std::get<10>(tReal)+=std::get<10>(t);
+            }
+          }
+        }
+      }
+
+      for(int i = 0 ; i < numAtom ; ++i){
+        auto &atom = dictDiagrams[i];
+        auto &trueFeaturesToAdd = allTrueFeaturesToAdd[i];
+        for(size_t j = 0 ; j < trueFeaturesToAdd.size() ; ++j){
+          auto &t = trueFeaturesToAdd[j];
+          atom.push_back(t);
+        }
+      }
+
+
+
+      if(epoch > 0){
+        for(size_t i = 0 ; i < dictDiagrams.size() ; ++i){
+          auto &atom = dictDiagrams[i];
+          atom.erase(std::remove_if(atom.begin() , atom.end() , testDiagonal) , atom.end());
+        }
       }
 
       this->printMsg("Computed 2nd opt for epoch " + std::to_string(epoch),
