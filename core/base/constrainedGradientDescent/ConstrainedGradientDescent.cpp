@@ -84,7 +84,7 @@ void ConstrainedGradientDescent::gradientDescentWeights(
     auto &hessian = hessianList[i];
     for(size_t k = 0; k < hessian.size(); ++k) {
       double diag = hessian[k][k];
-      L += 4. * diag;
+      L += 1. * diag;
     }
   }
 
@@ -92,7 +92,7 @@ void ConstrainedGradientDescent::gradientDescentWeights(
   // std::cout << "STEP" << step << std::endl;
 
   for(int i = 0; i < n; ++i) {
-    weights[i] = weights[i] - mini * step * grad[i];
+    weights[i] = weights[i] - step * grad[i];
   }
 }
 
@@ -252,7 +252,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
           k += 1;
         }
       }
-      if(k > 0) {
+      if(true) {
 
         // printf("==============BOOL VERIFIED==============");
         std::vector<bool> pos2(pos.size(), false);
@@ -282,18 +282,20 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
           }
         }
         // std::cout << "TEMP SIZE " <<temp.size() << std::endl;
-        double mini = *std::min_element(temp.begin(), temp.end());
+        // double mini = *std::min_element(temp.begin(), temp.end());
 
         double step;
         double factEquiv = sqrt(DictDiagrams.size());
         if(temp2.size() == 0) {
           // step = std::min(1., mini) / (1e1 + 1.0 * epoch);
-          step = std::min(1., mini) / (factEquiv*1e1);
+          // step = std::min(1., mini) / (factEquiv*1e1);
+          step = 1. / (factEquiv * 1e1);
         } else {
-          double mini2 = *std::min_element(temp2.begin(), temp2.end());
-          // double maxi = std::max_element(pos.begin() ; pos.end());
-          // step = std::min(std::min(1., mini), mini2) / (1e1 + 1.0 * epoch);
-          step = std::min(std::min(1., mini), mini2) / (factEquiv*1e1);
+          // double mini2 = *std::min_element(temp2.begin(), temp2.end());
+          //  double maxi = std::max_element(pos.begin() ; pos.end());
+          //  step = std::min(std::min(1., mini), mini2) / (1e1 + 1.0 * epoch);
+          //  step = std::min(std::min(1., mini), mini2) / (factEquiv*1e1);
+          step = 1. / (factEquiv * 1e1);
         }
 
         // std::cout << "STEP : " << step << std::endl;
