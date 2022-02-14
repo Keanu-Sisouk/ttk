@@ -726,7 +726,7 @@ void PersistenceDiagramDictEncoding::execute(
         }
       }
 
-      if(epoch > 2) {
+      if(epoch > 0) {
         for(size_t i = 0 ; i < dictDiagrams.size() ; ++i){
           auto &atom = dictDiagrams[i];
           atom.erase(std::remove_if(atom.begin() , atom.end() , testDiagonal) , atom.end());
