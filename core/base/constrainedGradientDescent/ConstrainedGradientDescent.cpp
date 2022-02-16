@@ -32,10 +32,13 @@ void ConstrainedGradientDescent::executeAtoms(
   const int nb_points,
   const std::vector<int> &checkerAtomsExt,
   int epoch,
-  std::vector<std::vector<double>> &projForDiag,
-  std::vector<DiagramTuple> &featuresToAdd) {
+  std::vector<std::vector<int>> &projForDiag,
+  std::vector<DiagramTuple> &featuresToAdd,
+  std::vector<std::array<double, 2>> &projLocations,
+  std::vector<std::vector<double>> &vectorForProjContrib) {
   gradientDescentAtoms(DictDiagrams, matchings, Barycenter, gradsLists,
-                       nb_points, checkerAtomsExt, epoch, projForDiag, featuresToAdd);
+                       nb_points, checkerAtomsExt, epoch, projForDiag,
+                       featuresToAdd, projLocations, vectorForProjContrib);
 }
 
 // simple projection on simplex, aka where a vector has positive elements and
@@ -92,7 +95,7 @@ void ConstrainedGradientDescent::gradientDescentWeights(
   // std::cout << "STEP" << step << std::endl;
 
   for(int i = 0; i < n; ++i) {
-    weights[i] = weights[i] - step * grad[i];
+    weights[i] = weights[i] - mini * step * grad[i];
   }
 }
 
@@ -108,8 +111,11 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
   const int nb_points,
   const std::vector<int> &checkerAtomsExt,
   int epoch,
-  std::vector<std::vector<double>> &projForDiag,
-  std::vector<DiagramTuple> &featuresToAdd) {
+  std::vector<std::vector<int>> &projForDiag,
+  std::vector<DiagramTuple> &featuresToAdd,
+  std::vector<std::array<double, 2>> &projLocations,
+  std::vector<std::vector<double>> &vectorForProjContrib) {
+
   // Here vector of diagramTuple because it is not a persistence diagram per
   // say.
   // we get the right pairs to update for each barycenter pair.
@@ -322,11 +328,12 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
             t[1] = t[1] - step * gradsLists[i][checker[i][p]][1];
           } else if(pos[p] < 1e-17) {
             //} else if(pos[checker[i][p]] < 1e-17) {
-            auto &t0 = grad_list[i][checker[i][p]];
+            // auto &t0 = grad_list[i][checker[i][p]];
             // std::cout << "GRADS" << gradsLists[i][checker[i][p]][0] << ","
             //           << gradsLists[i][checker[i][p]][1] << std::endl;
-            t0[0] = t0[0] - step * gradsLists[i][checker[i][p]][0];
-            t0[1] = t0[1] - step * gradsLists[i][checker[i][p]][1];
+            // t0[0] = t0[0] - step * gradsLists[i][checker[i][p]][0];
+            // t0[1] = t0[1] - step * gradsLists[i][checker[i][p]][1];
+            continue;
           } else {
             //printf("==========ATOM UPDATING3=============");
             // DiagramTuple &t = grad_list[i][p];
@@ -397,25 +404,31 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
            || tracker_temp > 10000) {
           auto &index = checker[i][j];
           auto &t2 = grad_list[i][index];
-          if(t2[1] - t2[0] < 1e-17) {
+          if(t2[1] - t2[0] < 1e-7) {
             continue;
           } else {
             const DiagramTuple &infos = Barycenter[i];
-            const CriticalType c1 = std::get<1>(infos);
-            const CriticalType c2 = std::get<3>(infos);
-            const SimplexId idTemp = std::get<5>(infos);
-            // std::cout << "Birth and death" << t2[0] << " , " << t2[1] <<
-            // std::endl;
-            DiagramTuple newPair{0,      c1,    0,  c2, t2[1] - t2[0],
-                                 idTemp, t2[0], 0., 0., 0.,
-                                 t2[1],  0.,    0., 0.};
-            std::vector<double> projAndIndex(2);
-            double proj = projectionsBuffer[i][index];
-            double atomIndex = static_cast<double>(index);
-            projAndIndex[0] = proj;
-            projAndIndex[1] = atomIndex;
+            // const CriticalType c1 = std::get<1>(infos);
+            // const CriticalType c2 = std::get<3>(infos);
+            // const SimplexId idTemp = std::get<5>(infos);
+            //  std::cout << "Birth and death" << t2[0] << " , " << t2[1] <<
+            //  std::endl;
+            // DiagramTuple newPair{0,      c1,    0,  c2, t2[1] - t2[0],
+            //                      idTemp, t2[0], 0., 0., 0.,
+            //                      t2[1],  0.,    0., 0.};
+            std::vector<int> projAndIndex(DictDiagrams.size() + 1);
+            // double proj = projectionsBuffer[i][index];
+            int atomIndex = static_cast<int>(index);
+            // projAndIndex[0] = proj;
+            // projAndIndex[1] = atomIndex;
+            for(size_t m = 0; m < DictDiagrams.size(); ++m) {
+              projAndIndex[m] = tracker_match[i][m];
+            }
+            projAndIndex[DictDiagrams.size()] = atomIndex;
             projForDiag.push_back(projAndIndex);
-            featuresToAdd.push_back(newPair);
+            featuresToAdd.push_back(infos);
+            projLocations.push_back(grad_list[i][index]);
+            vectorForProjContrib.push_back(gradsLists[i][index]);
             // DictDiagrams[index].push_back(newPair);
           }
           // if(test){
@@ -479,8 +492,3 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
   /*   } */
   /* } */
 }
-
-
-
-
-

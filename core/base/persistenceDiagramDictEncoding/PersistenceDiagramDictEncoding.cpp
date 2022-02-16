@@ -182,7 +182,8 @@ void PersistenceDiagramDictEncoding::execute(
   std::vector<double> loss_tab;
   int lag = 0;
   int lagLimit = 50;
-  int MAX_EPOCH = 10000;
+  int MIN_EPOCH = 100;
+  int MAX_EPOCH = 3000;
   bool cond = true;
   int epoch = 0;
   std::vector<Diagram> histoDictDiagrams(dictDiagrams.size());
@@ -376,12 +377,16 @@ void PersistenceDiagramDictEncoding::execute(
       }
       lag = 0;
     } else {
-      lag += 1;
+      if(epoch > MIN_EPOCH) {
+        lag += 1;
+      } else {
+        lag = 0;
+      }
     }
 
     this->printMsg("LAG" + std::to_string(lag));
     // std::cout << "LAG" << lag << std::endl;
-    if((epoch > 1) && (loss_tab[epoch] / loss_tab[epoch - 1] > 0.999)) {
+    if((epoch > MIN_EPOCH) && (loss_tab[epoch] / loss_tab[epoch - 1] > 0.999)) {
       if(loss_tab[epoch] < loss_tab[epoch - 1]) {
         this->printMsg("Loss not decreasing enough");
         OptimizeWeights = 0;
@@ -390,7 +395,7 @@ void PersistenceDiagramDictEncoding::execute(
       }
     }
 
-    if(lag > lagLimit) {
+    if(epoch > MIN_EPOCH && lag > lagLimit) {
       // for(size_t p = 0; p < dictDiagrams.size(); ++p) {
       //   const auto &atom = histoDictDiagrams[p];
       //   dictDiagrams[p] = atom;
@@ -483,12 +488,12 @@ void PersistenceDiagramDictEncoding::execute(
     for(int i = 0; i < nDiags; ++i) {
       Diagram &barycenter = Barycenters[i];
       std::vector<double> &weight = vectorWeights[i];
-      // double sum = 0.;
-      // for(int q = 0; q < weight.size(); ++q) {
-      //   sum += weight[q];
-      //   std::cout << weight[q] << std::endl;
-      // }
-      // std::cout << "sum: " << sum << std::endl;
+      double sum = 0.;
+      for(int q = 0; q < weight.size(); ++q) {
+        sum += weight[q];
+        std::cout << weight[q] << std::endl;
+      }
+      std::cout << "sum: " << sum << std::endl;
       // this->printMsg(std::to_string(sum_temp));
       std::vector<std::vector<MatchingTuple>> &matchings = allMatchingsAtoms[i];
       computeWeightedBarycenter(dictDiagrams, weight, barycenter, matchings);
@@ -663,17 +668,22 @@ void PersistenceDiagramDictEncoding::execute(
         // gradActor.executeAtoms(dictDiagrams, matchingsAtoms, Barycenter,
         //                        gradsAtoms, nb_points, checkerAtoms, epoch);
       }
-      
-      std::vector<std::vector<std::vector<double>>> allProjectionsList(nDiags);
+
+      std::vector<std::vector<std::vector<int>>> allProjectionsList(nDiags);
       std::vector<std::vector<DiagramTuple>> allFeaturesToAdd(nDiags);
+      std::vector<std::vector<std::array<double, 2>>> allProjLocations(nDiags);
+      std::vector<std::vector<std::vector<double>>>
+        allVectorForProjContributions(nDiags);
       std::vector<std::vector<DiagramTuple>> allTrueFeaturesToAdd(numAtom);
-      std::vector<std::vector<double>> allTrueProj(numAtom);
+      std::vector<std::vector<std::vector<int>>> allTrueProj(numAtom);
       // std::vector<std::vector<int>> allAtomIndices(nDiags);
 
       for(size_t i = 0; i < nDiags; ++i) {
         //std::cout << " OPTIM DIAG: " << i << std::endl;
         auto &projForDiag = allProjectionsList[i];
+        auto &vectorForProjContrib = allVectorForProjContributions[i];
         auto &featuresToAdd = allFeaturesToAdd[i];
+        auto &projLocations = allProjLocations[i];
         auto &gradsAtoms = gradsAtomsList[i];
         const auto &matchingsAtoms = allMatchingsAtoms[i];
         const Diagram &Barycenter = Barycenters[i];
@@ -681,37 +691,77 @@ void PersistenceDiagramDictEncoding::execute(
         int nb_points = Barycenters[i].size();
         gradActor.executeAtoms(dictDiagrams, matchingsAtoms, Barycenter,
                                gradsAtoms, nb_points, checkerAtoms, epoch,
-                               projForDiag, featuresToAdd);
+                               projForDiag, featuresToAdd, projLocations,
+                               vectorForProjContrib);
         //std::cout << " OPTIM DIAG: " << i << std::endl;
         //std::cout << "==================================================" << std::endl;
       }
-      
 
+      // double factEquiv = sqrt(static_cast<double>(numAtom));
+      double factEquiv = numAtom;
+      double step = 1. / (sqrt(factEquiv) * 1e1);
       for(size_t i = 0 ; i < nDiags ; ++i){
         auto &projForDiag = allProjectionsList[i];
         auto &featuresToAdd = allFeaturesToAdd[i];
+        auto &projLocations = allProjLocations[i];
+        auto &vectorForProjContrib = allVectorForProjContributions[i];
         for(size_t j = 0 ; j < projForDiag.size() ; ++j){
           DiagramTuple &t = featuresToAdd[j];
-          std::vector<double> projAndIndex = projForDiag[j];
-          double proj = projAndIndex[0];
-          int atomIndex = static_cast<int>(projAndIndex[1]);
+          std::array<double, 2> &pair = projLocations[j];
+          std::vector<double> &vectorContrib = vectorForProjContrib[j];
+          std::vector<int> &projAndIndex = projForDiag[j];
+          std::vector<int> proj(numAtom);
+          for(size_t m = 0; m < numAtom; ++m) {
+            proj[m] = projAndIndex[m];
+          }
+          int atomIndex = static_cast<int>(projAndIndex[numAtom]);
           //auto it = std::find(allTrueProj[atomIndex].begin() , allTrueProj[atomIndex].end() , proj);
           //bool ralph = it != allTrueProj[atomIndex].end();
           bool lenNull = allTrueProj[atomIndex].size() == 0;
           if (lenNull){
+            const CriticalType c1 = std::get<1>(t);
+            const CriticalType c2 = std::get<3>(t);
+            const SimplexId idTemp = std::get<5>(t);
+            pair[0] = pair[0] - step * vectorContrib[0];
+            pair[1] = pair[1] - step * vectorContrib[1];
+            DiagramTuple newPair{0,       c1,      0,  c2, pair[1] - pair[0],
+                                 idTemp,  pair[0], 0., 0., 0.,
+                                 pair[1], 0.,      0., 0.};
             allTrueProj[atomIndex].push_back(proj);
-            allTrueFeaturesToAdd[atomIndex].push_back(t);
+            allTrueFeaturesToAdd[atomIndex].push_back(newPair);
           } else {
-            auto it = std::find(allTrueProj[atomIndex].begin() , allTrueProj[atomIndex].end() , proj);
-            bool ralph = it == allTrueProj[atomIndex].end();
+            // auto it = std::find(allTrueProj[atomIndex].begin() ,
+            // allTrueProj[atomIndex].end() , proj); bool ralph = it ==
+            // allTrueProj[atomIndex].end();
+            bool ralph = true;
+            size_t index = 0;
+            for(size_t n = 0; n < allTrueProj[atomIndex].size(); ++n) {
+              auto &projStocked = allTrueProj[atomIndex][n];
+              if(proj == projStocked) {
+                ralph = false;
+                index = n;
+                break;
+              }
+            }
             if (ralph){
+
+              const CriticalType c1 = std::get<1>(t);
+              const CriticalType c2 = std::get<3>(t);
+              const SimplexId idTemp = std::get<5>(t);
+              pair[0] = pair[0] - step * vectorContrib[0];
+              pair[1] = pair[1] - step * vectorContrib[1];
+              DiagramTuple newPair{0,       c1,      0,  c2, pair[1] - pair[0],
+                                   idTemp,  pair[0], 0., 0., 0.,
+                                   pair[1], 0.,      0., 0.};
               allTrueProj[atomIndex].push_back(proj);
-              allTrueFeaturesToAdd[atomIndex].push_back(t);
+              allTrueFeaturesToAdd[atomIndex].push_back(newPair);
             } else {
-              auto index = std::distance(allTrueProj[atomIndex].begin() , it);
+              // auto index = std::distance(allTrueProj[atomIndex].begin() ,
+              // it);
               auto &tReal = allTrueFeaturesToAdd[atomIndex][index];
-              std::get<6>(tReal)+=std::get<6>(t);
-              std::get<10>(tReal)+=std::get<10>(t);
+              std::get<6>(tReal) = std::get<6>(tReal) - step * vectorContrib[0];
+              std::get<10>(tReal)
+                = std::get<10>(tReal) - step * vectorContrib[1];
             }
           }
         }

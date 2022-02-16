@@ -58,8 +58,10 @@ namespace ttk {
                       const int nb_points,
                       const std::vector<int> &checkerAtomsExt,
                       int epoch,
-                      std::vector<std::vector<double>> &projForDiag,
-                      std::vector<DiagramTuple> &featuresToAdd);
+                      std::vector<std::vector<int>> &projForDiag,
+                      std::vector<DiagramTuple> &featuresToAdd,
+                      std::vector<std::array<double, 2>> &projLocations,
+                      std::vector<std::vector<double>> &vectorForProjContrib);
     // void executeAtoms(std::vector<Diagram> &DictDiagrams);
 
     // inline void setNbAtoms(const int nbAtoms) {
@@ -83,11 +85,10 @@ namespace ttk {
       const int nb_points,
       const std::vector<int> &checkerAtomsExt,
       int epoch,
-      std::vector<std::vector<double>> &projForDiag,
-      std::vector<DiagramTuple> &featuresToAdd);
-  
-    
-
+      std::vector<std::vector<int>> &projForDiag,
+      std::vector<DiagramTuple> &featuresToAdd,
+      std::vector<std::array<double, 2>> &projLocations,
+      std::vector<std::vector<double>> &vectorForProjContrib);
   };
 
 } // namespace ttk
