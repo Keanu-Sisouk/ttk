@@ -13,6 +13,7 @@ static bool testNeg(DiagramTuple &t) {
 
 void PersistenceDiagramDictEncoding::execute(
   const std::vector<Diagram> &intermediateDiagrams,
+  const std::vector<Diagram> &intermediateAtoms,
   std::vector<Diagram> &dictDiagrams,
   std::vector<std::vector<double>> &vectorWeights,
   const std::array<size_t, 2> &nInputs,
@@ -34,7 +35,7 @@ void PersistenceDiagramDictEncoding::execute(
   }
 
   Timer tm_init{};
-  InitDictionary(dictDiagrams, intermediateDiagrams, numAtom, this->do_min_,
+  InitDictionary(dictDiagrams, intermediateDiagrams, intermediateAtoms, numAtom, this->do_min_,
                  this->do_sad_, this->do_max_, seed);
   this->printMsg("Initialization computed ", 1, tm_init.getElapsedTime(),
                  threadNumber_, debug::LineMode::NEW, debug::Priority::DETAIL);
@@ -243,10 +244,10 @@ void PersistenceDiagramDictEncoding::execute(
       //             << std::endl;
       // 
     }
-    this->printMsg(
-      "Computed 1st Barycenters for epoch " + std::to_string(epoch),
-      epoch / static_cast<double>(MAX_EPOCH), tm_it.getElapsedTime(),
-      threadNumber_, debug::LineMode::NEW, debug::Priority::DETAIL);
+    // this->printMsg(
+    //   "Computed 1st Barycenters for epoch " + std::to_string(epoch),
+    //   epoch / static_cast<double>(MAX_EPOCH), tm_it.getElapsedTime(),
+    //   threadNumber_, debug::LineMode::NEW, debug::Priority::DETAIL);
     tm_part += static_cast<double>(tm_it.getElapsedTime());
     // this->printMsg(
     //   "====================BARYCENTER FINISHED======================");
@@ -387,7 +388,7 @@ void PersistenceDiagramDictEncoding::execute(
       }
     }
 
-    this->printMsg("LAG" + std::to_string(lag));
+    // this->printMsg("LAG" + std::to_string(lag));
     // std::cout << "LAG" << lag << std::endl;
     if((epoch > MIN_EPOCH) && (loss_tab[epoch] / loss_tab[epoch - 1] > 0.999)) {
       if(loss_tab[epoch] < loss_tab[epoch - 1]) {
@@ -451,10 +452,10 @@ void PersistenceDiagramDictEncoding::execute(
           hessianList, weights, gradWeights, epoch, nb_points);
       }
 
-      this->printMsg("Computed 1st opt for epoch " + std::to_string(epoch),
-                     epoch / static_cast<double>(MAX_EPOCH),
-                     tm_opt1.getElapsedTime(), threadNumber_,
-                     debug::LineMode::NEW, debug::Priority::DETAIL);
+      // this->printMsg("Computed 1st opt for epoch " + std::to_string(epoch),
+      //                epoch / static_cast<double>(MAX_EPOCH),
+      //                tm_opt1.getElapsedTime(), threadNumber_,
+      //                debug::LineMode::NEW, debug::Priority::DETAIL);
     }
 
     std::vector<double> &weight = vectorWeights[0];
@@ -497,7 +498,7 @@ void PersistenceDiagramDictEncoding::execute(
       //   std::cout << weight[q] << std::endl;
       // }
       // std::cout << "sum: " << sum << std::endl;
-      //  this->printMsg(std::to_string(sum_temp));
+      // this->printMsg(std::to_string(sum_temp));
       std::vector<std::vector<MatchingTuple>> &matchings = allMatchingsAtoms[i];
       computeWeightedBarycenter(dictDiagrams, weight, barycenter, matchings);
       // for(int i = 0; i < barycenter.size(); ++i) {
@@ -506,10 +507,10 @@ void PersistenceDiagramDictEncoding::execute(
       //          << std::endl;
       // }
     }
-    this->printMsg(
-      "Computed 2nd Barycenters for epoch " + std::to_string(epoch),
-      epoch / static_cast<double>(MAX_EPOCH), tm_it2.getElapsedTime(),
-      threadNumber_, debug::LineMode::NEW, debug::Priority::DETAIL);
+    // this->printMsg(
+    //   "Computed 2nd Barycenters for epoch " + std::to_string(epoch),
+    //   epoch / static_cast<double>(MAX_EPOCH), tm_it2.getElapsedTime(),
+    //   threadNumber_, debug::LineMode::NEW, debug::Priority::DETAIL);
     tm_part += static_cast<double>(tm_it2.getElapsedTime());
 
     BarycentersMin.clear();
@@ -870,10 +871,13 @@ void PersistenceDiagramDictEncoding::execute(
           }
         }
       }
-      this->printMsg("Computed 2nd opt for epoch " + std::to_string(epoch),
-                     epoch / static_cast<double>(MAX_EPOCH),
-                     tm_opt2.getElapsedTime(), threadNumber_,
-                     debug::LineMode::NEW, debug::Priority::DETAIL);
+
+      // this->printMsg("Computed 2nd opt for epoch " + std::to_string(epoch),
+      //                epoch / static_cast<double>(MAX_EPOCH),
+      //                tm_opt2.getElapsedTime(), threadNumber_,
+      //                debug::LineMode::NEW, debug::Priority::DETAIL);
+
+
       // ATOM OPTIMIZATION
     }
     epoch +=1;
@@ -882,9 +886,10 @@ void PersistenceDiagramDictEncoding::execute(
     Barycenters.resize(nDiags);
     allMatchingsAtoms.clear();
     allMatchingsAtoms.resize(nDiags);
-
+  printMsg(" Epoch "+std::to_string(epoch)+", loss = "+std::to_string(loss), 1, threadNumber_, ttk::debug::LineMode::REPLACE);
     
   }
+  printMsg(" Epoch "+std::to_string(epoch)+", loss = "+std::to_string(loss), 1, threadNumber_);
 
   myFile.close();
   // this->printMsg("Epoch" + std::to_string(epoch) + "==================");
@@ -900,18 +905,18 @@ void PersistenceDiagramDictEncoding::execute(
     vectorWeights[p] = weights;
   }
 
-  this->printMsg("time spent computing barycenter" + std::to_string(tm_part));
-  this->printMsg("Complete", 1.0, tm.getElapsedTime(), this->threadNumber_);
+  // this->printMsg("time spent computing barycenter" + std::to_string(tm_part));
+  // this->printMsg("Complete", 1.0, tm.getElapsedTime(), this->threadNumber_);
 
-  for(size_t i = 0; i < dictDiagrams.size(); ++i) {
-    std::cout << "Atom " << i << std::endl;
-    for(size_t j = 0; j < dictDiagrams[i].size(); ++j) {
-      DiagramTuple &t = dictDiagrams[i][j];
-      std::cout << "Pair atoms: " << std::get<6>(t) << ", " << std::get<10>(t)
-                << " and " << (0. <= std::get<6>(t)) << " and "
-                << (std::get<10>(t) >= std::get<6>(t)) << std::endl;
-    }
-  }
+  // for(size_t i = 0; i < dictDiagrams.size(); ++i) {
+    // std::cout << "Atom " << i << std::endl;
+    // for(size_t j = 0; j < dictDiagrams[i].size(); ++j) {
+    //   DiagramTuple &t = dictDiagrams[i][j];
+    //   std::cout << "Pair atoms: " << std::get<6>(t) << ", " << std::get<10>(t)
+    //             << " and " << (0. <= std::get<6>(t)) << " and "
+    //             << (std::get<10>(t) >= std::get<6>(t)) << std::endl;
+    // }
+  // }
 }
 
 double PersistenceDiagramDictEncoding::distVect(
@@ -1607,12 +1612,24 @@ void PersistenceDiagramDictEncoding::enrichCurrentBidderDiagrams(
 int PersistenceDiagramDictEncoding::InitDictionary(
   std::vector<ttk::Diagram> &dictDiagrams,
   const std::vector<ttk::Diagram> &datas,
+  const std::vector<ttk::Diagram> &inputAtoms,
   const int nbAtom,
   bool do_min,
   bool do_sad,
   bool do_max,
   int seed) {
   switch(this->BackEnd) {
+    case BACKEND::INPUT_ATOMS: {
+      if(inputAtoms.size()!=nbAtom){
+        printErr("number of atoms don't match, going with " + std::to_string(inputAtoms.size())+" atoms");
+      }
+      for(size_t i=0; i<inputAtoms.size(); i++){
+        const auto &t = inputAtoms[i];
+        dictDiagrams.push_back(t);
+      }
+      break;
+    }
+
     case BACKEND::BORDER_INIT: {
       ttk::InitFarBorderDict initializer;
       initializer.setThreadNumber(this->threadNumber_);

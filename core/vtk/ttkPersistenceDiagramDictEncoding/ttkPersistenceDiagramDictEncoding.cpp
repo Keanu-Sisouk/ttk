@@ -19,7 +19,7 @@
 vtkStandardNewMacro(ttkPersistenceDiagramDictEncoding);
 
 ttkPersistenceDiagramDictEncoding::ttkPersistenceDiagramDictEncoding() {
-  SetNumberOfInputPorts(1);
+  SetNumberOfInputPorts(2);
   SetNumberOfOutputPorts(2);
 }
 
@@ -28,6 +28,10 @@ int ttkPersistenceDiagramDictEncoding::FillInputPortInformation(
   if(port == 0) {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet");
     // info->Set(vtkAlgorithm::INPUT_IS_REPEATABLE(), 1);
+    return 1;
+  } else if(port == 1) {
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet");
+    info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
     return 1;
   }
   return 0;
@@ -80,15 +84,26 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
   //}
 
   auto blocks = vtkMultiBlockDataSet::GetData(inputVector[0], 0);
+  auto atomBlocks = vtkMultiBlockDataSet::GetData(inputVector[1], 0);
 
   // Flat storage for diagrams extracted from blocks
   std::vector<vtkUnstructuredGrid *> inputDiagrams;
+
+  std::vector<vtkUnstructuredGrid *> inputAtoms;
 
   // Number of input diagrams
   // int numInputs = 0;
   const int numAtom = this->GetatomNumber_();
   printf("Atom number %d", numAtom);
 
+  int numInputAtoms =0;
+  if(atomBlocks != nullptr) {
+    numInputAtoms = atomBlocks->GetNumberOfBlocks();
+    inputAtoms.resize(numInputAtoms);
+    for(int i = 0; i < numInputAtoms; ++i) {
+      inputAtoms[i] = vtkUnstructuredGrid::SafeDownCast(atomBlocks->GetBlock(i));
+    }
+  }
   if(blocks != nullptr) {
     int numInputs = blocks->GetNumberOfBlocks();
     inputDiagrams.resize(numInputs);
@@ -127,7 +142,7 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
   }
 
   std::vector<ttk::Diagram> intermediateDiagrams(nDiags);
-  // std::vector<ttk::Diagram> intermediateDiagrams(1);
+  std::vector<ttk::Diagram> intermediateAtoms(numInputAtoms);
 
   double max_dimension_total = 0.0;
   for(int i = 0; i < nDiags; ++i) {
@@ -141,6 +156,15 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
       max_dimension_total = max_dimension;
     }
   }
+  for(int i = 0; i < numInputAtoms; ++i) {
+    double max_dimension
+      = getPersistenceDiagram(intermediateAtoms[i], inputAtoms[i]);
+    if(max_dimension < 0.0) {
+      this->printErr("Could not read Persistence Diagram");
+      return 0;
+    }
+  }
+  printWrn("DONE");
 
   // double max_dimension_total = 0.0;
   // for(int i = 0; i < 1; ++i) {
@@ -212,7 +236,7 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
   // const auto diagramsDistMat = this->execute(intermediateDiagrams,
   // dictDiagrams, vectorWeights,  nInputs);
   this->execute(
-    intermediateDiagrams, dictDiagrams, vectorWeights, nInputs, seed, numAtom);
+    intermediateDiagrams, intermediateAtoms, dictDiagrams, vectorWeights, nInputs, seed, numAtom);
   // zero-padd column name to keep Row Data columns ordered
   // this->printMsg("============WE ARE HERE 173 AFTER EXECUTE============");
   output_weights->SetNumberOfRows(numAtom);

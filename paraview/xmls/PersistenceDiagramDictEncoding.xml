@@ -20,9 +20,10 @@
 
       <InputProperty
           name="Input"
-          command="AddInputConnection"
-          clean_command="RemoveAllInputs"
+                    port_index="0"
+          command="SetInputConnection"
           multiple_input="1">
+        <!-- clean_command="RemoveAllInputs" -->
         <ProxyGroupDomain name="groups">
           <Group name="sources"/>
           <Group name="filters"/>
@@ -38,6 +39,27 @@
         </Documentation>
       </InputProperty>
 
+      <InputProperty
+          name="optional input"
+                    port_index="1"
+          command="SetInputConnection"
+          multiple_input="1">
+        <!-- clean_command="RemoveAllInputs" -->
+        <ProxyGroupDomain name="groups">
+          <Group name="sources"/>
+          <Group name="filters"/>
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkMultiBlockDataSet"/>
+        </DataTypeDomain>
+        <InputArrayDomain name="input_scalars" number_of_components="1">
+          <Property name="Input" function="FieldDataSelection" />
+        </InputArrayDomain>
+        <Documentation>
+          Input Atoms
+        </Documentation>
+      </InputProperty>
+
       <IntVectorProperty
          name="BackEnd"
          label="BackEnd"
@@ -49,6 +71,7 @@
          <Entry value="0" text="Border initialization"/>
          <Entry value="1" text="Random initialization"/>
          <Entry value="2" text="First Elem initialization"/>
+         <Entry value="3" text="Input atome (optional input)"/>
        </EnumerationDomain>
        <Documentation>
            Backend for the computation of the dictionary of the persistence diagrams.

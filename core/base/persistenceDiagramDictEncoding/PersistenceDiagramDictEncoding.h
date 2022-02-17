@@ -33,13 +33,14 @@ namespace ttk {
     }
 
     void execute(const std::vector<Diagram> &intermediateDiagrams,
+                 const std::vector<Diagram> &intermediateAtoms,
                  std::vector<Diagram> &dictDiagrams,
                  std::vector<std::vector<double>> &vectorWeights,
                  const std::array<size_t, 2> &nInputs,
                  const int seed,
                  const int numAtom);
 
-    enum class BACKEND { BORDER_INIT = 0, RANDOM_INIT = 1, FIRST_DIAGS = 2 };
+    enum class BACKEND { BORDER_INIT = 0, RANDOM_INIT = 1, FIRST_DIAGS = 2, INPUT_ATOMS = 3 };
 
     inline void setWasserstein(const int data) {
       Wasserstein = data;
@@ -137,6 +138,7 @@ namespace ttk {
 
     int InitDictionary(std::vector<ttk::Diagram> &dictDiagrams,
                        const std::vector<ttk::Diagram> &datas,
+                       const std::vector<ttk::Diagram> &inputAtoms,
                        const int nbAtom,
                        bool do_min_,
                        bool do_sad_,
