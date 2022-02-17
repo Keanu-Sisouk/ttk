@@ -138,15 +138,6 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
     tracker_match[i].resize(matchings.size());
   }
 
-  /* std::cout << "PRINT MATCHINGS ATOM 0 " << std::endl; */
-  /* for(size_t j = 0 ; j < matchings[0].size() ; ++j){ */
-  /*   auto &t = matchings[0][j]; */
-  /*   SimplexId Id1 = std::get<0>(t); */
-  /*   SimplexId Id2 = std::get<1>(t); */
-  /*   std::cout << "ID ATOM: " << Id1 << " AND ID BARYCENTER: " << Id2 << std::endl; */
-  /* } */
-  /* std::cout << "TAILLE ATOM 0: " << DictDiagrams[0].size() << std::endl; */
-
   for(size_t i = 0; i < matchings.size(); ++i) {
     for(size_t j = 0; j < matchings[i].size(); ++j) {
       const MatchingTuple &t = matchings[i][j];
@@ -199,12 +190,6 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
           // tracker_match[Id2].push_back(Id1);
 
           tracker_match[Id2][i] = Id1;
-          /* if(i == 0 && (Id2 == 4 || Id2 == 5)) { */
-          /*   std::cout << "ID1 in ATOM0: " << Id1 << std::endl; */
-          /* } */
-          /* if(i == 1 && (Id2 == 4 || Id2 == 5)){ */
-          /*   std::cout << "ID1 in ATOM1: " << Id1 << std::endl; */
-          /* } */
 
           tracker_diagonal[Id2][i] = 0;
           projectionsBuffer[Id2][i] = 0.;
@@ -213,26 +198,16 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
     }
   }
 
-  // printf("=========ATOM GRADIENT STEP==============");
-  // std::cout << "GRAD_LIST SIZE = LOOP NB: " << grad_list.size() << std::endl;
-
   // #ifdef TTK_ENABLE_OPENMP
   // #pragma omp parallel for num_threads(threadNumber_)
   // #endif // TTK_ENABLE_OPENMP
 
   for(size_t i = 0; i < grad_list.size(); ++i) {
     if(tracker[i] == 0 || checkerAtomsExt[i] == 0) {
-      // printf("SAUT!!!!!!!!");
-      // std::cout << "SAUT!!!!!!" << std::endl;
+
       continue;
     } else {
-      /* if (i == 0){ */
-      /*   auto &mat = grad_list[i]; */
-      /*   for(size_t b = 0 ; b < mat.size() ; ++b){ */
-      /*     auto &pair = mat[b]; */
-      /*     std::cout << "PAIRE GLOBAL MATCHED: " << pair[0] << " and "<< pair[1] << std::endl; */
-      /*   } */
-      /* } */
+
       std::vector<double> pos(grad_list[i].size(), 0.);
       int k = 0;
       // int k = 1;
@@ -246,136 +221,85 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
         double birth = t[0];
         double death = t[1];
         pos[j] = death - birth;
-        // std::cout << "PERSISTENCE: " << pos[j] << std::endl;
-        if(death - birth > 1e-10) {
-          k += 1;
+      }
+      // if(true) {
+      //  printf("==============BOOL VERIFIED==============");
+      std::vector<bool> pos2(pos.size(), false);
+      // std::vector<double> temp2(pos.size(), 0.);
+      std::vector<double> temp2;
+      // for(int p = 0; p < pos.size(); ++p) {
+      for(size_t p = 0; p < checker[i].size(); ++p) {
+        // DiagramTuple &t = grad_list[i][p];
+        // std::vector<double> &t = grad_list[i][p];
+        auto &t = grad_list[i][checker[i][p]];
+        // double birth = std::get<6>(t);
+        double birth = t[0];
+        pos2[p] = birth == 0.;
+        if(birth > 0.) {
+          temp2.push_back(birth);
+          // temp2[p] = birth;
         }
       }
-      if(true) {
+      // std::vector<double> temp(pos.size(), 0.);
+      /* std::vector<double> temp; */
 
-        // printf("==============BOOL VERIFIED==============");
-        std::vector<bool> pos2(pos.size(), false);
-        // std::vector<double> temp2(pos.size(), 0.);
-        std::vector<double> temp2;
-        // for(int p = 0; p < pos.size(); ++p) {
-        for(size_t p = 0; p < checker[i].size(); ++p) {
-          // DiagramTuple &t = grad_list[i][p];
-          // std::vector<double> &t = grad_list[i][p];
-          auto &t = grad_list[i][checker[i][p]];
-          // double birth = std::get<6>(t);
-          double birth = t[0];
-          pos2[p] = birth == 0.;
-          if(birth > 0.) {
-            temp2.push_back(birth);
-            // temp2[p] = birth;
-          }
-        }
-        // std::vector<double> temp(pos.size(), 0.);
-        std::vector<double> temp;
+      /* for(size_t p = 0; p < pos.size(); ++p) { */
+      /*   double val = pos[p]; */
+      /*   if(val > 0.) { */
+      /*     temp.push_back(val); */
+      /*     // temp[p] = val; */
+      /*   } */
+      /* } */
+      // std::cout << "TEMP SIZE " <<temp.size() << std::endl;
+      // double mini = *std::min_element(temp.begin(), temp.end());
 
-        for(size_t p = 0; p < pos.size(); ++p) {
-          double val = pos[p];
-          if(val > 0.) {
-            temp.push_back(val);
-            // temp[p] = val;
-          }
-        }
-        // std::cout << "TEMP SIZE " <<temp.size() << std::endl;
-        // double mini = *std::min_element(temp.begin(), temp.end());
-
-        double step;
-        double factEquiv = sqrt(DictDiagrams.size());
-        //double factEquiv = DictDiagrams.size();
-        if(temp2.size() == 0) {
-          // step = std::min(1., mini) / (1e1 + 1.0 * epoch);
-          // step = std::min(1., mini) / (factEquiv*1e1);
-          step = 1. / (factEquiv * 1e1);
-          //step = 1./factEquiv;
-        } else {
-          // double mini2 = *std::min_element(temp2.begin(), temp2.end());
-          //  double maxi = std::max_element(pos.begin() ; pos.end());
-          //  step = std::min(std::min(1., mini), mini2) / (1e1 + 1.0 * epoch);
-          //  step = std::min(std::min(1., mini), mini2) / (factEquiv*1e1);
-          step = 1. / (factEquiv * 1e1);
-          //step = 1./factEquiv;
-        }
-
-        // std::cout << "STEP : " << step << std::endl;
-        // std::cout << "STEP : " << step << std::endl;
-        // double step = 1. / 1e1;
-        // for(int p = 0; p < pos.size(); ++p) {
-        // int memory_of_p;
-        for(size_t p = 0; p < checker[i].size(); ++p) {
-          if(pos2[p]) {
-            // std::cout << "THIS IS THE GLOBAL P" << p << std::endl;
-            // memory_of_p = p
-            // if(pos2[checker[i][p]]) {
-            // printf("==========ATOM UPDATING2=============");
-            // DiagramTuple &t = grad_list[i][p];
-            // std::vector<double> &t = grad_list[i][p];
-            auto &t = grad_list[i][checker[i][p]];
-            // std::vector<double> &t =
-            // grad_list[tracker_match[i][p]][checker[i][p]];
-            // std::get<10>(t) = std::get<10>(t) - step * gradsLists[i][p][1];
-            // t[1] = t[1] - step * gradsLists[i][p][1];
-            t[1] = t[1] - step * gradsLists[i][checker[i][p]][1];
-          } else if(pos[p] < 1e-17) {
-            //} else if(pos[checker[i][p]] < 1e-17) {
-            // auto &t0 = grad_list[i][checker[i][p]];
-            // std::cout << "GRADS" << gradsLists[i][checker[i][p]][0] << ","
-            //           << gradsLists[i][checker[i][p]][1] << std::endl;
-            // t0[0] = t0[0] - step * gradsLists[i][checker[i][p]][0];
-            // t0[1] = t0[1] - step * gradsLists[i][checker[i][p]][1];
-            continue;
-          } else {
-            //printf("==========ATOM UPDATING3=============");
-            // DiagramTuple &t = grad_list[i][p];
-            // std::get<6>(t) = std::get<6>(t) - step * gradsLists[i][p][0];
-            // std::get<10>(t) = std::get<10>(t) - step * gradsLists[i][p][1];
-            // std::vector<double> &t = grad_list[i][p];
-            // t[0] = t[0] - step * gradsLists[i][p][0];
-            // t[1] = t[1] - step * gradsLists[i][p][1];
-            
-
-            auto &t0 = grad_list[i][checker[i][p]];
-
-            /* if (i == 0){ */
-            /*   std::cout << "P: " << p << " and " << checker[i][p] << std::endl; */
-            /*   std::cout << "COEFF GRADLIST: " <<gradsLists[i][checker[i][p]][0] << " and " << gradsLists[i][checker[i][p]][1] << std::endl; */
-            /* } */
-            // std::cout << "GRADS" << gradsLists[i][checker[i][p]][0] << ","
-            //           << gradsLists[i][checker[i][p]][1] << std::endl;
-            //if (i== 0 && checker[i][p] == 0) std::cout << "PAIRE GLOBALE: " << t0[0] << " and " << t0[1] << std::endl;
-            //if (i== 0 && checker[i][p] == 0) std::cout << "STEP: " << step << std::endl;
-            t0[0] = t0[0] - step * gradsLists[i][checker[i][p]][0];
-            t0[1] = t0[1] - step * gradsLists[i][checker[i][p]][1];
-            //if (i == 0 && checker[i][p] == 0) std::cout << "PAIRE GLOBALE AFTER: " << t0[0] << " and " << t0[1] << std::endl;
-
-          }
-        }
-        // printf("PASSED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+      double step;
+      double factEquiv = sqrt(DictDiagrams.size());
+      // double factEquiv = DictDiagrams.size();
+      if(temp2.size() == 0) {
+        // step = std::min(1., mini) / (1e1 + 1.0 * epoch);
+        // step = std::min(1., mini) / (factEquiv*1e1);
+        step = 1. / (factEquiv * 1e1);
+        // step = 1./factEquiv;
       } else {
-        continue;
+        // double mini2 = *std::min_element(temp2.begin(), temp2.end());
+        //   double maxi = std::max_element(pos.begin() ; pos.end());
+        //   step = std::min(std::min(1., mini), mini2) / (1e1 + 1.0 * epoch);
+        //   step = std::min(std::min(1., mini), mini2) / (factEquiv*1e1);
+        step = 1. / (factEquiv * 1e1);
+        // step = mini2 / (factEquiv*1e1);
+        // step = 1./factEquiv;
       }
+
+      for(size_t p = 0; p < checker[i].size(); ++p) {
+        if(pos2[p]) {
+
+          auto &t = grad_list[i][checker[i][p]];
+
+          t[1] = t[1] - step * gradsLists[i][checker[i][p]][1];
+        } else if(pos[p] < 1e-7) {
+
+          // auto &t0 = grad_list[i][checker[i][p]];
+
+          // t0[0] = t0[0] - step * gradsLists[i][checker[i][p]][0];
+          // t0[1] = t0[1] - step * gradsLists[i][checker[i][p]][1];
+          continue;
+        } else {
+
+          auto &t0 = grad_list[i][checker[i][p]];
+
+          t0[0] = t0[0] - step * gradsLists[i][checker[i][p]][0];
+          t0[1] = t0[1] - step * gradsLists[i][checker[i][p]][1];
+          // if (i == 0 && checker[i][p] == 0) std::cout << "PAIRE GLOBALE
+          // AFTER: " << t0[0] << " and " << t0[1] << std::endl;
+        }
+      }
+      // printf("PASSED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+      //} else {
+      //  continue;
+      //}
     }
   }
-  // printf("===============PASSED================");
-  // for(int i = 0; i < DictDiagrams.size(); ++i) {
-  // for(int j = 0; j < nb_points; ++j) {
-  // DiagramTuple &t1 = DictDiagrams[i][j];
-  // DiagramTuple &t2 = grad_list[j][i];
-  // std::vector<double> &t2 = grad_list[j][i];
-  // std::get<6>(t1) = std::get<6>(t2);
-  // std::get<10>(t1) = std::get<10>(t2);
-  // std::get<6>(t1) = t2[0];
-  // std::get<10>(t1) = t2[1];
-  //}
-  //}
-  
-  /* std::cout << "CHECKER 4: " << checker[4][0] << " and " << checker[4][1] << std::endl; */
-  /* std::cout << "CHECKER 5: " << checker[5][0] << " and " << checker[5][1] << std::endl; */
-  /* std::cout << "TRACKER 4: " << tracker_match[4][0] << " and " << tracker_match[4][0] << std::endl; */
-  /* std::cout << "TRACKER 5: " << tracker_match[5][0] << " and " << tracker_match[5][0] << std::endl; */
 
   // printf("PASSED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
   for(size_t i = 0; i < checker.size(); ++i) {
@@ -384,55 +308,35 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
       // printf("SAUT1");
       continue;
     } else {
-      /* if (i == 0){ */
-      /*   for(size_t y = 0 ; y < tracker_match[i].size() ; ++y){ */
-      /*     std::cout << "TRACKER_MATCH_ELEM: " << y << " IS " << tracker_match[i][y] << std::endl; */
-
-      /*   } */
-      /* } */
-      // bool test = false;
+      const DiagramTuple &infos = Barycenter[i];
       for(size_t j = 0; j < checker[i].size(); ++j) {
         auto &tracker_temp = tracker_match[i][j];
         if(tracker_diagonal[i][j] == 1 || tracker_temp == -1
            || tracker_temp > 10000) {
           auto &index = checker[i][j];
           auto &t2 = grad_list[i][index];
-          if(t2[1] - t2[0] < 1e-7) {
-            continue;
-          } else {
-            const DiagramTuple &infos = Barycenter[i];
-            // const CriticalType c1 = std::get<1>(infos);
-            // const CriticalType c2 = std::get<3>(infos);
-            // const SimplexId idTemp = std::get<5>(infos);
-            //  std::cout << "Birth and death" << t2[0] << " , " << t2[1] <<
-            //  std::endl;
-            // DiagramTuple newPair{0,      c1,    0,  c2, t2[1] - t2[0],
-            //                      idTemp, t2[0], 0., 0., 0.,
-            //                      t2[1],  0.,    0., 0.};
-            std::vector<int> projAndIndex(DictDiagrams.size() + 1);
-            // double proj = projectionsBuffer[i][index];
-            int atomIndex = static_cast<int>(index);
-            // projAndIndex[0] = proj;
-            // projAndIndex[1] = atomIndex;
-            for(size_t m = 0; m < DictDiagrams.size(); ++m) {
-              projAndIndex[m] = tracker_match[i][m];
-            }
-            projAndIndex[DictDiagrams.size()] = atomIndex;
-            projForDiag.push_back(projAndIndex);
-            featuresToAdd.push_back(infos);
-            projLocations.push_back(grad_list[i][index]);
-            vectorForProjContrib.push_back(gradsLists[i][index]);
-            // DictDiagrams[index].push_back(newPair);
-          }
-          // if(test){
-          // this->printMsg("SAUT2");
-          // printf("SAUT2");
+          // if(t2[1] - t2[0] < 1e-7) {
           // continue;
+          //} else {
+          std::vector<int> projAndIndex(DictDiagrams.size() + 1);
+          // double proj = projectionsBuffer[i][index];
+          int atomIndex = static_cast<int>(index);
+          // projAndIndex[0] = proj;
+          // projAndIndex[1] = atomIndex;
+          for(size_t m = 0; m < DictDiagrams.size(); ++m) {
+            projAndIndex[m] = tracker_match[i][m];
+          }
+          projAndIndex[DictDiagrams.size()] = atomIndex;
+          projForDiag.push_back(projAndIndex);
+          featuresToAdd.push_back(infos);
+          projLocations.push_back(grad_list[i][index]);
+          vectorForProjContrib.push_back(gradsLists[i][index]);
+          // DictDiagrams[index].push_back(newPair);
+          //}
+
         } else {
           auto &index = checker[i][j];
           auto &t2 = grad_list[i][index];
-          //if (i == 0 && index == 0) std::cout << tracker_temp << std::endl;
-          //if (i == 0 && index == 0) std::cout << "NEW PAIRE GLOBALE: " << t2[0] << " and " << t2[1] << std::endl;
           // if(t2[1] - t2[0] < 1e-17) {
           //   DictDiagrams[checker[i][j]].erase(
           //     DictDiagrams[checker[i][j]].begin() + tracker_match[i][j]);
@@ -443,45 +347,17 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
           //   std::get<10>(t1) = t2[1];
           // }
           // if(t2[1] > t2[0]) {
-          if(t2[1] > t2[0]){  
-            DiagramTuple &t1 = DictDiagrams[index][tracker_temp];
-            //if (index == 0 && tracker_temp == 0) std::cout << "NEW PAIRE GLOBALE TRACKER_TEMP: " << t2[0] << " and " << t2[1] << std::endl;
-            //if (index == 0 && tracker_temp == 0) std::cout << "Index barycenter: " << i <<  " and which atom: " << j << std::endl;
-            std::get<6>(t1) = t2[0];
-            std::get<10>(t1) = t2[1];
-          } else {
-            /* DictDiagrams[index].erase(DictDiagrams[index].begin() */
-            /*                           + tracker_temp); */
-           continue;
-          }
+          // if(t2[1] > t2[0]){
+          DiagramTuple &t1 = DictDiagrams[index][tracker_temp];
+          std::get<6>(t1) = t2[0];
+          std::get<10>(t1) = t2[1];
+          //} else {
+          /* DictDiagrams[index].erase(DictDiagrams[index].begin() */
+          /*                           + tracker_temp); */
+          // continue;
+          //}
         }
       }
     }
   }
-  /* if(epoch > 5){ */
-  /*   // std::cout << "OI" << std::endl; */
-  /*   for(size_t i = 0 ; i < DictDiagrams.size() ; ++i){ */
-  /*     auto &atom = DictDiagrams[i]; */
-  /*     if (i == 0){ */
-  /*       for(size_t j = 0 ; j < atom.size() ; ++j){ */
-  /*         auto &tuple = atom[j]; */
-  /*         double birth = std::get<6>(tuple); */
-  /*         double death = std::get<10>(tuple); */
-  /*         std::cout << "BIRTH-DEATH: " << birth << " and " << death << std::endl; */
-  /*       } */
-  /*     } */
-  /*     std::cout << "SIZE BEFORE: " << atom.size() << std::endl; */
-  /*     // atom.erase(std::remove_if(atom.begin() , atom.end() , testDiagonal) , atom.end()); */
-  /*     std::cout << "SIZE AFTER: " <<atom.size() << std::endl; */
-  /*     if (i == 0){ */
-  /*       for(size_t j = 0 ; j < atom.size() ; ++j){ */
-  /*         auto &tuple = atom[j]; */
-  /*         double birth = std::get<6>(tuple); */
-  /*         double death = std::get<10>(tuple); */
-  /*         std::cout << "BIRTH-DEATH AFTER: " << birth << " and " << death << std::endl; */
-
-  /*       } */
-  /*     } */
-  /*   } */
-  /* } */
 }

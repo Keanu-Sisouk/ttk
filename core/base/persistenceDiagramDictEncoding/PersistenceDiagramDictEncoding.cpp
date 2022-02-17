@@ -187,6 +187,8 @@ void PersistenceDiagramDictEncoding::execute(
   bool cond = true;
   int epoch = 0;
   std::vector<Diagram> histoDictDiagrams(dictDiagrams.size());
+  std::vector<std::vector<int>> histoAllEpochLife(dictDiagrams.size());
+  std::vector<std::vector<bool>> histoAllBoolLife(dictDiagrams.size());
   std::vector<std::vector<double>> histoVectorWeights(nDiags);
   std::vector<double> allLosses(nDiags , 0.);
   std::ofstream myFile("/home/keanu/ttk-data/weightsTimeLine2.csv");
@@ -769,19 +771,54 @@ void PersistenceDiagramDictEncoding::execute(
 
       for(int i = 0 ; i < numAtom ; ++i){
         auto &atom = dictDiagrams[i];
+        auto &histoEpochAtom = histoAllEpochLife[i];
+        auto &histoBoolAtom = histoAllBoolLife[i];
+        for(size_t j = 0; j < histoEpochAtom.size(); ++j) {
+          auto &t = atom[atom.size() - 1 - histoEpochAtom.size() + j];
+          histoEpochAtom[j] += 1;
+          histoBoolAtom[j] = std::get<10>(t) - std::get<6>(t) < 1e-1;
+        }
+      }
+
+      for(int i = 0; i < numAtom; ++i) {
+        auto &atom = dictDiagrams[i];
+        auto &histoEpochAtom = histoAllEpochLife[i];
+        auto &histoBoolAtom = histoAllBoolLife[i];
         auto &trueFeaturesToAdd = allTrueFeaturesToAdd[i];
         for(size_t j = 0 ; j < trueFeaturesToAdd.size() ; ++j){
           auto &t = trueFeaturesToAdd[j];
           atom.push_back(t);
+          histoEpochAtom.push_back(0);
+          histoBoolAtom.push_back(std::get<10>(t) - std::get<6>(t) < 1e-1);
         }
       }
 
-      if(epoch > 0) {
-        for(size_t i = 0 ; i < dictDiagrams.size() ; ++i){
-          auto &atom = dictDiagrams[i];
-          atom.erase(std::remove_if(atom.begin() , atom.end() , testDiagonal) , atom.end());
+      std::vector<std::vector<size_t>> allIndicesToDelete(numAtom);
+      for(int i = 0; i < numAtom; ++i) {
+        auto &indicesAtomToDelete = allIndicesToDelete[i];
+        auto &histoEpochAtom = histoAllEpochLife[i];
+        auto &histoBoolAtom = histoAllBoolLife[i];
+        for(size_t j = 0; j < histoEpochAtom.size(); ++j) {
+          if(histoEpochAtom[j] > 5 && histoBoolAtom[j]) {
+            indicesAtomToDelete.push_back(j);
+          }
         }
       }
+
+      /* for(int i = 0 ; i < numAtom ; ++i){ */
+      /*   auto &atom = dictDiagrams[i]; */
+      /*   auto &histoEpochAtom = histoAllEpochLife[i]; */
+      /*   auto &histoBoolAtom = histoAllBoolLife[i]; */
+      /*   auto &indicesAtomToDelete = allIndicesToDelete[i]; */
+      /*   for(size_t j = indicesAtomToDelete.size()-1 ; j >= 0 ; --j){ */
+      /*     atom.erase(atom.begin() + atom.size() - 1 -histoEpochAtom.size()
+       * +indicesAtomToDelete[j]); */
+      /*     histoEpochAtom.erase(histoEpochAtom.begin() +
+       * indicesAtomToDelete[j]); */
+      /*     histoBoolAtom.erase(histoBoolAtom.begin() +
+       * indicesAtomToDelete[j]); */
+      /*   } */
+      /* } */
 
       this->printMsg("Computed 2nd opt for epoch " + std::to_string(epoch),
                      epoch / static_cast<double>(MAX_EPOCH),
