@@ -4,14 +4,7 @@
 
 using namespace ttk;
 
-static bool testDiagonal(DiagramTuple &t){
-  double birth = std::get<6>(t);
-  double death = std::get<10>(t);
-  double persistence = death - birth;
-  bool alph = persistence < 0.1;
-  std::cout << alph << std::endl;
-  return alph;
-}
+
 
 
 void ConstrainedGradientDescent::executeWeightsProjected(
