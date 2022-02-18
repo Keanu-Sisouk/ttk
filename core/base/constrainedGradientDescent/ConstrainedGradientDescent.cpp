@@ -290,6 +290,10 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
 
           t0[0] = t0[0] - step * gradsLists[i][checker[i][p]][0];
           t0[1] = t0[1] - step * gradsLists[i][checker[i][p]][1];
+
+          if(t0[0] > t0[1]) {
+            t0[1] = t0[0];
+          }
           // if (i == 0 && checker[i][p] == 0) std::cout << "PAIRE GLOBALE
           // AFTER: " << t0[0] << " and " << t0[1] << std::endl;
         }

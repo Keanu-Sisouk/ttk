@@ -5,13 +5,11 @@
 
 using namespace ttk;
 
-
-static bool testDiagonal(DiagramTuple &t){
+static bool testNeg(DiagramTuple &t) {
   double birth = std::get<6>(t);
   double death = std::get<10>(t);
-  return death - birth < 1e-1;
+  return death < birth;
 }
-
 
 void PersistenceDiagramDictEncoding::execute(
   const std::vector<Diagram> &intermediateDiagrams,
@@ -726,11 +724,15 @@ void PersistenceDiagramDictEncoding::execute(
             const SimplexId idTemp = std::get<5>(t);
             pair[0] = pair[0] - step * vectorContrib[0];
             pair[1] = pair[1] - step * vectorContrib[1];
+            if(pair[0] > pair[1]) {
+              pair[1] = pair[0];
+            }
             DiagramTuple newPair{0,       c1,      0,  c2, pair[1] - pair[0],
                                  idTemp,  pair[0], 0., 0., 0.,
                                  pair[1], 0.,      0., 0.};
             allTrueProj[atomIndex].push_back(proj);
             allTrueFeaturesToAdd[atomIndex].push_back(newPair);
+
           } else {
             // auto it = std::find(allTrueProj[atomIndex].begin() ,
             // allTrueProj[atomIndex].end() , proj); bool ralph = it ==
@@ -752,11 +754,15 @@ void PersistenceDiagramDictEncoding::execute(
               const SimplexId idTemp = std::get<5>(t);
               pair[0] = pair[0] - step * vectorContrib[0];
               pair[1] = pair[1] - step * vectorContrib[1];
+              if(pair[0] > pair[1]) {
+                pair[1] = pair[0];
+              }
               DiagramTuple newPair{0,       c1,      0,  c2, pair[1] - pair[0],
                                    idTemp,  pair[0], 0., 0., 0.,
                                    pair[1], 0.,      0., 0.};
               allTrueProj[atomIndex].push_back(proj);
               allTrueFeaturesToAdd[atomIndex].push_back(newPair);
+
             } else {
               // auto index = std::distance(allTrueProj[atomIndex].begin() ,
               // it);
@@ -764,6 +770,9 @@ void PersistenceDiagramDictEncoding::execute(
               std::get<6>(tReal) = std::get<6>(tReal) - step * vectorContrib[0];
               std::get<10>(tReal)
                 = std::get<10>(tReal) - step * vectorContrib[1];
+              if(std::get<6>(tReal) > std::get<10>(tReal)) {
+                std::get<10>(tReal) = std::get<6>(tReal);
+              }
             }
           }
         }
@@ -799,26 +808,31 @@ void PersistenceDiagramDictEncoding::execute(
         auto &histoEpochAtom = histoAllEpochLife[i];
         auto &histoBoolAtom = histoAllBoolLife[i];
         for(size_t j = 0; j < histoEpochAtom.size(); ++j) {
-          if(histoEpochAtom[j] > 5 && histoBoolAtom[j]) {
+          if(histoEpochAtom[j] > 3 && histoBoolAtom[j]) {
             indicesAtomToDelete.push_back(j);
           }
         }
       }
 
-      /* for(int i = 0 ; i < numAtom ; ++i){ */
-      /*   auto &atom = dictDiagrams[i]; */
-      /*   auto &histoEpochAtom = histoAllEpochLife[i]; */
-      /*   auto &histoBoolAtom = histoAllBoolLife[i]; */
-      /*   auto &indicesAtomToDelete = allIndicesToDelete[i]; */
-      /*   for(size_t j = indicesAtomToDelete.size()-1 ; j >= 0 ; --j){ */
-      /*     atom.erase(atom.begin() + atom.size() - 1 -histoEpochAtom.size()
-       * +indicesAtomToDelete[j]); */
-      /*     histoEpochAtom.erase(histoEpochAtom.begin() +
-       * indicesAtomToDelete[j]); */
-      /*     histoBoolAtom.erase(histoBoolAtom.begin() +
-       * indicesAtomToDelete[j]); */
-      /*   } */
-      /* } */
+      for(int i = 0; i < numAtom; ++i) {
+        auto &atom = dictDiagrams[i];
+        auto &histoEpochAtom = histoAllEpochLife[i];
+        auto &histoBoolAtom = histoAllBoolLife[i];
+        auto &indicesAtomToDelete = allIndicesToDelete[i];
+
+        if(static_cast<int>(indicesAtomToDelete.size()) > 0) {
+          for(int j = static_cast<int>(indicesAtomToDelete.size()) - 1; j >= 0;
+              --j) {
+            atom.erase(atom.begin() + atom.size() - 1 - histoEpochAtom.size()
+                       + indicesAtomToDelete[j]);
+            histoEpochAtom.erase(histoEpochAtom.begin()
+                                 + indicesAtomToDelete[j]);
+            histoBoolAtom.erase(histoBoolAtom.begin() + indicesAtomToDelete[j]);
+          }
+        } else {
+          continue;
+        }
+      }
 
       this->printMsg("Computed 2nd opt for epoch " + std::to_string(epoch),
                      epoch / static_cast<double>(MAX_EPOCH),
@@ -842,7 +856,7 @@ void PersistenceDiagramDictEncoding::execute(
   // this->printMsg("loss " + std::to_string(loss) + "===================");
 
   for(size_t p = 0; p < dictDiagrams.size(); ++p) {
-    const auto &atom = histoDictDiagrams[p];
+    auto &atom = histoDictDiagrams[p];
     dictDiagrams[p] = atom;
   }
   for(size_t p = 0; p < nDiags; ++p) {
