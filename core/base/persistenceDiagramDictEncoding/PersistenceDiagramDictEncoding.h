@@ -119,7 +119,8 @@ namespace ttk {
                               const std::vector<size_t> &indexDataMin,
                               const std::vector<size_t> &indexDataMax,
                               const std::vector<size_t> &indexDataSad,
-                              std::vector<int> &checker) const;
+                              std::vector<int> &checker,
+                              std::vector<std::vector<std::array<double , 2>>> &pairToAddGradList) const;
 
     // A modifier
     void
