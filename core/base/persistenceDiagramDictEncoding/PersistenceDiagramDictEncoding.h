@@ -106,21 +106,22 @@ namespace ttk {
       const std::vector<size_t> &indexDataMax,
       const std::vector<size_t> &indexDataSad) const;
 
-    void computeGradientAtoms(std::vector<Matrix> &gradsAtoms,
-                              const std::vector<double> &weights,
-                              const Diagram &Barycenter,
-                              const Diagram &newData,
-                              const std::vector<MatchingTuple> &matchingsMin,
-                              const std::vector<MatchingTuple> &matchingsMax,
-                              const std::vector<MatchingTuple> &matchingsSad,
-                              const std::vector<size_t> &indexBaryMin,
-                              const std::vector<size_t> &indexBaryMax,
-                              const std::vector<size_t> &indexBarySad,
-                              const std::vector<size_t> &indexDataMin,
-                              const std::vector<size_t> &indexDataMax,
-                              const std::vector<size_t> &indexDataSad,
-                              std::vector<int> &checker,
-                              std::vector<std::vector<std::array<double , 2>>> &pairToAddGradList) const;
+    void computeGradientAtoms(
+      std::vector<Matrix> &gradsAtoms,
+      const std::vector<double> &weights,
+      const Diagram &Barycenter,
+      const Diagram &newData,
+      const std::vector<MatchingTuple> &matchingsMin,
+      const std::vector<MatchingTuple> &matchingsMax,
+      const std::vector<MatchingTuple> &matchingsSad,
+      const std::vector<size_t> &indexBaryMin,
+      const std::vector<size_t> &indexBaryMax,
+      const std::vector<size_t> &indexBarySad,
+      const std::vector<size_t> &indexDataMin,
+      const std::vector<size_t> &indexDataMax,
+      const std::vector<size_t> &indexDataSad,
+      std::vector<int> &checker,
+      std::vector<std::vector<std::array<double, 2>>> &pairToAddGradList) const;
 
     // A modifier
     void

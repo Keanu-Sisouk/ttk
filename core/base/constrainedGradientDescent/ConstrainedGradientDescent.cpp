@@ -83,7 +83,7 @@ void ConstrainedGradientDescent::gradientDescentWeights(
       L += 1. * diag;
     }
   }
-  step = 1./L;
+  step = 1. / L;
   // std::cout << "STEP" << step << std::endl;
 
   for(int i = 0; i < n; ++i) {
