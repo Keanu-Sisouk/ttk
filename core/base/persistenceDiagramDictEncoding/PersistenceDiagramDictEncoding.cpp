@@ -1286,35 +1286,32 @@ void PersistenceDiagramDictEncoding::computeGradientAtoms(
 
     if(Id2 < 0) {
       k += 1;
-      /* const DiagramTuple &t2 = newData[indexDataMin[Id1]]; */
-      /* std::vector<double> newPairs(weights.size()); */
-      /* for(size_t j = 0 ; j < weights.size() ; ++j){ */
-      /*   std::array<double , 2> pair{birth_death_barycenter ,
-       * birth_death_barycenter}; */
-      /*   newPairs[i] = pair; */
-      /* } */
-      /* const double birth_data = std::get<6>(t2); */
-      /* const double death_data = std::get<10>(t2); */
-      /* const double birth_death_barycenter = birth_data + (death_data -
-       * birth_data) / 2.; */
-      /* std::vector<double> direction(2); */
-      /* direction[0] = birth_data - birth_death_barycenter; */
-      /* direction[1] = death_data - birth_death_barycenter; */
-      /* std::vector<std::vector<double>> temp3(weights.size()); */
-      /* std::vector<double> temp2(2); */
-      /* for(size_t j = 0 ; j < weights.size() ; ++j){ */
-      /*   temp2[0] += -2 * weights[j] * direction[0]; */
-      /*   temp2[1] += -2 * weights[j] * direction[1]; */
-      /*   temp3[j] = temp2; */
-      /* } */
-      /* gradsAtoms.push_back(temp3); */
-      /* std::vector<std::array<double, 2>> newPairs(weights.size()); */
-      /* for(size_t j = 0 ; j < weights.size() ; ++j){ */
-      /*   std::array<double , 2> pair{birth_death_barycenter ,
-       * birth_death_barycenter}; */
-      /*   newPairs[i] = pair; */
-      /* } */
-      /* pairToAddGradList.push_back(newPairs); */
+      if (Id1 < 0){
+        continue;
+      } else {
+        const DiagramTuple &t2 = newData[indexDataMin[Id1]];
+        const double birth_data = std::get<6>(t2);
+        const double death_data = std::get<10>(t2);
+        const double birth_death_barycenter = birth_data + (death_data -
+        birth_data) / 2.;
+        std::vector<double> direction(2);
+        direction[0] = birth_data - birth_death_barycenter;
+        direction[1] = death_data - birth_death_barycenter;
+        std::vector<std::vector<double>> temp3(weights.size());
+        std::vector<double> temp2(2);
+        for(size_t j = 0 ; j < weights.size() ; ++j){
+          temp2[0] += -2 * weights[j] * direction[0];
+          temp2[1] += -2 * weights[j] * direction[1];
+          temp3[j] = temp2;
+        }
+        gradsAtoms.push_back(temp3);
+        std::vector<std::array<double, 2>> newPairs(weights.size());
+        for(size_t j = 0 ; j < weights.size() ; ++j){
+          std::array<double , 2> pair{birth_death_barycenter , birth_death_barycenter};
+          newPairs[j] = pair;
+        }
+        pairToAddGradList.push_back(newPairs);
+      }
       // this->printMsg("k = " + std::to_string(k));
     } else {
       const DiagramTuple &t3 = Barycenter[indexBaryMin[Id2]];
@@ -1351,29 +1348,32 @@ void PersistenceDiagramDictEncoding::computeGradientAtoms(
     if(Id2 < 0) {
       k += 1;
 
-      /* const DiagramTuple &t2 = newData[indexDataMax[Id1]]; */
-      /* const double birth_data = std::get<6>(t2); */
-      /* const double death_data = std::get<10>(t2); */
-      /* const double birth_death_barycenter = birth_data + (death_data -
-       * birth_data) / 2.; */
-      /* std::vector<double> direction(2); */
-      /* direction[0] = birth_data - birth_death_barycenter; */
-      /* direction[1] = death_data - birth_death_barycenter; */
-      /* std::vector<std::vector<double>> temp3(weights.size()); */
-      /* std::vector<double> temp2(2); */
-      /* for(size_t j = 0 ; j < weights.size() ; ++j){ */
-      /*   temp2[0] += -2 * weights[j] * direction[0]; */
-      /*   temp2[1] += -2 * weights[j] * direction[1]; */
-      /*   temp3[j] = temp2; */
-      /* } */
-      /* gradsAtoms.push_back(temp3); */
-      /* std::vector<std::array<double, 2>> newPairs(weights.size()); */
-      /* for(size_t j = 0 ; j < weights.size() ; ++j){ */
-      /*   std::array<double , 2> pair{birth_death_barycenter ,
-       * birth_death_barycenter}; */
-      /*   newPairs[i] = pair; */
-      /* } */
-      /* pairToAddGradList.push_back(newPairs); */
+      if (Id1 < 0){
+        continue;
+      } else {
+        const DiagramTuple &t2 = newData[indexDataMax[Id1]];
+        const double birth_data = std::get<6>(t2);
+        const double death_data = std::get<10>(t2);
+        const double birth_death_barycenter = birth_data + (death_data -
+        birth_data) / 2.;
+        std::vector<double> direction(2);
+        direction[0] = birth_data - birth_death_barycenter;
+        direction[1] = death_data - birth_death_barycenter;
+        std::vector<std::vector<double>> temp3(weights.size());
+        std::vector<double> temp2(2);
+        for(size_t j = 0 ; j < weights.size() ; ++j){
+          temp2[0] += -2 * weights[j] * direction[0];
+          temp2[1] += -2 * weights[j] * direction[1];
+          temp3[j] = temp2;
+        }
+        gradsAtoms.push_back(temp3);
+        std::vector<std::array<double, 2>> newPairs(weights.size());
+        for(size_t j = 0 ; j < weights.size() ; ++j){
+          std::array<double , 2> pair{birth_death_barycenter , birth_death_barycenter};
+          newPairs[j] = pair;
+        }
+        pairToAddGradList.push_back(newPairs);
+      }
       // this->printMsg("k = " + std::to_string(k));
     } else {
       // this->printMsg("==Here?==");
@@ -1411,30 +1411,32 @@ void PersistenceDiagramDictEncoding::computeGradientAtoms(
 
     if(Id2 < 0) {
       k += 1;
-
-      /* const DiagramTuple &t2 = newData[indexDataSad[Id1]]; */
-      /* const double birth_data = std::get<6>(t2); */
-      /* const double death_data = std::get<10>(t2); */
-      /* const double birth_death_barycenter = birth_data + (death_data -
-       * birth_data) / 2.; */
-      /* std::vector<double> direction(2); */
-      /* direction[0] = birth_data - birth_death_barycenter; */
-      /* direction[1] = death_data - birth_death_barycenter; */
-      /* std::vector<std::vector<double>> temp3(weights.size()); */
-      /* std::vector<double> temp2(2); */
-      /* for(size_t j = 0 ; j < weights.size() ; ++j){ */
-      /*   temp2[0] += -2 * weights[j] * direction[0]; */
-      /*   temp2[1] += -2 * weights[j] * direction[1]; */
-      /*   temp3[j] = temp2; */
-      /* } */
-      /* gradsAtoms.push_back(temp3); */
-      /* std::vector<std::array<double, 2>> newPairs(weights.size()); */
-      /* for(size_t j = 0 ; j < weights.size() ; ++j){ */
-      /*   std::array<double , 2> pair{birth_death_barycenter ,
-       * birth_death_barycenter}; */
-      /*   newPairs[i] = pair; */
-      /* } */
-      /* pairToAddGradList.push_back(newPairs); */
+      if (Id1 < 0){
+        continue;
+      } else {
+        const DiagramTuple &t2 = newData[indexDataSad[Id1]];
+        const double birth_data = std::get<6>(t2);
+        const double death_data = std::get<10>(t2);
+        const double birth_death_barycenter = birth_data + (death_data -
+        birth_data) / 2.;
+        std::vector<double> direction(2);
+        direction[0] = birth_data - birth_death_barycenter;
+        direction[1] = death_data - birth_death_barycenter;
+        std::vector<std::vector<double>> temp3(weights.size());
+        std::vector<double> temp2(2);
+        for(size_t j = 0 ; j < weights.size() ; ++j){
+          temp2[0] += -2 * weights[j] * direction[0];
+          temp2[1] += -2 * weights[j] * direction[1];
+          temp3[j] = temp2;
+        }
+        gradsAtoms.push_back(temp3);
+        std::vector<std::array<double, 2>> newPairs(weights.size());
+        for(size_t j = 0 ; j < weights.size() ; ++j){
+          std::array<double , 2> pair{birth_death_barycenter , birth_death_barycenter};
+          newPairs[j] = pair;
+        }
+        pairToAddGradList.push_back(newPairs);
+      }
       // this->printMsg("k = " + std::to_string(k));
     } else {
       // this->printMsg("==Here?==");
