@@ -93,8 +93,7 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
 
   // Number of input diagrams
   // int numInputs = 0;
-  const int numAtom = this->GetatomNumber_();
-  printf("Atom number %d", numAtom);
+  // printf("Atom number %d", numAtom);
 
   int numInputAtoms =0;
   if(atomBlocks != nullptr) {
@@ -103,6 +102,9 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
     for(int i = 0; i < numInputAtoms; ++i) {
       inputAtoms[i] = vtkUnstructuredGrid::SafeDownCast(atomBlocks->GetBlock(i));
     }
+  }
+  if(BackEnd == BACKEND::INPUT_ATOMS){
+    atomNumber_ = numInputAtoms;
   }
   if(blocks != nullptr) {
     int numInputs = blocks->GetNumberOfBlocks();
@@ -114,6 +116,9 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
       //}
     }
   }
+
+  const int numAtom = this->GetatomNumber_();
+  printMsg("Number of atoms: "+ttk::debug::output::YELLOW+ttk::debug::output::UNDERLINED+std::to_string(numAtom)+ttk::debug::output::ENDCOLOR+ttk::debug::output::ENDCOLOR);
 
   // total number of diagrams
   const int nDiags = inputDiagrams.size();
@@ -164,7 +169,6 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
       return 0;
     }
   }
-  printWrn("DONE");
 
   // double max_dimension_total = 0.0;
   // for(int i = 0; i < 1; ++i) {
@@ -265,7 +269,7 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
     }
     col->Modified();
     // col->Modified();
-    printf("number of values %d", int(col->GetNumberOfValues()));
+    // printf("number of values %d", int(col->GetNumberOfValues()));
     output_weights->AddColumn(col);
   }
 

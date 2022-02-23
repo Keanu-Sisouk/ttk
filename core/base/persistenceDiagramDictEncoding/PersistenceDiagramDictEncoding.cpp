@@ -23,12 +23,17 @@ void PersistenceDiagramDictEncoding::execute(
   Timer tm{};
   double tm_part = 0.;
 
+  bool do_optimizeAtoms = false;
+  bool do_optimizeWeights = false;
+
   if(OptimizeWeights) {
     printMsg("Weight Optimization activated");
+    do_optimizeWeights = true;
   } else {
     printWrn("Weight Optimization desactivated");
   }
   if(OptimizeAtoms) {
+    do_optimizeAtoms = true;
     printMsg("Atom Optimization activated");
   } else {
     printWrn("Atom Optimization desactivated");
@@ -40,9 +45,9 @@ void PersistenceDiagramDictEncoding::execute(
   this->printMsg("Initialization computed ", 1, tm_init.getElapsedTime(),
                  threadNumber_, debug::LineMode::NEW, debug::Priority::DETAIL);
 
-  for(size_t i = 0; i < dictDiagrams.size(); ++i) {
-    std::cout << "SIZE: " << dictDiagrams[i].size();
-  }
+  // for(size_t i = 0; i < dictDiagrams.size(); ++i) {
+  //   std::cout << "SIZE: " << dictDiagrams[i].size();
+  // }
 
   // for(size_t i = 0; i < dictDiagrams.size(); ++i) {
   //   std::cout << "Atom " << i << std::endl;
@@ -393,8 +398,8 @@ void PersistenceDiagramDictEncoding::execute(
     if((epoch > MIN_EPOCH) && (loss_tab[epoch] / loss_tab[epoch - 1] > 0.999)) {
       if(loss_tab[epoch] < loss_tab[epoch - 1]) {
         this->printMsg("Loss not decreasing enough");
-        OptimizeWeights = 0;
-        OptimizeAtoms = 0;
+        do_optimizeWeights = false;
+        do_optimizeAtoms = false;
         cond = false;
       }
     }
@@ -409,8 +414,9 @@ void PersistenceDiagramDictEncoding::execute(
       //   vectorWeights[p] = weights;
       // }
       this->printMsg("Minimum not passed");
-      OptimizeWeights = 0;
-      OptimizeAtoms = 0;
+      do_optimizeWeights = false;
+      do_optimizeAtoms = false;
+
       cond = false;
     }
 
@@ -649,9 +655,11 @@ void PersistenceDiagramDictEncoding::execute(
 
     // this->printMsg("====================NOW ATOM
     // UPDATE======================"); ATOM OPTIMIZATION
-    if(OptimizeAtoms) {
+
+    if(do_optimizeAtoms) {
       std::vector<std::vector<std::vector<std::array<double, 2>>>>
         allPairToAddToGradList(nDiags);
+
       std::vector<std::vector<Matrix>> gradsAtomsList(nDiags);
       std::vector<std::vector<int>> checkerAtomsList(nDiags);
       // for(size_t i = 0 ; i < nDiags ; ++i){
@@ -906,7 +914,7 @@ void PersistenceDiagramDictEncoding::execute(
   }
 
   // this->printMsg("time spent computing barycenter" + std::to_string(tm_part));
-  // this->printMsg("Complete", 1.0, tm.getElapsedTime(), this->threadNumber_);
+  this->printMsg("Complete", 1.0, tm.getElapsedTime(), this->threadNumber_);
 
   // for(size_t i = 0; i < dictDiagrams.size(); ++i) {
     // std::cout << "Atom " << i << std::endl;

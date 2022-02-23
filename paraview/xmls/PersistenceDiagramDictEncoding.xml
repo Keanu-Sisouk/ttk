@@ -89,6 +89,13 @@
 
       <IntVectorProperty name = "atomNumber_" label = "Number of Atoms" command="SetatomNumber_" number_of_elements = "1" default_values="3" >
       <IntRangeDomain name = "Range" min = "0" max = "10" />
+        <Hints>
+          <PropertyWidgetDecorator type="GenericDecorator"
+            mode="visibility"
+            property="BackEnd"
+            value="3"
+            inverse="1"/>
+        </Hints>
       </IntVectorProperty>
 
         <IntVectorProperty

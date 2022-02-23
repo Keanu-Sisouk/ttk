@@ -144,8 +144,8 @@ int ttkPersistenceDiagramDictDecoding::RequestData(
     //             << std::endl;
     // }
     if(max_dimension2 < 0.0) {
-      this->printErr("Could not read Persistence Diagram");
-      return 0;
+      this->printWrn("Could not read Persistence Diagram");
+      // return 0;
     }
     if(max_dimension_total2 < max_dimension2) {
       max_dimension_total2 = max_dimension2;
