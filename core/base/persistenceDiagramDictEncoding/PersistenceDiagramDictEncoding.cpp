@@ -709,6 +709,7 @@ void PersistenceDiagramDictEncoding::execute(
 
       for(size_t i = 0; i < nDiags; ++i) {
         //std::cout << " OPTIM DIAG: " << i << std::endl;
+        auto &pairToAddGradList = allPairToAddToGradList[i];
         auto &projForDiag = allProjectionsList[i];
         auto &vectorForProjContrib = allVectorForProjContributions[i];
         auto &featuresToAdd = allFeaturesToAdd[i];
@@ -721,7 +722,7 @@ void PersistenceDiagramDictEncoding::execute(
         gradActor.executeAtoms(dictDiagrams, matchingsAtoms, Barycenter,
                                gradsAtoms, nb_points, checkerAtoms, epoch,
                                projForDiag, featuresToAdd, projLocations,
-                               vectorForProjContrib);
+                               vectorForProjContrib, pairToAddGradList);
         //std::cout << " OPTIM DIAG: " << i << std::endl;
         //std::cout << "==================================================" << std::endl;
       }

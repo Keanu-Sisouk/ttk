@@ -51,17 +51,19 @@ namespace ttk {
                                  const int epoch,
                                  const int nb_points);
 
-    void executeAtoms(std::vector<Diagram> &DictDiagrams,
-                      const std::vector<std::vector<MatchingTuple>> &matchings,
-                      const Diagram &Barycenter,
-                      const std::vector<Matrix> &gradsLists,
-                      const int nb_points,
-                      const std::vector<int> &checkerAtomsExt,
-                      int epoch,
-                      std::vector<std::vector<int>> &projForDiag,
-                      std::vector<DiagramTuple> &featuresToAdd,
-                      std::vector<std::array<double, 2>> &projLocations,
-                      std::vector<std::vector<double>> &vectorForProjContrib);
+    void executeAtoms(
+      std::vector<Diagram> &DictDiagrams,
+      const std::vector<std::vector<MatchingTuple>> &matchings,
+      const Diagram &Barycenter,
+      const std::vector<Matrix> &gradsLists,
+      const int nb_points,
+      const std::vector<int> &checkerAtomsExt,
+      int epoch,
+      std::vector<std::vector<int>> &projForDiag,
+      std::vector<DiagramTuple> &featuresToAdd,
+      std::vector<std::array<double, 2>> &projLocations,
+      std::vector<std::vector<double>> &vectorForProjContrib,
+      std::vector<std::vector<std::array<double, 2>>> &pairToAddGradList);
     // void executeAtoms(std::vector<Diagram> &DictDiagrams);
 
     // inline void setNbAtoms(const int nbAtoms) {
@@ -88,7 +90,8 @@ namespace ttk {
       std::vector<std::vector<int>> &projForDiag,
       std::vector<DiagramTuple> &featuresToAdd,
       std::vector<std::array<double, 2>> &projLocations,
-      std::vector<std::vector<double>> &vectorForProjContrib);
+      std::vector<std::vector<double>> &vectorForProjContrib,
+      std::vector<std::vector<std::array<double, 2>>> &pairToAddGradList);
   };
 
 } // namespace ttk

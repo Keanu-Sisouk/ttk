@@ -28,10 +28,12 @@ void ConstrainedGradientDescent::executeAtoms(
   std::vector<std::vector<int>> &projForDiag,
   std::vector<DiagramTuple> &featuresToAdd,
   std::vector<std::array<double, 2>> &projLocations,
-  std::vector<std::vector<double>> &vectorForProjContrib) {
+  std::vector<std::vector<double>> &vectorForProjContrib,
+  std::vector<std::vector<std::array<double, 2>>> &pairToAddGradList) {
   gradientDescentAtoms(DictDiagrams, matchings, Barycenter, gradsLists,
                        nb_points, checkerAtomsExt, epoch, projForDiag,
-                       featuresToAdd, projLocations, vectorForProjContrib);
+                       featuresToAdd, projLocations, vectorForProjContrib,
+                       pairToAddGradList);
 }
 
 // simple projection on simplex, aka where a vector has positive elements and
@@ -106,7 +108,8 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
   std::vector<std::vector<int>> &projForDiag,
   std::vector<DiagramTuple> &featuresToAdd,
   std::vector<std::array<double, 2>> &projLocations,
-  std::vector<std::vector<double>> &vectorForProjContrib) {
+  std::vector<std::vector<double>> &vectorForProjContrib,
+  std::vector<std::vector<std::array<double, 2>>> &pairToAddGradList) {
 
   // Here vector of diagramTuple because it is not a persistence diagram per
   // say.
@@ -195,6 +198,20 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
         }
       }
     }
+  }
+
+  grad_list.insert(
+    grad_list.end(), pairToAddGradList.begin(), pairToAddGradList.end());
+  for(size_t j = 0; j < pairToAddGradList.size(); ++j) {
+    std::vector<int> temp1(matchings.size(), 1);
+    std::vector<int> temp2(matchings.size(), -1);
+    std::vector<int> temp3(matchings.size());
+    for(size_t l = 0; l < matchings.size(); ++l) {
+      temp3[l] = static_cast<int>(l);
+    }
+    tracker_diagonal.push_back(temp1);
+    tracker_match.push_back(temp1);
+    checker.push_back(temp3);
   }
 
   // #ifdef TTK_ENABLE_OPENMP
