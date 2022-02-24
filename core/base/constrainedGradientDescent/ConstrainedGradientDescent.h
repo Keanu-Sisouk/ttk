@@ -63,7 +63,8 @@ namespace ttk {
       std::vector<DiagramTuple> &featuresToAdd,
       std::vector<std::array<double, 2>> &projLocations,
       std::vector<std::vector<double>> &vectorForProjContrib,
-      std::vector<std::vector<std::array<double, 2>>> &pairToAddGradList);
+      std::vector<std::vector<std::array<double, 2>>> &pairToAddGradList,
+      std::vector<DiagramTuple> &infoToAdd);
     // void executeAtoms(std::vector<Diagram> &DictDiagrams);
 
     // inline void setNbAtoms(const int nbAtoms) {
@@ -91,7 +92,8 @@ namespace ttk {
       std::vector<DiagramTuple> &featuresToAdd,
       std::vector<std::array<double, 2>> &projLocations,
       std::vector<std::vector<double>> &vectorForProjContrib,
-      std::vector<std::vector<std::array<double, 2>>> &pairToAddGradList);
+      std::vector<std::vector<std::array<double, 2>>> &pairToAddGradList,
+      std::vector<DiagramTuple> &infoToAdd);
   };
 
 } // namespace ttk

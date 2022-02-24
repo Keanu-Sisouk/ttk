@@ -74,6 +74,12 @@ public:
   vtkSetMacro(OptimizeAtoms, int);
   vtkGetMacro(OptimizeAtoms, int);
 
+  vtkSetMacro(Fusion, int);
+  vtkGetMacro(Fusion, int);
+
+  vtkSetMacro(CreationFeatures, int);
+  vtkGetMacro(CreationFeatures, int);
+
   vtkSetMacro(atomNumber_, int);
   vtkGetMacro(atomNumber_, int);
 

@@ -122,7 +122,37 @@
         <Documentation>
             Performs the atoms optimization
         </Documentation>
-        </IntVectorProperty>
+      </IntVectorProperty>
+      
+        
+        <IntVectorProperty
+        name="Fusion"
+        command="SetFusion"
+        label="Fusion"
+        number_of_elements="1"
+        default_values="1"
+        panel_visibility="advanced">
+        <BooleanDomain name="bool"/>
+        <Documentation>
+            Performs fusion
+        </Documentation>
+      </IntVectorProperty>
+
+        
+        <IntVectorProperty
+        name="CreationFeatures"
+        command="SetCreationFeatures"
+        label="Creation of features"
+        number_of_elements="1"
+        default_values="1"
+        panel_visibility="advanced">
+        <BooleanDomain name="bool"/>
+        <Documentation>
+            Performs the creation of features
+        </Documentation>
+      </IntVectorProperty>
+
+
 
       <IntVectorProperty name = "seed_" label = "Seed for random init" command="Setseed_" number_of_elements = "1" default_values="0" >
       <IntRangeDomain name = "Range" min = "0" max = "1000" />

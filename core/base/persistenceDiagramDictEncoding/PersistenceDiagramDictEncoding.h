@@ -122,7 +122,8 @@ namespace ttk {
       const std::vector<size_t> &indexDataMax,
       const std::vector<size_t> &indexDataSad,
       std::vector<int> &checker,
-      std::vector<std::vector<std::array<double, 2>>> &pairToAddGradList) const;
+      std::vector<std::vector<std::array<double, 2>>> &pairToAddGradList,
+      std::vector<DiagramTuple> &infoToAdd) const;
 
     // A modifier
     void
@@ -160,6 +161,9 @@ namespace ttk {
 
     bool OptimizeWeights{true};
     bool OptimizeAtoms{true};
+
+    bool CreationFeatures{true};
+    bool Fusion{true};
 
     enum class ConstraintType {
       FULL_DIAGRAMS,

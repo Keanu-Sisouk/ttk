@@ -29,11 +29,12 @@ void ConstrainedGradientDescent::executeAtoms(
   std::vector<DiagramTuple> &featuresToAdd,
   std::vector<std::array<double, 2>> &projLocations,
   std::vector<std::vector<double>> &vectorForProjContrib,
-  std::vector<std::vector<std::array<double, 2>>> &pairToAddGradList) {
+  std::vector<std::vector<std::array<double, 2>>> &pairToAddGradList,
+  std::vector<DiagramTuple> &infoToAdd) {
   gradientDescentAtoms(DictDiagrams, matchings, Barycenter, gradsLists,
                        nb_points, checkerAtomsExt, epoch, projForDiag,
                        featuresToAdd, projLocations, vectorForProjContrib,
-                       pairToAddGradList);
+                       pairToAddGradList, infoToAdd);
 }
 
 // simple projection on simplex, aka where a vector has positive elements and
@@ -109,7 +110,8 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
   std::vector<DiagramTuple> &featuresToAdd,
   std::vector<std::array<double, 2>> &projLocations,
   std::vector<std::vector<double>> &vectorForProjContrib,
-  std::vector<std::vector<std::array<double, 2>>> &pairToAddGradList) {
+  std::vector<std::vector<std::array<double, 2>>> &pairToAddGradList,
+  std::vector<DiagramTuple> &infoToAdd) {
 
   // Here vector of diagramTuple because it is not a persistence diagram per
   // say.
@@ -270,7 +272,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
       // double mini = *std::min_element(temp.begin(), temp.end());
 
       double step;
-      double factEquiv = sqrt(DictDiagrams.size());
+      double factEquiv = DictDiagrams.size();
       // double factEquiv = DictDiagrams.size();
       if(temp2.size() == 0) {
         // step = std::min(1., mini) / (1e1 + 1.0 * epoch);
@@ -328,54 +330,79 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
       // printf("SAUT1");
       continue;
     } else {
-      const DiagramTuple &infos = Barycenter[i];
-      for(size_t j = 0; j < checker[i].size(); ++j) {
-        auto &tracker_temp = tracker_match[i][j];
-        if(tracker_diagonal[i][j] == 1 || tracker_temp == -1
-           || tracker_temp > 10000) {
-          auto &index = checker[i][j];
-          auto &t2 = grad_list[i][index];
-          // if(t2[1] - t2[0] < 1e-7) {
-          // continue;
-          //} else {
-          std::vector<int> projAndIndex(DictDiagrams.size() + 1);
-          // double proj = projectionsBuffer[i][index];
-          int atomIndex = static_cast<int>(index);
-          // projAndIndex[0] = proj;
-          // projAndIndex[1] = atomIndex;
-          for(size_t m = 0; m < DictDiagrams.size(); ++m) {
-            projAndIndex[m] = tracker_match[i][m];
-          }
-          projAndIndex[DictDiagrams.size()] = atomIndex;
-          projForDiag.push_back(projAndIndex);
-          featuresToAdd.push_back(infos);
-          projLocations.push_back(grad_list[i][index]);
-          vectorForProjContrib.push_back(gradsLists[i][index]);
-          // DictDiagrams[index].push_back(newPair);
-          //}
+      if(i < Barycenter.size()) {
+        const DiagramTuple &infos = Barycenter[i];
+        for(size_t j = 0; j < checker[i].size(); ++j) {
+          auto &tracker_temp = tracker_match[i][j];
+          if(tracker_diagonal[i][j] == 1 || tracker_temp == -1
+             || tracker_temp > 10000) {
+            auto &index = checker[i][j];
+            auto &t2 = grad_list[i][index];
+            // if(t2[1] - t2[0] < 1e-7) {
+            // continue;
+            //} else {
+            std::vector<int> projAndIndex(DictDiagrams.size() + 1);
+            // double proj = projectionsBuffer[i][index];
+            int atomIndex = static_cast<int>(index);
+            // projAndIndex[0] = proj;
+            // projAndIndex[1] = atomIndex;
+            for(size_t m = 0; m < DictDiagrams.size(); ++m) {
+              projAndIndex[m] = tracker_match[i][m];
+            }
+            projAndIndex[DictDiagrams.size()] = atomIndex;
+            projForDiag.push_back(projAndIndex);
+            featuresToAdd.push_back(infos);
+            projLocations.push_back(grad_list[i][index]);
+            vectorForProjContrib.push_back(gradsLists[i][index]);
+            // DictDiagrams[index].push_back(newPair);
+            //}
 
-        } else {
-          auto &index = checker[i][j];
-          auto &t2 = grad_list[i][index];
-          // if(t2[1] - t2[0] < 1e-17) {
-          //   DictDiagrams[checker[i][j]].erase(
-          //     DictDiagrams[checker[i][j]].begin() + tracker_match[i][j]);
-          // } else {
-          //   DiagramTuple &t1 =
-          //   DictDiagrams[checker[i][j]][tracker_match[i][j]];
-          //   std::get<6>(t1) = t2[0];
-          //   std::get<10>(t1) = t2[1];
-          // }
-          // if(t2[1] > t2[0]) {
-          // if(t2[1] > t2[0]){
-          DiagramTuple &t1 = DictDiagrams[index][tracker_temp];
-          std::get<6>(t1) = t2[0];
-          std::get<10>(t1) = t2[1];
-          //} else {
-          /* DictDiagrams[index].erase(DictDiagrams[index].begin() */
-          /*                           + tracker_temp); */
-          // continue;
-          //}
+          } else {
+            auto &index = checker[i][j];
+            auto &t2 = grad_list[i][index];
+
+            DiagramTuple &t1 = DictDiagrams[index][tracker_temp];
+            std::get<6>(t1) = t2[0];
+            std::get<10>(t1) = t2[1];
+          }
+        }
+      } else {
+        const DiagramTuple &infos
+          = infoToAdd[static_cast<int>(i)
+                      - static_cast<int>(Barycenter.size())];
+
+        for(size_t j = 0; j < checker[i].size(); ++j) {
+          auto &tracker_temp = tracker_match[i][j];
+          if(tracker_diagonal[i][j] == 1 || tracker_temp == -1
+             || tracker_temp > 10000) {
+            auto &index = checker[i][j];
+            auto &t2 = grad_list[i][index];
+            // if(t2[1] - t2[0] < 1e-7) {
+            // continue;
+            //} else {
+            std::vector<int> projAndIndex(DictDiagrams.size() + 1);
+            // double proj = projectionsBuffer[i][index];
+            int atomIndex = static_cast<int>(index);
+            // projAndIndex[0] = proj;
+            // projAndIndex[1] = atomIndex;
+            for(size_t m = 0; m < DictDiagrams.size(); ++m) {
+              projAndIndex[m] = tracker_match[i][m];
+            }
+            projAndIndex[DictDiagrams.size()] = atomIndex;
+            projForDiag.push_back(projAndIndex);
+            featuresToAdd.push_back(infos);
+            projLocations.push_back(grad_list[i][index]);
+            vectorForProjContrib.push_back(gradsLists[i][index]);
+            // DictDiagrams[index].push_back(newPair);
+            //}
+
+          } else {
+            auto &index = checker[i][j];
+            auto &t2 = grad_list[i][index];
+            DiagramTuple &t1 = DictDiagrams[index][tracker_temp];
+            std::get<6>(t1) = t2[0];
+            std::get<10>(t1) = t2[1];
+          }
         }
       }
     }
