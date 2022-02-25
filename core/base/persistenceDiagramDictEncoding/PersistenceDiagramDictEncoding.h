@@ -163,7 +163,7 @@ namespace ttk {
     bool OptimizeAtoms{true};
 
     bool CreationFeatures{true};
-    bool Fusion{true};
+    bool Fusion {true};
 
     enum class ConstraintType {
       FULL_DIAGRAMS,
