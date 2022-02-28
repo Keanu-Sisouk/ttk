@@ -405,14 +405,14 @@ void PersistenceDiagramDictEncoding::execute(
     }
 
     if(epoch > MIN_EPOCH && lag > lagLimit) {
-      // for(size_t p = 0; p < dictDiagrams.size(); ++p) {
-      //   const auto &atom = histoDictDiagrams[p];
-      //   dictDiagrams[p] = atom;
-      // }
-      // for(size_t p = 0; p < nDiags; ++p) {
-      //   const auto &weights = histoVectorWeights[p];
-      //   vectorWeights[p] = weights;
-      // }
+      for(size_t p = 0; p < dictDiagrams.size(); ++p) {
+        const auto &atom = histoDictDiagrams[p];
+        dictDiagrams[p] = atom;
+      }
+      for(size_t p = 0; p < nDiags; ++p) {
+        const auto &weights = histoVectorWeights[p];
+        vectorWeights[p] = weights;
+      }
       // this->printMsg("Minimum not passed");
       do_optimizeWeights = false;
       do_optimizeAtoms = false;
@@ -721,7 +721,7 @@ void PersistenceDiagramDictEncoding::execute(
 
       // double factEquiv = sqrt(static_cast<double>(numAtom));
       double factEquiv = numAtom;
-      double step = 1. / (factEquiv * 1e1);
+      double step = 1. / (factEquiv * 1e2);
       for(size_t i = 0 ; i < nDiags ; ++i){
         auto &projForDiag = allProjectionsList[i];
         auto &featuresToAdd = allFeaturesToAdd[i];
@@ -1293,6 +1293,7 @@ void PersistenceDiagramDictEncoding::computeGradientAtoms(
             temp3[j] = temp2;
           }
           gradsAtoms.push_back(temp3);
+          checker.push_back(1);
           std::vector<std::array<double, 2>> newPairs(weights.size());
           for(size_t j = 0; j < weights.size(); ++j) {
             std::array<double, 2> pair{
@@ -1360,7 +1361,8 @@ void PersistenceDiagramDictEncoding::computeGradientAtoms(
             temp2[1] += -2 * weights[j] * direction[1];
             temp3[j] = temp2;
           }
-          gradsAtoms.push_back(temp3);
+          gradsAtoms.push_back(temp3); 
+          checker.push_back(1);
           std::vector<std::array<double, 2>> newPairs(weights.size());
           for(size_t j = 0; j < weights.size(); ++j) {
             std::array<double, 2> pair{
@@ -1430,6 +1432,7 @@ void PersistenceDiagramDictEncoding::computeGradientAtoms(
             temp3[j] = temp2;
           }
           gradsAtoms.push_back(temp3);
+          checker.push_back(1);
           std::vector<std::array<double, 2>> newPairs(weights.size());
           for(size_t j = 0; j < weights.size(); ++j) {
             std::array<double, 2> pair{

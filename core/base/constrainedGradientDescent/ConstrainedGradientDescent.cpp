@@ -165,7 +165,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
 
           // checker[Id2].push_back(i);
           checker[Id2][i] = i;
-          if(checker[Id2].size() > 3) {
+          if(checker[Id2].size() > matchings.size()) {
             std::raise(SIGINT);
           }
           tracker[Id2] = 1;
@@ -187,7 +187,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
           point[1] = death_atom;
           // checker[Id2].push_back(i);
           checker[Id2][i] = i;
-          if(checker[Id2].size() > 3) {
+          if(checker[Id2].size() > matchings.size()) {
             std::raise(SIGINT);
           }
           tracker[Id2] = 1;
@@ -214,6 +214,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
     tracker_diagonal.push_back(temp1);
     tracker_match.push_back(temp1);
     checker.push_back(temp3);
+    tracker.push_back(1);
   }
 
   // #ifdef TTK_ENABLE_OPENMP
@@ -277,14 +278,14 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
       if(temp2.size() == 0) {
         // step = std::min(1., mini) / (1e1 + 1.0 * epoch);
         // step = std::min(1., mini) / (factEquiv*1e1);
-        step = 1. / (factEquiv * 1e1);
+        step = 1. / (factEquiv * 1e2);
         // step = 1./factEquiv;
       } else {
         // double mini2 = *std::min_element(temp2.begin(), temp2.end());
         //   double maxi = std::max_element(pos.begin() ; pos.end());
         //   step = std::min(std::min(1., mini), mini2) / (1e1 + 1.0 * epoch);
         //   step = std::min(std::min(1., mini), mini2) / (factEquiv*1e1);
-        step = 1. / (factEquiv * 1e1);
+        step = 1. / (factEquiv * 1e2);
         // step = mini2 / (factEquiv*1e1);
         // step = 1./factEquiv;
       }
