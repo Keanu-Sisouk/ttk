@@ -194,6 +194,7 @@ void PersistenceDiagramDictEncoding::execute(
   std::vector<std::vector<int>> histoAllEpochLife(dictDiagrams.size());
   std::vector<std::vector<bool>> histoAllBoolLife(dictDiagrams.size());
   std::vector<std::vector<bool>> checkUnderDiag(dictDiagrams.size());
+  std::vector<std::vector<bool>> checkDiag(dictDiagrams.size());
   std::vector<std::vector<double>> histoVectorWeights(nDiags);
   std::vector<double> allLosses(nDiags , 0.);
   std::ofstream myFile("/home/keanu/ttk-data/weightsTimeLine2.csv");
@@ -462,6 +463,15 @@ void PersistenceDiagramDictEncoding::execute(
       //                epoch / static_cast<double>(MAX_EPOCH),
       //                tm_opt1.getElapsedTime(), threadNumber_,
       //                debug::LineMode::NEW, debug::Priority::DETAIL);
+    }
+
+    
+    for(size_t k = 0 ; k < nDiags ; ++k){
+      std::cout << "WEIGHT: " + std::to_string(k) << std::endl;
+      auto &weight = vectorWeights[k];
+      for(size_t p = 0 ; p < dictDiagrams.size() ; ++p){
+        std::cout << weight[p] << std::endl;
+      }
     }
 
     std::vector<double> &weight = vectorWeights[0];
@@ -733,7 +743,7 @@ void PersistenceDiagramDictEncoding::execute(
           std::vector<double> &vectorContrib = vectorForProjContrib[j];
           std::vector<int> &projAndIndex = projForDiag[j];
           std::vector<int> proj(numAtom);
-          for(size_t m = 0; m < numAtom; ++m) {
+          for(int m = 0; m < numAtom; ++m) {
             proj[m] = projAndIndex[m];
           }
           int atomIndex = static_cast<int>(projAndIndex[numAtom]);
@@ -811,10 +821,12 @@ void PersistenceDiagramDictEncoding::execute(
         auto &histoEpochAtom = histoAllEpochLife[i];
         auto &histoBoolAtom = histoAllBoolLife[i];
         auto &boolUnderDiag = checkUnderDiag[i];
+        auto &boolDiag = checkDiag[i];
         for(size_t j = 0; j < histoEpochAtom.size(); ++j) {
-          auto &t = atom[atom.size() - 1 - histoEpochAtom.size() + j];
+          auto &t = atom[atom.size() - 1 -histoEpochAtom.size() + j];
           histoEpochAtom[j] += 1;
           histoBoolAtom[j] = std::get<10>(t) - std::get<6>(t) < 1e-1;
+          boolDiag[j] = std::get<10>(t) - std::get<6>(t) < 1e-5;
           boolUnderDiag[j] = std::get<10>(t) < std::get<6>(t);
         }
       }
@@ -824,12 +836,14 @@ void PersistenceDiagramDictEncoding::execute(
         auto &histoEpochAtom = histoAllEpochLife[i];
         auto &histoBoolAtom = histoAllBoolLife[i];
         auto &boolUnderDiag = checkUnderDiag[i];
+        auto &boolDiag = checkDiag[i];
         auto &trueFeaturesToAdd = allTrueFeaturesToAdd[i];
         for(size_t j = 0 ; j < trueFeaturesToAdd.size() ; ++j){
           auto &t = trueFeaturesToAdd[j];
           atom.push_back(t);
           histoEpochAtom.push_back(0);
           histoBoolAtom.push_back(std::get<10>(t) - std::get<6>(t) < 1e-1);
+          boolDiag.push_back(std::get<10>(t) - std::get<6>(t) < 1e-5);
           boolUnderDiag.push_back(std::get<10>(t) < std::get<6>(t));
         }
       }
@@ -840,8 +854,9 @@ void PersistenceDiagramDictEncoding::execute(
         auto &histoEpochAtom = histoAllEpochLife[i];
         auto &histoBoolAtom = histoAllBoolLife[i];
         auto &boolUnderDiag = checkUnderDiag[i];
+        auto &boolDiag = checkDiag[i];
         for(size_t j = 0; j < histoEpochAtom.size(); ++j) {
-          if(boolUnderDiag[j] || (histoEpochAtom[j] > 3 && histoBoolAtom[j])) {
+          if(boolUnderDiag[j] || boolDiag[j] || (histoEpochAtom[j] > 2 && histoBoolAtom[j])) {
             indicesAtomToDelete.push_back(j);
           }
         }
@@ -852,15 +867,16 @@ void PersistenceDiagramDictEncoding::execute(
         auto &histoEpochAtom = histoAllEpochLife[i];
         auto &histoBoolAtom = histoAllBoolLife[i];
         auto &indicesAtomToDelete = allIndicesToDelete[i];
-
+        auto &boolUnderDiag = checkUnderDiag[i];
         if(static_cast<int>(indicesAtomToDelete.size()) > 0) {
           for(int j = static_cast<int>(indicesAtomToDelete.size()) - 1; j >= 0;
-              --j) {
+              j--) {
             atom.erase(atom.begin() + atom.size() - 1 - histoEpochAtom.size()
                        + indicesAtomToDelete[j]);
             histoEpochAtom.erase(histoEpochAtom.begin()
                                  + indicesAtomToDelete[j]);
             histoBoolAtom.erase(histoBoolAtom.begin() + indicesAtomToDelete[j]);
+            boolUnderDiag.erase(boolUnderDiag.begin() + indicesAtomToDelete[j]);
           }
         } else {
           continue;
@@ -881,6 +897,17 @@ void PersistenceDiagramDictEncoding::execute(
     Barycenters.resize(nDiags);
     allMatchingsAtoms.clear();
     allMatchingsAtoms.resize(nDiags);
+    for(size_t k = 0 ; k < dictDiagrams.size() ; ++k){
+      std::cout << "ATOM: " + std::to_string(k) << std::endl;
+      auto &atom = dictDiagrams[k];
+      for(size_t p = 0 ; p < atom.size() ; ++p){
+        auto &t = atom[p];
+        std::cout << "PAIR: " + std::to_string(std::get<6>(t)) + " AND " + std::to_string(std::get<10>(t)) << std::endl;
+      }
+    }
+
+
+
   printMsg(" Epoch "+std::to_string(epoch)+", loss = "+std::to_string(loss), 1, threadNumber_, ttk::debug::LineMode::REPLACE);
   }
   printMsg(" Epoch "+std::to_string(epoch)+", loss = "+std::to_string(loss), 1, threadNumber_);
