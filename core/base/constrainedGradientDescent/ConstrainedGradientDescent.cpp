@@ -83,9 +83,10 @@ void ConstrainedGradientDescent::gradientDescentWeights(
     auto &hessian = hessianList[i];
     for(size_t k = 0; k < hessian.size(); ++k) {
       double diag = hessian[k][k];
-      L += 4. * diag;
+      L += 1. * diag;
     }
   }
+  std::cout << "REGULARITY COEFF: " + std::to_string(L) << std::endl;
   step = 1. / L;
   //std::cout << "STEP" << step << std::endl;
 
