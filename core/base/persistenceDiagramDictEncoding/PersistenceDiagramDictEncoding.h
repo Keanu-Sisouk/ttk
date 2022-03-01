@@ -159,6 +159,7 @@ namespace ttk {
     double MinPersistence{0.1};
     bool do_min_{true}, do_sad_{true}, do_max_{true};
 
+    int MaxEpoch;
     bool OptimizeWeights{true};
     bool OptimizeAtoms{true};
 

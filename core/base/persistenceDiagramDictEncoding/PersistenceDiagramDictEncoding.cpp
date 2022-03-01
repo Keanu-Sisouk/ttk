@@ -187,7 +187,7 @@ void PersistenceDiagramDictEncoding::execute(
   int lag = 0;
   int lagLimit = 50;
   int MIN_EPOCH = 100;
-  int MAX_EPOCH = 1000;
+  int MAX_EPOCH = MaxEpoch;
   bool cond = true;
   int epoch = 0;
   std::vector<size_t> initSizes(dictDiagrams.size());
@@ -405,26 +405,26 @@ void PersistenceDiagramDictEncoding::execute(
     if((epoch > MIN_EPOCH) && (loss_tab[epoch] / loss_tab[epoch - 1] > 0.999)) {
       if(loss_tab[epoch] < loss_tab[epoch - 1]) {
         // this->printMsg("Loss not decreasing enough");
-        do_optimizeWeights = true;
-        do_optimizeAtoms = true;
-        cond = false;
+        // do_optimizeWeights = true;
+        // do_optimizeAtoms = true;
+        // cond = false;
       }
     }
 
     if(epoch > MIN_EPOCH && lag > lagLimit) {
-      for(size_t p = 0; p < dictDiagrams.size(); ++p) {
-        const auto &atom = histoDictDiagrams[p];
-        dictDiagrams[p] = atom;
-      }
-      for(size_t p = 0; p < nDiags; ++p) {
-        const auto &weights = histoVectorWeights[p];
-        vectorWeights[p] = weights;
-      }
+      // for(size_t p = 0; p < dictDiagrams.size(); ++p) {
+      // const auto &atom = histoDictDiagrams[p];
+      // dictDiagrams[p] = atom;
+      //}
+      // for(size_t p = 0; p < nDiags; ++p) {
+      // const auto &weights = histoVectorWeights[p];
+      // vectorWeights[p] = weights;
+      //}
       // this->printMsg("Minimum not passed");
-      do_optimizeWeights = false;
-      do_optimizeAtoms = false;
+      // do_optimizeWeights = false;
+      // do_optimizeAtoms = false;
 
-      cond = false;
+      // cond = false;
     }
 
     // if(epoch == 1) {
@@ -728,64 +728,31 @@ void PersistenceDiagramDictEncoding::execute(
         //std::cout << " OPTIM DIAG: " << i << std::endl;
         //std::cout << "==================================================" << std::endl;
       }
-
-      // double factEquiv = sqrt(static_cast<double>(numAtom));
-      double factEquiv = numAtom;
-      double step = 1. / (factEquiv * 1e1);
-      for(size_t i = 0 ; i < nDiags ; ++i){
-        auto &projForDiag = allProjectionsList[i];
-        auto &featuresToAdd = allFeaturesToAdd[i];
-        auto &projLocations = allProjLocations[i];
-        auto &vectorForProjContrib = allVectorForProjContributions[i];
-        for(size_t j = 0 ; j < projForDiag.size() ; ++j){
-          DiagramTuple &t = featuresToAdd[j];
-          std::array<double, 2> &pair = projLocations[j];
-          std::vector<double> &vectorContrib = vectorForProjContrib[j];
-          std::vector<int> &projAndIndex = projForDiag[j];
-          std::vector<int> proj(numAtom);
-          for(int m = 0; m < numAtom; ++m) {
-            proj[m] = projAndIndex[m];
-          }
-          int atomIndex = static_cast<int>(projAndIndex[numAtom]);
-          //auto it = std::find(allTrueProj[atomIndex].begin() , allTrueProj[atomIndex].end() , proj);
-          //bool ralph = it != allTrueProj[atomIndex].end();
-          bool lenNull = allTrueProj[atomIndex].size() == 0;
-          if (lenNull){
-            const CriticalType c1 = std::get<1>(t);
-            const CriticalType c2 = std::get<3>(t);
-            const SimplexId idTemp = std::get<5>(t);
-            pair[0] = pair[0] - step * vectorContrib[0];
-            pair[1] = pair[1] - step * vectorContrib[1];
-            if(pair[0] > pair[1]) {
-              pair[1] = pair[0];
+      
+      if (CreationFeatures){
+        // std::cout << "CREATING FEATURES" << std::endl;
+        // double factEquiv = sqrt(static_cast<double>(numAtom));
+        double factEquiv = numAtom;
+        double step = 1. / (sqrt(factEquiv) * 1e2);
+        for(size_t i = 0 ; i < nDiags ; ++i){
+          auto &projForDiag = allProjectionsList[i];
+          auto &featuresToAdd = allFeaturesToAdd[i];
+          auto &projLocations = allProjLocations[i];
+          auto &vectorForProjContrib = allVectorForProjContributions[i];
+          for(size_t j = 0 ; j < projForDiag.size() ; ++j){
+            DiagramTuple &t = featuresToAdd[j];
+            std::array<double, 2> &pair = projLocations[j];
+            std::vector<double> &vectorContrib = vectorForProjContrib[j];
+            std::vector<int> &projAndIndex = projForDiag[j];
+            std::vector<int> proj(numAtom);
+            for(int m = 0; m < numAtom; ++m) {
+              proj[m] = projAndIndex[m];
             }
-            DiagramTuple newPair{0,       c1,      0,  c2, pair[1] - pair[0],
-                                 idTemp,  pair[0], 0., 0., 0.,
-                                 pair[1], 0.,      0., 0.};
-            allTrueProj[atomIndex].push_back(proj);
-            allTrueFeaturesToAdd[atomIndex].push_back(newPair);
-            allTrueProjLoc[atomIndex].push_back(pair);
-          } else {
-            // auto it = std::find(allTrueProj[atomIndex].begin() ,
-            // allTrueProj[atomIndex].end() , proj); bool ralph = it ==
-            // allTrueProj[atomIndex].end();
-            bool ralph = true;
-            size_t index = 0;
-            if(Fusion) {
-              for(size_t n = 0; n < allTrueProj[atomIndex].size(); ++n) {
-                auto &projStocked = allTrueProj[atomIndex][n];
-                auto &projLocStocked = allTrueProj[atomIndex][n];
-                double distance = sqrt(pow((pair[0] - projLocStocked[0]), 2)
-                                       + pow((pair[1] - projLocStocked[1]), 2));
-                if(proj == projStocked && distance < 1e-3) {
-                  ralph = false;
-                  index = n;
-                  break;
-                }
-              }
-            }
-            if (ralph){
-
+            int atomIndex = static_cast<int>(projAndIndex[numAtom]);
+            //auto it = std::find(allTrueProj[atomIndex].begin() , allTrueProj[atomIndex].end() , proj);
+            //bool ralph = it != allTrueProj[atomIndex].end();
+            bool lenNull = allTrueProj[atomIndex].size() == 0;
+            if (lenNull){
               const CriticalType c1 = std::get<1>(t);
               const CriticalType c2 = std::get<3>(t);
               const SimplexId idTemp = std::get<5>(t);
@@ -800,23 +767,58 @@ void PersistenceDiagramDictEncoding::execute(
               allTrueProj[atomIndex].push_back(proj);
               allTrueFeaturesToAdd[atomIndex].push_back(newPair);
               allTrueProjLoc[atomIndex].push_back(pair);
-
             } else {
-              // auto index = std::distance(allTrueProj[atomIndex].begin() ,
-              // it);
-              auto &tReal = allTrueFeaturesToAdd[atomIndex][index];
-              std::get<6>(tReal) = std::get<6>(tReal) - step * vectorContrib[0];
-              std::get<10>(tReal)
-                = std::get<10>(tReal) - step * vectorContrib[1];
-              if(std::get<6>(tReal) > std::get<10>(tReal)) {
-                std::get<10>(tReal) = std::get<6>(tReal);
+              // auto it = std::find(allTrueProj[atomIndex].begin() ,
+              // allTrueProj[atomIndex].end() , proj); bool ralph = it ==
+              // allTrueProj[atomIndex].end();
+              bool ralph = true;
+              size_t index = 0;
+              if(Fusion) {
+                for(size_t n = 0; n < allTrueProj[atomIndex].size(); ++n) {
+                  auto &projStocked = allTrueProj[atomIndex][n];
+                  auto &projLocStocked = allTrueProj[atomIndex][n];
+                  double distance = sqrt(pow((pair[0] - projLocStocked[0]), 2)
+                                         + pow((pair[1] - projLocStocked[1]), 2));
+                  if(proj == projStocked && distance < 1e-3) {
+                    ralph = false;
+                    index = n;
+                    break;
+                  }
+                }
+              }
+              if (ralph){
+
+                const CriticalType c1 = std::get<1>(t);
+                const CriticalType c2 = std::get<3>(t);
+                const SimplexId idTemp = std::get<5>(t);
+                pair[0] = pair[0] - step * vectorContrib[0];
+                pair[1] = pair[1] - step * vectorContrib[1];
+                if(pair[0] > pair[1]) {
+                  pair[1] = pair[0];
+                }
+                DiagramTuple newPair{0,       c1,      0,  c2, pair[1] - pair[0],
+                                     idTemp,  pair[0], 0., 0., 0.,
+                                     pair[1], 0.,      0., 0.};
+                allTrueProj[atomIndex].push_back(proj);
+                allTrueFeaturesToAdd[atomIndex].push_back(newPair);
+                allTrueProjLoc[atomIndex].push_back(pair);
+
+              } else {
+                // auto index = std::distance(allTrueProj[atomIndex].begin() ,
+                // it);
+                auto &tReal = allTrueFeaturesToAdd[atomIndex][index];
+                std::get<6>(tReal) = std::get<6>(tReal) - step * vectorContrib[0];
+                std::get<10>(tReal)
+                  = std::get<10>(tReal) - step * vectorContrib[1];
+                if(std::get<6>(tReal) > std::get<10>(tReal)) {
+                  std::get<10>(tReal) = std::get<6>(tReal);
+                }
               }
             }
           }
         }
-      }
       
-      if (CreationFeatures){
+        //if (CreationFeatures){
         for(int i = 0 ; i < numAtom ; ++i){
           auto &atom = dictDiagrams[i];
           auto &histoEpochAtom = histoAllEpochLife[i];
@@ -860,7 +862,9 @@ void PersistenceDiagramDictEncoding::execute(
           auto &boolUnderDiag = checkUnderDiag[i];
           auto &boolDiag = checkDiag[i];
           for(size_t j = 0; j < histoEpochAtom.size(); ++j) {
-            if(boolUnderDiag[j] || boolDiag[j] || (histoEpochAtom[j] > 4 && histoBoolAtom[j])) {
+            if(boolUnderDiag[j] || boolDiag[j] || (histoEpochAtom[j] > 2 && histoBoolAtom[j])) {
+              // if(boolUnderDiag[j] || (histoEpochAtom[j] > 2 &&
+              // histoBoolAtom[j])){
               indicesAtomToDelete.push_back(j);
             }
           }
@@ -875,6 +879,8 @@ void PersistenceDiagramDictEncoding::execute(
           auto &histoBoolAtom = histoAllBoolLife[i];
           auto &indicesAtomToDelete = allIndicesToDelete[i];
           auto &boolUnderDiag = checkUnderDiag[i];
+          auto &boolDiag = checkDiag[i];
+
           auto initSize = initSizes[i];
           //size_t initAtomSize = atom.size() -histoEpochAtom.size();
           if(static_cast<int>(indicesAtomToDelete.size()) > 0) {
@@ -884,6 +890,7 @@ void PersistenceDiagramDictEncoding::execute(
               histoEpochAtom.erase(histoEpochAtom.begin() + indicesAtomToDelete[j]);
               histoBoolAtom.erase(histoBoolAtom.begin() + indicesAtomToDelete[j]);
               boolUnderDiag.erase(boolUnderDiag.begin() + indicesAtomToDelete[j]);
+              boolDiag.erase(boolDiag.begin() + indicesAtomToDelete[j]);
             }
           } else {
             continue;
@@ -1016,6 +1023,7 @@ void PersistenceDiagramDictEncoding::computeGradientWeights(
 
   // initialization
   std::vector<std::vector<std::array<double, 2>>> grad_list(Barycenter.size());
+  std::vector<std::vector<std::array<double, 2>>> pairToAddGradList;
   for(int i = 0; i < grad_list.size(); ++i) {
     grad_list[i].resize(matchingsAtoms.size());
   }
@@ -1095,6 +1103,39 @@ void PersistenceDiagramDictEncoding::computeGradientWeights(
 
     if(Id2 < 0) {
       k += 1;
+      
+      if (Id1 < 0){
+        continue;
+      } else {
+        if(CreationFeatures) {
+          const DiagramTuple &t2 = newData[indexDataMin[Id1]];
+          const double birth_data = std::get<6>(t2);
+          const double death_data = std::get<10>(t2);
+          const double birth_death_barycenter
+            = birth_data + (death_data - birth_data) / 2.;
+          std::vector<double> direction(2);
+          direction[0] = birth_data - birth_death_barycenter;
+          direction[1] = death_data - birth_death_barycenter;
+          /* std::vector<std::vector<double>> temp3(weights.size()); */
+          /* std::vector<double> temp2(2); */
+          /* for(size_t j = 0; j < weights.size(); ++j) { */
+          /*   temp2[0] += -2 * weights[j] * direction[0]; */
+          /*   temp2[1] += -2 * weights[j] * direction[1]; */
+          /*   temp3[j] = temp2; */
+          /* } */
+
+          std::vector<std::array<double, 2>> newPairs(matchingsAtoms.size());
+          for(size_t j = 0; j < matchingsAtoms.size(); ++j) {
+            std::array<double, 2> pair{
+              birth_death_barycenter, birth_death_barycenter};
+            newPairs[j] = pair;
+          }
+          pairToAddGradList.push_back(newPairs); 
+          data_assigned.push_back({birth_data, death_data});
+        } else {
+          continue;
+        }
+      }
       // this->printMsg("k = " + std::to_string(k));
     } else {
       // this->printMsg("==Here?==");
@@ -1135,6 +1176,39 @@ void PersistenceDiagramDictEncoding::computeGradientWeights(
 
     if(Id2 < 0) {
       k += 1;
+      
+      if (Id1 < 0){
+        continue;
+      } else {
+        if(CreationFeatures) {
+          const DiagramTuple &t2 = newData[indexDataMax[Id1]];
+          const double birth_data = std::get<6>(t2);
+          const double death_data = std::get<10>(t2);
+          const double birth_death_barycenter
+            = birth_data + (death_data - birth_data) / 2.;
+          std::vector<double> direction(2);
+          direction[0] = birth_data - birth_death_barycenter;
+          direction[1] = death_data - birth_death_barycenter;
+          /* std::vector<std::vector<double>> temp3(weights.size()); */
+          /* std::vector<double> temp2(2); */
+          /* for(size_t j = 0; j < weights.size(); ++j) { */
+          /*   temp2[0] += -2 * weights[j] * direction[0]; */
+          /*   temp2[1] += -2 * weights[j] * direction[1]; */
+          /*   temp3[j] = temp2; */
+          /* } */
+
+          std::vector<std::array<double, 2>> newPairs(matchingsAtoms.size());
+          for(size_t j = 0; j < matchingsAtoms.size(); ++j) {
+            std::array<double, 2> pair{
+              birth_death_barycenter, birth_death_barycenter};
+            newPairs[j] = pair;
+          }
+          pairToAddGradList.push_back(newPairs); 
+          data_assigned.push_back({birth_data, death_data});
+        } else {
+          continue;
+        }
+      }
       // this->printMsg("k = " + std::to_string(k));
     } else {
       // this->printMsg("==Here?==");
@@ -1174,6 +1248,39 @@ void PersistenceDiagramDictEncoding::computeGradientWeights(
 
     if(Id2 < 0) {
       k += 1;
+      
+      if (Id1 < 0){
+        continue;
+      } else {
+        if(CreationFeatures) {
+          const DiagramTuple &t2 = newData[indexDataSad[Id1]];
+          const double birth_data = std::get<6>(t2);
+          const double death_data = std::get<10>(t2);
+          const double birth_death_barycenter
+            = birth_data + (death_data - birth_data) / 2.;
+          std::vector<double> direction(2);
+          direction[0] = birth_data - birth_death_barycenter;
+          direction[1] = death_data - birth_death_barycenter;
+          /* std::vector<std::vector<double>> temp3(weights.size()); */
+          /* std::vector<double> temp2(2); */
+          /* for(size_t j = 0; j < weights.size(); ++j) { */
+          /*   temp2[0] += -2 * weights[j] * direction[0]; */
+          /*   temp2[1] += -2 * weights[j] * direction[1]; */
+          /*   temp3[j] = temp2; */
+          /* } */
+
+          std::vector<std::array<double, 2>> newPairs(matchingsAtoms.size());
+          for(size_t j = 0; j < matchingsAtoms.size(); ++j) {
+            std::array<double, 2> pair{
+              birth_death_barycenter, birth_death_barycenter};
+            newPairs[j] = pair;
+          }
+          pairToAddGradList.push_back(newPairs);
+          data_assigned.push_back({birth_data, death_data});
+        } else {
+          continue;
+        }
+      }
       // this->printMsg("k = " + std::to_string(k));
     } else {
       // this->printMsg("==Here?==");
@@ -1203,6 +1310,8 @@ void PersistenceDiagramDictEncoding::computeGradientWeights(
       tracker2[indexBarySad[Id2]] = 1;
     }
   }
+
+  grad_list.insert(grad_list.end(), pairToAddGradList.begin() , pairToAddGradList.end());
 
   // this->printMsg("======================PASSED2==========================");
   for(int i = 0; i < Barycenter.size(); ++i) {

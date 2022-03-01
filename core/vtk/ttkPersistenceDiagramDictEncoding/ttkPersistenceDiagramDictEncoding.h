@@ -68,7 +68,7 @@ public:
 
   vtkGetMacro(Alpha, double);
 
-  vtkSetMacro(OptimizeWeights, int);
+  vtkSetMacro(OptimizeWeights, int)
   vtkGetMacro(OptimizeWeights, int);
 
   vtkSetMacro(OptimizeAtoms, int);
@@ -76,6 +76,9 @@ public:
 
   vtkSetMacro(Fusion, int);
   vtkGetMacro(Fusion, int);
+
+  vtkSetMacro(MaxEpoch, int);
+  vtkGetMacro(MaxEpoch, int);
 
   vtkSetMacro(CreationFeatures, int);
   vtkGetMacro(CreationFeatures, int);

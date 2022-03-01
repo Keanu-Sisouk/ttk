@@ -123,8 +123,8 @@
             Performs the atoms optimization
         </Documentation>
       </IntVectorProperty>
-      
-        
+
+
         <IntVectorProperty
         name="Fusion"
         command="SetFusion"
@@ -138,7 +138,7 @@
         </Documentation>
       </IntVectorProperty>
 
-        
+
         <IntVectorProperty
         name="CreationFeatures"
         command="SetCreationFeatures"
@@ -153,6 +153,9 @@
       </IntVectorProperty>
 
 
+      <IntVectorProperty name = "MaxEpoch" label = "Max Epoch" command="SetMaxEpoch" number_of_elements = "1" default_values="1000" >
+      <IntRangeDomain name = "Range" min = "0" max = "1000" />
+      </IntVectorProperty>
 
       <IntVectorProperty name = "seed_" label = "Seed for random init" command="Setseed_" number_of_elements = "1" default_values="0" >
       <IntRangeDomain name = "Range" min = "0" max = "1000" />
