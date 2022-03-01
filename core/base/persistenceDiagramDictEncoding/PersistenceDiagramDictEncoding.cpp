@@ -190,6 +190,12 @@ void PersistenceDiagramDictEncoding::execute(
   int MAX_EPOCH = 1000;
   bool cond = true;
   int epoch = 0;
+  std::vector<size_t> initSizes(dictDiagrams.size());
+  for(size_t j = 0 ; j < dictDiagrams.size() ; ++j){
+    initSizes[j] = dictDiagrams[j].size();
+
+  }
+
   std::vector<Diagram> histoDictDiagrams(dictDiagrams.size());
   std::vector<std::vector<int>> histoAllEpochLife(dictDiagrams.size());
   std::vector<std::vector<bool>> histoAllBoolLife(dictDiagrams.size());
@@ -725,7 +731,7 @@ void PersistenceDiagramDictEncoding::execute(
 
       // double factEquiv = sqrt(static_cast<double>(numAtom));
       double factEquiv = numAtom;
-      double step = 1. / (factEquiv * 1e2);
+      double step = 1. / (factEquiv * 1e1);
       for(size_t i = 0 ; i < nDiags ; ++i){
         auto &projForDiag = allProjectionsList[i];
         auto &featuresToAdd = allFeaturesToAdd[i];
@@ -809,77 +815,81 @@ void PersistenceDiagramDictEncoding::execute(
           }
         }
       }
-
-      for(int i = 0 ; i < numAtom ; ++i){
-        auto &atom = dictDiagrams[i];
-        auto &histoEpochAtom = histoAllEpochLife[i];
-        auto &histoBoolAtom = histoAllBoolLife[i];
-        auto &boolUnderDiag = checkUnderDiag[i];
-        auto &boolDiag = checkDiag[i];
-        if(histoEpochAtom.size() != 0){
-          for(size_t j = 0; j < histoEpochAtom.size(); ++j) {
-            auto &t = atom[atom.size() + j];
-            histoEpochAtom[j] += 1;
-            histoBoolAtom[j] = std::get<10>(t) - std::get<6>(t) < 1e-1;
-            boolDiag[j] = std::get<10>(t) - std::get<6>(t) < 1e-5;
-            boolUnderDiag[j] = std::get<10>(t) < std::get<6>(t);
-          } 
-        }
-      }
-
-      for(int i = 0; i < numAtom; ++i) {
-        auto &atom = dictDiagrams[i];
-        auto &histoEpochAtom = histoAllEpochLife[i];
-        auto &histoBoolAtom = histoAllBoolLife[i];
-        auto &boolUnderDiag = checkUnderDiag[i];
-        auto &boolDiag = checkDiag[i];
-        auto &trueFeaturesToAdd = allTrueFeaturesToAdd[i];
-        for(size_t j = 0 ; j < trueFeaturesToAdd.size() ; ++j){
-          auto &t = trueFeaturesToAdd[j];
-          atom.push_back(t);
-          histoEpochAtom.push_back(0);
-          histoBoolAtom.push_back(std::get<10>(t) - std::get<6>(t) < 1e-1);
-          boolDiag.push_back(std::get<10>(t) - std::get<6>(t) < 1e-5);
-          boolUnderDiag.push_back(std::get<10>(t) < std::get<6>(t));
-        }
-      }
-
-      std::vector<std::vector<size_t>> allIndicesToDelete(numAtom);
-      for(int i = 0; i < numAtom; ++i) {
-        auto &indicesAtomToDelete = allIndicesToDelete[i];
-        auto &histoEpochAtom = histoAllEpochLife[i];
-        auto &histoBoolAtom = histoAllBoolLife[i];
-        auto &boolUnderDiag = checkUnderDiag[i];
-        auto &boolDiag = checkDiag[i];
-        for(size_t j = 0; j < histoEpochAtom.size(); ++j) {
-          if(boolUnderDiag[j] || boolDiag[j] || (histoEpochAtom[j] > 2 && histoBoolAtom[j])) {
-            indicesAtomToDelete.push_back(j);
+      
+      if (CreationFeatures){
+        for(int i = 0 ; i < numAtom ; ++i){
+          auto &atom = dictDiagrams[i];
+          auto &histoEpochAtom = histoAllEpochLife[i];
+          auto &histoBoolAtom = histoAllBoolLife[i];
+          auto &boolUnderDiag = checkUnderDiag[i];
+          auto &boolDiag = checkDiag[i];
+          auto initSize = initSizes[i];
+          if(histoEpochAtom.size() > 0){
+            for(size_t j = 0; j < histoEpochAtom.size(); ++j) {
+              auto &t = atom[initSize + j];
+              histoEpochAtom[j] += 1;
+              histoBoolAtom[j] = std::get<10>(t) - std::get<6>(t) < 1e-1;
+              boolDiag[j] = std::get<10>(t) - std::get<6>(t) < 1e-6;
+              boolUnderDiag[j] = std::get<10>(t) < std::get<6>(t);
+            } 
           }
         }
-      }
+
+        for(int i = 0; i < numAtom; ++i) {
+          auto &atom = dictDiagrams[i];
+          auto &histoEpochAtom = histoAllEpochLife[i];
+          auto &histoBoolAtom = histoAllBoolLife[i];
+          auto &boolUnderDiag = checkUnderDiag[i];
+          auto &boolDiag = checkDiag[i];
+          auto &trueFeaturesToAdd = allTrueFeaturesToAdd[i];
+          for(size_t j = 0 ; j < trueFeaturesToAdd.size() ; ++j){
+            auto &t = trueFeaturesToAdd[j];
+            atom.push_back(t);
+            histoEpochAtom.push_back(0);
+            histoBoolAtom.push_back(std::get<10>(t) - std::get<6>(t) < 1e-1);
+            boolDiag.push_back(std::get<10>(t) - std::get<6>(t) < 1e-6);
+            boolUnderDiag.push_back(std::get<10>(t) < std::get<6>(t));
+          }
+        }
+
+        std::vector<std::vector<size_t>> allIndicesToDelete(numAtom);
+        for(int i = 0; i < numAtom; ++i) {
+          auto &indicesAtomToDelete = allIndicesToDelete[i];
+          auto &histoEpochAtom = histoAllEpochLife[i];
+          auto &histoBoolAtom = histoAllBoolLife[i];
+          auto &boolUnderDiag = checkUnderDiag[i];
+          auto &boolDiag = checkDiag[i];
+          for(size_t j = 0; j < histoEpochAtom.size(); ++j) {
+            if(boolUnderDiag[j] || boolDiag[j] || (histoEpochAtom[j] > 4 && histoBoolAtom[j])) {
+              indicesAtomToDelete.push_back(j);
+            }
+          }
+        }
 
       
 
 
-      for(int i = 0; i < numAtom; ++i) {
-        auto &atom = dictDiagrams[i];
-        auto &histoEpochAtom = histoAllEpochLife[i];
-        auto &histoBoolAtom = histoAllBoolLife[i];
-        auto &indicesAtomToDelete = allIndicesToDelete[i];
-        auto &boolUnderDiag = checkUnderDiag[i];
-        if(static_cast<int>(indicesAtomToDelete.size()) > 0) {
-          for(int j = static_cast<int>(indicesAtomToDelete.size()) - 1; j >= 0;
-              j--) {
-            atom.erase(atom.begin() + atom.size() + indicesAtomToDelete[j]);
-            histoEpochAtom.erase(histoEpochAtom.begin() + indicesAtomToDelete[j]);
-            histoBoolAtom.erase(histoBoolAtom.begin() + indicesAtomToDelete[j]);
-            boolUnderDiag.erase(boolUnderDiag.begin() + indicesAtomToDelete[j]);
+        for(int i = 0; i < numAtom; ++i) {
+          auto &atom = dictDiagrams[i];
+          auto &histoEpochAtom = histoAllEpochLife[i];
+          auto &histoBoolAtom = histoAllBoolLife[i];
+          auto &indicesAtomToDelete = allIndicesToDelete[i];
+          auto &boolUnderDiag = checkUnderDiag[i];
+          auto initSize = initSizes[i];
+          //size_t initAtomSize = atom.size() -histoEpochAtom.size();
+          if(static_cast<int>(indicesAtomToDelete.size()) > 0) {
+            for(int j = static_cast<int>(indicesAtomToDelete.size()) - 1; j >= 0;
+                j--) {
+              atom.erase(atom.begin() + initSize  + indicesAtomToDelete[j]);
+              histoEpochAtom.erase(histoEpochAtom.begin() + indicesAtomToDelete[j]);
+              histoBoolAtom.erase(histoBoolAtom.begin() + indicesAtomToDelete[j]);
+              boolUnderDiag.erase(boolUnderDiag.begin() + indicesAtomToDelete[j]);
+            }
+          } else {
+            continue;
           }
-        } else {
-          continue;
         }
       }
-
       // this->printMsg("Computed 2nd opt for epoch " + std::to_string(epoch),
       //                epoch / static_cast<double>(MAX_EPOCH),
       //                tm_opt2.getElapsedTime(), threadNumber_,
@@ -895,6 +905,14 @@ void PersistenceDiagramDictEncoding::execute(
     allMatchingsAtoms.clear();
     allMatchingsAtoms.resize(nDiags);
 
+    //for(size_t p = 0 ; p < dictDiagrams.size() ; ++p){
+      //auto &atom = dictDiagrams[p];
+      //std::cout << "ATOM: " + std::to_string(p) << std::endl;
+      //for(size_t k = 0 ; k < atom.size() ; ++k){
+        //auto &t = atom[k];
+        //std::cout << "PAIR: " + std::to_string(std::get<6>(t)) + " AND " + std::to_string(std::get<10>(t)) << std::endl;
+      //}
+    //}
 
 
 
