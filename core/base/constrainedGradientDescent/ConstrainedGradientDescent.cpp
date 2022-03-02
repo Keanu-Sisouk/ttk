@@ -61,7 +61,7 @@ void ConstrainedGradientDescent::projectionOnSimplex(
 
   double sum = 0.;
   for(int i = 0; i < n - 1; ++i) {
-    weights[i] = trunc(weights[i] * 1e6) / 1e6;
+    weights[i] = trunc(weights[i] * 1e8) / 1e8;
     sum += weights[i];
   }
   weights[n - 1] = 1. - sum;
@@ -294,14 +294,14 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
       if(temp2.size() == 0) {
         // step = std::min(1., mini) / (1e1 + 1.0 * epoch);
         // step = std::min(1., mini) / (factEquiv*1e1);
-        step = 1. / (sqrt(factEquiv) * 1e2);
+        step = 1. / (sqrt(factEquiv) * 1e1);
         // step = 1./factEquiv;
       } else {
         // double mini2 = *std::min_element(temp2.begin(), temp2.end());
         //   double maxi = std::max_element(pos.begin() ; pos.end());
         //   step = std::min(std::min(1., mini), mini2) / (1e1 + 1.0 * epoch);
         //   step = std::min(std::min(1., mini), mini2) / (factEquiv*1e1);
-        step = 1. / (sqrt(factEquiv) * 1e2);
+        step = 1. / (sqrt(factEquiv) * 1e1);
         // step = mini2 / (factEquiv*1e1);
         // step = 1./factEquiv;
       }
@@ -366,11 +366,11 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
             for(size_t m = 0; m < DictDiagrams.size(); ++m) {
               projAndIndex[m] = tracker_match[i][m];
             }
-            projAndIndex[DictDiagrams.size()] = atomIndex;
-            projForDiag.push_back(projAndIndex);
-            featuresToAdd.push_back(infos);
-            projLocations.push_back(grad_list[i][index]);
-            vectorForProjContrib.push_back(gradsLists[i][index]);
+            //projAndIndex[DictDiagrams.size()] = atomIndex;
+            //projForDiag.push_back(projAndIndex);
+            //featuresToAdd.push_back(infos);
+            //projLocations.push_back(grad_list[i][index]);
+            //vectorForProjContrib.push_back(gradsLists[i][index]);
             // DictDiagrams[index].push_back(newPair);
             //}
 

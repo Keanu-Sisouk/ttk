@@ -734,7 +734,7 @@ void PersistenceDiagramDictEncoding::execute(
         // std::cout << "CREATING FEATURES" << std::endl;
         // double factEquiv = sqrt(static_cast<double>(numAtom));
         double factEquiv = numAtom;
-        double step = 1. / (sqrt(factEquiv) * 1e2);
+        double step = 1. / (sqrt(factEquiv) * 1e1);
         for(size_t i = 0 ; i < nDiags ; ++i){
           auto &projForDiag = allProjectionsList[i];
           auto &featuresToAdd = allFeaturesToAdd[i];
@@ -863,7 +863,7 @@ void PersistenceDiagramDictEncoding::execute(
           auto &boolUnderDiag = checkUnderDiag[i];
           auto &boolDiag = checkDiag[i];
           for(size_t j = 0; j < histoEpochAtom.size(); ++j) {
-            if(boolUnderDiag[j] || boolDiag[j] || (histoEpochAtom[j] > 2 && histoBoolAtom[j])) {
+            if(boolUnderDiag[j] || boolDiag[j] || (histoEpochAtom[j] > 1 && histoBoolAtom[j])) {
               // if(boolUnderDiag[j] || (histoEpochAtom[j] > 2 &&
               // histoBoolAtom[j])){
               indicesAtomToDelete.push_back(j);
