@@ -18,7 +18,9 @@ void PersistenceDiagramDictEncoding::execute(
   std::vector<std::vector<double>> &vectorWeights,
   const std::array<size_t, 2> &nInputs,
   const int seed,
-  const int numAtom) {
+  const int numAtom,
+  std::vector<double> &loss_tab,
+  std::vector<std::vector<double>> &allLosses) {
 
   Timer tm{};
   double tm_part = 0.;
@@ -183,7 +185,7 @@ void PersistenceDiagramDictEncoding::execute(
   double loss;
   // double loss1;
   // int epoch = 1;
-  std::vector<double> loss_tab;
+  // std::vector<double> loss_tab;
   int lag = 0;
   int lagLimit = 50;
   int MIN_EPOCH = 100;
@@ -202,7 +204,8 @@ void PersistenceDiagramDictEncoding::execute(
   std::vector<std::vector<bool>> checkUnderDiag(dictDiagrams.size());
   std::vector<std::vector<bool>> checkDiag(dictDiagrams.size());
   std::vector<std::vector<double>> histoVectorWeights(nDiags);
-  std::vector<double> allLosses(nDiags , 0.);
+  // std::vector<double> allLosses(nDiags , 0.);
+  std::vector<double> allLossesAtEpoch(nDiags, 0.);
   std::ofstream myFile("/home/keanu/ttk-data/weightsTimeLine2.csv");
   for(int j = 0 ; j < numAtom ; ++j){
     myFile << "weight" + std::to_string(j+1);
@@ -339,25 +342,22 @@ void PersistenceDiagramDictEncoding::execute(
         auto &barycentermin = bidder_barycenters_min[i];
         auto &datamin = bidder_diagrams_min[i];
 
-
-        allLosses[i] += computeDistance(datamin, barycentermin, matching_min);
-        
+        allLossesAtEpoch[i]
+          += computeDistance(datamin, barycentermin, matching_min);
       }
       if(this->do_max_) {
         auto &barycentermax = bidder_barycenters_max[i];
         auto &datamax = bidder_diagrams_max[i];
 
-
-        allLosses[i] += computeDistance(datamax, barycentermax, matching_max);
-        
+        allLossesAtEpoch[i]
+          += computeDistance(datamax, barycentermax, matching_max);
       }
       if(this->do_sad_) {
         auto &barycentersad = bidder_barycenters_sad[i];
         auto &datasad = bidder_diagrams_sad[i];
 
-
-        allLosses[i] += computeDistance(datasad, barycentersad, matching_sad);
-        
+        allLossesAtEpoch[i]
+          += computeDistance(datasad, barycentersad, matching_sad);
       }
       matchingsDatasMin[i] = std::move(matching_min);
       matchingsDatasSad[i] = std::move(matching_sad);
@@ -365,14 +365,15 @@ void PersistenceDiagramDictEncoding::execute(
     }
 
     for(size_t p = 0 ; p < nDiags ; ++p){
-      loss+=allLosses[p];
+      loss += allLossesAtEpoch[p];
     }
     if(epoch == 126) {
       this->printMsg("LOSS BEFORE = " + std::to_string(loss));
     }
 
     for(size_t p = 0 ; p < nDiags ; ++p){
-      allLossesEnd << allLosses[p];
+      allLossesEnd << allLossesAtEpoch[p];
+      allLosses[p].push_back(allLossesAtEpoch[p]);
       if(p != nDiags - 1) allLossesEnd << ","; 
     }
     allLossesEnd << "\n";
@@ -482,7 +483,7 @@ void PersistenceDiagramDictEncoding::execute(
     myFile << "\n";
 
     for(size_t p = 0 ; p < nDiags ; ++p){
-      allLosses[p] = 0.;
+      allLossesAtEpoch[p] = 0.;
     }
     Barycenters.clear();
     Barycenters.resize(nDiags);

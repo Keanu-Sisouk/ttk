@@ -20,7 +20,7 @@ vtkStandardNewMacro(ttkPersistenceDiagramDictEncoding);
 
 ttkPersistenceDiagramDictEncoding::ttkPersistenceDiagramDictEncoding() {
   SetNumberOfInputPorts(2);
-  SetNumberOfOutputPorts(2);
+  SetNumberOfOutputPorts(4);
 }
 
 int ttkPersistenceDiagramDictEncoding::FillInputPortInformation(
@@ -44,6 +44,12 @@ int ttkPersistenceDiagramDictEncoding::FillOutputPortInformation(
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkMultiBlockDataSet");
     return 1;
   } else if(port == 1) {
+    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkTable");
+    return 1;
+  } else if(port == 2) {
+    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkTable");
+    return 1;
+  } else if(port == 3) {
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkTable");
     return 1;
   } else {
@@ -136,6 +142,8 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
 
   auto output_dgm = vtkMultiBlockDataSet::GetData(outputVector, 0);
   auto output_weights = vtkTable::GetData(outputVector, 1);
+  auto output_loss = vtkTable::GetData(outputVector, 2);
+  auto output_allLosses = vtkTable::GetData(outputVector, 3);
 
   // int numAtom = this->GetAtomNumber();
   output_dgm->SetNumberOfBlocks(numAtom);
@@ -186,39 +194,6 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
   std::vector<ttk::Diagram> dictDiagrams;
   const int seed = this->Getseed_();
 
-  // ttk::Timer tm_dict{};
-  // this->InitDictionary(dictDiagrams, intermediateDiagrams, numAtom,
-  //                      this->do_min_, this->do_sad_, this->do_max_, seed);
-  //
-  // this->printMsg("Initialisation time", 1,
-  // tm_dict.getElapsedTime(),threadNumber_, ttk::debug::LineMode::NEW,
-  // ttk::debug::Priority::DETAIL);
-
-  // std::vector<ttk::Diagram> inputDiagram(1);
-  // this->printMsg("==============COUCHE TTK=======================");
-  //=======================DICTIONARY NAIVE INIT===============================
-
-  // std::vector<ttk::Diagram> dictDiagrams(numAtom);
-  // double max_dimension_total2 = 0.0;
-  // for(int i = 0; i < numAtom; ++i) {
-  //   ttk::Diagram &atom = dictDiagrams[i];
-  //   double max_dimension2 = getPersistenceDiagram(
-  //     atom, vtkUnstructuredGrid::SafeDownCast(output_dgm->GetBlock(i)));
-  //   // for(size_t k = 0; k < atom.size(); ++k) {
-  //   //   DiagramTuple &t = atom[k];
-  //   //   std::cout << "Pair atoms: " << std::get<6>(t) << ", " <<
-  //   //   std::get<10>(t)
-  //   //             << std::endl;
-  //   // }
-  //   if(max_dimension2 < 0.0) {
-  //     this->printErr("Could not read Persistence Diagram");
-  //     return 0;
-  //   }
-  //   if(max_dimension_total2 < max_dimension2) {
-  //     max_dimension_total2 = max_dimension2;
-  //   }
-  // }
-
   // this->printMsg("==============COUCHE TTK=======================");
 
   std::vector<std::vector<double>> vectorWeights(nDiags);
@@ -229,18 +204,12 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
     vectorWeights[i] = std::move(weights);
   }
 
-  // std::vector<std::vector<double>> vectorWeights(1);
-  // for(int i = 0; i < vectorWeights.size(); ++i) {
-  //   // std::vector<double> weights{0.333, 0.333, 0.334};
-  //   // std::vector<double> weights{1. / 3., 1. / 3., 1. / 3.};
-  //   std::vector<double> weights(numAtom, 1. / (numAtom * 1.));
-  //   vectorWeights[i] = std::move(weights);
-  // }
-
+  std::vector<double> loss_tab;
+  std::vector<std::vector<double>> allLosses(nDiags);
   // const auto diagramsDistMat = this->execute(intermediateDiagrams,
   // dictDiagrams, vectorWeights,  nInputs);
-  this->execute(
-    intermediateDiagrams, intermediateAtoms, dictDiagrams, vectorWeights, nInputs, seed, numAtom);
+  this->execute(intermediateDiagrams, intermediateAtoms, dictDiagrams,
+                vectorWeights, nInputs, seed, numAtom, loss_tab, allLosses);
   // zero-padd column name to keep Row Data columns ordered
   // this->printMsg("============WE ARE HERE 173 AFTER EXECUTE============");
   output_weights->SetNumberOfRows(numAtom);
@@ -273,6 +242,28 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
     output_weights->AddColumn(col);
   }
 
+  vtkNew<vtkDoubleArray> colLoss{};
+  colLoss->SetNumberOfValues(loss_tab.size());
+  colLoss->SetName("Loss evolution");
+  for(size_t j = 0; j < loss_tab.size(); ++j) {
+    colLoss->SetValue(j, loss_tab[j]);
+  }
+  colLoss->Modified();
+  output_loss->AddColumn(colLoss);
+
+  for(int i = 0; i < nDiags; ++i) {
+    std::vector<double> &loss = allLosses[i];
+    std::string name{"Loss squared"};
+    zeroPad(name, nDiags, i);
+    vtkNew<vtkDoubleArray> col{};
+    col->SetNumberOfValues(loss.size());
+    col->SetName(name.c_str());
+    for(size_t j = 0; j < loss.size(); ++j) {
+      col->SetValue(j, loss[j]);
+    }
+    col->Modified();
+    output_allLosses->AddColumn(col);
+  }
   // this->printMsg("============WE ARE HERE 204 AFTER EXECUTE============");
 
   for(int i = 0; i < numAtom; ++i) {

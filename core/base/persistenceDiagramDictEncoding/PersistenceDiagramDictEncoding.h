@@ -38,7 +38,9 @@ namespace ttk {
                  std::vector<std::vector<double>> &vectorWeights,
                  const std::array<size_t, 2> &nInputs,
                  const int seed,
-                 const int numAtom);
+                 const int numAtom,
+                 std::vector<double> &loss_tab,
+                 std::vector<std::vector<double>> &allLosses);
 
     enum class BACKEND { BORDER_INIT = 0, RANDOM_INIT = 1, FIRST_DIAGS = 2, INPUT_ATOMS = 3 };
 
