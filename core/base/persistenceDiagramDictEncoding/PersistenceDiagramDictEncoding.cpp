@@ -734,7 +734,7 @@ void PersistenceDiagramDictEncoding::execute(
         // std::cout << "CREATING FEATURES" << std::endl;
         // double factEquiv = sqrt(static_cast<double>(numAtom));
         double factEquiv = numAtom;
-        double step = 1. / (sqrt(factEquiv) * 1e1);
+        double step = 1. / (factEquiv * 1e1);
         for(size_t i = 0 ; i < nDiags ; ++i){
           auto &projForDiag = allProjectionsList[i];
           auto &featuresToAdd = allFeaturesToAdd[i];
@@ -831,7 +831,7 @@ void PersistenceDiagramDictEncoding::execute(
             for(size_t j = 0; j < histoEpochAtom.size(); ++j) {
               auto &t = atom[initSize + j];
               histoEpochAtom[j] += 1;
-              histoBoolAtom[j] = std::get<10>(t) - std::get<6>(t) < 1e-1;
+              histoBoolAtom[j] = std::get<10>(t) - std::get<6>(t) < 1000;
               boolDiag[j] = std::get<10>(t) - std::get<6>(t) < 1e-6;
               boolUnderDiag[j] = std::get<10>(t) < std::get<6>(t);
             } 
@@ -849,7 +849,7 @@ void PersistenceDiagramDictEncoding::execute(
             auto &t = trueFeaturesToAdd[j];
             atom.push_back(t);
             histoEpochAtom.push_back(0);
-            histoBoolAtom.push_back(std::get<10>(t) - std::get<6>(t) < 1e-1);
+            histoBoolAtom.push_back(std::get<10>(t) - std::get<6>(t) < 1000);
             boolDiag.push_back(std::get<10>(t) - std::get<6>(t) < 1e-6);
             boolUnderDiag.push_back(std::get<10>(t) < std::get<6>(t));
           }
@@ -863,7 +863,7 @@ void PersistenceDiagramDictEncoding::execute(
           auto &boolUnderDiag = checkUnderDiag[i];
           auto &boolDiag = checkDiag[i];
           for(size_t j = 0; j < histoEpochAtom.size(); ++j) {
-            if(boolUnderDiag[j] || boolDiag[j] || (histoEpochAtom[j] > 1 && histoBoolAtom[j])) {
+            if(boolUnderDiag[j] || boolDiag[j] || (histoEpochAtom[j] > 10 && histoBoolAtom[j])) {
               // if(boolUnderDiag[j] || (histoEpochAtom[j] > 2 &&
               // histoBoolAtom[j])){
               indicesAtomToDelete.push_back(j);

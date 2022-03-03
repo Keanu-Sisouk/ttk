@@ -91,7 +91,7 @@ void ConstrainedGradientDescent::gradientDescentWeights(
   //std::cout << "STEP" << step << std::endl;
 
   for(int i = 0; i < n; ++i) {
-    weights[i] = weights[i] - step * grad[i];
+    weights[i] = weights[i] -mini * step * grad[i];
     // std::cout << "GRAD: " + std::to_string(grad[i]) << std::endl;
   }
 }
@@ -294,14 +294,14 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
       if(temp2.size() == 0) {
         // step = std::min(1., mini) / (1e1 + 1.0 * epoch);
         // step = std::min(1., mini) / (factEquiv*1e1);
-        step = 1. / (sqrt(factEquiv) * 1e1);
+        step = 1. / (factEquiv * 1e1);
         // step = 1./factEquiv;
       } else {
         // double mini2 = *std::min_element(temp2.begin(), temp2.end());
         //   double maxi = std::max_element(pos.begin() ; pos.end());
         //   step = std::min(std::min(1., mini), mini2) / (1e1 + 1.0 * epoch);
         //   step = std::min(std::min(1., mini), mini2) / (factEquiv*1e1);
-        step = 1. / (sqrt(factEquiv) * 1e1);
+        step = 1. / (factEquiv * 1e1);
         // step = mini2 / (factEquiv*1e1);
         // step = 1./factEquiv;
       }
