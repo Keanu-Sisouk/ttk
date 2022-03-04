@@ -121,19 +121,6 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
   std::vector<std::vector<std::array<double, 2>>> grad_list(Barycenter.size());
   std::vector<std::vector<double>> projectionsBuffer(Barycenter.size());
 
-  std::cout << "EPOCH " + std::to_string(epoch) << std::endl;
-  for(size_t i = 0; i < gradsLists.size(); ++i) {
-    if(checkerAtomsExt[i] == 0) {
-      continue;
-    }
-    auto &grad = gradsLists[i];
-    std::cout << std::to_string(i) + "EME GRAD" << std::endl;
-    for(size_t j = 0; j < grad.size(); ++j) {
-      auto &comp = grad[j];
-      std::cout << "COMP SIZE" << comp.size() << std::endl;
-      std::cout << "GRAD: " << comp[0] << " AND " << comp[1] << std::endl;
-    }
-  }
 
   for(size_t i = 0 ; i < Barycenter.size() ; ++i){
     projectionsBuffer[i].resize(matchings.size());

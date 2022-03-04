@@ -1312,10 +1312,20 @@ void PersistenceDiagramDictEncoding::computeGradientWeights(
     }
   }
 
+  std::vector<int> temp(pairToAddGradList.size());
   grad_list.insert(grad_list.end(), pairToAddGradList.begin() , pairToAddGradList.end());
+  tracker2.insert(tracker2.end(), temp.begin() , temp.end());
+  tracker.insert(tracker.end() , temp.begin() , temp.end());
+  std::vector<int> temp2(matchingsAtoms.size());
+  for(size_t j = 0 ; j < matchingsAtoms.size() ; ++j){
+    temp2.push_back(static_cast<int>(j));
+  }
+  for(size_t j = 0 ; j < pairToAddGradList.size() ; ++j){
+    checker.push_back(temp2);
+  }
 
   // this->printMsg("======================PASSED2==========================");
-  for(int i = 0; i < Barycenter.size(); ++i) {
+  for(int i = 0; i < grad_list.size(); ++i) {
     const auto &data_point = data_assigned[i];
     for(int j = 0; j < checker[i].size(); ++j) {
       auto &point = grad_list[i][checker[i][j]];
@@ -1325,7 +1335,7 @@ void PersistenceDiagramDictEncoding::computeGradientWeights(
   }
 
   // this->printMsg("error?3");
-  for(int i = 0; i < Barycenter.size(); ++i) {
+  for(int i = 0; i < grad_list.size(); ++i) {
     // for(auto it = std::begin(checker); it != std::end(checker); ++it) {
     if(tracker[i] == 0 || tracker2[i] == 0) {
       continue;
@@ -1346,8 +1356,8 @@ void PersistenceDiagramDictEncoding::computeGradientWeights(
     }
   }
   // this->printMsg("======================PASSED2==========================");
-  hessianList.resize(Barycenter.size());
-  for(int i = 0; i < Barycenter.size(); ++i) {
+  hessianList.resize(grad_list.size());
+  for(int i = 0; i < grad_list.size(); ++i) {
     Matrix &hessian = hessianList[i];
     hessian.resize(checker[i].size());
     for(int j = 0; j < checker[i].size(); ++j) {
