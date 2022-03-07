@@ -367,9 +367,7 @@ void PersistenceDiagramDictEncoding::execute(
     for(size_t p = 0 ; p < nDiags ; ++p){
       loss += allLossesAtEpoch[p];
     }
-    if(epoch == 126) {
-      this->printMsg("LOSS BEFORE = " + std::to_string(loss));
-    }
+
 
     for(size_t p = 0 ; p < nDiags ; ++p){
       allLossesEnd << allLossesAtEpoch[p];
@@ -926,6 +924,7 @@ void PersistenceDiagramDictEncoding::execute(
   }
   printMsg(" Epoch "+std::to_string(epoch)+", loss = "+std::to_string(loss), 1, threadNumber_);
 
+  printMsg("Loss returned " + std::to_string(*std::min_element(loss_tab.begin() , loss_tab.end())) + " at Epoch " + std::to_string(std::min_element(loss_tab.begin() , loss_tab.end())- loss_tab.begin()));
   myFile.close();
   // this->printMsg("Epoch" + std::to_string(epoch) + "==================");
   // this->printMsg("loss1 " + std::to_string(loss1) + "=================");
