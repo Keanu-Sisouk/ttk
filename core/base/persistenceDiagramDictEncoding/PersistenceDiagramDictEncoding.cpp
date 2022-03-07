@@ -732,7 +732,7 @@ void PersistenceDiagramDictEncoding::execute(
         // std::cout << "CREATING FEATURES" << std::endl;
         // double factEquiv = sqrt(static_cast<double>(numAtom));
         double factEquiv = numAtom;
-        double step = 1. / (factEquiv * 1e1);
+        double step = 1. / (sqrt(factEquiv) * 1e1);
         for(size_t i = 0 ; i < nDiags ; ++i){
           auto &projForDiag = allProjectionsList[i];
           auto &featuresToAdd = allFeaturesToAdd[i];
