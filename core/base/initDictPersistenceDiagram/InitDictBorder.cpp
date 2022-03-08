@@ -33,12 +33,28 @@ void InitFarBorderDict::execute(std::vector<Diagram> &DictDiagrams,
   for(int i = 1; i < nbAtoms; ++i) {
     indices.push_back(getNextIndex(distMatrix, indices));
   }
-
-  DictDiagrams.resize(nbAtoms);
-  for(int i = 0; i < nbAtoms; ++i) {
-    const Diagram &atom = datas[indices[i]];
-    DictDiagrams[i] = atom;
+  
+  std::vector<double> tempDistsSummed(nbAtoms);
+  for(int i = 0 ; i < nbAtoms ; ++i){
+    tempDistsSummed[i] = allDistsSummed[indices[i]];
+    std::cout << "VALUE: " << tempDistsSummed[i] << std::endl;
   }
+
+  int FirstId = std::min_element(tempDistsSummed.begin() , tempDistsSummed.end()) - tempDistsSummed.begin();
+  DictDiagrams.push_back(datas[indices[FirstId]]);
+  for(int i = 0 ; i < nbAtoms ; ++i){
+    if(i == FirstId){
+      continue;
+    } else {
+      DictDiagrams.push_back(datas[indices[i]]);
+    }
+  }
+  //DictDiagrams.resize(nbAtoms);
+  //for(int i = 0; i < nbAtoms; ++i) {
+    //const Diagram &atom = datas[indices[i]];
+    //std::cout << "INDICE :" << indices[i] << std::endl;
+    //DictDiagrams[i] = atom;
+  //}
 
 }
 
