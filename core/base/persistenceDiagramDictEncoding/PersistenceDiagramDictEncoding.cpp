@@ -206,24 +206,7 @@ void PersistenceDiagramDictEncoding::execute(
   std::vector<std::vector<double>> histoVectorWeights(nDiags);
   // std::vector<double> allLosses(nDiags , 0.);
   std::vector<double> allLossesAtEpoch(nDiags, 0.);
-  std::ofstream myFile("/home/keanu/ttk-data/weightsTimeLine2.csv");
-  for(int j = 0 ; j < numAtom ; ++j){
-    myFile << "weight" + std::to_string(j+1);
-    if(j != numAtom - 1) myFile << ",";
-  }
-  myFile << "\n";
 
-
-  std::ofstream lossHisto("/home/keanu/Bureau/python_trash/loss_histo.csv");
-  lossHisto << "loss";
-  lossHisto << "\n";
-
-  std::ofstream allLossesEnd("/home/keanu/ttk-data/all_losses.csv");
-  for(size_t j = 0 ; j < nDiags ; ++j){
-    allLossesEnd << "diag" + std::to_string(j+1);
-    if(j != nDiags - 1) allLossesEnd << ",";
-  }
-  allLossesEnd << "\n";
 
   // bool condition = true;
   while(epoch < MAX_EPOCH) {
@@ -370,15 +353,14 @@ void PersistenceDiagramDictEncoding::execute(
 
 
     for(size_t p = 0 ; p < nDiags ; ++p){
-      allLossesEnd << allLossesAtEpoch[p];
+
       allLosses[p].push_back(allLossesAtEpoch[p]);
-      if(p != nDiags - 1) allLossesEnd << ","; 
+
     }
-    allLossesEnd << "\n";
+
 
     loss_tab.push_back(loss);
-    lossHisto << loss;
-    lossHisto << "\n";
+
 
     double mini = *std::min_element(loss_tab.begin(), loss_tab.end() - 1);
     if(loss <= mini) {
@@ -474,11 +456,7 @@ void PersistenceDiagramDictEncoding::execute(
 
 
     std::vector<double> &weight = vectorWeights[0];
-    for(int j = 0 ; j < numAtom ; ++j){
-      myFile << weight.at(j);
-      if(j!= numAtom - 1) myFile << ",";
-    }
-    myFile << "\n";
+
 
     for(size_t p = 0 ; p < nDiags ; ++p){
       allLossesAtEpoch[p] = 0.;
@@ -927,7 +905,7 @@ void PersistenceDiagramDictEncoding::execute(
   printMsg(" Epoch "+std::to_string(epoch)+", loss = "+std::to_string(loss), 1, threadNumber_);
 
   printMsg("Loss returned " + std::to_string(*std::min_element(loss_tab.begin() , loss_tab.end())) + " at Epoch " + std::to_string(std::min_element(loss_tab.begin() , loss_tab.end())- loss_tab.begin()));
-  myFile.close();
+
   // this->printMsg("Epoch" + std::to_string(epoch) + "==================");
   // this->printMsg("loss1 " + std::to_string(loss1) + "=================");
   // this->printMsg("loss " + std::to_string(loss) + "===================");
