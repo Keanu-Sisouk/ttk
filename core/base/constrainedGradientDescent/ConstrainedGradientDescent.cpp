@@ -2,6 +2,11 @@
 #include <cmath>
 #include <csignal>
 
+#ifdef TTK_ENABLE_EIGEN
+#include <Eigen/Dense>
+#include <Eigen/Eigenvalues>
+#endif // TTK_ENABLE_EIGEN
+
 using namespace ttk;
 
 
@@ -12,8 +17,9 @@ void ConstrainedGradientDescent::executeWeightsProjected(
   std::vector<double> &weights,
   const std::vector<double> &grad,
   const int epoch,
-  const int nb_points) {
-  gradientDescentWeights(hessianList, weights, grad, epoch, nb_points);
+  const int nb_points,
+  bool MaxEigenValue) {
+  gradientDescentWeights(hessianList, weights, grad, epoch, nb_points, MaxEigenValue);
   projectionOnSimplex(weights);
 }
 
@@ -72,18 +78,41 @@ void ConstrainedGradientDescent::gradientDescentWeights(
   std::vector<double> &weights,
   const std::vector<double> &grad,
   const int epoch,
-  const int nb_points) {
+  const int nb_points,
+  bool MaxEigenValue) {
 
   double mini = *std::min_element(weights.begin(), weights.end());
   int n = weights.size();
   double step;
   double L = 0.;
   // std::cout << "STEP = " << step << std::endl;
-  for(size_t i = 0; i < hessianList.size(); ++i) {
-    auto &hessian = hessianList[i];
-    for(size_t k = 0; k < hessian.size(); ++k) {
-      double diag = hessian[k][k];
-      L += 1. * diag;
+#ifndef TTK_ENABLE_EIGEN
+  MaxEigenValue = false;
+#endif // TTK_ENABLE_EIGEN
+  if(MaxEigenValue){
+#ifdef TTK_ENABLE_EIGEN
+    for(size_t i = 0; i < hessianList.size(); ++i){
+      auto &hessian = hessianList[i];
+      int m = hessian.size();
+      Eigen::MatrixXd H(m,m);
+      for(size_t j = 0 ; j < hessian.size() ; ++j){
+        for(size_t k = 0 ; k < hessian.size() ; ++k){
+          H(j,k) = hessian[j][k];
+        }
+      }
+      Eigen::EigenSolver<Eigen::MatrixXd> es;
+      es.compute(H, false);
+      Eigen::VectorXcd eigvals = es.eigenvalues();
+      L += 1. * eigvals.lpNorm<Eigen::Infinity>();
+    }
+#endif // TTK_ENABLE_EIGEN
+  } else {
+    for(size_t i = 0; i < hessianList.size(); ++i) {
+      auto &hessian = hessianList[i];
+      for(size_t k = 0; k < hessian.size(); ++k) {
+        double diag = hessian[k][k];
+        L += 1. * diag;
+      }
     }
   }
   //std::cout << "REGULARITY COEFF: " + std::to_string(L) << std::endl;
@@ -279,7 +308,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
       double factEquiv = DictDiagrams.size();
       //double factEquiv = 1.;
       //step = 1. / (sqrt(factEquiv) * 1e1);
-      step = 1. / ( 2.* factEquiv);
+      step = 1. / (2. * 2.* factEquiv);
       // double factEquiv = DictDiagrams.size();
 
 

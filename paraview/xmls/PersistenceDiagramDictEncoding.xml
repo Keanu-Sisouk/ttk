@@ -125,6 +125,20 @@
       </IntVectorProperty>
 
 
+        
+        <IntVectorProperty
+        name="MaxEigenValue"
+        command="SetMaxEigenValue"
+        label="Max Eigen Value"
+        number_of_elements="1"
+        default_values="1"
+        panel_visibility="advanced">
+        <BooleanDomain name="bool"/>
+        <Documentation>
+            Set strategy step to Max Eigen Value
+        </Documentation>
+      </IntVectorProperty>
+
         <IntVectorProperty
         name="Fusion"
         command="SetFusion"

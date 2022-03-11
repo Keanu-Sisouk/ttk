@@ -443,7 +443,7 @@ void PersistenceDiagramDictEncoding::execute(
           indexBaryMax, indexBarySad, indexDataMin, indexDataMax, indexDataSad);
         int nb_points = Barycenter.size();
         gradActor.executeWeightsProjected(
-          hessianList, weights, gradWeights, epoch, nb_points);
+          hessianList, weights, gradWeights, epoch, nb_points, MaxEigenValue);
       }
 
       // this->printMsg("Computed 1st opt for epoch " + std::to_string(epoch),
@@ -710,7 +710,7 @@ void PersistenceDiagramDictEncoding::execute(
         double factEquiv = numAtom;
         //double factEquiv = 1.;
         //double step = 1. / (sqrt(factEquiv) * 1e1);
-        double step = 1. / ( 2. * factEquiv);
+        double step = 1. / ( 2. * 2. * factEquiv);
         for(size_t i = 0 ; i < nDiags ; ++i){
           auto &projForDiag = allProjectionsList[i];
           auto &featuresToAdd = allFeaturesToAdd[i];
@@ -807,7 +807,7 @@ void PersistenceDiagramDictEncoding::execute(
             for(size_t j = 0; j < histoEpochAtom.size(); ++j) {
               auto &t = atom[initSize + j];
               histoEpochAtom[j] += 1;
-              histoBoolAtom[j] = std::get<10>(t) - std::get<6>(t) < 0.3;
+              histoBoolAtom[j] = std::get<10>(t) - std::get<6>(t) < 1e-3;
               boolDiag[j] = std::get<10>(t) - std::get<6>(t) < 1e-6;
               boolUnderDiag[j] = std::get<10>(t) < std::get<6>(t);
             } 
@@ -825,7 +825,7 @@ void PersistenceDiagramDictEncoding::execute(
             auto &t = trueFeaturesToAdd[j];
             atom.push_back(t);
             histoEpochAtom.push_back(0);
-            histoBoolAtom.push_back(std::get<10>(t) - std::get<6>(t) < 0.3);
+            histoBoolAtom.push_back(std::get<10>(t) - std::get<6>(t) < 1e-3);
             boolDiag.push_back(std::get<10>(t) - std::get<6>(t) < 1e-6);
             boolUnderDiag.push_back(std::get<10>(t) < std::get<6>(t));
           }
@@ -1015,6 +1015,9 @@ void PersistenceDiagramDictEncoding::computeGradientWeights(
   }
 
   std::vector<std::vector<int>> checker(Barycenter.size());
+  for(size_t j = 0 ; j < Barycenter.size() ; ++j){
+    checker[j].resize(matchingsAtoms.size());
+  }
   std::vector<int> tracker(Barycenter.size(), 0);
   std::vector<int> tracker2(Barycenter.size(), 0);
 
@@ -1052,7 +1055,8 @@ void PersistenceDiagramDictEncoding::computeGradientWeights(
         point[0] = birth_death_atom;
         point[1] = birth_death_atom;
         // std::cout << "Proj coordinates" << birth_death_atom << std::endl;
-        checker[Id2].push_back(i);
+        //checker[Id2].push_back(i);
+        checker[Id2][i] = i;
         tracker[Id2] = 1;
       } else {
         // this->printMsg("====UPDATE GRADLIST========");
@@ -1062,7 +1066,8 @@ void PersistenceDiagramDictEncoding::computeGradientWeights(
         const double death_atom = std::get<10>(t2);
         point[0] = birth_atom;
         point[1] = death_atom;
-        checker[Id2].push_back(i);
+        //checker[Id2].push_back(i);
+        checker[Id2][i] = i;
         tracker[Id2] = 1;
       }
     }

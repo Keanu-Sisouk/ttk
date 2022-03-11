@@ -162,6 +162,7 @@ namespace ttk {
     bool do_min_{true}, do_sad_{true}, do_max_{true};
 
     int MaxEpoch;
+    bool MaxEigenValue{true};
     bool OptimizeWeights{true};
     bool OptimizeAtoms{true};
 

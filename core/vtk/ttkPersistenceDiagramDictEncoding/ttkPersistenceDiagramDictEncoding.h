@@ -74,6 +74,9 @@ public:
   vtkSetMacro(OptimizeAtoms, int);
   vtkGetMacro(OptimizeAtoms, int);
 
+  vtkSetMacro(MaxEigenValue, int);
+  vtkGetMacro(MaxEigenValue, int);
+
   vtkSetMacro(Fusion, int);
   vtkGetMacro(Fusion, int);
 
