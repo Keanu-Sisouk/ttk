@@ -103,7 +103,7 @@ void ConstrainedGradientDescent::gradientDescentWeights(
       Eigen::EigenSolver<Eigen::MatrixXd> es;
       es.compute(H, false);
       Eigen::VectorXcd eigvals = es.eigenvalues();
-      L += 1. * eigvals.lpNorm<Eigen::Infinity>();
+      L += eigvals.lpNorm<Eigen::Infinity>();
     }
 #endif // TTK_ENABLE_EIGEN
   } else {
