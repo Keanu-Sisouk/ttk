@@ -710,7 +710,7 @@ void PersistenceDiagramDictEncoding::execute(
         double factEquiv = numAtom;
         //double factEquiv = 1.;
         //double step = 1. / (sqrt(factEquiv) * 1e1);
-        double step = 1. / ( 2. * 2. * factEquiv);
+        double step = 1. / ( 2. * 2. * factEquiv * 10.);
         for(size_t i = 0 ; i < nDiags ; ++i){
           auto &projForDiag = allProjectionsList[i];
           auto &featuresToAdd = allFeaturesToAdd[i];
