@@ -710,7 +710,7 @@ void PersistenceDiagramDictEncoding::execute(
         double factEquiv = numAtom;
         //double factEquiv = 1.;
         //double step = 1. / (sqrt(factEquiv) * 1e1);
-        double step = 1. / ( 2. * 2. * factEquiv * 1e2);
+        double step = 1. / ( 2. * factEquiv);
         for(size_t i = 0 ; i < nDiags ; ++i){
           auto &projForDiag = allProjectionsList[i];
           auto &featuresToAdd = allFeaturesToAdd[i];
@@ -1299,7 +1299,7 @@ void PersistenceDiagramDictEncoding::computeGradientWeights(
     }
   }
 
-  std::vector<int> temp(pairToAddGradList.size());
+  std::vector<int> temp(pairToAddGradList.size(), 1);
   grad_list.insert(grad_list.end(), pairToAddGradList.begin() , pairToAddGradList.end());
   tracker2.insert(tracker2.end(), temp.begin() , temp.end());
   tracker.insert(tracker.end() , temp.begin() , temp.end());
