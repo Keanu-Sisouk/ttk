@@ -21,6 +21,7 @@
 // ttk common includes
 #include <Debug.h>
 #include <PersistenceDiagramClustering.h>
+#include <PersistenceDiagramDistanceMatrix.h>
 #include <Wrapper.h>
 
 namespace ttk {

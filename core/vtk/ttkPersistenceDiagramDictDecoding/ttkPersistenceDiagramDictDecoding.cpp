@@ -366,27 +366,67 @@ void ttkPersistenceDiagramDictDecoding::outputDiagrams(
   output->SetNumberOfBlocks(nDiags+n_existing_blocks);
   std::vector<std::pair<double,double>> coords(nAtoms);
 
-  for(size_t i = 0; i < nAtoms; ++i) {
-    const auto angle = 2.0 * M_PI * static_cast<double>(i)
-      / static_cast<double>(nAtoms);
-    double X = spacing * max_persistence * std::cos(angle);
-    double Y = spacing * max_persistence * std::sin(angle);
-    coords[i].first = X;
-    coords[i].second = Y;
+  if(nAtoms == 20){
+    ttk::PersistenceDiagramDistanceMatrix MatrixCalculator;
+    std::array<size_t , 2> nInputs{nAtoms, 0};
+    MatrixCalculator.setDos(true, true, true);
+    MatrixCalculator.setThreadNumber(3);
+    std::vector<std::vector<double>> distMatrix = MatrixCalculator.execute(atoms, nInputs);
+    coords[0].first = 0.;
+    coords[0].second = 0.;
+    coords[1].first = spacing * 50. * distMatrix[0][1];
+    coords[1].second = 0.;
+    double distOpposed = spacing * 50. * distMatrix[2][1];
+    double firstDist = spacing * 50. * distMatrix[0][1];
+    double distAdja = spacing * 50. * distMatrix[0][2];
+    double alpha = std::acos((distOpposed * distOpposed -firstDist * firstDist -distAdja * distAdja)/(-2. * firstDist * distAdja));
+    coords[2].first = distAdja * std::cos(alpha);
+    coords[2].second = distAdja * std::sin(alpha);
+   
     
     if(ShowAtoms){
-      vtkNew<vtkUnstructuredGrid> vtu{};
-      this->diagramToVTU(vtu, atoms[i], max_persistence);
+      for(size_t i = 0 ; i < nAtoms ; ++i){
+        double X = coords[i].first;
+        double Y = coords[i].second;
+        vtkNew<vtkUnstructuredGrid> vtu{};
+        this->diagramToVTU(vtu, atoms[i], max_persistence);
 
-      vtkNew<vtkTransform> tr{};
-      tr->Translate(X,Y,0);
+        vtkNew<vtkTransform> tr{};
+        tr->Translate(X,Y,0);
 
-      vtkNew<vtkTransformFilter> trf{};
-      trf->SetTransform(tr);
-      trf->SetInputData(vtu);
-      trf->Update();
+        vtkNew<vtkTransformFilter> trf{};
+        trf->SetTransform(tr);
+        trf->SetInputData(vtu);
+        trf->Update();
 
-      output->SetBlock(i, trf->GetOutputDataObject(0));
+        output->SetBlock(i, trf->GetOutputDataObject(0));
+      }
+    }
+
+  } else {
+
+    for(size_t i = 0; i < nAtoms; ++i) {
+      const auto angle = 2.0 * M_PI * static_cast<double>(i)
+        / static_cast<double>(nAtoms);
+      double X = spacing * max_persistence * std::cos(angle);
+      double Y = spacing * max_persistence * std::sin(angle);
+      coords[i].first = X;
+      coords[i].second = Y;
+    
+      if(ShowAtoms){
+        vtkNew<vtkUnstructuredGrid> vtu{};
+        this->diagramToVTU(vtu, atoms[i], max_persistence);
+
+        vtkNew<vtkTransform> tr{};
+        tr->Translate(X,Y,0);
+
+        vtkNew<vtkTransformFilter> trf{};
+        trf->SetTransform(tr);
+        trf->SetInputData(vtu);
+        trf->Update();
+
+        output->SetBlock(i, trf->GetOutputDataObject(0));
+      }
     }
   }
 
