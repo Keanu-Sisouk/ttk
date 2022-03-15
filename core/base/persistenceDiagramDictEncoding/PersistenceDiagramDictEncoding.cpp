@@ -242,10 +242,10 @@ void PersistenceDiagramDictEncoding::execute(
       //             << std::endl;
       // 
     }
-    // this->printMsg(
-    //   "Computed 1st Barycenters for epoch " + std::to_string(epoch),
-    //   epoch / static_cast<double>(MAX_EPOCH), tm_it.getElapsedTime(),
-    //   threadNumber_, debug::LineMode::NEW, debug::Priority::DETAIL);
+    this->printMsg(
+     "Computed 1st Barycenters for epoch " + std::to_string(epoch),
+      epoch / static_cast<double>(MAX_EPOCH), tm_it.getElapsedTime(),
+      threadNumber_, debug::LineMode::NEW, debug::Priority::DETAIL);
     tm_part += static_cast<double>(tm_it.getElapsedTime());
     // this->printMsg(
     //   "====================BARYCENTER FINISHED======================");
@@ -446,10 +446,10 @@ void PersistenceDiagramDictEncoding::execute(
           hessianList, weights, gradWeights, epoch, nb_points, MaxEigenValue);
       }
 
-      // this->printMsg("Computed 1st opt for epoch " + std::to_string(epoch),
-      //                epoch / static_cast<double>(MAX_EPOCH),
-      //                tm_opt1.getElapsedTime(), threadNumber_,
-      //                debug::LineMode::NEW, debug::Priority::DETAIL);
+      this->printMsg("Computed 1st opt for epoch " + std::to_string(epoch),
+                     epoch / static_cast<double>(MAX_EPOCH),
+                     tm_opt1.getElapsedTime(), threadNumber_,
+                     debug::LineMode::NEW, debug::Priority::DETAIL);
     }
 
     
@@ -500,10 +500,10 @@ void PersistenceDiagramDictEncoding::execute(
       //          << std::endl;
       // }
     }
-    // this->printMsg(
-    //   "Computed 2nd Barycenters for epoch " + std::to_string(epoch),
-    //   epoch / static_cast<double>(MAX_EPOCH), tm_it2.getElapsedTime(),
-    //   threadNumber_, debug::LineMode::NEW, debug::Priority::DETAIL);
+    this->printMsg(
+      "Computed 2nd Barycenters for epoch " + std::to_string(epoch),
+      epoch / static_cast<double>(MAX_EPOCH), tm_it2.getElapsedTime(),
+      threadNumber_, debug::LineMode::NEW, debug::Priority::DETAIL);
     tm_part += static_cast<double>(tm_it2.getElapsedTime());
 
     BarycentersMin.clear();
@@ -874,10 +874,10 @@ void PersistenceDiagramDictEncoding::execute(
           }
         }
       }
-      // this->printMsg("Computed 2nd opt for epoch " + std::to_string(epoch),
-      //                epoch / static_cast<double>(MAX_EPOCH),
-      //                tm_opt2.getElapsedTime(), threadNumber_,
-      //                debug::LineMode::NEW, debug::Priority::DETAIL);
+      this->printMsg("Computed 2nd opt for epoch " + std::to_string(epoch),
+                     epoch / static_cast<double>(MAX_EPOCH),
+                     tm_opt2.getElapsedTime(), threadNumber_,
+                     debug::LineMode::NEW, debug::Priority::DETAIL);
 
 
       // ATOM OPTIMIZATION
@@ -900,7 +900,7 @@ void PersistenceDiagramDictEncoding::execute(
 
 
 
-  printMsg(" Epoch "+std::to_string(epoch)+", loss = "+std::to_string(loss), 1, threadNumber_, ttk::debug::LineMode::REPLACE);
+  printMsg(" Epoch "+std::to_string(epoch)+", loss = "+std::to_string(loss), 1, threadNumber_, ttk::debug::LineMode::NEW);
   }
   printMsg(" Epoch "+std::to_string(epoch)+", loss = "+std::to_string(loss), 1, threadNumber_);
 

@@ -366,7 +366,7 @@ void ttkPersistenceDiagramDictDecoding::outputDiagrams(
   output->SetNumberOfBlocks(nDiags+n_existing_blocks);
   std::vector<std::pair<double,double>> coords(nAtoms);
 
-  if(nAtoms == 20){
+  if(nAtoms == 3){
     ttk::PersistenceDiagramDistanceMatrix MatrixCalculator;
     std::array<size_t , 2> nInputs{nAtoms, 0};
     MatrixCalculator.setDos(true, true, true);
@@ -374,11 +374,11 @@ void ttkPersistenceDiagramDictDecoding::outputDiagrams(
     std::vector<std::vector<double>> distMatrix = MatrixCalculator.execute(atoms, nInputs);
     coords[0].first = 0.;
     coords[0].second = 0.;
-    coords[1].first = spacing * 50. * distMatrix[0][1];
+    coords[1].first = spacing  * distMatrix[0][1];
     coords[1].second = 0.;
-    double distOpposed = spacing * 50. * distMatrix[2][1];
-    double firstDist = spacing * 50. * distMatrix[0][1];
-    double distAdja = spacing * 50. * distMatrix[0][2];
+    double distOpposed = spacing  * distMatrix[2][1];
+    double firstDist = spacing  * distMatrix[0][1];
+    double distAdja = spacing  * distMatrix[0][2];
     double alpha = std::acos((distOpposed * distOpposed -firstDist * firstDist -distAdja * distAdja)/(-2. * firstDist * distAdja));
     coords[2].first = distAdja * std::cos(alpha);
     coords[2].second = distAdja * std::sin(alpha);
