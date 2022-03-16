@@ -376,12 +376,12 @@ void ttkPersistenceDiagramDictDecoding::outputDiagrams(
     coords[0].second = 0.;
     coords[1].first = spacing  * distMatrix[0][1];
     coords[1].second = 0.;
-    double distOpposed = spacing  * distMatrix[2][1];
-    double firstDist = spacing  * distMatrix[0][1];
-    double distAdja = spacing  * distMatrix[0][2];
+    double distOpposed = distMatrix[2][1];
+    double firstDist = distMatrix[0][1];
+    double distAdja = distMatrix[0][2];
     double alpha = std::acos((distOpposed * distOpposed -firstDist * firstDist -distAdja * distAdja)/(-2. * firstDist * distAdja));
-    coords[2].first = distAdja * std::cos(alpha);
-    coords[2].second = distAdja * std::sin(alpha);
+    coords[2].first = spacing * distAdja * std::cos(alpha);
+    coords[2].second = spacing * distAdja * std::sin(alpha);
    
     
     if(ShowAtoms){
