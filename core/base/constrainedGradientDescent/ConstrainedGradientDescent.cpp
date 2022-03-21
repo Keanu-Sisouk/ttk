@@ -147,6 +147,13 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
   // Here vector of diagramTuple because it is not a persistence diagram per
   // say.
   // we get the right pairs to update for each barycenter pair.
+
+  std::vector<double> miniBirth(matchings.size());
+  for(size_t i = 0 ; i < matchings.size() ; ++i){
+    auto &t = DictDiagrams[i][0];
+    miniBirth[i] = std::get<6>(t);
+  }
+
   std::vector<std::vector<std::array<double, 2>>> grad_list(Barycenter.size());
   std::vector<std::vector<double>> projectionsBuffer(Barycenter.size());
 
@@ -385,7 +392,11 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
             auto &t2 = grad_list[i][index];
 
             DiagramTuple &t1 = DictDiagrams[index][tracker_temp];
-            std::get<6>(t1) = t2[0];
+            if (t2[0] < miniBirth[index]){
+              std::get<6>(t1) = miniBirth[index];
+            } else {
+              std::get<6>(t1) = t2[0];
+            }
             std::get<10>(t1) = t2[1];
           }
         }
@@ -423,7 +434,11 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
             auto &index = checker[i][j];
             auto &t2 = grad_list[i][index];
             DiagramTuple &t1 = DictDiagrams[index][tracker_temp];
-            std::get<6>(t1) = t2[0];
+            if (t2[0] < miniBirth[index]){
+              std::get<6>(t1) = miniBirth[index];
+            } else {
+              std::get<6>(t1) = t2[0];
+            }
             std::get<10>(t1) = t2[1];
           }
         }
