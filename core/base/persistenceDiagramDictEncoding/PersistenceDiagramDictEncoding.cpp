@@ -203,6 +203,7 @@ void PersistenceDiagramDictEncoding::execute(
   std::vector<std::vector<bool>> histoAllBoolLife(dictDiagrams.size());
   std::vector<std::vector<bool>> checkUnderDiag(dictDiagrams.size());
   std::vector<std::vector<bool>> checkDiag(dictDiagrams.size());
+  std::vector<std::vector<bool>> checkAboveGlobal(dictDiagrams.size());
   std::vector<std::vector<double>> histoVectorWeights(nDiags);
   // std::vector<double> allLosses(nDiags , 0.);
   std::vector<double> allLossesAtEpoch(nDiags, 0.);
@@ -672,6 +673,12 @@ void PersistenceDiagramDictEncoding::execute(
         // gradActor.executeAtoms(dictDiagrams, matchingsAtoms, Barycenter,
         //                        gradsAtoms, nb_points, checkerAtoms, epoch);
       }
+      std::vector<double> maxiDeath(numAtom);
+      for(int j = 0; j < numAtom; ++j) {
+        auto &atom = dictDiagrams[j];
+        auto &temp = atom[0];
+        maxiDeath[j] = std::get<10>(temp);
+      }
 
       std::vector<std::vector<std::vector<int>>> allProjectionsList(nDiags);
       std::vector<std::vector<DiagramTuple>> allFeaturesToAdd(nDiags);
@@ -803,6 +810,7 @@ void PersistenceDiagramDictEncoding::execute(
           auto &boolUnderDiag = checkUnderDiag[i];
           auto &boolDiag = checkDiag[i];
           auto initSize = initSizes[i];
+          auto &boolAboveGlobal = checkAboveGlobal[i];
           if(histoEpochAtom.size() > 0){
             for(size_t j = 0; j < histoEpochAtom.size(); ++j) {
               auto &t = atom[initSize + j];
@@ -810,6 +818,7 @@ void PersistenceDiagramDictEncoding::execute(
               histoBoolAtom[j] = std::get<10>(t) - std::get<6>(t) < 1e-3;
               boolDiag[j] = std::get<10>(t) - std::get<6>(t) < 1e-6;
               boolUnderDiag[j] = std::get<10>(t) < std::get<6>(t);
+              boolAboveGlobal[j] = std::get<6>(t) > maxiDeath[i];
             } 
           }
         }
@@ -821,6 +830,7 @@ void PersistenceDiagramDictEncoding::execute(
           auto &boolUnderDiag = checkUnderDiag[i];
           auto &boolDiag = checkDiag[i];
           auto &trueFeaturesToAdd = allTrueFeaturesToAdd[i];
+          auto &boolAboveGlobal = checkAboveGlobal[i];
           for(size_t j = 0 ; j < trueFeaturesToAdd.size() ; ++j){
             auto &t = trueFeaturesToAdd[j];
             atom.push_back(t);
@@ -828,6 +838,7 @@ void PersistenceDiagramDictEncoding::execute(
             histoBoolAtom.push_back(std::get<10>(t) - std::get<6>(t) < 1e-3);
             boolDiag.push_back(std::get<10>(t) - std::get<6>(t) < 1e-6);
             boolUnderDiag.push_back(std::get<10>(t) < std::get<6>(t));
+            boolAboveGlobal.push_back(std::get<6>(t) > maxiDeath[i]);
           }
         }
 
@@ -838,8 +849,10 @@ void PersistenceDiagramDictEncoding::execute(
           auto &histoBoolAtom = histoAllBoolLife[i];
           auto &boolUnderDiag = checkUnderDiag[i];
           auto &boolDiag = checkDiag[i];
+          auto &boolAboveGlobal = checkAboveGlobal[i];
           for(size_t j = 0; j < histoEpochAtom.size(); ++j) {
-            if(boolUnderDiag[j] || boolDiag[j] || (histoEpochAtom[j] > 1000 && histoBoolAtom[j])) {
+            if(boolUnderDiag[j] || boolDiag[j] || boolAboveGlobal[j]
+               || (histoEpochAtom[j] > 1000 && histoBoolAtom[j])) {
               // if(boolUnderDiag[j] || (histoEpochAtom[j] > 2 &&
               // histoBoolAtom[j])){
               indicesAtomToDelete.push_back(j);
@@ -857,7 +870,7 @@ void PersistenceDiagramDictEncoding::execute(
           auto &indicesAtomToDelete = allIndicesToDelete[i];
           auto &boolUnderDiag = checkUnderDiag[i];
           auto &boolDiag = checkDiag[i];
-
+          auto &boolAboveGlobal = checkAboveGlobal[i];
           auto initSize = initSizes[i];
           //size_t initAtomSize = atom.size() -histoEpochAtom.size();
           if(static_cast<int>(indicesAtomToDelete.size()) > 0) {
@@ -868,6 +881,8 @@ void PersistenceDiagramDictEncoding::execute(
               histoBoolAtom.erase(histoBoolAtom.begin() + indicesAtomToDelete[j]);
               boolUnderDiag.erase(boolUnderDiag.begin() + indicesAtomToDelete[j]);
               boolDiag.erase(boolDiag.begin() + indicesAtomToDelete[j]);
+              boolAboveGlobal.erase(boolAboveGlobal.begin()
+                                    + indicesAtomToDelete[j]);
             }
           } else {
             continue;
