@@ -98,6 +98,18 @@
         </Hints>
       </IntVectorProperty>
 
+      
+      <IntVectorProperty name = "percent_" label = "percent threshold" command="Setpercent_" number_of_elements = "1" default_values="100" >
+      <IntRangeDomain name = "Range" min = "0" max = "100" />
+        <Hints>
+          <PropertyWidgetDecorator type="GenericDecorator"
+            mode="visibility"
+            property="BackEnd"
+            value="3"
+            inverse="1"/>
+        </Hints>
+      </IntVectorProperty>
+
         <IntVectorProperty
         name="OptimizeWeights"
         command="SetOptimizeWeights"

@@ -158,9 +158,18 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
   std::vector<ttk::Diagram> intermediateAtoms(numInputAtoms);
 
   double max_dimension_total = 0.0;
+  double percentage = static_cast<double>(this->percent_);
   for(int i = 0; i < nDiags; ++i) {
     double max_dimension
       = getPersistenceDiagram(intermediateDiagrams[i], inputDiagrams[i]);
+    intermediateDiagrams[i].erase(
+      std::remove_if(intermediateDiagrams[i].begin(),
+                     intermediateDiagrams[i].end(),
+                     [max_dimension, percentage](ttk::DiagramTuple &t) {
+                       return (std::get<10>(t) - std::get<6>(t))
+                              < (percentage / 100.) * max_dimension;
+                     }),
+      intermediateDiagrams[i].end());
     if(max_dimension < 0.0) {
       this->printErr("Could not read Persistence Diagram");
       return 0;

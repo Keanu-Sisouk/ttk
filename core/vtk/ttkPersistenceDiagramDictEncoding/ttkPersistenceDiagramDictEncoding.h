@@ -38,6 +38,7 @@ class TTKPERSISTENCEDIAGRAMDICTENCODING_EXPORT ttkPersistenceDiagramDictEncoding
 private:
   int atomNumber_{3};
   int seed_{0};
+  int percent_{100};
 
 public:
   // enum class BACKEND{BORDER_INIT = 0 , RANDOM_INIT = 1 , FIRST_DIAGS = 2};
@@ -67,6 +68,9 @@ public:
   }
 
   vtkGetMacro(Alpha, double);
+
+  vtkSetMacro(percent_, int);
+  vtkGetMacro(percent_, int);
 
   vtkSetMacro(OptimizeWeights, int); 
   vtkGetMacro(OptimizeWeights, int);
