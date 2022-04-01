@@ -67,7 +67,7 @@ void ConstrainedGradientDescent::projectionOnSimplex(
 
   double sum = 0.;
   for(int i = 0; i < n - 1; ++i) {
-    weights[i] = trunc(weights[i] * 1e8) / 1e8;
+    weights[i] = trunc(weights[i] * 1e5) / 1e5;
     sum += weights[i];
   }
   weights[n - 1] = 1. - sum;
