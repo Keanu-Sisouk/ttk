@@ -72,6 +72,7 @@
          <Entry value="1" text="Random initialization"/>
          <Entry value="2" text="First Elem initialization"/>
          <Entry value="3" text="Input atome (optional input)"/>
+         <Entry value="4" text="Greddy initialization"/>
        </EnumerationDomain>
        <Documentation>
            Backend for the computation of the dictionary of the persistence diagrams.
@@ -99,8 +100,8 @@
       </IntVectorProperty>
 
       
-      <IntVectorProperty name = "percent_" label = "percent threshold" command="Setpercent_" number_of_elements = "1" default_values="100" >
-      <IntRangeDomain name = "Range" min = "0" max = "100" />
+      <IntVectorProperty name = "percent_" label = "percent threshold" command="Setpercent_" number_of_elements = "1" default_values="0" >
+      <IntRangeDomain name = "Range" min = "0" max = "50" />
         <Hints>
           <PropertyWidgetDecorator type="GenericDecorator"
             mode="visibility"

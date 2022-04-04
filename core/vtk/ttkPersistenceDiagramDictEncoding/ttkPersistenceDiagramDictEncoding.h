@@ -38,7 +38,7 @@ class TTKPERSISTENCEDIAGRAMDICTENCODING_EXPORT ttkPersistenceDiagramDictEncoding
 private:
   int atomNumber_{3};
   int seed_{0};
-  int percent_{100};
+  int percent_{0};
 
 public:
   // enum class BACKEND{BORDER_INIT = 0 , RANDOM_INIT = 1 , FIRST_DIAGS = 2};

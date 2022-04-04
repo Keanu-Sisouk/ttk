@@ -11,7 +11,29 @@ static bool testNeg(DiagramTuple &t) {
   return death < birth;
 }
 
+
 void PersistenceDiagramDictEncoding::execute(
+  const std::vector<Diagram> &intermediateDiagrams,
+  const std::vector<Diagram> &intermediateAtoms,
+  std::vector<Diagram> &dictDiagrams,
+  std::vector<std::vector<double>> &vectorWeights,
+  const std::array<size_t, 2> &nInputs,
+  const int seed,
+  const int numAtom,
+  std::vector<double> &loss_tab,
+  std::vector<std::vector<double>> &allLosses) {
+
+  
+  Timer tm_init{};
+  InitDictionary(dictDiagrams, intermediateDiagrams, intermediateAtoms, numAtom, this->do_min_,
+                 this->do_sad_, this->do_max_, seed);
+  this->printMsg("Initialization computed ", 1, tm_init.getElapsedTime(),
+                 threadNumber_, debug::LineMode::NEW);
+
+  method(intermediateDiagrams, intermediateAtoms, dictDiagrams, vectorWeights, nInputs, seed, numAtom, loss_tab, allLosses);
+}
+
+void PersistenceDiagramDictEncoding::method(
   const std::vector<Diagram> &intermediateDiagrams,
   const std::vector<Diagram> &intermediateAtoms,
   std::vector<Diagram> &dictDiagrams,
@@ -41,11 +63,11 @@ void PersistenceDiagramDictEncoding::execute(
     printWrn("Atom Optimization desactivated");
   }
 
-  Timer tm_init{};
-  InitDictionary(dictDiagrams, intermediateDiagrams, intermediateAtoms, numAtom, this->do_min_,
-                 this->do_sad_, this->do_max_, seed);
-  this->printMsg("Initialization computed ", 1, tm_init.getElapsedTime(),
-                 threadNumber_, debug::LineMode::NEW, debug::Priority::DETAIL);
+  //Timer tm_init{};
+  //InitDictionary(dictDiagrams, intermediateDiagrams, intermediateAtoms, numAtom, this->do_min_,
+  //               this->do_sad_, this->do_max_, seed);
+  //this->printMsg("Initialization computed ", 1, tm_init.getElapsedTime(),
+  //               threadNumber_, debug::LineMode::NEW, debug::Priority::DETAIL);
 
   // for(size_t i = 0; i < dictDiagrams.size(); ++i) {
   //   std::cout << "SIZE: " << dictDiagrams[i].size();
@@ -1821,6 +1843,44 @@ int PersistenceDiagramDictEncoding::InitDictionary(
       for(int i = 0; i < nbAtom; ++i) {
         const auto &t = datas[i];
         dictDiagrams.push_back(t);
+      }
+      break;
+    }
+    case BACKEND::GREEDY_INIT: {
+      dictDiagrams.resize(datas.size());
+      for(size_t i = 0 ; i < datas.size() ; ++i){
+        dictDiagrams[i] = datas[i];
+      }
+      const std::array<size_t , 2> nInputsUseless{100 , 100};
+      while(static_cast<int>(dictDiagrams.size()) != nbAtom){
+        //std::vector<Diagram> dictTemp;
+        std::vector<double> allEnergy(dictDiagrams.size());
+        
+#ifdef TTK_ENABLE_OPENMP
+#pragma omp parallel for num_threads(threadNumber_)
+#endif // TTK_ENABLE_OPENMP
+        for(size_t j = 0 ; j < dictDiagrams.size() ; ++j){
+          std::vector<Diagram> dictTemp;
+          std::vector<Diagram> dataAlone;
+          std::vector<double> lossTabTemp;
+          std::vector<std::vector<double>> allLossesTemp(1);
+           
+          for(size_t p = 0 ; p < dictDiagrams.size() ; ++p){
+            if(p != j){
+              dictTemp.push_back(dictDiagrams[p]);
+            } else {
+              dataAlone.push_back(dictDiagrams[p]);
+            }
+          }
+          std::vector<std::vector<double>> weightsTemp(1);
+          std::vector<double> weights(dictTemp.size() , 1./ (static_cast<int>(dictTemp.size())* 1.));
+          weightsTemp[0] = weights;
+          this->method(dataAlone, inputAtoms, dictTemp, weightsTemp, nInputsUseless, seed, static_cast<int>(dictTemp.size()), lossTabTemp, allLossesTemp);
+          double min_loss = *std::min_element(lossTabTemp.begin() , lossTabTemp.end());
+          allEnergy[j] = min_loss;
+        }
+        int index = std::min_element(allEnergy.begin() , allEnergy.end()) - allEnergy.begin();
+        dictDiagrams.erase(dictDiagrams.begin() + index);
       }
       break;
     }

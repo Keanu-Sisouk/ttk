@@ -32,7 +32,7 @@ namespace ttk {
       this->setDebugMsgPrefix("PersistenceDiagramDictEncoding");
     }
 
-    void execute(const std::vector<Diagram> &intermediateDiagrams,
+   void execute(const std::vector<Diagram> &intermediateDiagrams,
                  const std::vector<Diagram> &intermediateAtoms,
                  std::vector<Diagram> &dictDiagrams,
                  std::vector<std::vector<double>> &vectorWeights,
@@ -42,7 +42,19 @@ namespace ttk {
                  std::vector<double> &loss_tab,
                  std::vector<std::vector<double>> &allLosses);
 
-    enum class BACKEND { BORDER_INIT = 0, RANDOM_INIT = 1, FIRST_DIAGS = 2, INPUT_ATOMS = 3 };
+ 
+
+    void method(const std::vector<Diagram> &intermediateDiagrams,
+                 const std::vector<Diagram> &intermediateAtoms,
+                 std::vector<Diagram> &dictDiagrams,
+                 std::vector<std::vector<double>> &vectorWeights,
+                 const std::array<size_t, 2> &nInputs,
+                 const int seed,
+                 const int numAtom,
+                 std::vector<double> &loss_tab,
+                 std::vector<std::vector<double>> &allLosses);
+
+    enum class BACKEND { BORDER_INIT = 0, RANDOM_INIT = 1, FIRST_DIAGS = 2, INPUT_ATOMS = 3, GREEDY_INIT = 4 };
 
     inline void setWasserstein(const int data) {
       Wasserstein = data;
