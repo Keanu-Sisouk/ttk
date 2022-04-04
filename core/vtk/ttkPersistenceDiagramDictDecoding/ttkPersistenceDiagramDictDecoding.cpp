@@ -160,7 +160,7 @@ int ttkPersistenceDiagramDictDecoding::RequestData(
     }
   }
 
-  std::vector<vtkDoubleArray *> inputWeights;
+  std::vector<vtkDataArray *> inputWeights;
   int numWeights = weights_vtk->GetNumberOfColumns();
   // this->printMsg(std::to_string(numWeights));
   if(weights_vtk != nullptr) {
@@ -168,7 +168,8 @@ int ttkPersistenceDiagramDictDecoding::RequestData(
     // this->printMsg(std::to_string(numWeights));
     inputWeights.resize(numWeights);
     for(int i = 0; i < numWeights; ++i) {
-      inputWeights[i] = vtkDoubleArray::SafeDownCast(weights_vtk->GetColumn(i));
+      inputWeights[i] = vtkDataArray::SafeDownCast(weights_vtk->GetColumn(i));
+      
       // if(this->GetMTime() < input[i]->GetMTime()) {
       //  needUpdate_ = true;
       //}
@@ -181,7 +182,8 @@ int ttkPersistenceDiagramDictDecoding::RequestData(
     std::vector<double> &t1 = vectorWeights[i];
     // vtkDoubleArray &t2 = inputWeights[i];
     for(int j = 0; j < nDiags; ++j) {
-      double weight = inputWeights[i]->GetValue(j);
+      //double weight = t1[j];
+      double weight = inputWeights[i]->GetTuple1(j);
       t1.push_back(weight);
     }
   }
