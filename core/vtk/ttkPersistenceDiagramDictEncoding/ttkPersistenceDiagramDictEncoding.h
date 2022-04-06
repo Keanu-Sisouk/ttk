@@ -87,6 +87,9 @@ public:
   vtkSetMacro(MaxEpoch, int);
   vtkGetMacro(MaxEpoch, int);
 
+  vtkSetMacro(ProgApproach, int);
+  vtkGetMacro(ProgApproach, int);
+
   vtkSetMacro(CreationFeatures, int);
   vtkGetMacro(CreationFeatures, int);
 

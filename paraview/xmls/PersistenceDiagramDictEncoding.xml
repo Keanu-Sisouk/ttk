@@ -165,6 +165,21 @@
         </Documentation>
       </IntVectorProperty>
 
+        
+        <IntVectorProperty
+        name="ProgApproach"
+        command="SetProgApproach"
+        label="Progressive approach"
+        number_of_elements="1"
+        default_values="0"
+        panel_visibility="advanced">
+        <BooleanDomain name="bool"/>
+        <Documentation>
+            Activate progressive approach
+        </Documentation>
+      </IntVectorProperty>
+
+
 
         <IntVectorProperty
         name="CreationFeatures"

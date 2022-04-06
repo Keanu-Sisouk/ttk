@@ -24,18 +24,58 @@ void PersistenceDiagramDictEncoding::execute(
   std::vector<std::vector<double>> &allLosses) {
 
   
-  if(!ProgApproach){
-    
+  if(!ProgApproach){    
+    std::vector<std::vector<double>> histoVectorWeights(intermediateDiagrams.size());
+    std::vector<Diagram> histoDictDiagrams(numAtom);
     Timer tm_init{};
     InitDictionary(dictDiagrams, intermediateDiagrams, intermediateAtoms, numAtom, this->do_min_, this->do_sad_, this->do_max_, seed);
     this->printMsg("Initialization computed ", 1, tm_init.getElapsedTime(), threadNumber_, debug::LineMode::NEW);
-    method(intermediateDiagrams, intermediateAtoms, dictDiagrams, vectorWeights, nInputs, seed, numAtom, loss_tab, allLosses);
+    method(intermediateDiagrams, intermediateAtoms, dictDiagrams, vectorWeights, nInputs, seed, numAtom, loss_tab, allLosses, histoVectorWeights, histoDictDiagrams);
   } else {
-    std::vector<double> percentages{0.5 , 0.4 , 0.3 , 0.2 , 0.1 , 0.05 , 0.025};
-     
-    Timer tm_init{};
-    InitDictionary(dictDiagrams, intermediateDiagrams, intermediateAtoms, numAtom, this->do_min_, this->do_sad_, this->do_max_, seed);
-    this->printMsg("Initialization computed ", 1, tm_init.getElapsedTime(), threadNumber_, debug::LineMode::NEW);
+    
+    std::vector<double> percentages{0.3 , 0.2 , 0.1 , 0.05 , 0.1};
+    std::vector<std::vector<double>> histoVectorWeights(intermediateDiagrams.size());
+    std::vector<Diagram> histoDictDiagrams(numAtom);
+    for(size_t j = 0 ; j < 1 ; ++j){
+      double percentage = percentages[j];
+      std::vector<Diagram> dataTemp(intermediateDiagrams.size());
+      for(size_t i = 0 ; i < intermediateDiagrams.size() ; ++i){
+        auto diag = intermediateDiagrams[i];
+        dataTemp[i] = diag;
+      }
+      for(size_t i = 0 ; i < intermediateDiagrams.size() ; ++i){
+        auto &diag = dataTemp[i];
+        auto &t = diag[0];
+        double max_pers = std::get<10>(t) - std::get<6>(t);
+        diag.erase(std::remove_if(diag.begin() , diag.end(), [max_pers, percentage](DiagramTuple &t){ return (std::get<10>(t) - std::get<6>(t)) < percentage*max_pers;}), diag.end());
+        
+      }
+      
+      Timer tm_init{};
+      InitDictionary(dictDiagrams, intermediateDiagrams, intermediateAtoms, numAtom, this->do_min_, this->do_sad_, this->do_max_, seed);
+      this->printMsg("Initialization computed ", 1, tm_init.getElapsedTime(), threadNumber_, debug::LineMode::NEW);
+
+      method(dataTemp, intermediateAtoms, dictDiagrams, vectorWeights, nInputs, seed, numAtom, loss_tab, allLosses, histoVectorWeights, histoDictDiagrams);
+      
+    }
+
+    for(size_t j = 1 ; j < percentages.size() ; ++j){
+      double percentage = percentages[j];         
+      std::vector<Diagram> dataTemp(intermediateDiagrams.size());
+      for(size_t i = 0 ; i < intermediateDiagrams.size() ; ++i){
+        auto diag = intermediateDiagrams[i];
+        dataTemp[i] = diag;
+      }
+      for(size_t i = 0 ; i < intermediateDiagrams.size() ; ++i){
+        auto &diag = dataTemp[i];
+        auto &t = diag[0];
+        double max_pers = std::get<10>(t) - std::get<6>(t);
+        diag.erase(std::remove_if(diag.begin() , diag.end(), [max_pers, percentage](DiagramTuple &t){ return (std::get<10>(t) - std::get<6>(t)) < percentage*max_pers;}), diag.end());
+        
+      }      
+      method(dataTemp, intermediateAtoms, dictDiagrams, vectorWeights, nInputs, seed, numAtom, loss_tab, allLosses, histoVectorWeights, histoDictDiagrams);
+
+    }
     
 
   }
@@ -50,7 +90,9 @@ void PersistenceDiagramDictEncoding::method(
   const int seed,
   const int numAtom,
   std::vector<double> &loss_tab,
-  std::vector<std::vector<double>> &allLosses) {
+  std::vector<std::vector<double>> &allLosses,
+  std::vector<std::vector<double>> &histoVectorWeights,
+  std::vector<Diagram> &histoDictDiagrams) {
 
   Timer tm{};
   double tm_part = 0.;
@@ -217,30 +259,31 @@ void PersistenceDiagramDictEncoding::method(
   // int epoch = 1;
   // std::vector<double> loss_tab;
   int lag = 0;
-  int lagLimit = 50;
-  int MIN_EPOCH = 100;
+  int lagLimit = 15;
+  int MIN_EPOCH = 20;
   int MAX_EPOCH = MaxEpoch;
   bool cond = true;
   int epoch = 0;
+  int nbEpochPrevious = loss_tab.size();
   std::vector<size_t> initSizes(dictDiagrams.size());
   for(size_t j = 0 ; j < dictDiagrams.size() ; ++j){
     initSizes[j] = dictDiagrams[j].size();
 
   }
 
-  std::vector<Diagram> histoDictDiagrams(dictDiagrams.size());
+  //std::vector<Diagram> histoDictDiagrams(dictDiagrams.size());
   std::vector<std::vector<int>> histoAllEpochLife(dictDiagrams.size());
   std::vector<std::vector<bool>> histoAllBoolLife(dictDiagrams.size());
   std::vector<std::vector<bool>> checkUnderDiag(dictDiagrams.size());
   std::vector<std::vector<bool>> checkDiag(dictDiagrams.size());
   std::vector<std::vector<bool>> checkAboveGlobal(dictDiagrams.size());
-  std::vector<std::vector<double>> histoVectorWeights(nDiags);
+  //std::vector<std::vector<double>> histoVectorWeights(nDiags);
   // std::vector<double> allLosses(nDiags , 0.);
   std::vector<double> allLossesAtEpoch(nDiags, 0.);
 
 
   // bool condition = true;
-  while(epoch < MAX_EPOCH) {
+  while(epoch < MAX_EPOCH && cond) {
     // for(int epoch = 1; epoch < MAX_EPOCH; ++epoch) {
     
     loss = 0.;
@@ -393,14 +436,14 @@ void PersistenceDiagramDictEncoding::method(
     loss_tab.push_back(loss);
 
 
-    double mini = *std::min_element(loss_tab.begin(), loss_tab.end() - 1);
+    double mini = *std::min_element(loss_tab.begin() + nbEpochPrevious, loss_tab.end() - 1);
     if(loss <= mini) {
       for(size_t p = 0; p < dictDiagrams.size(); ++p) {
-        const auto &atom = dictDiagrams[p];
+        const auto atom = dictDiagrams[p];
         histoDictDiagrams[p] = atom;
       }
       for(size_t p = 0; p < nDiags; ++p) {
-        const auto &weights = vectorWeights[p];
+        const auto weights = vectorWeights[p];
         histoVectorWeights[p] = weights;
       }
       lag = 0;
@@ -416,27 +459,27 @@ void PersistenceDiagramDictEncoding::method(
     // std::cout << "LAG" << lag << std::endl;
     if((epoch > MIN_EPOCH) && (loss_tab[epoch] / loss_tab[epoch - 1] > 0.999)) {
       if(loss_tab[epoch] < loss_tab[epoch - 1]) {
-        // this->printMsg("Loss not decreasing enough");
-        // do_optimizeWeights = true;
-        // do_optimizeAtoms = true;
-        // cond = false;
+        this->printMsg("Loss not decreasing enough");
+        do_optimizeWeights = false;
+        do_optimizeAtoms = false;
+        cond = false;
       }
     }
 
     if(epoch > MIN_EPOCH && lag > lagLimit) {
-      // for(size_t p = 0; p < dictDiagrams.size(); ++p) {
-      // const auto &atom = histoDictDiagrams[p];
-      // dictDiagrams[p] = atom;
-      //}
-      // for(size_t p = 0; p < nDiags; ++p) {
-      // const auto &weights = histoVectorWeights[p];
-      // vectorWeights[p] = weights;
-      //}
-      // this->printMsg("Minimum not passed");
-      // do_optimizeWeights = false;
-      // do_optimizeAtoms = false;
+      for(size_t p = 0; p < dictDiagrams.size(); ++p) {
+        const auto atom = histoDictDiagrams[p];
+        dictDiagrams[p] = atom;
+      }
+      for(size_t p = 0; p < nDiags; ++p) {
+        const auto weights = histoVectorWeights[p];
+        vectorWeights[p] = weights;
+      }
+      this->printMsg("Minimum not passed");
+      do_optimizeWeights = false;
+      do_optimizeAtoms = false;
 
-      // cond = false;
+      cond = false;
     }
 
     // if(epoch == 1) {
@@ -448,7 +491,7 @@ void PersistenceDiagramDictEncoding::method(
     Timer tm_opt1{};
 
     // WEIGHT OPTIMIZATION
-    if(OptimizeWeights) {
+    if(do_optimizeWeights) {
 #ifdef TTK_ENABLE_OPENMP
 #pragma omp parallel for num_threads(threadNumber_)
 #endif // TTK_ENABLE_OPENMP
@@ -956,11 +999,11 @@ void PersistenceDiagramDictEncoding::method(
   // this->printMsg("loss " + std::to_string(loss) + "===================");
 
   for(size_t p = 0; p < dictDiagrams.size(); ++p) {
-    auto &atom = histoDictDiagrams[p];
+    auto atom = histoDictDiagrams[p];
     dictDiagrams[p] = atom;
   }
   for(size_t p = 0; p < nDiags; ++p) {
-    const auto &weights = histoVectorWeights[p];
+    auto weights = histoVectorWeights[p];
     vectorWeights[p] = weights;
   }
 
@@ -1883,7 +1926,9 @@ int PersistenceDiagramDictEncoding::InitDictionary(
           std::vector<std::vector<double>> weightsTemp(1);
           std::vector<double> weights(dictTemp.size() , 1./ (static_cast<int>(dictTemp.size())* 1.));
           weightsTemp[0] = weights;
-          this->method(dataAlone, inputAtoms, dictTemp, weightsTemp, nInputsUseless, seed, static_cast<int>(dictTemp.size()), lossTabTemp, allLossesTemp);
+          std::vector<std::vector<double>> histoVectorWeights(1);
+          std::vector<Diagram> histoDictDiagrams(dictTemp.size());
+          this->method(dataAlone, inputAtoms, dictTemp, weightsTemp, nInputsUseless, seed, static_cast<int>(dictTemp.size()), lossTabTemp, allLossesTemp, histoVectorWeights, histoDictDiagrams);
           double min_loss = *std::min_element(lossTabTemp.begin() , lossTabTemp.end());
           allEnergy[j] = min_loss;
         }
