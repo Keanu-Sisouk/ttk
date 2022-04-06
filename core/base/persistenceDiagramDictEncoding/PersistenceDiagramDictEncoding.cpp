@@ -24,13 +24,21 @@ void PersistenceDiagramDictEncoding::execute(
   std::vector<std::vector<double>> &allLosses) {
 
   
-  Timer tm_init{};
-  InitDictionary(dictDiagrams, intermediateDiagrams, intermediateAtoms, numAtom, this->do_min_,
-                 this->do_sad_, this->do_max_, seed);
-  this->printMsg("Initialization computed ", 1, tm_init.getElapsedTime(),
-                 threadNumber_, debug::LineMode::NEW);
+  if(!ProgApproach){
+    
+    Timer tm_init{};
+    InitDictionary(dictDiagrams, intermediateDiagrams, intermediateAtoms, numAtom, this->do_min_, this->do_sad_, this->do_max_, seed);
+    this->printMsg("Initialization computed ", 1, tm_init.getElapsedTime(), threadNumber_, debug::LineMode::NEW);
+    method(intermediateDiagrams, intermediateAtoms, dictDiagrams, vectorWeights, nInputs, seed, numAtom, loss_tab, allLosses);
+  } else {
+    std::vector<double> percentages{0.5 , 0.4 , 0.3 , 0.2 , 0.1 , 0.05 , 0.025};
+     
+    Timer tm_init{};
+    InitDictionary(dictDiagrams, intermediateDiagrams, intermediateAtoms, numAtom, this->do_min_, this->do_sad_, this->do_max_, seed);
+    this->printMsg("Initialization computed ", 1, tm_init.getElapsedTime(), threadNumber_, debug::LineMode::NEW);
+    
 
-  method(intermediateDiagrams, intermediateAtoms, dictDiagrams, vectorWeights, nInputs, seed, numAtom, loss_tab, allLosses);
+  }
 }
 
 void PersistenceDiagramDictEncoding::method(

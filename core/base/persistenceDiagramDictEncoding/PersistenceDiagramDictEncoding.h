@@ -181,6 +181,8 @@ namespace ttk {
     bool CreationFeatures{true};
     bool Fusion {true};
 
+    bool ProgApproach{false};
+
     enum class ConstraintType {
       FULL_DIAGRAMS,
       NUMBER_PAIRS,
