@@ -24,7 +24,10 @@ void PersistenceDiagramDictEncoding::execute(
   std::vector<std::vector<double>> &allLosses) {
 
   
-  if(!ProgApproach){    
+  if(!ProgApproach){
+    for(size_t i = 0 ; i < intermediateDiagrams.size() ; ++i){
+      std::cout << "SIZE OF DIAG " << i << " IS: " << intermediateDiagrams[i].size() << std::endl;
+    }
     std::vector<std::vector<double>> histoVectorWeights(intermediateDiagrams.size());
     std::vector<Diagram> histoDictDiagrams(numAtom);
     Timer tm_init{};
@@ -33,7 +36,7 @@ void PersistenceDiagramDictEncoding::execute(
     method(intermediateDiagrams, intermediateAtoms, dictDiagrams, vectorWeights, nInputs, seed, numAtom, loss_tab, allLosses, histoVectorWeights, histoDictDiagrams);
   } else {
     
-    std::vector<double> percentages{0.3 , 0.2 , 0.1 , 0.05 , 0.1};
+    std::vector<double> percentages{0.2 , 0.15 , 0.1 , 0.05 , 0.01};
     std::vector<std::vector<double>> histoVectorWeights(intermediateDiagrams.size());
     std::vector<Diagram> histoDictDiagrams(numAtom);
     for(size_t j = 0 ; j < 1 ; ++j){
@@ -47,12 +50,12 @@ void PersistenceDiagramDictEncoding::execute(
         auto &diag = dataTemp[i];
         auto &t = diag[0];
         double max_pers = std::get<10>(t) - std::get<6>(t);
-        diag.erase(std::remove_if(diag.begin() , diag.end(), [max_pers, percentage](DiagramTuple &t){ return (std::get<10>(t) - std::get<6>(t)) < percentage*max_pers;}), diag.end());
-        
+        diag.erase(std::remove_if(diag.begin() , diag.end(), [max_pers, percentage](DiagramTuple &t){ return (std::get<10>(t) - std::get<6>(t)) < percentage*max_pers;}), diag.end()); 
+        std::cout << "SIZE OF DIAG " << i << " IS: " << diag.size() << std::endl; 
       }
       
       Timer tm_init{};
-      InitDictionary(dictDiagrams, intermediateDiagrams, intermediateAtoms, numAtom, this->do_min_, this->do_sad_, this->do_max_, seed);
+      InitDictionary(dictDiagrams, dataTemp, intermediateAtoms, numAtom, this->do_min_, this->do_sad_, this->do_max_, seed);
       this->printMsg("Initialization computed ", 1, tm_init.getElapsedTime(), threadNumber_, debug::LineMode::NEW);
 
       method(dataTemp, intermediateAtoms, dictDiagrams, vectorWeights, nInputs, seed, numAtom, loss_tab, allLosses, histoVectorWeights, histoDictDiagrams);
@@ -71,7 +74,7 @@ void PersistenceDiagramDictEncoding::execute(
         auto &t = diag[0];
         double max_pers = std::get<10>(t) - std::get<6>(t);
         diag.erase(std::remove_if(diag.begin() , diag.end(), [max_pers, percentage](DiagramTuple &t){ return (std::get<10>(t) - std::get<6>(t)) < percentage*max_pers;}), diag.end());
-        
+        std::cout << "SIZE OF DIAG" << i << "IS: " << diag.size() << std::endl; 
       }      
       method(dataTemp, intermediateAtoms, dictDiagrams, vectorWeights, nInputs, seed, numAtom, loss_tab, allLosses, histoVectorWeights, histoDictDiagrams);
 
@@ -259,7 +262,8 @@ void PersistenceDiagramDictEncoding::method(
   // int epoch = 1;
   // std::vector<double> loss_tab;
   int lag = 0;
-  int lagLimit = 15;
+  int lag2 = 0;
+  int lagLimit = 50;
   int MIN_EPOCH = 20;
   int MAX_EPOCH = MaxEpoch;
   bool cond = true;
@@ -455,15 +459,24 @@ void PersistenceDiagramDictEncoding::method(
       }
     }
 
+
     // this->printMsg("LAG" + std::to_string(lag));
     // std::cout << "LAG" << lag << std::endl;
-    if((epoch > MIN_EPOCH) && (loss_tab[epoch] / loss_tab[epoch - 1] > 0.999)) {
+    if((epoch > MIN_EPOCH) && (loss_tab[epoch] / loss_tab[epoch - 1] > 0.99999)) {
       if(loss_tab[epoch] < loss_tab[epoch - 1]) {
-        this->printMsg("Loss not decreasing enough");
-        do_optimizeWeights = false;
-        do_optimizeAtoms = false;
-        cond = false;
+        if (lag2 == 10){
+          this->printMsg("Loss not decreasing enough");
+          do_optimizeWeights = false;
+          do_optimizeAtoms = false;
+          cond = false;
+        } else {
+          lag2 +=1; 
+        }
+      } else {
+          lag2 = 0;
       }
+    } else {
+      lag2 = 0;
     }
 
     if(epoch > MIN_EPOCH && lag > lagLimit) {
