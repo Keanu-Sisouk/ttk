@@ -465,10 +465,11 @@ void PersistenceDiagramDictEncoding::method(
     if((epoch > MIN_EPOCH) && (loss_tab[epoch] / loss_tab[epoch - 1] > 0.99999)) {
       if(loss_tab[epoch] < loss_tab[epoch - 1]) {
         if (lag2 == 10){
-          this->printMsg("Loss not decreasing enough");
-          do_optimizeWeights = false;
-          do_optimizeAtoms = false;
-          cond = false;
+          lag = 0;
+          //this->printMsg("Loss not decreasing enough");
+          //do_optimizeWeights = false;
+          //do_optimizeAtoms = false;
+          //cond = false;
         } else {
           lag2 +=1; 
         }
@@ -488,11 +489,11 @@ void PersistenceDiagramDictEncoding::method(
         const auto weights = histoVectorWeights[p];
         vectorWeights[p] = weights;
       }
-      this->printMsg("Minimum not passed");
-      do_optimizeWeights = false;
-      do_optimizeAtoms = false;
+      //this->printMsg("Minimum not passed");
+      //do_optimizeWeights = false;
+      //do_optimizeAtoms = false;
 
-      cond = false;
+      //cond = false;
     }
 
     // if(epoch == 1) {
