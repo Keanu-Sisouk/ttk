@@ -82,6 +82,8 @@ namespace ttk {
                  std::vector<std::vector<double>> &vectorWeights,
                  std::vector<Diagram> &Barycenters) const;
 
+  protected:
+    bool ProgBarycenter{false};
   }; // PersistenceDiagramDictDecoding class
 
 } // namespace ttk

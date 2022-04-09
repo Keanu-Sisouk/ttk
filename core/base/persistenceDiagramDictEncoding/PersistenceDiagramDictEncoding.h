@@ -181,7 +181,8 @@ namespace ttk {
     bool OptimizeAtoms{true};
 
     bool CreationFeatures{true};
-    bool Fusion {true};
+    bool Fusion{false};
+    bool ProgBarycenter{false};
 
     bool ProgApproach{false};
 

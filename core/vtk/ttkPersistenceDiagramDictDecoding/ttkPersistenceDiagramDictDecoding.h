@@ -28,6 +28,9 @@ public:
   vtkGetMacro(ShowAtoms, int);
   vtkSetMacro(ShowAtoms, int);
 
+  vtkGetMacro(ProgBarycenter, int);
+  vtkSetMacro(ProgBarycenter, int);
+
 protected:
   ttkPersistenceDiagramDictDecoding();
   ~ttkPersistenceDiagramDictDecoding() override = default;

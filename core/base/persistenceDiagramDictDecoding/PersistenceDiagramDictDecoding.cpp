@@ -13,6 +13,7 @@ void PersistenceDiagramDictDecoding::execute(
     auto &barycenter = Barycenters[i];
     auto &weight = vectorWeights[i];
     auto &matchings = AllMatchingsAtoms[i];
-    computeWeightedBarycenter(dictDiagrams, weight, barycenter, matchings);
+    computeWeightedBarycenter(
+      dictDiagrams, weight, barycenter, matchings, ProgBarycenter);
   }
 }

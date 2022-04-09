@@ -35,23 +35,39 @@ void PersistenceDiagramDictEncoding::execute(
     this->printMsg("Initialization computed ", 1, tm_init.getElapsedTime(), threadNumber_, debug::LineMode::NEW);
     method(intermediateDiagrams, intermediateAtoms, dictDiagrams, vectorWeights, nInputs, seed, numAtom, loss_tab, allLosses, histoVectorWeights, histoDictDiagrams);
   } else {
-    
-    std::vector<double> percentages{0.2 , 0.15 , 0.1 , 0.05 , 0.01};
+
+    // std::vector<double> percentages{0.2 , 0.15 , 0.1 , 0.05 , 0.01};
+    std::vector<double> percentages{0.6, 0.5, 0.3, 0.2, 0.15, 0.1};
     std::vector<std::vector<double>> histoVectorWeights(intermediateDiagrams.size());
     std::vector<Diagram> histoDictDiagrams(numAtom);
+    std::vector<Diagram> dataTemp(intermediateDiagrams.size());
     for(size_t j = 0 ; j < 1 ; ++j){
       double percentage = percentages[j];
-      std::vector<Diagram> dataTemp(intermediateDiagrams.size());
+      // std::vector<Diagram> dataTemp(intermediateDiagrams.size());
+      // for(size_t i = 0 ; i < intermediateDiagrams.size() ; ++i){
+      // auto diag = intermediateDiagrams[i];
+      // dataTemp[i] = diag;
+      //}
       for(size_t i = 0 ; i < intermediateDiagrams.size() ; ++i){
-        auto diag = intermediateDiagrams[i];
-        dataTemp[i] = diag;
-      }
-      for(size_t i = 0 ; i < intermediateDiagrams.size() ; ++i){
-        auto &diag = dataTemp[i];
+        auto &diag = intermediateDiagrams[i];
         auto &t = diag[0];
         double max_pers = std::get<10>(t) - std::get<6>(t);
-        diag.erase(std::remove_if(diag.begin() , diag.end(), [max_pers, percentage](DiagramTuple &t){ return (std::get<10>(t) - std::get<6>(t)) < percentage*max_pers;}), diag.end()); 
-        std::cout << "SIZE OF DIAG " << i << " IS: " << diag.size() << std::endl; 
+        auto &diagTemp = dataTemp[i];
+        dataTemp[i].push_back(t);
+        for(size_t p = 1; p < diag.size(); ++p) {
+          auto &t2 = diag[p];
+          if(percentage * max_pers <= (std::get<10>(t2) - std::get<6>(t2))) {
+            dataTemp[i].push_back(t2);
+          } else {
+            continue;
+          }
+        }
+        // double max_pers = std::get<10>(t) - std::get<6>(t);
+        // diag.erase(std::remove_if(diag.begin() , diag.end(), [max_pers,
+        // percentage](DiagramTuple &t){ return (std::get<10>(t) -
+        // std::get<6>(t)) < percentage*max_pers;}), diag.end());
+        std::cout << "SIZE OF DIAG " << i << " IS: " << diagTemp.size()
+                  << std::endl;
       }
       
       Timer tm_init{};
@@ -63,24 +79,40 @@ void PersistenceDiagramDictEncoding::execute(
     }
 
     for(size_t j = 1 ; j < percentages.size() ; ++j){
-      double percentage = percentages[j];         
-      std::vector<Diagram> dataTemp(intermediateDiagrams.size());
+      double percentage = percentages[j];
+      double previousPercen = percentages[j - 1];
+      // std::vector<Diagram> dataTemp(intermediateDiagrams.size());
+      // for(size_t i = 0 ; i < intermediateDiagrams.size() ; ++i){
+      // auto diag = intermediateDiagrams[i];
+      // dataTemp[i] = diag;
+      //}
       for(size_t i = 0 ; i < intermediateDiagrams.size() ; ++i){
-        auto diag = intermediateDiagrams[i];
-        dataTemp[i] = diag;
-      }
-      for(size_t i = 0 ; i < intermediateDiagrams.size() ; ++i){
-        auto &diag = dataTemp[i];
+        auto &diag = intermediateDiagrams[i];
         auto &t = diag[0];
         double max_pers = std::get<10>(t) - std::get<6>(t);
-        diag.erase(std::remove_if(diag.begin() , diag.end(), [max_pers, percentage](DiagramTuple &t){ return (std::get<10>(t) - std::get<6>(t)) < percentage*max_pers;}), diag.end());
-        std::cout << "SIZE OF DIAG" << i << "IS: " << diag.size() << std::endl; 
-      }      
+        auto &diagTemp = dataTemp[i];
+        dataTemp[i].push_back(t);
+        for(size_t p = 1; p < diag.size(); ++p) {
+          auto &t2 = diag[p];
+          if(percentage * max_pers <= (std::get<10>(t2) - std::get<6>(t2))
+             && (std::get<10>(t2) - std::get<6>(t2))
+                  < previousPercen * max_pers) {
+            dataTemp[i].push_back(t2);
+          } else {
+            continue;
+          }
+        }
+        // double max_pers = std::get<10>(t) - std::get<6>(t);
+        // diag.erase(std::remove_if(diag.begin() , diag.end(), [max_pers,
+        // percentage](DiagramTuple &t){ return (std::get<10>(t) -
+        // std::get<6>(t)) < percentage*max_pers;}), diag.end());
+        std::cout << "SIZE OF DIAG " << i << " IS: " << diagTemp.size()
+                  << std::endl;
+      }
       method(dataTemp, intermediateAtoms, dictDiagrams, vectorWeights, nInputs, seed, numAtom, loss_tab, allLosses, histoVectorWeights, histoDictDiagrams);
 
     }
     
-
   }
 }
 
@@ -263,7 +295,7 @@ void PersistenceDiagramDictEncoding::method(
   // std::vector<double> loss_tab;
   int lag = 0;
   int lag2 = 0;
-  int lagLimit = 50;
+  int lagLimit = 25;
   int MIN_EPOCH = 20;
   int MAX_EPOCH = MaxEpoch;
   bool cond = true;
@@ -312,7 +344,8 @@ void PersistenceDiagramDictEncoding::method(
       // std::cout << "================================================="
       //          << std::endl;
       std::vector<std::vector<MatchingTuple>> &matchings = allMatchingsAtoms[i];
-      computeWeightedBarycenter(dictDiagrams, weight, barycenter, matchings);
+      computeWeightedBarycenter(
+        dictDiagrams, weight, barycenter, matchings, ProgBarycenter);
       // std::cout << "Barycenter" << i << std::endl;
       // for(int j = 0; j < barycenter.size(); ++j) {
       //   DiagramTuple &t = barycenter[j];
@@ -462,14 +495,15 @@ void PersistenceDiagramDictEncoding::method(
 
     // this->printMsg("LAG" + std::to_string(lag));
     // std::cout << "LAG" << lag << std::endl;
-    if((epoch > MIN_EPOCH) && (loss_tab[epoch] / loss_tab[epoch - 1] > 0.99999)) {
+    if((epoch > MIN_EPOCH)
+       && (loss_tab[epoch] / loss_tab[epoch - 1] > 0.999999)) {
       if(loss_tab[epoch] < loss_tab[epoch - 1]) {
         if (lag2 == 10){
-          lag = 0;
-          //this->printMsg("Loss not decreasing enough");
-          //do_optimizeWeights = false;
-          //do_optimizeAtoms = false;
-          //cond = false;
+          // lag = 0;
+          this->printMsg("Loss not decreasing enough");
+          do_optimizeWeights = false;
+          do_optimizeAtoms = false;
+          cond = false;
         } else {
           lag2 +=1; 
         }
@@ -489,11 +523,11 @@ void PersistenceDiagramDictEncoding::method(
         const auto weights = histoVectorWeights[p];
         vectorWeights[p] = weights;
       }
-      //this->printMsg("Minimum not passed");
-      //do_optimizeWeights = false;
-      //do_optimizeAtoms = false;
+      this->printMsg("Minimum not passed");
+      do_optimizeWeights = false;
+      do_optimizeAtoms = false;
 
-      //cond = false;
+      cond = false;
     }
 
     // if(epoch == 1) {
@@ -581,7 +615,8 @@ void PersistenceDiagramDictEncoding::method(
       // std::cout << "sum: " << sum << std::endl;
       // this->printMsg(std::to_string(sum_temp));
       std::vector<std::vector<MatchingTuple>> &matchings = allMatchingsAtoms[i];
-      computeWeightedBarycenter(dictDiagrams, weight, barycenter, matchings);
+      computeWeightedBarycenter(
+        dictDiagrams, weight, barycenter, matchings, ProgBarycenter);
       // for(int i = 0; i < barycenter.size(); ++i) {
       // DiagramTuple &t = barycenter[i];
       // std::cout << "Pair: " << std::get<6>(t) << ", " << std::get<10>(t)
@@ -1006,7 +1041,13 @@ void PersistenceDiagramDictEncoding::method(
   }
   printMsg(" Epoch "+std::to_string(epoch)+", loss = "+std::to_string(loss), 1, threadNumber_);
 
-  printMsg("Loss returned " + std::to_string(*std::min_element(loss_tab.begin() , loss_tab.end())) + " at Epoch " + std::to_string(std::min_element(loss_tab.begin() , loss_tab.end())- loss_tab.begin()));
+  printMsg("Loss returned "
+           + std::to_string(*std::min_element(
+             loss_tab.begin() + nbEpochPrevious, loss_tab.end()))
+           + " at Epoch "
+           + std::to_string(std::min_element(loss_tab.begin() + nbEpochPrevious,
+                                             loss_tab.end())
+                            - loss_tab.begin()));
 
   // this->printMsg("Epoch" + std::to_string(epoch) + "==================");
   // this->printMsg("loss1 " + std::to_string(loss1) + "=================");

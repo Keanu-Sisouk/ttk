@@ -91,6 +91,20 @@
       </Documentation>
     </IntVectorProperty>
 
+      
+      <IntVectorProperty
+        name="ProgBarycenter"
+        label="Progressive barycenter"
+        command="SetProgBarycenter"
+        number_of_elements="1"
+        default_values="0"
+        panel_visibility="advanced">
+        >
+        <BooleanDomain name="bool"/>
+      <Documentation>
+          Compute the barycenters using progressivity
+      </Documentation>
+    </IntVectorProperty>
 
       <!-- A string parameter that controls the name of the output array -->
 

@@ -84,6 +84,9 @@ public:
   vtkSetMacro(Fusion, int);
   vtkGetMacro(Fusion, int);
 
+  vtkSetMacro(ProgBarycenter, int);
+  vtkGetMacro(ProgBarycenter, int);
+
   vtkSetMacro(MaxEpoch, int);
   vtkGetMacro(MaxEpoch, int);
 
