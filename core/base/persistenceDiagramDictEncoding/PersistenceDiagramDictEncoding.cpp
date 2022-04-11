@@ -36,8 +36,9 @@ void PersistenceDiagramDictEncoding::execute(
     method(intermediateDiagrams, intermediateAtoms, dictDiagrams, vectorWeights, nInputs, seed, numAtom, loss_tab, allLosses, histoVectorWeights, histoDictDiagrams);
   } else {
 
-    // std::vector<double> percentages{0.2 , 0.15 , 0.1 , 0.05 , 0.01};
-    std::vector<double> percentages{0.6, 0.5, 0.3, 0.2, 0.15, 0.1};
+    //std::vector<double> percentages{0.2 , 0.15 , 0.1 , 0.05};
+    //std::vector<double> percentages{0.8 , 0.6 , 0.5, 0.4, 0.3 , 0.2};
+    std::vector<double> percentages{0.4 , 0.3 , 0.2 , 0.15};
     std::vector<std::vector<double>> histoVectorWeights(intermediateDiagrams.size());
     std::vector<Diagram> histoDictDiagrams(numAtom);
     std::vector<Diagram> dataTemp(intermediateDiagrams.size());
@@ -295,7 +296,7 @@ void PersistenceDiagramDictEncoding::method(
   // std::vector<double> loss_tab;
   int lag = 0;
   int lag2 = 0;
-  int lagLimit = 25;
+  int lagLimit = 15;
   int MIN_EPOCH = 20;
   int MAX_EPOCH = MaxEpoch;
   bool cond = true;
@@ -496,9 +497,9 @@ void PersistenceDiagramDictEncoding::method(
     // this->printMsg("LAG" + std::to_string(lag));
     // std::cout << "LAG" << lag << std::endl;
     if((epoch > MIN_EPOCH)
-       && (loss_tab[epoch] / loss_tab[epoch - 1] > 0.999999)) {
+       && (loss_tab[epoch] / loss_tab[epoch - 1] > 0.999)) {
       if(loss_tab[epoch] < loss_tab[epoch - 1]) {
-        if (lag2 == 10){
+        if (lag2 == 5){
           // lag = 0;
           this->printMsg("Loss not decreasing enough");
           do_optimizeWeights = false;
@@ -507,8 +508,6 @@ void PersistenceDiagramDictEncoding::method(
         } else {
           lag2 +=1; 
         }
-      } else {
-          lag2 = 0;
       }
     } else {
       lag2 = 0;

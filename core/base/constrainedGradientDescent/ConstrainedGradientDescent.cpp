@@ -354,6 +354,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
   }
 
   // printf("PASSED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+  int count = 0;
   for(size_t i = 0; i < checker.size(); ++i) {
     if(tracker[i] == 0 || checkerAtomsExt[i] == 0) {
       // this->printMsg("SAUT1");
@@ -397,7 +398,13 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
             } else {
               std::get<6>(t1) = t2[0];
             }
-            std::get<10>(t1) = t2[1];
+            if (t2[1] < t2[0]){
+              count +=1;
+              //std::cout << "Under diag" << std::endl;
+              continue;
+            } else {
+              std::get<10>(t1) = t2[1];
+            }
           }
         }
       } else {
@@ -433,16 +440,24 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
           } else {
             auto &index = checker[i][j];
             auto &t2 = grad_list[i][index];
-            DiagramTuple &t1 = DictDiagrams[index][tracker_temp];
+            DiagramTuple &t1 = DictDiagrams[index][tracker_temp]; 
             if (t2[0] < miniBirth[index]){
               std::get<6>(t1) = miniBirth[index];
             } else {
               std::get<6>(t1) = t2[0];
             }
-            std::get<10>(t1) = t2[1];
+            if (t2[1] < t2[0]){
+              count+=1;
+              //std::cout << "Under diag" << std::endl;
+              continue;
+            } else {
+              std::get<10>(t1) = t2[1];
+            }
+
           }
         }
       }
     }
   }
+  std::cout << "COUNT OF UNDER DIAG " << count << std::endl;
 }
