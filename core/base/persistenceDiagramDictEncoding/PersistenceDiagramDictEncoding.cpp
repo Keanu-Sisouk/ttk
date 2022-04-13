@@ -38,7 +38,7 @@ void PersistenceDiagramDictEncoding::execute(
 
     //std::vector<double> percentages{0.2 , 0.15 , 0.1 , 0.05};
     //std::vector<double> percentages{0.8 , 0.6 , 0.5, 0.4, 0.3 , 0.2};
-    std::vector<double> percentages{0.4 , 0.3 , 0.2 , 0.15};
+    std::vector<double> percentages{0.4, 0.3, 0.2, 0.1, 0.};
     std::vector<std::vector<double>> histoVectorWeights(intermediateDiagrams.size());
     std::vector<Diagram> histoDictDiagrams(numAtom);
     std::vector<Diagram> dataTemp(intermediateDiagrams.size());
@@ -81,7 +81,6 @@ void PersistenceDiagramDictEncoding::execute(
 
     for(size_t j = 1 ; j < percentages.size() ; ++j){
       double percentage = percentages[j];
-      double previousPercen = percentages[j - 1];
       // std::vector<Diagram> dataTemp(intermediateDiagrams.size());
       // for(size_t i = 0 ; i < intermediateDiagrams.size() ; ++i){
       // auto diag = intermediateDiagrams[i];
@@ -89,6 +88,11 @@ void PersistenceDiagramDictEncoding::execute(
       //}
       for(size_t i = 0 ; i < intermediateDiagrams.size() ; ++i){
         auto &diag = intermediateDiagrams[i];
+        int n = diag.size();
+        int counter = 0;
+        auto &lastTuple = diag[n - 1];
+        int max_pairs_to_add = (int)(n / 10);
+        double previousPers = std::get<10>(lastTuple) - std::get<6>(lastTuple);
         auto &t = diag[0];
         double max_pers = std::get<10>(t) - std::get<6>(t);
         auto &diagTemp = dataTemp[i];
@@ -96,11 +100,14 @@ void PersistenceDiagramDictEncoding::execute(
         for(size_t p = 1; p < diag.size(); ++p) {
           auto &t2 = diag[p];
           if(percentage * max_pers <= (std::get<10>(t2) - std::get<6>(t2))
-             && (std::get<10>(t2) - std::get<6>(t2))
-                  < previousPercen * max_pers) {
+             && (std::get<10>(t2) - std::get<6>(t2)) < previousPers) {
             dataTemp[i].push_back(t2);
+            i += 1;
           } else {
             continue;
+          }
+          if(counter > max_pairs_to_add) {
+            break;
           }
         }
         // double max_pers = std::get<10>(t) - std::get<6>(t);

@@ -170,6 +170,12 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
                               < (percentage / 100.) * max_dimension;
                      }),
       intermediateDiagrams[i].end());
+
+    std::sort(intermediateDiagrams[i].begin(), intermediateDiagrams[i].end(),
+              [](ttk::DiagramTuple &t1, ttk::DiagramTuple &t2) {
+                return (std::get<10>(t1) - std::get<6>(t1))
+                       > (std::get<10>(t2) - std::get<6>(t2));
+              });
     if(max_dimension < 0.0) {
       this->printErr("Could not read Persistence Diagram");
       return 0;
