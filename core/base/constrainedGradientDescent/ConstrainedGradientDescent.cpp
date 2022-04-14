@@ -459,5 +459,5 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
       }
     }
   }
-  std::cout << "COUNT OF UNDER DIAG " << count << std::endl;
+  //std::cout << "COUNT OF UNDER DIAG " << count << std::endl;
 }

@@ -93,6 +93,9 @@ public:
   vtkSetMacro(ProgApproach, int);
   vtkGetMacro(ProgApproach, int);
 
+  vtkSetMacro(sortedForTest, int);
+  vtkGetMacro(sortedForTest, int);
+
   vtkSetMacro(CreationFeatures, int);
   vtkGetMacro(CreationFeatures, int);
 

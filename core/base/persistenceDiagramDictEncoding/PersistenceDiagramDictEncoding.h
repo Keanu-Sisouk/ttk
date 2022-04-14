@@ -32,7 +32,7 @@ namespace ttk {
       this->setDebugMsgPrefix("PersistenceDiagramDictEncoding");
     }
 
-   void execute(const std::vector<Diagram> &intermediateDiagrams,
+   void execute(std::vector<Diagram> &intermediateDiagrams,
                  const std::vector<Diagram> &intermediateAtoms,
                  std::vector<Diagram> &dictDiagrams,
                  std::vector<std::vector<double>> &vectorWeights,
@@ -184,6 +184,7 @@ namespace ttk {
     bool Fusion{false};
     bool ProgBarycenter{false};
 
+    bool sortedForTest{false};
     bool ProgApproach{false};
 
     enum class ConstraintType {

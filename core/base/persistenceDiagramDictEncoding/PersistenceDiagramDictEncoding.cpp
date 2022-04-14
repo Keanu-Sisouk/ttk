@@ -13,7 +13,7 @@ static bool testNeg(DiagramTuple &t) {
 
 
 void PersistenceDiagramDictEncoding::execute(
-  const std::vector<Diagram> &intermediateDiagrams,
+  std::vector<Diagram> &intermediateDiagrams,
   const std::vector<Diagram> &intermediateAtoms,
   std::vector<Diagram> &dictDiagrams,
   std::vector<std::vector<double>> &vectorWeights,
@@ -25,8 +25,15 @@ void PersistenceDiagramDictEncoding::execute(
 
   
   if(!ProgApproach){
+  
+
     for(size_t i = 0 ; i < intermediateDiagrams.size() ; ++i){
       std::cout << "SIZE OF DIAG " << i << " IS: " << intermediateDiagrams[i].size() << std::endl;
+      if(sortedForTest){
+        auto &diag = intermediateDiagrams[i];
+        std::sort(diag.begin(), diag.end() , [](DiagramTuple &t1 , DiagramTuple &t2){
+            return (std::get<10>(t1) - std::get<6>(t2)) > (std::get<10>(t2) - std::get<6>(t2));});
+      }
     }
     std::vector<std::vector<double>> histoVectorWeights(intermediateDiagrams.size());
     std::vector<Diagram> histoDictDiagrams(numAtom);
@@ -35,10 +42,15 @@ void PersistenceDiagramDictEncoding::execute(
     this->printMsg("Initialization computed ", 1, tm_init.getElapsedTime(), threadNumber_, debug::LineMode::NEW);
     method(intermediateDiagrams, intermediateAtoms, dictDiagrams, vectorWeights, nInputs, seed, numAtom, loss_tab, allLosses, histoVectorWeights, histoDictDiagrams);
   } else {
+    for(size_t i = 0 ; i < intermediateDiagrams.size() ; ++i){
+      auto &diag = intermediateDiagrams[i];
+      std::sort(diag.begin(), diag.end() , [](DiagramTuple &t1 , DiagramTuple &t2){
+          return (std::get<10>(t1) - std::get<6>(t2)) > (std::get<10>(t2) - std::get<6>(t2));});
 
+    }
     //std::vector<double> percentages{0.2 , 0.15 , 0.1 , 0.05};
     //std::vector<double> percentages{0.8 , 0.6 , 0.5, 0.4, 0.3 , 0.2};
-    std::vector<double> percentages{0.4, 0.3, 0.2, 0.1, 0.};
+    std::vector<double> percentages{0.2 , 0.1 , 0.05, 0.01 , 0.};
     std::vector<std::vector<double>> histoVectorWeights(intermediateDiagrams.size());
     std::vector<Diagram> histoDictDiagrams(numAtom);
     std::vector<Diagram> dataTemp(intermediateDiagrams.size());
@@ -53,6 +65,7 @@ void PersistenceDiagramDictEncoding::execute(
         auto &diag = intermediateDiagrams[i];
         auto &t = diag[0];
         double max_pers = std::get<10>(t) - std::get<6>(t);
+        std::cout << "MAX PERS" << max_pers << std::endl;
         auto &diagTemp = dataTemp[i];
         dataTemp[i].push_back(t);
         for(size_t p = 1; p < diag.size(); ++p) {
@@ -79,6 +92,8 @@ void PersistenceDiagramDictEncoding::execute(
       
     }
 
+
+    int min_pairs_to_add = 20;
     for(size_t j = 1 ; j < percentages.size() ; ++j){
       double percentage = percentages[j];
       // std::vector<Diagram> dataTemp(intermediateDiagrams.size());
@@ -91,20 +106,18 @@ void PersistenceDiagramDictEncoding::execute(
         int n = diag.size();
         int counter = 0;
         auto &lastTuple = diag[n - 1];
-        int max_pairs_to_add = (int)(n / 10);
+        int max_pairs_to_add = std::max(min_pairs_to_add , min_pairs_to_add + (int)(n / 10));
         double previousPers = std::get<10>(lastTuple) - std::get<6>(lastTuple);
         auto &t = diag[0];
         double max_pers = std::get<10>(t) - std::get<6>(t);
         auto &diagTemp = dataTemp[i];
-        dataTemp[i].push_back(t);
-        for(size_t p = 1; p < diag.size(); ++p) {
+        //dataTemp[i].push_back(t);
+        for(size_t p = 0; p < diag.size(); ++p) {
           auto &t2 = diag[p];
           if(percentage * max_pers <= (std::get<10>(t2) - std::get<6>(t2))
              && (std::get<10>(t2) - std::get<6>(t2)) < previousPers) {
             dataTemp[i].push_back(t2);
-            i += 1;
-          } else {
-            continue;
+            counter += 1;
           }
           if(counter > max_pairs_to_add) {
             break;
@@ -504,7 +517,7 @@ void PersistenceDiagramDictEncoding::method(
     // this->printMsg("LAG" + std::to_string(lag));
     // std::cout << "LAG" << lag << std::endl;
     if((epoch > MIN_EPOCH)
-       && (loss_tab[epoch] / loss_tab[epoch - 1] > 0.999)) {
+       && (loss_tab[epoch] / loss_tab[epoch - 1] > 0.99999)) {
       if(loss_tab[epoch] < loss_tab[epoch - 1]) {
         if (lag2 == 5){
           // lag = 0;
