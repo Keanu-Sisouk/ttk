@@ -50,7 +50,7 @@ void PersistenceDiagramDictEncoding::execute(
     }
     //std::vector<double> percentages{0.2 , 0.15 , 0.1 , 0.05};
     //std::vector<double> percentages{0.8 , 0.6 , 0.5, 0.4, 0.3 , 0.2};
-    std::vector<double> percentages{0.2 , 0.1 , 0.05, 0.01 , 0.};
+    std::vector<double> percentages{0.2 , 0.1 , 0.05, 0.01};
     std::vector<std::vector<double>> histoVectorWeights(intermediateDiagrams.size());
     std::vector<Diagram> histoDictDiagrams(numAtom);
     std::vector<Diagram> dataTemp(intermediateDiagrams.size());
@@ -93,9 +93,10 @@ void PersistenceDiagramDictEncoding::execute(
     }
 
 
-    int min_pairs_to_add = 20;
+    int min_pairs_to_add = 10;
     for(size_t j = 1 ; j < percentages.size() ; ++j){
       double percentage = percentages[j];
+      double previousPerc = percentages[j-1];
       // std::vector<Diagram> dataTemp(intermediateDiagrams.size());
       // for(size_t i = 0 ; i < intermediateDiagrams.size() ; ++i){
       // auto diag = intermediateDiagrams[i];
@@ -115,9 +116,9 @@ void PersistenceDiagramDictEncoding::execute(
         for(size_t p = 0; p < diag.size(); ++p) {
           auto &t2 = diag[p];
           if(percentage * max_pers <= (std::get<10>(t2) - std::get<6>(t2))
-             && (std::get<10>(t2) - std::get<6>(t2)) < previousPers) {
+             && (std::get<10>(t2) - std::get<6>(t2)) < previousPerc * max_pers) {
             dataTemp[i].push_back(t2);
-            counter += 1;
+            //counter += 1;
           }
           if(counter > max_pairs_to_add) {
             break;
