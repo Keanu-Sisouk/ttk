@@ -51,7 +51,7 @@ void PersistenceDiagramDictEncoding::execute(
     //std::vector<double> percentages{0.2 , 0.15 , 0.1 , 0.05};
     //std::vector<double> percentages{0.8 , 0.6 , 0.5, 0.4, 0.3 , 0.2};
     //std::vector<double> percentages{0.3 , 0.2 , 0.1 , 0.05, 0.01};
-    std::vector<double> percentages{0.3};
+    std::vector<double> percentages{0.2};
     std::vector<std::vector<double>> histoVectorWeights(intermediateDiagrams.size());
     std::vector<Diagram> histoDictDiagrams(numAtom);
     std::vector<Diagram> dataTemp(intermediateDiagrams.size());
