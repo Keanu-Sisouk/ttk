@@ -40,7 +40,8 @@ namespace ttk {
                  const int seed,
                  const int numAtom,
                  std::vector<double> &loss_tab,
-                 std::vector<std::vector<double>> &allLosses);
+                 std::vector<std::vector<double>> &allLosses,
+                 int percent_);
 
  
 

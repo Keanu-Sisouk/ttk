@@ -21,7 +21,8 @@ void PersistenceDiagramDictEncoding::execute(
   const int seed,
   const int numAtom,
   std::vector<double> &loss_tab,
-  std::vector<std::vector<double>> &allLosses) {
+  std::vector<std::vector<double>> &allLosses,
+  int percent_) {
 
   
   if(!ProgApproach){
@@ -51,7 +52,17 @@ void PersistenceDiagramDictEncoding::execute(
     //std::vector<double> percentages{0.2 , 0.15 , 0.1 , 0.05};
     //std::vector<double> percentages{0.8 , 0.6 , 0.5, 0.4, 0.3 , 0.2};
     //std::vector<double> percentages{0.3 , 0.2 , 0.1 , 0.05, 0.01};
-    std::vector<double> percentages{0.2};
+    int start = 50;
+    int stop = percent_;
+    std::vector<double> percentages;
+    for(int value = start ; value > stop ; value -=5){
+      percentages.push_back(static_cast<double>(value)/100.);
+    }
+    percentages.push_back(static_cast<double>(percent_)/100.);
+    for(size_t k = 0 ; k < percentages.size() ; ++k){
+      std::cout << "PERCENT " << percentages[k] << std::endl;
+    }
+    //std::vector<double> percentages{0.4};
     std::vector<std::vector<double>> histoVectorWeights(intermediateDiagrams.size());
     std::vector<Diagram> histoDictDiagrams(numAtom);
     std::vector<Diagram> dataTemp(intermediateDiagrams.size());
@@ -100,32 +111,37 @@ void PersistenceDiagramDictEncoding::execute(
     for(size_t i = 0; i < intermediateDiagrams.size() ; ++i){
       sum += sizeCheck[i];
     }
+    //std::vector<int> newPercentages{1, 5 , 25, 50 , 100};
+    //std::vector<int> newPercentages(10 , 10);
     int q = 1;
-    while(sum != static_cast<int>(intermediateDiagrams.size())){
-    //for(size_t j = 1 ; j < percentages.size() ; ++j){
-      //double percentage = percentages[j];
-      //double previousPerc = percentages[j-1];
+    //while(sum != static_cast<int>(intermediateDiagrams.size())){
+    //for(size_t j = 1 ; j < newPercentages.size() ; ++j){
+    for(size_t j = 1 ; j < percentages.size() ; ++j){
+      double percentage = percentages[j];
+      double previousPerc = percentages[j-1];
+      //std::cout << "PERCENTAGE " << percentage
       // std::vector<Diagram> dataTemp(intermediateDiagrams.size());
       // for(size_t i = 0 ; i < intermediateDiagrams.size() ; ++i){
       // auto diag = intermediateDiagrams[i];
       // dataTemp[i] = diag;
       //}
       for(size_t i = 0 ; i < intermediateDiagrams.size() ; ++i){
-        if(sizeCheck[i] == 1){
-          continue;
-        }
+        //if(sizeCheck[i] == 1){
+          //continue;
+        //}
         auto &diag = intermediateDiagrams[i];
         auto &diagTemp = dataTemp[i];
         int m = diag.size();
 
-        std::cout << "SIZE ORIGINAL " << m << std::endl;
+        //std::cout << "SIZE ORIGINAL " << m << std::endl;
         int n = diagTemp.size();
         int counter = 0;
         auto &lastTuple = diagTemp[n - 1];
-        int max_pairs_to_add = 10 + m*10/100;
-        std::cout << "MAX PAIRS TO ADD " << max_pairs_to_add << std::endl;
-        std::cout << "TRIPLE WHAT" << m*q/100 << std::endl;
-        std::cout << "WHAT " << static_cast<int> (m*(q/100)) << std::endl;
+        //int max_pairs_to_add = 10 + m*10/100;
+        int max_pairs_to_add = 5 + m*percentage/100;
+        //std::cout << "MAX PAIRS TO ADD " << max_pairs_to_add << std::endl;
+        //std::cout << "TRIPLE WHAT" << m*q/100 << std::endl;
+        //std::cout << "WHAT " << static_cast<int> (m*(q/100)) << std::endl;
         double previousPers = std::get<10>(lastTuple) - std::get<6>(lastTuple);
         auto &t = diag[0];
         double max_pers = std::get<10>(t) - std::get<6>(t);
@@ -133,16 +149,17 @@ void PersistenceDiagramDictEncoding::execute(
         //dataTemp[i].push_back(t);
         for(size_t p = 0; p < diag.size(); ++p) {
           auto &t2 = diag[p];
-          //if(percentage * max_pers <= (std::get<10>(t2) - std::get<6>(t2))
-             //&& (std::get<10>(t2) - std::get<6>(t2)) < previousPerc * max_pers) {
-            //dataTemp[i].push_back(t2);
-            //counter += 1;
-          //}
-          
-          if((counter <= max_pairs_to_add) && ((std::get<10>(t2) - std::get<6>(t2)) <= previousPers - 1e-5)) {
+
+          if(percentage * max_pers <= (std::get<10>(t2) - std::get<6>(t2))
+             && (std::get<10>(t2) - std::get<6>(t2)) < previousPerc * max_pers) {
             dataTemp[i].push_back(t2);
             counter += 1;
           }
+          
+          //if((counter <= max_pairs_to_add) && ((std::get<10>(t2) - std::get<6>(t2)) < previousPers)) {
+            //dataTemp[i].push_back(t2);
+            //counter += 1;
+          //}
         }
         n = diagTemp.size();
         if(diag.size() == n){
@@ -156,11 +173,12 @@ void PersistenceDiagramDictEncoding::execute(
                   << std::endl;
       }
       method(dataTemp, intermediateAtoms, dictDiagrams, vectorWeights, nInputs, seed, numAtom, loss_tab, allLosses, histoVectorWeights, histoDictDiagrams);
-      sum = 0;
-      for(size_t i = 0 ; i < intermediateDiagrams.size() ; ++i){
-        sum += sizeCheck[i];
-      }
-      q += 20;
+      //sum = 0;
+      //for(size_t i = 0 ; i < intermediateDiagrams.size() ; ++i){
+        //sum += sizeCheck[i];
+      //}
+      
+      //q += 20;
     }
   }
 }
@@ -545,7 +563,7 @@ void PersistenceDiagramDictEncoding::method(
     // this->printMsg("LAG" + std::to_string(lag));
     // std::cout << "LAG" << lag << std::endl;
     if((epoch > MIN_EPOCH)
-       && (loss_tab[epoch] / loss_tab[epoch - 1] > 0.99999)) {
+       && (loss_tab[epoch] / loss_tab[epoch - 1] > 0.99)) {
       if(loss_tab[epoch] < loss_tab[epoch - 1]) {
         if (lag2 == 5){
           // lag = 0;

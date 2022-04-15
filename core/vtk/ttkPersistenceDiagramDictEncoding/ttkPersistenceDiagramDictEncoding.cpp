@@ -228,7 +228,7 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
   // const auto diagramsDistMat = this->execute(intermediateDiagrams,
   // dictDiagrams, vectorWeights,  nInputs);
   this->execute(intermediateDiagrams, intermediateAtoms, dictDiagrams,
-                vectorWeights, nInputs, seed, numAtom, loss_tab, allLosses);
+                vectorWeights, nInputs, seed, numAtom, loss_tab, allLosses, this->percent_);
   // zero-padd column name to keep Row Data columns ordered
   // this->printMsg("============WE ARE HERE 173 AFTER EXECUTE============");
   output_weights->SetNumberOfRows(numAtom);
