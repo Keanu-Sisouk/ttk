@@ -55,7 +55,7 @@ void PersistenceDiagramDictEncoding::execute(
     int start = 50;
     int stop = percent_;
     std::vector<double> percentages;
-    for(int value = start ; value > stop ; value -=10){
+    for(int value = start ; value > stop ; value -=5){
       percentages.push_back(static_cast<double>(value)/100.);
     }
     percentages.push_back(static_cast<double>(percent_)/100.);
