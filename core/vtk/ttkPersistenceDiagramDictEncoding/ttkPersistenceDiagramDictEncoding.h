@@ -93,6 +93,9 @@ public:
   vtkSetMacro(ProgApproach, int);
   vtkGetMacro(ProgApproach, int);
 
+  vtkSetMacro(StopCondition, int);
+  vtkGetMacro(StopCondition, int);
+
   vtkSetMacro(sortedForTest, int);
   vtkGetMacro(sortedForTest, int);
 

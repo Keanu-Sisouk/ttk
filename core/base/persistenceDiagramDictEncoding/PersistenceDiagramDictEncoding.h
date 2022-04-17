@@ -187,6 +187,7 @@ namespace ttk {
 
     bool sortedForTest{false};
     bool ProgApproach{false};
+    bool StopCondition{true};
 
     enum class ConstraintType {
       FULL_DIAGRAMS,

@@ -196,6 +196,20 @@
 
         
         <IntVectorProperty
+        name="StopCondition"
+        command="SetStopCondition"
+        label="Stopping condition"
+        number_of_elements="1"
+        default_values="1"
+        panel_visibility="advanced">
+        <BooleanDomain name="bool"/>
+        <Documentation>
+            Activate the interrupt confition
+        </Documentation>
+      </IntVectorProperty>
+
+        
+        <IntVectorProperty
         name="sortedForTest"
         command="SetsortedForTest"
         label="sort for testing"

@@ -568,9 +568,11 @@ void PersistenceDiagramDictEncoding::method(
         if (lag2 == 5){
           // lag = 0;
           this->printMsg("Loss not decreasing enough");
-          do_optimizeWeights = false;
-          do_optimizeAtoms = false;
-          cond = false;
+          if(StopCondition){
+            do_optimizeWeights = false;
+            do_optimizeAtoms = false;
+            cond = false;
+          }
         } else {
           lag2 +=1; 
         }
@@ -589,10 +591,12 @@ void PersistenceDiagramDictEncoding::method(
         vectorWeights[p] = weights;
       }
       this->printMsg("Minimum not passed");
-      do_optimizeWeights = false;
-      do_optimizeAtoms = false;
+      if(StopCondition){
+        do_optimizeWeights = false;
+        do_optimizeAtoms = false;
 
-      cond = false;
+        cond = false;
+      }
     }
 
     // if(epoch == 1) {
