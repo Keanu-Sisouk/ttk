@@ -569,6 +569,14 @@ void PersistenceDiagramDictEncoding::method(
           // lag = 0;
           this->printMsg("Loss not decreasing enough");
           if(StopCondition){
+            for(size_t p = 0; p < dictDiagrams.size(); ++p) {
+              const auto atom = histoDictDiagrams[p];
+              dictDiagrams[p] = atom;
+            }
+            for(size_t p = 0; p < nDiags; ++p) {
+              const auto weights = histoVectorWeights[p];
+              vectorWeights[p] = weights;
+            }
             do_optimizeWeights = false;
             do_optimizeAtoms = false;
             cond = false;
@@ -582,16 +590,18 @@ void PersistenceDiagramDictEncoding::method(
     }
 
     if(epoch > MIN_EPOCH && lag > lagLimit) {
-      for(size_t p = 0; p < dictDiagrams.size(); ++p) {
-        const auto atom = histoDictDiagrams[p];
-        dictDiagrams[p] = atom;
-      }
-      for(size_t p = 0; p < nDiags; ++p) {
-        const auto weights = histoVectorWeights[p];
-        vectorWeights[p] = weights;
-      }
-      this->printMsg("Minimum not passed");
+      
       if(StopCondition){
+        for(size_t p = 0; p < dictDiagrams.size(); ++p) {
+          const auto atom = histoDictDiagrams[p];
+          dictDiagrams[p] = atom;
+        }
+        for(size_t p = 0; p < nDiags; ++p) {
+          const auto weights = histoVectorWeights[p];
+          vectorWeights[p] = weights;
+        }
+        this->printMsg("Minimum not passed");
+      //if(StopCondition){
         do_optimizeWeights = false;
         do_optimizeAtoms = false;
 
