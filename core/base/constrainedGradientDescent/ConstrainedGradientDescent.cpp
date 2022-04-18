@@ -400,7 +400,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
               std::get<6>(t1) = t2[0];
             }
             if (t2[1] < t2[0]){
-              count +=1;
+              //count +=1;
 
               std::get<6>(t1) = t2[0];
               //std::cout << "Under diag" << std::endl;
@@ -450,7 +450,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
               std::get<6>(t1) = t2[0];
             }
             if (t2[1] < t2[0]){
-              count+=1;
+              //count+=1;
               std::get<6>(t1) = t2[0];
               //std::cout << "Under diag" << std::endl;
               continue;
