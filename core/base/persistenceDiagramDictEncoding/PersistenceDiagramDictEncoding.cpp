@@ -1090,6 +1090,16 @@ void PersistenceDiagramDictEncoding::method(
           }
         }
       }
+
+      for(int i = 0; i < numAtom; ++i){
+        auto &atom = dictDiagrams[i];
+        for(size_t j = 0 ; j < atom.size() ; ++j){
+          auto &t = atom[j];
+          if(std::get<6>(t) > std::get<10>(t)){
+            std::get<10>(t) = std::get<6>(t);
+          }
+        }
+      }
       this->printMsg("Computed 2nd opt for epoch " + std::to_string(epoch),
                      epoch / static_cast<double>(MAX_EPOCH),
                      tm_opt2.getElapsedTime(), threadNumber_,

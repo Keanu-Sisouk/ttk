@@ -342,6 +342,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
           if(t0[0] > t0[1]) {
             t0[1] = t0[0];
           }
+
           // if (i == 0 && checker[i][p] == 0) std::cout << "PAIRE GLOBALE
           // AFTER: " << t0[0] << " and " << t0[1] << std::endl;
         }
@@ -400,6 +401,8 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
             }
             if (t2[1] < t2[0]){
               count +=1;
+
+              std::get<6>(t1) = t2[0];
               //std::cout << "Under diag" << std::endl;
               continue;
             } else {
@@ -448,6 +451,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
             }
             if (t2[1] < t2[0]){
               count+=1;
+              std::get<6>(t1) = t2[0];
               //std::cout << "Under diag" << std::endl;
               continue;
             } else {
