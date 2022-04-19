@@ -315,7 +315,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
       double factEquiv = DictDiagrams.size();
       //double factEquiv = 1.;
       //step = 1. / (sqrt(factEquiv) * 1e1);
-      step = 1. / (2. * 2.* factEquiv);
+      step = 1. / ( 2. * 2.* factEquiv);
       // double factEquiv = DictDiagrams.size();
 
 

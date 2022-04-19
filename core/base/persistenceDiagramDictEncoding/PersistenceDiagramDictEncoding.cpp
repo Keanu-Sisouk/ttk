@@ -678,14 +678,20 @@ void PersistenceDiagramDictEncoding::method(
 
     // this->printMsg(
     // "========================ATOM NOW=============================");
-
-    Timer tm_it2{};
+    if(epoch < 5){
+      do_optimizeAtoms = false;
+    } else {
+      do_optimizeAtoms = true;
+    }
+    
+    if(do_optimizeAtoms) {
+      Timer tm_it2{};
 #ifdef TTK_ENABLE_OPENMP
 #pragma omp parallel for num_threads(threadNumber_)
 #endif // TTK_ENABLE_OPENMP
-    for(int i = 0; i < nDiags; ++i) {
-      Diagram &barycenter = Barycenters[i];
-      std::vector<double> &weight = vectorWeights[i];
+      for(int i = 0; i < nDiags; ++i) {
+        Diagram &barycenter = Barycenters[i];
+        std::vector<double> &weight = vectorWeights[i];
       // double sum = 0.;
       // for(int q = 0; q < weight.size(); ++q) {
       //   sum += weight[q];
@@ -693,48 +699,48 @@ void PersistenceDiagramDictEncoding::method(
       // }
       // std::cout << "sum: " << sum << std::endl;
       // this->printMsg(std::to_string(sum_temp));
-      std::vector<std::vector<MatchingTuple>> &matchings = allMatchingsAtoms[i];
-      computeWeightedBarycenter(
-        dictDiagrams, weight, barycenter, matchings, ProgBarycenter);
+        std::vector<std::vector<MatchingTuple>> &matchings = allMatchingsAtoms[i];
+        computeWeightedBarycenter(
+          dictDiagrams, weight, barycenter, matchings, ProgBarycenter);
       // for(int i = 0; i < barycenter.size(); ++i) {
       // DiagramTuple &t = barycenter[i];
       // std::cout << "Pair: " << std::get<6>(t) << ", " << std::get<10>(t)
       //          << std::endl;
       // }
-    }
-    this->printMsg(
-      "Computed 2nd Barycenters for epoch " + std::to_string(epoch),
-      epoch / static_cast<double>(MAX_EPOCH), tm_it2.getElapsedTime(),
-      threadNumber_, debug::LineMode::NEW, debug::Priority::DETAIL);
-    tm_part += static_cast<double>(tm_it2.getElapsedTime());
+      }
+      this->printMsg(
+        "Computed 2nd Barycenters for epoch " + std::to_string(epoch),
+        epoch / static_cast<double>(MAX_EPOCH), tm_it2.getElapsedTime(),
+        threadNumber_, debug::LineMode::NEW, debug::Priority::DETAIL);
+      tm_part += static_cast<double>(tm_it2.getElapsedTime());
 
-    BarycentersMin.clear();
-    BarycentersSad.clear();
-    BarycentersMax.clear();
+      BarycentersMin.clear();
+      BarycentersSad.clear();
+      BarycentersMax.clear();
 
-    BarycentersMin.resize(nDiags);
-    BarycentersSad.resize(nDiags);
-    BarycentersMax.resize(nDiags);
+      BarycentersMin.resize(nDiags);
+      BarycentersSad.resize(nDiags);
+      BarycentersMax.resize(nDiags);
 
-    bidder_barycenters_min.clear();
-    bidder_barycenters_sad.clear();
-    bidder_barycenters_max.clear();
+      bidder_barycenters_min.clear();
+      bidder_barycenters_sad.clear();
+      bidder_barycenters_max.clear();
 
-    origin_index_barysMin.clear();
-    origin_index_barysSad.clear();
-    origin_index_barysMax.clear();
+      origin_index_barysMin.clear();
+      origin_index_barysSad.clear();
+      origin_index_barysMax.clear();
 
-    origin_index_barysMin.resize(nDiags);
-    origin_index_barysSad.resize(nDiags);
-    origin_index_barysMax.resize(nDiags);
+      origin_index_barysMin.resize(nDiags);
+      origin_index_barysSad.resize(nDiags);
+      origin_index_barysMax.resize(nDiags);
 
-    matchingsDatasMin.clear();
-    matchingsDatasSad.clear();
-    matchingsDatasMax.clear();
+      matchingsDatasMin.clear();
+      matchingsDatasSad.clear();
+      matchingsDatasMax.clear();
 
-    matchingsDatasMin.resize(nDiags);
-    matchingsDatasSad.resize(nDiags);
-    matchingsDatasMax.resize(nDiags);
+      matchingsDatasMin.resize(nDiags);
+      matchingsDatasSad.resize(nDiags);
+      matchingsDatasMax.resize(nDiags);
     // std::vector<BidderDiagram<double>> bidder_barycenters_min{};
     // std::vector<BidderDiagram<double>> bidder_barycenters_sad{};
     // std::vector<BidderDiagram<double>> bidder_barycenters_max{};
@@ -742,96 +748,98 @@ void PersistenceDiagramDictEncoding::method(
 #ifdef TTK_ENABLE_OPENMP
 #pragma omp parallel for num_threads(threadNumber_)
 #endif // TTK_ENABLE_OPENMP
-    for(size_t i = 0; i < nDiags; i++) {
-      const Diagram &barycenter = Barycenters[i];
+      for(size_t i = 0; i < nDiags; i++) {
+        const Diagram &barycenter = Barycenters[i];
 
-      for(size_t j = 0; j < barycenter.size(); ++j) {
-        const DiagramTuple &t = barycenter[j];
-        const ttk::CriticalType nt1 = std::get<1>(t);
-        const ttk::CriticalType nt2 = std::get<3>(t);
-        const double pers = std::get<4>(t);
+        for(size_t j = 0; j < barycenter.size(); ++j) {
+          const DiagramTuple &t = barycenter[j];
+          const ttk::CriticalType nt1 = std::get<1>(t);
+          const ttk::CriticalType nt2 = std::get<3>(t);
+          const double pers = std::get<4>(t);
         // maxDiagPersistence[i] = std::max(pers, maxDiagPersistence[i]);
 
-        if(pers > 0) {
-          if(nt1 == CriticalType::Local_minimum
-             && nt2 == CriticalType::Local_maximum) {
-            BarycentersMax[i].emplace_back(t);
-            origin_index_barysMax[i].push_back(j);
-          } else {
-            if(nt1 == CriticalType::Local_maximum
-               || nt2 == CriticalType::Local_maximum) {
+          if(pers > 0) {
+            if(nt1 == CriticalType::Local_minimum
+              && nt2 == CriticalType::Local_maximum) {
               BarycentersMax[i].emplace_back(t);
               origin_index_barysMax[i].push_back(j);
-            }
-            if(nt1 == CriticalType::Local_minimum
-               || nt2 == CriticalType::Local_minimum) {
-              BarycentersMin[i].emplace_back(t);
-              origin_index_barysMin[i].push_back(j);
-            }
-            if((nt1 == CriticalType::Saddle1 && nt2 == CriticalType::Saddle2)
-               || (nt1 == CriticalType::Saddle2
-                   && nt2 == CriticalType::Saddle1)) {
-              BarycentersSad[i].emplace_back(t);
-              origin_index_barysSad[i].push_back(j);
+            } else {
+              if(nt1 == CriticalType::Local_maximum
+                || nt2 == CriticalType::Local_maximum) {
+                BarycentersMax[i].emplace_back(t);
+                origin_index_barysMax[i].push_back(j);
+              }
+              if(nt1 == CriticalType::Local_minimum
+                || nt2 == CriticalType::Local_minimum) {
+                BarycentersMin[i].emplace_back(t);
+                origin_index_barysMin[i].push_back(j);
+              }
+              if((nt1 == CriticalType::Saddle1 && nt2 == CriticalType::Saddle2)
+                || (nt1 == CriticalType::Saddle2
+                    && nt2 == CriticalType::Saddle1)) {
+                BarycentersSad[i].emplace_back(t);
+                origin_index_barysSad[i].push_back(j);
+              }
             }
           }
         }
       }
-    }
-    if(this->do_min_) {
-      setBidderDiagrams(nDiags, BarycentersMin, bidder_barycenters_min);
-    }
-    if(this->do_sad_) {
-      setBidderDiagrams(nDiags, BarycentersSad, bidder_barycenters_sad);
-    }
-    if(this->do_max_) {
-      setBidderDiagrams(nDiags, BarycentersMax, bidder_barycenters_max);
-    }
+      if(this->do_min_) {
+        setBidderDiagrams(nDiags, BarycentersMin, bidder_barycenters_min);
+      }
+      if(this->do_sad_) {
+        setBidderDiagrams(nDiags, BarycentersSad, bidder_barycenters_sad);
+      }
+      if(this->do_max_) {
+        setBidderDiagrams(nDiags, BarycentersMax, bidder_barycenters_max);
+      }
     //double temp2 = 0;
 
 #ifdef TTK_ENABLE_OPENMP
 #pragma omp parallel for num_threads(threadNumber_)
 #endif // TTK_ENABLE_OPENMP
-    for(size_t i = 0; i < nDiags; ++i) {
-      std::vector<MatchingTuple> matching_min;
-      std::vector<MatchingTuple> matching_sad;
-      std::vector<MatchingTuple> matching_max;
-      if(this->do_min_) {
-        auto &barycentermin = bidder_barycenters_min[i];
-        auto &datamin = bidder_diagrams_min[i];
+      for(size_t i = 0; i < nDiags; ++i) {
+        std::vector<MatchingTuple> matching_min;
+        std::vector<MatchingTuple> matching_sad;
+        std::vector<MatchingTuple> matching_max;
+        if(this->do_min_) {
+          auto &barycentermin = bidder_barycenters_min[i];
+          auto &datamin = bidder_diagrams_min[i];
 //#ifdef TTK_ENABLE_OPENMP
 //#pragma omp atomic update
 //#endif // TTK_ENABLE_OPENMP
-        computeDistance(datamin, barycentermin, matching_min);
-      }
-      if(this->do_max_) {
-        auto &barycentermax = bidder_barycenters_max[i];
-        auto &datamax = bidder_diagrams_max[i];
+          computeDistance(datamin, barycentermin, matching_min);
+        }
+        if(this->do_max_) {
+          auto &barycentermax = bidder_barycenters_max[i];
+          auto &datamax = bidder_diagrams_max[i];
 
 //#ifdef TTK_ENABLE_OPENMP
 //#pragma omp atomic update
 //#endif // TTK_ENABLE_OPENMP
-        computeDistance(datamax, barycentermax, matching_max);
-      }
-      if(this->do_sad_) {
-        auto &barycentersad = bidder_barycenters_sad[i];
-        auto &datasad = bidder_diagrams_sad[i];
+          computeDistance(datamax, barycentermax, matching_max);
+        }
+        if(this->do_sad_) {
+          auto &barycentersad = bidder_barycenters_sad[i];
+          auto &datasad = bidder_diagrams_sad[i];
 
 //#ifdef TTK_ENABLE_OPENMP
 //#pragma omp atomic update
 //#endif // TTK_ENABLE_OPENMP
-        computeDistance(datasad, barycentersad, matching_sad);
+          computeDistance(datasad, barycentersad, matching_sad);
+        }
+        matchingsDatasMin[i] = std::move(matching_min);
+        matchingsDatasSad[i] = std::move(matching_sad);
+        matchingsDatasMax[i] = std::move(matching_max);
       }
-      matchingsDatasMin[i] = std::move(matching_min);
-      matchingsDatasSad[i] = std::move(matching_sad);
-      matchingsDatasMax[i] = std::move(matching_max);
-    }
 
 
     // this->printMsg("====================NOW ATOM
     // UPDATE======================"); ATOM OPTIMIZATION
 
-    if(do_optimizeAtoms) {
+    
+
+    //if(do_optimizeAtoms) {
       std::vector<std::vector<std::vector<std::array<double, 2>>>>
         allPairToAddToGradList(nDiags);
       std::vector<std::vector<DiagramTuple>> allInfoToAdd(nDiags);
