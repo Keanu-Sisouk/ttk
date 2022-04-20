@@ -55,7 +55,8 @@ namespace ttk {
                  std::vector<double> &loss_tab,
                  std::vector<std::vector<double>> &allLosses,
                  std::vector<std::vector<double>> &histoVectorWeights,
-                 std::vector<Diagram> &histoDictDiagrams);
+                 std::vector<Diagram> &histoDictDiagrams,
+                 bool preWeightOpt);
 
     enum class BACKEND { BORDER_INIT = 0, RANDOM_INIT = 1, FIRST_DIAGS = 2, INPUT_ATOMS = 3, GREEDY_INIT = 4 };
 
