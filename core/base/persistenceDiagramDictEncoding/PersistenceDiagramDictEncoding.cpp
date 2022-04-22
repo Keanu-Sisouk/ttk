@@ -102,7 +102,7 @@ void PersistenceDiagramDictEncoding::execute(
       InitDictionary(dictDiagrams, dataTemp, intermediateAtoms, numAtom, this->do_min_, this->do_sad_, this->do_max_, seed);
       this->printMsg("Initialization computed ", 1, tm_init.getElapsedTime(), threadNumber_, debug::LineMode::NEW);
 
-      method(dataTemp, intermediateAtoms, dictDiagrams, vectorWeights, nInputs, seed, numAtom, loss_tab, allLosses, histoVectorWeights, histoDictDiagrams, preWeightOpt, 0.001);
+      method(dataTemp, intermediateAtoms, dictDiagrams, vectorWeights, nInputs, seed, numAtom, loss_tab, allLosses, histoVectorWeights, histoDictDiagrams, preWeightOpt, 0.01);
       
     }
 
@@ -118,7 +118,7 @@ void PersistenceDiagramDictEncoding::execute(
     int q = 1;
     //while(sum != static_cast<int>(intermediateDiagrams.size())){
     //for(size_t j = 1 ; j < newPercentages.size() ; ++j){
-    preWeightOpt = false;
+    //preWeightOpt = false;
     int counter = 0;
     for(size_t j = 1 ; j < percentages.size() ; ++j){
       double percentage = percentages[j];
