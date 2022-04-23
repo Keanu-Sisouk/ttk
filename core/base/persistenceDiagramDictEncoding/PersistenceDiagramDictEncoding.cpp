@@ -686,7 +686,7 @@ void PersistenceDiagramDictEncoding::method(
     // this->printMsg(
     // "========================ATOM NOW=============================");
     if(preWeightOpt){
-      if(epoch < 5){
+      if(epoch < 3){
         do_optimizeAtoms = false;
       } else {
         do_optimizeAtoms = true;
