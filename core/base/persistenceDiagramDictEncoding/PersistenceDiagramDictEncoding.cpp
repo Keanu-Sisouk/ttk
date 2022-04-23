@@ -568,11 +568,11 @@ void PersistenceDiagramDictEncoding::method(
 
     // this->printMsg("LAG" + std::to_string(lag));
     // std::cout << "LAG" << lag << std::endl;
-    if((epoch > MIN_EPOCH) && abs(loss_tab[epoch]/loss_tab[epoch-1] + acc) > 1){
-       //&& (loss_tab[epoch] / loss_tab[epoch - 1] > 0.99)) {
+    if((epoch > MIN_EPOCH)
+       && (loss_tab[epoch] / loss_tab[epoch - 1] > 0.99)) {
       if(loss_tab[epoch] < loss_tab[epoch - 1]) {
       //if(true){  
-        if (lag2 == 5){
+        if (lag2 == 3){
           // lag = 0;
           this->printMsg("Loss not decreasing enough");
           if(StopCondition){
