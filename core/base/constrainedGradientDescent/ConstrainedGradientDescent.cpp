@@ -312,7 +312,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
       // double mini = *std::min_element(temp.begin(), temp.end());
 
       double step;
-      double factEquiv = DictDiagrams.size();
+      double factEquiv = static_cast<double>(DictDiagrams.size());
       //double factEquiv = 1.;
       //step = 1. / (sqrt(factEquiv) * 1e1);
       step = 1. / ( 2. * 2.* factEquiv);
