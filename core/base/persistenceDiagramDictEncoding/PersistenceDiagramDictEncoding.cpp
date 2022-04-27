@@ -33,7 +33,7 @@ void PersistenceDiagramDictEncoding::execute(
       if(sortedForTest){
         auto &diag = intermediateDiagrams[i];
         std::sort(diag.begin(), diag.end() , [](DiagramTuple &t1 , DiagramTuple &t2){
-            return (std::get<10>(t1) - std::get<6>(t2)) > (std::get<10>(t2) - std::get<6>(t2));});
+            return (std::get<10>(t1) - std::get<6>(t1)) > (std::get<10>(t2) - std::get<6>(t2));});
       }
     }
     std::vector<std::vector<double>> histoVectorWeights(intermediateDiagrams.size());
