@@ -21,6 +21,7 @@ void PersistenceDiagramDictEncoding::execute(
   const int seed,
   const int numAtom,
   std::vector<double> &loss_tab,
+  std::vector<double> &true_loss_tab,
   std::vector<std::vector<double>> &allLosses,
   int percent_) {
 
@@ -36,20 +37,33 @@ void PersistenceDiagramDictEncoding::execute(
             return (std::get<10>(t1) - std::get<6>(t1)) > (std::get<10>(t2) - std::get<6>(t2));});
       }
     }
+
+    
+    std::vector<BidderDiagram<double>> bidder_diagram_min(intermediateDiagrams.size());
+    std::vector<BidderDiagram<double>> bidder_diagram_sad(intermediateDiagrams.size());
+    std::vector<BidderDiagram<double>> bidder_diagram_max(intermediateDiagrams.size());
+
     std::vector<std::vector<double>> histoVectorWeights(intermediateDiagrams.size());
     std::vector<Diagram> histoDictDiagrams(numAtom);
     Timer tm_init{};
     bool preWeightOpt = false;
     InitDictionary(dictDiagrams, intermediateDiagrams, intermediateAtoms, numAtom, this->do_min_, this->do_sad_, this->do_max_, seed);
     this->printMsg("Initialization computed ", 1, tm_init.getElapsedTime(), threadNumber_, debug::LineMode::NEW);
-    method(intermediateDiagrams, intermediateAtoms, dictDiagrams, vectorWeights, nInputs, seed, numAtom, loss_tab, allLosses, histoVectorWeights, histoDictDiagrams, preWeightOpt, 0.01);
+    method(intermediateDiagrams, intermediateAtoms, dictDiagrams, vectorWeights, nInputs, seed, numAtom, loss_tab, true_loss_tab, allLosses, histoVectorWeights, histoDictDiagrams, preWeightOpt, 0.01, bidder_diagram_min, bidder_diagram_sad, bidder_diagram_max);
   } else {
     for(size_t i = 0 ; i < intermediateDiagrams.size() ; ++i){
       auto &diag = intermediateDiagrams[i];
       std::sort(diag.begin(), diag.end() , [](DiagramTuple &t1 , DiagramTuple &t2){
           return (std::get<10>(t1) - std::get<6>(t1)) > (std::get<10>(t2) - std::get<6>(t2));});
-
+      
     }
+
+    std::vector<BidderDiagram<double>> bidder_diagram_min{};
+    std::vector<BidderDiagram<double>> bidder_diagram_sad{};
+    std::vector<BidderDiagram<double>> bidder_diagram_max{};
+
+    gettingBidderDiagrams(intermediateDiagrams, bidder_diagram_min , bidder_diagram_sad, bidder_diagram_max);
+
     //std::vector<double> percentages{0.2 , 0.15 , 0.1 , 0.05};
     //std::vector<double> percentages{0.8 , 0.6 , 0.5, 0.4, 0.3 , 0.2};
     //std::vector<double> percentages{0.3 , 0.2 , 0.1 , 0.05, 0.01};
@@ -102,9 +116,10 @@ void PersistenceDiagramDictEncoding::execute(
       InitDictionary(dictDiagrams, dataTemp, intermediateAtoms, numAtom, this->do_min_, this->do_sad_, this->do_max_, seed);
       this->printMsg("Initialization computed ", 1, tm_init.getElapsedTime(), threadNumber_, debug::LineMode::NEW);
 
-      method(dataTemp, intermediateAtoms, dictDiagrams, vectorWeights, nInputs, seed, numAtom, loss_tab, allLosses, histoVectorWeights, histoDictDiagrams, preWeightOpt, 0.01);
+      method(dataTemp, intermediateAtoms, dictDiagrams, vectorWeights, nInputs, seed, numAtom, loss_tab, true_loss_tab, allLosses, histoVectorWeights, histoDictDiagrams, preWeightOpt, 0.01, bidder_diagram_min, bidder_diagram_sad, bidder_diagram_max);
       
     }
+
 
 
     int min_pairs_to_add = 0;
@@ -176,7 +191,7 @@ void PersistenceDiagramDictEncoding::execute(
       if(counter == 0){
         continue;
       }
-      method(dataTemp, intermediateAtoms, dictDiagrams, vectorWeights, nInputs, seed, numAtom, loss_tab, allLosses, histoVectorWeights, histoDictDiagrams, preWeightOpt, 0.01);
+      method(dataTemp, intermediateAtoms, dictDiagrams, vectorWeights, nInputs, seed, numAtom, loss_tab, true_loss_tab, allLosses, histoVectorWeights, histoDictDiagrams, preWeightOpt, 0.01, bidder_diagram_min, bidder_diagram_sad, bidder_diagram_max );
       //sum = 0;
       //for(size_t i = 0 ; i < intermediateDiagrams.size() ; ++i){
         //sum += sizeCheck[i];
@@ -196,11 +211,15 @@ void PersistenceDiagramDictEncoding::method(
   const int seed,
   const int numAtom,
   std::vector<double> &loss_tab,
+  std::vector<double> &true_loss_tab,
   std::vector<std::vector<double>> &allLosses,
   std::vector<std::vector<double>> &histoVectorWeights,
   std::vector<Diagram> &histoDictDiagrams,
   bool preWeightOpt,
-  double acc) {
+  double acc,
+  std::vector<BidderDiagram<double>> &true_bidder_diagram_min,
+  std::vector<BidderDiagram<double>> &true_bidder_diagram_sad,
+  std::vector<BidderDiagram<double>> &true_bidder_diagram_max) {
 
   Timer tm{};
   double tm_part = 0.;
@@ -363,6 +382,7 @@ void PersistenceDiagramDictEncoding::method(
   std::vector<std::vector<MatchingTuple>> matchingsDatasMax(nDiags);
   ConstrainedGradientDescent gradActor;
   double loss;
+  double true_loss = 0.;
   // double loss1;
   // int epoch = 1;
   // std::vector<double> loss_tab;
@@ -389,13 +409,14 @@ void PersistenceDiagramDictEncoding::method(
   //std::vector<std::vector<double>> histoVectorWeights(nDiags);
   // std::vector<double> allLosses(nDiags , 0.);
   std::vector<double> allLossesAtEpoch(nDiags, 0.);
-
+  std::vector<double> trueAllLossesAtEpoch(nDiags, 0.);
 
   // bool condition = true;
   while(epoch < MAX_EPOCH && cond) {
     // for(int epoch = 1; epoch < MAX_EPOCH; ++epoch) {
     
     loss = 0.;
+    true_loss = 0.;
     // auto vectorWeightsOld = vectorWeights;
     // this->printMsg("Epoch: " + std::to_string(epoch));
     Timer tm_it{};
@@ -505,35 +526,57 @@ void PersistenceDiagramDictEncoding::method(
       std::vector<MatchingTuple> matching_min;
       std::vector<MatchingTuple> matching_sad;
       std::vector<MatchingTuple> matching_max;
+
+      
+      std::vector<MatchingTuple> matching_min_temp;
+      std::vector<MatchingTuple> matching_sad_temp;
+      std::vector<MatchingTuple> matching_max_temp;
+      
       if(this->do_min_) {
         auto &barycentermin = bidder_barycenters_min[i];
         auto &datamin = bidder_diagrams_min[i];
+        auto &truedatamin = true_bidder_diagram_min[i];
+        size_t s = truedatamin.size();
 
 //#ifdef TTK_ENABLE_OPENMP
 //#pragma omp atomic update
 //#endif // TTK_ENABLE_OPENMP
         allLossesAtEpoch[i]
           += computeDistance(datamin, barycentermin, matching_min);
+
+        if((ProgApproach) && (s != 0)){
+          trueAllLossesAtEpoch[i] += computeDistance(truedatamin, barycentermin, matching_min_temp);
+        }
       }
       if(this->do_max_) {
         auto &barycentermax = bidder_barycenters_max[i];
         auto &datamax = bidder_diagrams_max[i];
-
+        auto &truedatamax = true_bidder_diagram_max[i];
+        size_t s = truedatamax.size();
 //#ifdef TTK_ENABLE_OPENMP
 //#pragma omp atomic update
 //#endif // TTK_ENABLE_OPENMP
         allLossesAtEpoch[i]
           += computeDistance(datamax, barycentermax, matching_max);
+        
+        if((ProgApproach) && (s != 0)){
+          trueAllLossesAtEpoch[i] += computeDistance(truedatamax, barycentermax, matching_max_temp);
+        }
       }
       if(this->do_sad_) {
         auto &barycentersad = bidder_barycenters_sad[i];
         auto &datasad = bidder_diagrams_sad[i];
-
+        auto &truedatasad = true_bidder_diagram_sad[i];
+        size_t s = truedatasad.size();
 //#ifdef TTK_ENABLE_OPENMP
 //#pragma omp atomic update
 //#endif // TTK_ENABLE_OPENMP
         allLossesAtEpoch[i]
           += computeDistance(datasad, barycentersad, matching_sad);
+        
+        if((ProgApproach) && (s != 0)){
+          trueAllLossesAtEpoch[i] += computeDistance(truedatasad, barycentersad, matching_sad_temp);
+        }
       }
       matchingsDatasMin[i] = std::move(matching_min);
       matchingsDatasSad[i] = std::move(matching_sad);
@@ -542,6 +585,10 @@ void PersistenceDiagramDictEncoding::method(
 
     for(size_t p = 0 ; p < nDiags ; ++p){
       loss += allLossesAtEpoch[p];
+    }
+
+    for(size_t p = 0 ; p < nDiags ; ++p){
+      true_loss += trueAllLossesAtEpoch[p];
     }
 
 
@@ -553,6 +600,7 @@ void PersistenceDiagramDictEncoding::method(
 
 
     loss_tab.push_back(loss);
+    true_loss_tab.push_back(true_loss);
 
 
     double mini = *std::min_element(loss_tab.begin() + nbEpochPrevious, loss_tab.end() - 1);
@@ -677,6 +725,7 @@ void PersistenceDiagramDictEncoding::method(
 
     for(size_t p = 0 ; p < nDiags ; ++p){
       allLossesAtEpoch[p] = 0.;
+      trueAllLossesAtEpoch[p] = 0.;
     }
     Barycenters.clear();
     Barycenters.resize(nDiags);
@@ -2084,6 +2133,7 @@ int PersistenceDiagramDictEncoding::InitDictionary(
           std::vector<Diagram> dictTemp;
           std::vector<Diagram> dataAlone;
           std::vector<double> lossTabTemp;
+          std::vector<double> trueLossTabTemp;
           std::vector<std::vector<double>> allLossesTemp(1);
            
           for(size_t p = 0 ; p < dictDiagrams.size() ; ++p){
@@ -2098,7 +2148,10 @@ int PersistenceDiagramDictEncoding::InitDictionary(
           weightsTemp[0] = weights;
           std::vector<std::vector<double>> histoVectorWeights(1);
           std::vector<Diagram> histoDictDiagrams(dictTemp.size());
-          this->method(dataAlone, inputAtoms, dictTemp, weightsTemp, nInputsUseless, seed, static_cast<int>(dictTemp.size()), lossTabTemp, allLossesTemp, histoVectorWeights, histoDictDiagrams, false, 0.01);
+          std::vector<BidderDiagram<double>> bidderTempMin(dataAlone.size());
+          std::vector<BidderDiagram<double>> bidderTempMax(dataAlone.size());
+          std::vector<BidderDiagram<double>> bidderTempSad(dataAlone.size());
+          this->method(dataAlone, inputAtoms, dictTemp, weightsTemp, nInputsUseless, seed, static_cast<int>(dictTemp.size()), lossTabTemp, trueLossTabTemp, allLossesTemp, histoVectorWeights, histoDictDiagrams, false, 0.01, bidderTempMin, bidderTempSad, bidderTempMax);
           double min_loss = *std::min_element(lossTabTemp.begin() , lossTabTemp.end());
           allEnergy[j] = min_loss;
         }
@@ -2112,3 +2165,89 @@ int PersistenceDiagramDictEncoding::InitDictionary(
   }
   return 0;
 }
+
+void PersistenceDiagramDictEncoding::gettingBidderDiagrams(
+    const std::vector<ttk::Diagram> &intermediateDiagrams,
+    std::vector<BidderDiagram<double>> &bidder_diagrams_min,
+    std::vector<BidderDiagram<double>> &bidder_diagrams_sad,
+    std::vector<BidderDiagram<double>> &bidder_diagrams_max){
+
+    size_t nDiags = intermediateDiagrams.size();
+    //double distance = 0.;
+    
+    std::vector<Diagram> inputDiagramsMin(nDiags);
+    std::vector<Diagram> inputDiagramsSad(nDiags);
+    std::vector<Diagram> inputDiagramsMax(nDiags);
+
+    //std::vector<BidderDiagram<double>> bidder_diagrams_min{};
+    //std::vector<BidderDiagram<double>> bidder_diagrams_sad{};
+    //std::vector<BidderDiagram<double>> bidder_diagrams_max{};
+
+    //std::vector<std::vector<size_t>> origin_index_datasMin(nDiags);
+    //std::vector<std::vector<size_t>> origin_index_datasSad(nDiags);
+    //std::vector<std::vector<size_t>> origin_index_datasMax(nDiags);
+
+    // std::vector<BidderDiagram<double>> current_bidder_diagrams_min{};
+    // std::vector<BidderDiagram<double>> current_bidder_diagrams_sad{};
+    // std::vector<BidderDiagram<double>> current_bidder_diagrams_max{};
+
+    // Store the persistence of the global min-max pair
+    // std::vector<double> maxDiagPersistence(nDiags);
+
+    // Create diagrams for min, saddle and max persistence pairs
+#ifdef TTK_ENABLE_OPENMP
+#pragma omp parallel for num_threads(threadNumber_)
+#endif // TTK_ENABLE_OPENMP
+    for(size_t i = 0; i < nDiags; i++) {
+      const Diagram &CTDiagram = intermediateDiagrams[i];
+
+      for(size_t j = 0; j < CTDiagram.size(); ++j) {
+        const DiagramTuple &t = CTDiagram[j];
+        const ttk::CriticalType nt1 = std::get<1>(t);
+        const ttk::CriticalType nt2 = std::get<3>(t);
+        const double pers = std::get<4>(t);
+        // maxDiagPersistence[i] = std::max(pers, maxDiagPersistence[i]);
+
+        if(pers > 0) {
+          if(nt1 == CriticalType::Local_minimum
+            && nt2 == CriticalType::Local_maximum) {
+            inputDiagramsMax[i].emplace_back(t);
+            //origin_index_datasMax[i].push_back(j);
+          } else {
+            if(nt1 == CriticalType::Local_maximum
+              || nt2 == CriticalType::Local_maximum) {
+              inputDiagramsMax[i].emplace_back(t);
+              //origin_index_datasMax[i].push_back(j);
+            }
+            if(nt1 == CriticalType::Local_minimum
+              || nt2 == CriticalType::Local_minimum) {
+              inputDiagramsMin[i].emplace_back(t);
+              //origin_index_datasMin[i].push_back(j);
+            }
+            if((nt1 == CriticalType::Saddle1 && nt2 == CriticalType::Saddle2)
+              || (nt1 == CriticalType::Saddle2
+                  && nt2 == CriticalType::Saddle1)) {
+              inputDiagramsSad[i].emplace_back(t);
+              //origin_index_datasSad[i].push_back(j);
+            }
+          }
+        }
+      }
+    }
+
+    if(this->do_min_) {
+      setBidderDiagrams(nDiags, inputDiagramsMin, bidder_diagrams_min);
+    }
+    if(this->do_sad_) {
+      setBidderDiagrams(nDiags, inputDiagramsSad, bidder_diagrams_sad);
+    }
+    if(this->do_max_) {
+      setBidderDiagrams(nDiags, inputDiagramsMax, bidder_diagrams_max);
+    }
+
+
+
+    //return distance;
+}
+
+

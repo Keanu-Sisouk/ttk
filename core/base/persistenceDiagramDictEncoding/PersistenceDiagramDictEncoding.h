@@ -40,6 +40,7 @@ namespace ttk {
                  const int seed,
                  const int numAtom,
                  std::vector<double> &loss_tab,
+                 std::vector<double> &true_loss_tab,
                  std::vector<std::vector<double>> &allLosses,
                  int percent_);
 
@@ -53,11 +54,15 @@ namespace ttk {
                  const int seed,
                  const int numAtom,
                  std::vector<double> &loss_tab,
+                 std::vector<double> &true_loss_tab,
                  std::vector<std::vector<double>> &allLosses,
                  std::vector<std::vector<double>> &histoVectorWeights,
                  std::vector<Diagram> &histoDictDiagrams,
                  bool preWeightOpt,
-                 double acc);
+                 double acc,
+                 std::vector<BidderDiagram<double>> &true_bidder_diagram_min,
+                 std::vector<BidderDiagram<double>> &true_bidder_diagram_sad,
+                 std::vector<BidderDiagram<double>> &true_bidder_diagram_max);
 
     enum class BACKEND { BORDER_INIT = 0, RANDOM_INIT = 1, FIRST_DIAGS = 2, INPUT_ATOMS = 3, GREEDY_INIT = 4 };
 
@@ -164,6 +169,13 @@ namespace ttk {
                        bool do_sad_,
                        bool do_max_,
                        int seed);
+
+
+    void gettingBidderDiagrams( 
+        const std::vector<ttk::Diagram> &intermediateDiagrams, 
+        std::vector<BidderDiagram<double>> &bidder_diagrams_min,
+        std::vector<BidderDiagram<double>> &bidder_diagrams_sad,
+        std::vector<BidderDiagram<double>> &bidder_diagrams_max);
 
     int Wasserstein{2};
     double Alpha{1.0};

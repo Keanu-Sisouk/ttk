@@ -20,7 +20,7 @@ vtkStandardNewMacro(ttkPersistenceDiagramDictEncoding);
 
 ttkPersistenceDiagramDictEncoding::ttkPersistenceDiagramDictEncoding() {
   SetNumberOfInputPorts(2);
-  SetNumberOfOutputPorts(4);
+  SetNumberOfOutputPorts(5);
 }
 
 int ttkPersistenceDiagramDictEncoding::FillInputPortInformation(
@@ -50,6 +50,9 @@ int ttkPersistenceDiagramDictEncoding::FillOutputPortInformation(
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkTable");
     return 1;
   } else if(port == 3) {
+    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkTable");
+    return 1;
+  } else if(port == 4) {
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkTable");
     return 1;
   } else {
@@ -144,7 +147,7 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
   auto output_weights = vtkTable::GetData(outputVector, 1);
   auto output_loss = vtkTable::GetData(outputVector, 2);
   auto output_allLosses = vtkTable::GetData(outputVector, 3);
-
+  auto true_output_loss = vtkTable::GetData(outputVector, 4);
   // int numAtom = this->GetAtomNumber();
   output_dgm->SetNumberOfBlocks(numAtom);
 
@@ -224,11 +227,12 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
   }
 
   std::vector<double> loss_tab;
+  std::vector<double> true_loss_tab;
   std::vector<std::vector<double>> allLosses(nDiags);
   // const auto diagramsDistMat = this->execute(intermediateDiagrams,
   // dictDiagrams, vectorWeights,  nInputs);
   this->execute(intermediateDiagrams, intermediateAtoms, dictDiagrams,
-                vectorWeights, nInputs, seed, numAtom, loss_tab, allLosses, this->percent_);
+                vectorWeights, nInputs, seed, numAtom, loss_tab, true_loss_tab, allLosses, this->percent_);
   // zero-padd column name to keep Row Data columns ordered
   // this->printMsg("============WE ARE HERE 173 AFTER EXECUTE============");
   output_weights->SetNumberOfRows(numAtom);
@@ -269,6 +273,16 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
   }
   colLoss->Modified();
   output_loss->AddColumn(colLoss);
+
+
+  vtkNew<vtkDoubleArray> trueColLoss{};
+  trueColLoss->SetNumberOfValues(true_loss_tab.size());
+  trueColLoss->SetName("True loss evolution");
+  for(size_t j = 0 ; j < true_loss_tab.size() ; ++j){
+    trueColLoss->SetValue(j, true_loss_tab[j]);
+  }
+  trueColLoss->Modified();
+  true_output_loss->AddColumn(trueColLoss);
 
   for(int i = 0; i < nDiags; ++i) {
     std::vector<double> &loss = allLosses[i];
