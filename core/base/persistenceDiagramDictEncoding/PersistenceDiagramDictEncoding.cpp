@@ -950,10 +950,12 @@ void PersistenceDiagramDictEncoding::method(
         //                        gradsAtoms, nb_points, checkerAtoms, epoch);
       }
       std::vector<double> maxiDeath(numAtom);
+      std::vector<double> minBirth(numAtom);
       for(int j = 0; j < numAtom; ++j) {
         auto &atom = dictDiagrams[j];
         auto &temp = atom[0];
         maxiDeath[j] = std::get<10>(temp);
+        minBirth[j] = std::get<6>(temp);
       }
 
       std::vector<std::vector<std::vector<int>>> allProjectionsList(nDiags);
@@ -1021,6 +1023,9 @@ void PersistenceDiagramDictEncoding::method(
               if(pair[0] > pair[1]) {
                 pair[1] = pair[0];
               }
+              if(pair[0] < minBirth[atomIndex]){
+                continue;
+              }
               DiagramTuple newPair{0,       c1,      0,  c2, pair[1] - pair[0],
                                    idTemp,  pair[0], 0., 0., 0.,
                                    pair[1], 0.,      0., 0.};
@@ -1056,6 +1061,10 @@ void PersistenceDiagramDictEncoding::method(
                 if(pair[0] > pair[1]) {
                   pair[1] = pair[0];
                 }
+                if(pair[0] < minBirth[atomIndex]){
+                  continue;
+                }
+
                 DiagramTuple newPair{0,       c1,      0,  c2, pair[1] - pair[0],
                                      idTemp,  pair[0], 0., 0., 0.,
                                      pair[1], 0.,      0., 0.};
