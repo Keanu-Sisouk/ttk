@@ -177,6 +177,8 @@ namespace ttk {
         std::vector<BidderDiagram<double>> &bidder_diagrams_sad,
         std::vector<BidderDiagram<double>> &bidder_diagrams_max);
 
+    double getMaxPers(const Diagram &data);
+
     int Wasserstein{2};
     double Alpha{1.0};
     double DeltaLim{0.01};

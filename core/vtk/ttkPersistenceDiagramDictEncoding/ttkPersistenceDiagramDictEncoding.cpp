@@ -165,15 +165,25 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
   for(int i = 0; i < nDiags; ++i) {
     double max_dimension
       = getPersistenceDiagram(intermediateDiagrams[i], inputDiagrams[i]);
-    std::cout << "MAX PERS BEFORE FILTERING " << max_dimension << std::endl;
     
-    std::sort(intermediateDiagrams[i].begin(), intermediateDiagrams[i].end(),
-              [](ttk::DiagramTuple &t1, ttk::DiagramTuple &t2) {
-                return (std::get<10>(t1) - std::get<6>(t1))
-                       > (std::get<10>(t2) - std::get<6>(t2));
-              });
-    ttk::DiagramTuple &temp = intermediateDiagrams[i][0];
-    double max_pers = std::get<10>(temp) - std::get<6>(temp);
+    
+    double max_pers = this->getMaxPers(intermediateDiagrams[i]);
+    if(max_dimension < max_pers){
+      std::cout << "HOUBA HOUBA" << std::endl;
+    }
+
+    
+    std::cout << "MAX PERS BEFORE FILTERING " << max_pers << std::endl;
+    //if (max_dimension < this->getMaxPers(intermediateDiagrams[i])){
+      //std::sort(intermediateDiagrams[i].begin(), intermediateDiagrams[i].end(),
+      //          [](ttk::DiagramTuple &t1, ttk::DiagramTuple &t2) {
+      //            return (std::get<10>(t1) - std::get<6>(t1))
+      //                  > (std::get<10>(t2) - std::get<6>(t2));
+      //          });
+      //max_dimension = 
+    //}
+    //ttk::DiagramTuple &temp = intermediateDiagrams[i][0];
+    //double max_pers = std::get<10>(temp) - std::get<6>(temp);
     intermediateDiagrams[i].erase(
       std::remove_if(intermediateDiagrams[i].begin(),
                      intermediateDiagrams[i].end(),
