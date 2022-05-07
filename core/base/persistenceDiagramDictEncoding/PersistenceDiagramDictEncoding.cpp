@@ -98,7 +98,7 @@ void PersistenceDiagramDictEncoding::execute(
         dataTemp[i].push_back(t);
         for(size_t p = 1; p < diag.size(); ++p) {
           auto &t2 = diag[p];
-          if(percentage * max_pers <= (std::get<10>(t2) - std::get<6>(t2))) {
+          if(percentage * max_pers + 1e-6 < (std::get<10>(t2) - std::get<6>(t2))) {
             dataTemp[i].push_back(t2);
           } else {
             continue;
@@ -169,7 +169,7 @@ void PersistenceDiagramDictEncoding::execute(
         for(size_t p = 0; p < diag.size(); ++p) {
           auto &t2 = diag[p];
 
-          if(percentage * max_pers <= (std::get<10>(t2) - std::get<6>(t2))
+          if(percentage * max_pers + 1e-6 < (std::get<10>(t2) - std::get<6>(t2))
              && (std::get<10>(t2) - std::get<6>(t2)) < previousPerc * max_pers) {
             dataTemp[i].push_back(t2);
             counter += 1;
