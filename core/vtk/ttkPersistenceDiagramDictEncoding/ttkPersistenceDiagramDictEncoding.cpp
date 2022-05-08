@@ -170,6 +170,7 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
     double max_pers = this->getMaxPers(intermediateDiagrams[i]);
     if(max_dimension < max_pers){
       std::cout << "HOUBA HOUBA" << std::endl;
+      std::cout << "MAX DIM" << max_dimension << std::endl;
     }
 
     
