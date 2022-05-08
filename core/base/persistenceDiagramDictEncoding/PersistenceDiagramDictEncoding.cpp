@@ -51,12 +51,12 @@ void PersistenceDiagramDictEncoding::execute(
     this->printMsg("Initialization computed ", 1, tm_init.getElapsedTime(), threadNumber_, debug::LineMode::NEW);
     method(intermediateDiagrams, intermediateAtoms, dictDiagrams, vectorWeights, nInputs, seed, numAtom, loss_tab, true_loss_tab, allLosses, histoVectorWeights, histoDictDiagrams, preWeightOpt, 0.01, bidder_diagram_min, bidder_diagram_sad, bidder_diagram_max);
   } else {
-    for(size_t i = 0 ; i < intermediateDiagrams.size() ; ++i){
-      auto &diag = intermediateDiagrams[i];
-      std::sort(diag.begin(), diag.end() , [](DiagramTuple &t1 , DiagramTuple &t2){
-          return (std::get<10>(t1) - std::get<6>(t1)) > (std::get<10>(t2) - std::get<6>(t2));});
+    //for(size_t i = 0 ; i < intermediateDiagrams.size() ; ++i){
+      //auto &diag = intermediateDiagrams[i];
+      //std::sort(diag.begin(), diag.end() , [](DiagramTuple &t1 , DiagramTuple &t2){
+      //    return (std::get<10>(t1) - std::get<6>(t1)) > (std::get<10>(t2) - std::get<6>(t2));});
       
-    }
+    //}
 
     std::vector<BidderDiagram<double>> bidder_diagram_min{};
     std::vector<BidderDiagram<double>> bidder_diagram_sad{};
@@ -92,7 +92,8 @@ void PersistenceDiagramDictEncoding::execute(
       for(size_t i = 0 ; i < intermediateDiagrams.size() ; ++i){
         auto &diag = intermediateDiagrams[i];
         auto &t = diag[0];
-        double max_pers = std::get<10>(t) - std::get<6>(t);
+        //double max_pers = std::get<10>(t) - std::get<6>(t);
+        double max_pers = getMaxPers(diag);
         std::cout << "MAX PERS" << max_pers << std::endl;
         auto &diagTemp = dataTemp[i];
         dataTemp[i].push_back(t);
@@ -163,7 +164,8 @@ void PersistenceDiagramDictEncoding::execute(
         //std::cout << "WHAT " << static_cast<int> (m*(q/100)) << std::endl;
         double previousPers = std::get<10>(lastTuple) - std::get<6>(lastTuple);
         auto &t = diag[0];
-        double max_pers = std::get<10>(t) - std::get<6>(t);
+        double max_pers = getMaxPers(diag);
+        //double max_pers = std::get<10>(t) - std::get<6>(t);
         //auto &diagTemp = dataTemp[i];
         //dataTemp[i].push_back(t);
         for(size_t p = 0; p < diag.size(); ++p) {
