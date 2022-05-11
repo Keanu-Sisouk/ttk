@@ -90,7 +90,7 @@ void PersistenceDiagramDictEncoding::execute(
       // dataTemp[i] = diag;
       //}
       
-      this->maxLag2 = 0;
+      this->maxLag2 = 10;
 
       for(size_t i = 0 ; i < intermediateDiagrams.size() ; ++i){
         auto &diag = intermediateDiagrams[i];
@@ -143,7 +143,7 @@ void PersistenceDiagramDictEncoding::execute(
       double percentage = percentages[j];
       double previousPerc = percentages[j-1];
       if( j < percentages.size() - 1){
-        this->maxLag2 = 0;
+        this->maxLag2 = 10;
       } else {
         this->maxLag2 = 10;
       }
