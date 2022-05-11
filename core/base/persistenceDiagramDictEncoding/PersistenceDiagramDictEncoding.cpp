@@ -89,6 +89,9 @@ void PersistenceDiagramDictEncoding::execute(
       // auto diag = intermediateDiagrams[i];
       // dataTemp[i] = diag;
       //}
+      
+      this->maxLag2 = 0;
+
       for(size_t i = 0 ; i < intermediateDiagrams.size() ; ++i){
         auto &diag = intermediateDiagrams[i];
         auto &t = diag[0];
@@ -139,6 +142,13 @@ void PersistenceDiagramDictEncoding::execute(
     for(size_t j = 1 ; j < percentages.size() ; ++j){
       double percentage = percentages[j];
       double previousPerc = percentages[j-1];
+      if( j < percentages.size() - 1){
+        this->maxLag2 = 0;
+      } else {
+        this->maxLag2 = 10;
+      }
+
+
       //std::cout << "PERCENTAGE " << percentage
       // std::vector<Diagram> dataTemp(intermediateDiagrams.size());
       // for(size_t i = 0 ; i < intermediateDiagrams.size() ; ++i){
@@ -631,7 +641,7 @@ void PersistenceDiagramDictEncoding::method(
        && (loss_tab[epoch] / loss_tab[epoch - 1] > 0.99)) {
       if(loss_tab[epoch] < loss_tab[epoch - 1]) {
       //if(true){  
-        if (lag2 == 10){
+        if (lag2 == maxLag2){
           // lag = 0;
           this->printMsg("Loss not decreasing enough");
           if(StopCondition){
