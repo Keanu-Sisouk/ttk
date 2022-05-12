@@ -401,7 +401,7 @@ void PersistenceDiagramDictEncoding::method(
   int lag = 0;
   int lag2 = 0;
   int lagLimit = 10;
-  int MIN_EPOCH = 5;
+  int MIN_EPOCH = 20;
   int MAX_EPOCH = MaxEpoch;
   bool cond = true;
   int epoch = 0;
@@ -426,7 +426,7 @@ void PersistenceDiagramDictEncoding::method(
   // bool condition = true;
   while(epoch < MAX_EPOCH && cond) {
     // for(int epoch = 1; epoch < MAX_EPOCH; ++epoch) {
-    
+     
     loss = 0.;
     true_loss = 0.;
     // auto vectorWeightsOld = vectorWeights;
@@ -614,6 +614,15 @@ void PersistenceDiagramDictEncoding::method(
     loss_tab.push_back(loss);
     true_loss_tab.push_back(true_loss);
 
+    
+    if(preWeightOpt){
+      if(epoch < 5){
+        do_optimizeAtoms = false;
+      } else {
+        do_optimizeAtoms = true;
+      }
+    }
+
 
     double mini = *std::min_element(loss_tab.begin() + nbEpochPrevious, loss_tab.end() - 1);
     if(loss <= mini) {
@@ -755,13 +764,6 @@ void PersistenceDiagramDictEncoding::method(
 
     // this->printMsg(
     // "========================ATOM NOW=============================");
-    if(preWeightOpt){
-      if(epoch < 5){
-        do_optimizeAtoms = false;
-      } else {
-        do_optimizeAtoms = true;
-      }
-    }
     
     if(do_optimizeAtoms) {
       Timer tm_it2{};
@@ -1222,7 +1224,7 @@ void PersistenceDiagramDictEncoding::method(
 
 
 
-  printMsg(" Epoch "+std::to_string(epoch)+", loss = "+std::to_string(loss), 1, threadNumber_, ttk::debug::LineMode::REPLACE);
+    printMsg(" Epoch "+std::to_string(epoch)+", loss = "+std::to_string(loss), 1, threadNumber_, ttk::debug::LineMode::REPLACE);
   }
   printMsg(" Epoch "+std::to_string(epoch)+", loss = "+std::to_string(loss), 1, threadNumber_);
 
