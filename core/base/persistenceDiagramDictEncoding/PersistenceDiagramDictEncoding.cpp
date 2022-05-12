@@ -1684,9 +1684,9 @@ void PersistenceDiagramDictEncoding::computeGradientWeights(
       // hessian[j].resize(checker[i].size());
       line.resize(checker[i].size());
       const auto &point = grad_list[i][checker[i][j]];
-      for(int k = 0; k < checker[i].size(); ++k) {
-        const auto &point_temp = grad_list[i][checker[i][k]];
-        line[k] = point[0] * point_temp[0] + point[1] * point_temp[1];
+      for(int q = 0; q < checker[i].size(); ++q) {
+        const auto &point_temp = grad_list[i][checker[i][q]];
+        line[q] = point[0] * point_temp[0] + point[1] * point_temp[1];
         // this->printMsg("======================COMPUTING==========================");
       }
     }
