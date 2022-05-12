@@ -65,4 +65,6 @@ void outputDiagrams(
 
   double Spacing{};
   int ShowAtoms{1};
+  bool ComputePoints{false};
+
 };

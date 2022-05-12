@@ -190,7 +190,10 @@ int ttkPersistenceDiagramDictDecoding::RequestData(
 
   std::vector<ttk::Diagram> Barycenters(nWeights);
 
-  this->execute(dictDiagrams, vectorWeights, Barycenters);
+
+  if(!ComputePoints){
+    this->execute(dictDiagrams, vectorWeights, Barycenters);
+  }
   // this->printMsg("=====ICI?======");
   auto output_dgm = vtkMultiBlockDataSet::GetData(outputVector, 0);
   output_dgm->SetNumberOfBlocks(nWeights);
@@ -208,8 +211,9 @@ int ttkPersistenceDiagramDictDecoding::RequestData(
   // }
   //
   // double max_persistence = getMaxPersistence(diagram);
-  outputDiagrams(output_dgm,Barycenters, dictDiagrams, vectorWeights,Spacing,1);
 
+
+  outputDiagrams(output_dgm,Barycenters, dictDiagrams, vectorWeights,Spacing,1);
   // Get input object from input vector
   // Note: has to be a vtkDataSet as required by FillInputPortInformation
 
@@ -435,8 +439,9 @@ void ttkPersistenceDiagramDictDecoding::outputDiagrams(
 
   for(size_t i = 0; i < diags.size(); ++i) {
     vtkNew<vtkUnstructuredGrid> vtu{};
-    this->diagramToVTU(vtu, diags[i], max_persistence);
-
+    if(!ComputePoints){
+      this->diagramToVTU(vtu, diags[i], max_persistence);
+    }
 
       double X = 0;
       double Y = 0;
