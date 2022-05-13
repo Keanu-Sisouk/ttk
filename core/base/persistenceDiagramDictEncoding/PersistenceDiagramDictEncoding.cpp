@@ -402,7 +402,7 @@ void PersistenceDiagramDictEncoding::method(
   int lag = 0;
   int lag2 = 0;
   int lagLimit = 10;
-  int MIN_EPOCH = 20;
+  int MIN_EPOCH = 5;
   int MAX_EPOCH = MaxEpoch;
   bool cond = true;
   int epoch = 0;
