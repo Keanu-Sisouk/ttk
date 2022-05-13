@@ -651,7 +651,7 @@ void PersistenceDiagramDictEncoding::method(
        && (loss_tab[epoch] / loss_tab[epoch - 1] > 0.99)) {
       if(loss_tab[epoch] < loss_tab[epoch - 1]) {
       //if(true){  
-        if (lag2 == maxLag2){
+        if (lag2 == this->maxLag2){
           // lag = 0;
           this->printMsg("Loss not decreasing enough");
           if(StopCondition){
