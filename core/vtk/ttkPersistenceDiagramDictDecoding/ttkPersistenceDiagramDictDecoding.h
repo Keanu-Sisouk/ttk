@@ -4,6 +4,7 @@
 #include <vtkInformationVector.h>
 #include <vtkUnstructuredGrid.h>
 #include <vtkMultiBlockDataSet.h>
+#include <vtkTable.h>
 // VTK Module
 #include <ttkPersistenceDiagramDictDecodingModule.h>
 
@@ -47,6 +48,7 @@ protected:
                     const double max_persistence) const;
 void outputDiagrams(
   vtkMultiBlockDataSet *output,
+  vtkTable *output_coordinates,
   const std::vector<ttk::Diagram> &diags,
   const std::vector<ttk::Diagram> &atoms,
   const std::vector<std::vector<double>> &weights,

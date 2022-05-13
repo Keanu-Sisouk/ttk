@@ -10,11 +10,11 @@
 #include <vtkFiltersCoreModule.h>
 #include <vtkFloatArray.h>
 #include <vtkIntArray.h>
-#include <vtkMultiBlockDataSet.h>
+//#include <vtkMultiBlockDataSet.h>
 #include <vtkNew.h>
 #include <vtkObjectFactory.h>
 #include <vtkPointData.h>
-#include <vtkTable.h>
+//#include <vtkTable.h>
 #include <vtkTransform.h>
 #include <vtkTransformFilter.h>
 
@@ -39,7 +39,7 @@ vtkStandardNewMacro(ttkPersistenceDiagramDictDecoding);
  */
 ttkPersistenceDiagramDictDecoding::ttkPersistenceDiagramDictDecoding() {
   this->SetNumberOfInputPorts(2);
-  this->SetNumberOfOutputPorts(1);
+  this->SetNumberOfOutputPorts(2);
 }
 
 // ttkPersistenceDiagramDictDecoding::~ttkPersistenceDiagramDictDecoding() {
@@ -87,8 +87,12 @@ int ttkPersistenceDiagramDictDecoding::FillOutputPortInformation(
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkMultiBlockDataSet");
     // info->Set(vtkAlgorithm::INPUT_IS_REPEATABLE(), 1);
     return 1;
+  } else if (port == 1){
+    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkTable");
+    return 1;
+  } else {
+    return 0;
   }
-  return 0;
 }
 
 /**
@@ -196,7 +200,10 @@ int ttkPersistenceDiagramDictDecoding::RequestData(
   }
   // this->printMsg("=====ICI?======");
   auto output_dgm = vtkMultiBlockDataSet::GetData(outputVector, 0);
+  auto output_coordinates = vtkTable::GetData(outputVector, 1);
   output_dgm->SetNumberOfBlocks(nWeights);
+  int dim = 2;
+  output_coordinates->SetNumberOfRows(nWeights);
   // this->printMsg(std::to_string(nWeights));
   // for(int i = 0; i < nWeights; ++i) {
   //   // vtkUnstructuredGrid temp =
@@ -213,7 +220,7 @@ int ttkPersistenceDiagramDictDecoding::RequestData(
   // double max_persistence = getMaxPersistence(diagram);
 
 
-  outputDiagrams(output_dgm,Barycenters, dictDiagrams, vectorWeights,Spacing,1);
+  outputDiagrams(output_dgm, output_coordinates, Barycenters, dictDiagrams, vectorWeights,Spacing,1);
   // Get input object from input vector
   // Note: has to be a vtkDataSet as required by FillInputPortInformation
 
@@ -358,6 +365,7 @@ double ttkPersistenceDiagramDictDecoding::getPersistenceDiagram(
 
 void ttkPersistenceDiagramDictDecoding::outputDiagrams(
   vtkMultiBlockDataSet *output,
+  vtkTable *output_coordinates,
   const std::vector<ttk::Diagram> &diags,
   const std::vector<ttk::Diagram> &atoms,
   const std::vector<std::vector<double>> &weights,
@@ -371,6 +379,7 @@ void ttkPersistenceDiagramDictDecoding::outputDiagrams(
 
   output->SetNumberOfBlocks(nDiags+n_existing_blocks);
   std::vector<std::pair<double,double>> coords(nAtoms);
+  std::vector<std::pair<double,double>> true_coords(nAtoms);
 
   if(nAtoms == 3){
     ttk::PersistenceDiagramDistanceMatrix MatrixCalculator;
@@ -379,16 +388,21 @@ void ttkPersistenceDiagramDictDecoding::outputDiagrams(
     MatrixCalculator.setThreadNumber(3);
     std::vector<std::vector<double>> distMatrix = MatrixCalculator.execute(atoms, nInputs);
     coords[0].first = 0.;
+    true_coords[0].first = 0.;
     coords[0].second = 0.;
+    true_coords[0].second = 0.;
     coords[1].first = spacing  * distMatrix[0][1];
+    true_coords[1].first = distMatrix[0][1];
     coords[1].second = 0.;
+    true_coords[0].second = 0.;
     double distOpposed = distMatrix[2][1];
     double firstDist = distMatrix[0][1];
     double distAdja = distMatrix[0][2];
     double alpha = std::acos((distOpposed * distOpposed -firstDist * firstDist -distAdja * distAdja)/(-2. * firstDist * distAdja));
     coords[2].first = spacing * distAdja * std::cos(alpha);
+    true_coords[2].first = distAdja * std::cos(alpha);
     coords[2].second = spacing * distAdja * std::sin(alpha);
-   
+    true_coords[2].second = distAdja * std::sin(alpha);
     
     if(ShowAtoms){
       for(size_t i = 0 ; i < nAtoms ; ++i){
@@ -418,7 +432,9 @@ void ttkPersistenceDiagramDictDecoding::outputDiagrams(
       double Y = spacing * max_persistence * std::sin(angle);
       coords[i].first = X;
       coords[i].second = Y;
-    
+      true_coords[i].first = max_persistence * std::cos(angle);
+      true_coords[i].second = max_persistence * std::sin(angle);
+
       if(ShowAtoms){
         vtkNew<vtkUnstructuredGrid> vtu{};
         this->diagramToVTU(vtu, atoms[i], max_persistence);
@@ -435,6 +451,8 @@ void ttkPersistenceDiagramDictDecoding::outputDiagrams(
       }
     }
   }
+
+
 
 
   for(size_t i = 0; i < diags.size(); ++i) {
@@ -459,6 +477,36 @@ void ttkPersistenceDiagramDictDecoding::outputDiagrams(
 
       output->SetBlock(i+n_existing_blocks, trf->GetOutputDataObject(0));
   }
+
+
+  for(size_t i = 0 ; i < 2 ; ++i){
+    vtkNew<vtkDoubleArray> col{};
+    col->SetNumberOfValues(nDiags);
+    std::string name;
+    std::cout << "NANI THE FUCK" << std::endl;
+    if(i == 0){
+      name = "X";
+    } else {
+      name = "Y";
+    }
+    //name.append(std::to_string(i));
+    col->SetName(name.c_str());
+    for(size_t j = 0 ; j < nDiags ; ++j){
+      double temp = 0;
+      for(size_t iAtom = 0; iAtom < nAtoms ; ++iAtom){
+        if(i == 0){
+          temp += weights[j][iAtom]*true_coords[iAtom].first;
+        } else {
+          temp += weights[j][iAtom]*true_coords[iAtom].second;
+        }
+      }
+      col->SetValue(j, temp);
+    }
+    col->Modified();
+    output_coordinates->AddColumn(col);
+  }
+
+
 }
 
 void ttkPersistenceDiagramDictDecoding::diagramToVTU(
