@@ -91,7 +91,7 @@ void PersistenceDiagramDictEncoding::execute(
       // dataTemp[i] = diag;
       //}
       
-      this->maxLag2 = 2;
+      this->maxLag2 = 0;
 
       for(size_t i = 0 ; i < intermediateDiagrams.size() ; ++i){
         auto &diag = intermediateDiagrams[i];
@@ -144,7 +144,7 @@ void PersistenceDiagramDictEncoding::execute(
       double percentage = percentages[j];
       double previousPerc = percentages[j-1];
       if( j < percentages.size() - 1){
-        this->maxLag2 = 2;
+        this->maxLag2 = 0;
       } else {
         this->maxLag2 = 10;
       }
@@ -402,7 +402,7 @@ void PersistenceDiagramDictEncoding::method(
   int lag = 0;
   int lag2 = 0;
   int lagLimit = 10;
-  int MIN_EPOCH = 5;
+  int MIN_EPOCH = 20;
   int MAX_EPOCH = MaxEpoch;
   bool cond = true;
   int epoch = 0;
