@@ -45,7 +45,7 @@ void PersistenceDiagramDictEncoding::execute(
 
     std::vector<std::vector<double>> histoVectorWeights(intermediateDiagrams.size());
     std::vector<Diagram> histoDictDiagrams(numAtom);
-    this->maxLag2 = 10;
+    this->maxLag2 = 5;
     Timer tm_init{};
     bool preWeightOpt = false;
     InitDictionary(dictDiagrams, intermediateDiagrams, intermediateAtoms, numAtom, this->do_min_, this->do_sad_, this->do_max_, seed);
@@ -146,7 +146,7 @@ void PersistenceDiagramDictEncoding::execute(
       if( j < percentages.size() - 1){
         this->maxLag2 = 0;
       } else {
-        this->maxLag2 = 10;
+        this->maxLag2 = 5;
       }
 
 
