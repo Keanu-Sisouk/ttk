@@ -2117,7 +2117,18 @@ int PersistenceDiagramDictEncoding::InitDictionary(
       }
       for(size_t i=0; i<inputAtoms.size(); i++){
         const auto &t = inputAtoms[i];
+        double max_pers = getMaxPers(t);
+
+
+
         dictDiagrams.push_back(t);
+        dictDiagrams[i].erase(
+            std::remove_if(dictDiagrams[i].begin(),
+                           dictDiagrams[i].end(),
+                           [max_pers](ttk::DiagramTuple &t){
+                            return (std::get<10>(t) - std::get<6>(t)) < 0.4*max_pers;
+                           }),
+            dictDiagrams[i].end());
       }
       break;
     }
