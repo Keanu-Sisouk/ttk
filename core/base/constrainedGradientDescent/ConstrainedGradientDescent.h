@@ -5,6 +5,7 @@
 #include <Wrapper.h>
 #include <algorithm>
 #include <array>
+#include <tuple>
 
 namespace ttk {
   using DiagramTuple = std::tuple<
