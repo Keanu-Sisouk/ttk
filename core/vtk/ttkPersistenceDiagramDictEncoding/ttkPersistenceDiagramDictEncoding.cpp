@@ -248,7 +248,7 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
                 vectorWeights, nInputs, seed, numAtom, loss_tab, true_loss_tab, allLosses, this->percent_);
   // zero-padd column name to keep Row Data columns ordered
   // this->printMsg("============WE ARE HERE 173 AFTER EXECUTE============");
-  output_weights->SetNumberOfRows(numAtom);
+  output_weights->SetNumberOfRows(nDiags);
 
   const auto zeroPad
     = [](std::string &colName, const size_t numberCols, const size_t colIdx) {
@@ -259,18 +259,18 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
       };
   // output_weights->SetNumberOfTuples(3);
   // this->printMsg("============WE ARE HERE 184 AFTER EXECUTE============");
-  for(int i = 0; i < nDiags; ++i) {
-    std::string name{"weights"};
-    zeroPad(name, nDiags, i);
+  for(int i = 0; i < numAtom; ++i) {
+    std::string name{"Atom"};
+    zeroPad(name, numAtom, i);
     // name
     vtkNew<vtkDoubleArray> col{};
     // vtkDoubleArray *col=vtkDoubleArray::New();
     // col->SetNumberOfComponents(1);
     // col->SetNumberOfTuples(3);
-    col->SetNumberOfValues(numAtom);
+    col->SetNumberOfValues(nDiags);
     col->SetName(name.c_str());
-    for(int j = 0; j < numAtom; ++j) {
-      col->SetValue(j, vectorWeights[i][j]);
+    for(int j = 0; j < nDiags; ++j) {
+      col->SetValue(j, vectorWeights[j][i]);
     }
     col->Modified();
     // col->Modified();
