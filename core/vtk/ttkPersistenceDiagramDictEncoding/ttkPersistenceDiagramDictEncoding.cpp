@@ -278,6 +278,18 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
     output_weights->AddColumn(col);
   }
 
+
+  vtkNew<vtkFieldData> fd{};
+  fd->CopyStructure(inputDiagrams[0]->GetFieldData());
+  fd->SetNumberOfTuples(nDiags);
+  for(size_t i = 0; i < nDiags; ++i){
+    fd->SetTuple(i, 0, inputDiagrams[i]->GetFieldData());
+  }
+
+  for(int i = 0; i < fd->GetNumberOfArrays(); ++i){
+    output_weights->AddColumn(fd->GetAbstractArray(i));
+  }
+
   vtkNew<vtkDoubleArray> colLoss{};
   colLoss->SetNumberOfValues(loss_tab.size());
   colLoss->SetName("Loss evolution");
