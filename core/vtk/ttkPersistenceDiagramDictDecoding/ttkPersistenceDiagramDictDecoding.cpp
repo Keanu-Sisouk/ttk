@@ -132,11 +132,11 @@ int ttkPersistenceDiagramDictDecoding::RequestData(
     }
   }
 
-  const int nDiags = inputDiagrams.size();
+  const size_t nDiags = inputDiagrams.size();
 
   std::vector<ttk::Diagram> dictDiagrams(nDiags);
   double max_dimension_total2 = 0.0;
-  for(int i = 0; i < nDiags; ++i) {
+  for(size_t i = 0; i < nDiags; ++i) {
     ttk::Diagram &atom = dictDiagrams[i];
     // double max_dimension2 = getPersistenceDiagram(
     // atom, vtkUnstructuredGrid::SafeDownCast(inputDiagrams[i]));
@@ -164,35 +164,49 @@ int ttkPersistenceDiagramDictDecoding::RequestData(
     }
   }
 
+
+  const auto zeroPad
+    = [](std::string &colName, const size_t numberCols, const size_t colIdx){
+      std::string max{std::to_string(numberCols - 1)};
+      std::string cur{std::to_string(colIdx)};
+      std::string zer(max.size() -cur.size(), '0');
+      colName.append(zer).append(cur);
+    };
+
+  std::cout << "PASSED !!!!" << std::endl;
   std::vector<vtkDataArray *> inputWeights;
-  int numWeights = weights_vtk->GetNumberOfColumns();
+  int numWeights = weights_vtk->GetNumberOfRows();
   // this->printMsg(std::to_string(numWeights));
   if(weights_vtk != nullptr) {
     // int numWeights = weights_vtk->GetNumberOfColumns();
     // this->printMsg(std::to_string(numWeights));
-    inputWeights.resize(numWeights);
-    for(int i = 0; i < numWeights; ++i) {
+    inputWeights.resize(nDiags);
+    for(size_t i = 0; i < nDiags; ++i) {
+      std::string name{"Atom"};
+      zeroPad(name, numWeights, i);
       inputWeights[i] = vtkDataArray::SafeDownCast(weights_vtk->GetColumn(i));
-      
       // if(this->GetMTime() < input[i]->GetMTime()) {
       //  needUpdate_ = true;
       //}
     }
   }
 
-  const int nWeights = inputWeights.size();
-  std::vector<std::vector<double>> vectorWeights(nWeights);
-  for(int i = 0; i < nWeights; ++i) {
+  std::cout << "PASSED 2 !!!!!" << std::endl;
+
+  //const int nWeights = ;
+  std::vector<std::vector<double>> vectorWeights(numWeights);
+  for(int i = 0; i < numWeights; ++i) {
     std::vector<double> &t1 = vectorWeights[i];
     // vtkDoubleArray &t2 = inputWeights[i];
     for(int j = 0; j < nDiags; ++j) {
       //double weight = t1[j];
-      double weight = inputWeights[i]->GetTuple1(j);
+      std::cout << "ICI???" << std::endl;
+      double weight = inputWeights[j]->GetTuple1(i);
       t1.push_back(weight);
     }
   }
-
-  std::vector<ttk::Diagram> Barycenters(nWeights);
+  std::cout << "PASSED 3!!!!!!" << std::endl;
+  std::vector<ttk::Diagram> Barycenters(numWeights);
 
 
   if(!ComputePoints){
@@ -201,9 +215,9 @@ int ttkPersistenceDiagramDictDecoding::RequestData(
   // this->printMsg("=====ICI?======");
   auto output_dgm = vtkMultiBlockDataSet::GetData(outputVector, 0);
   auto output_coordinates = vtkTable::GetData(outputVector, 1);
-  output_dgm->SetNumberOfBlocks(nWeights);
+  output_dgm->SetNumberOfBlocks(numWeights);
   int dim = 2;
-  output_coordinates->SetNumberOfRows(nWeights);
+  output_coordinates->SetNumberOfRows(numWeights);
   // this->printMsg(std::to_string(nWeights));
   // for(int i = 0; i < nWeights; ++i) {
   //   // vtkUnstructuredGrid temp =

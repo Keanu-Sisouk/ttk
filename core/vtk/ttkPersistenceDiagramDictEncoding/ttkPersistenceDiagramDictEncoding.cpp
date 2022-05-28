@@ -260,7 +260,7 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
   // output_weights->SetNumberOfTuples(3);
   // this->printMsg("============WE ARE HERE 184 AFTER EXECUTE============");
   for(int i = 0; i < numAtom; ++i) {
-    std::string name{"Atom"};
+    std::string name{"A"};
     zeroPad(name, numAtom, i);
     // name
     vtkNew<vtkDoubleArray> col{};
