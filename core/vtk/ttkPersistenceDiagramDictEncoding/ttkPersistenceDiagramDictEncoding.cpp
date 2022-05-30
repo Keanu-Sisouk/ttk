@@ -163,6 +163,8 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
   double max_dimension_total = 0.0;
   double percentage = static_cast<double>(this->percent_);
   for(int i = 0; i < nDiags; ++i) {
+
+    
     double max_dimension
       = getPersistenceDiagram(intermediateDiagrams[i], inputDiagrams[i]);
     
@@ -360,13 +362,12 @@ double ttkPersistenceDiagramDictEncoding::getPersistenceDiagram(
   const auto extremumIndexScalars
     = vtkIntArray::SafeDownCast(cd->GetArray("PairType"));
   const auto persistenceScalars
-    = vtkDoubleArray::SafeDownCast(cd->GetArray("Persistence"));
+    = cd->GetArray("Persistence");
   const auto birthScalars = vtkDoubleArray::SafeDownCast(pd->GetArray("Birth"));
-  const auto deathScalars = vtkDoubleArray::SafeDownCast(pd->GetArray("Death"));
   const auto critCoordinates
     = vtkFloatArray::SafeDownCast(pd->GetArray("Coordinates"));
 
-  const bool embed = birthScalars != nullptr && deathScalars != nullptr;
+  const bool embed = birthScalars != nullptr;
 
   if(!embed && critCoordinates == nullptr) {
     this->printErr("Malformed Persistence Diagram");
@@ -385,10 +386,46 @@ double ttkPersistenceDiagramDictEncoding::getPersistenceDiagram(
   if(*pairIdentifierScalars->GetTuple(pairingsSize - 1) == -1)
     pairingsSize -= 1;
 
-  if(pairingsSize < 1 || !vertexIdentifierScalars || !pairIdentifierScalars
-     || !nodeTypeScalars || !persistenceScalars || !extremumIndexScalars
-     || !points) {
-    this->printErr("Missing Persistence Diagram data array");
+  //if(pairingsSize < 1 || !vertexIdentifierScalars || !pairIdentifierScalars
+    // || !nodeTypeScalars || !persistenceScalars || !extremumIndexScalars
+    // || !points) {
+
+    //this->printErr("Missing Persistence Diagram data array");
+    //return -3.0;
+  //}
+  
+  if(pairingsSize < 1){
+    this->printErr("Missing Persistence Diagram data array 1");
+    return -3.0;
+  }
+  
+  if(!vertexIdentifierScalars){
+    this->printErr("Missing Persistence Diagram data array 2");
+    return -3.0;
+  }
+
+  if(!pairIdentifierScalars){
+    this->printErr("Missing Persistence Diagram data array 3");
+    return -3.0;
+  }
+
+  if(!nodeTypeScalars){
+    this->printErr("Missing Persistence Diagram data array 4");
+    return -3.0;
+  }
+
+  if(!extremumIndexScalars){
+    this->printErr("Missing Persistence Diagram data array 6");
+    return -3.0;
+  }
+ 
+  if(!points){
+    this->printErr("Missing Persistence Diagram data array 7");
+    return -3.0;
+  }
+ 
+  if(!persistenceScalars){
+    this->printErr("Missing Persistence Diagram data array 5");
     return -3.0;
   }
 
@@ -406,7 +443,7 @@ double ttkPersistenceDiagramDictEncoding::getPersistenceDiagram(
 
     int pairIdentifier = pairIdentifierScalars->GetValue(i);
     int pairType = extremumIndexScalars->GetValue(i);
-    double persistence = persistenceScalars->GetValue(i);
+    double persistence = persistenceScalars->GetTuple1(i);
 
     std::array<double, 3> coordsBirth{}, coordsDeath{};
 
@@ -419,7 +456,7 @@ double ttkPersistenceDiagramDictEncoding::getPersistenceDiagram(
       points->GetPoint(i0, coordsBirth.data());
       points->GetPoint(i1, coordsDeath.data());
       birth = birthScalars->GetValue(i0);
-      death = deathScalars->GetValue(i1);
+      //death = deathScalars->GetValue(i1);
     } else {
       critCoordinates->GetTuple(i0, coordsBirth.data());
       critCoordinates->GetTuple(i1, coordsDeath.data());
