@@ -176,15 +176,24 @@ int ttkPersistenceDiagramDictDecoding::RequestData(
   std::cout << "PASSED !!!!" << std::endl;
   std::vector<vtkDataArray *> inputWeights;
   int numWeights = weights_vtk->GetNumberOfRows();
+  for(int i = 0; i < weights_vtk->GetNumberOfColumns(); ++i){
+    std::cout << weights_vtk->GetColumnName(i) << "\n";
+  }
+
+
+
   // this->printMsg(std::to_string(numWeights));
   if(weights_vtk != nullptr) {
     // int numWeights = weights_vtk->GetNumberOfColumns();
     // this->printMsg(std::to_string(numWeights));
     inputWeights.resize(nDiags);
-    for(size_t i = 0; i < nDiags; ++i) {
+    for(int i = 0; i < nDiags; ++i) {
       std::string name{"Atom"};
-      zeroPad(name, numWeights, i);
-      inputWeights[i] = vtkDataArray::SafeDownCast(weights_vtk->GetColumn(i));
+      zeroPad(name, nDiags, i);
+      //std::cout << name << "\n";
+      //const auto array = weights_vtk->GetColumnByName(name.c_str());
+      //array->PrintSelf(std::cout, vtkIndent{});
+      inputWeights[i] = vtkDataArray::SafeDownCast(weights_vtk->GetColumnByName(name.c_str()));
       // if(this->GetMTime() < input[i]->GetMTime()) {
       //  needUpdate_ = true;
       //}
@@ -235,6 +244,24 @@ int ttkPersistenceDiagramDictDecoding::RequestData(
 
 
   outputDiagrams(output_dgm, output_coordinates, Barycenters, dictDiagrams, vectorWeights,Spacing,1);
+
+  for(int i = 0 ; i < weights_vtk->GetNumberOfColumns() ; ++i){
+    int test = 0;
+    const auto array = weights_vtk->GetColumn(i);
+    for(int j = 0; j < nDiags ; ++j){
+      std::string name{"Atom"};
+      zeroPad(name, nDiags, j);
+      if(strcmp(name.c_str(), weights_vtk->GetColumnName(i)) == 0){
+        test += 1;
+      }
+    }
+    if(test > 0){
+      continue;
+    }
+    output_coordinates->AddColumn(array);
+  }
+
+
   // Get input object from input vector
   // Note: has to be a vtkDataSet as required by FillInputPortInformation
 
