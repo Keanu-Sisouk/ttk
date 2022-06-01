@@ -104,15 +104,16 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
   // int numInputs = 0;
   // printf("Atom number %d", numAtom);
 
-  int numInputAtoms =0;
+  int numInputAtoms = 0;
   if(atomBlocks != nullptr) {
     numInputAtoms = atomBlocks->GetNumberOfBlocks();
     inputAtoms.resize(numInputAtoms);
     for(int i = 0; i < numInputAtoms; ++i) {
-      inputAtoms[i] = vtkUnstructuredGrid::SafeDownCast(atomBlocks->GetBlock(i));
+      inputAtoms[i]
+        = vtkUnstructuredGrid::SafeDownCast(atomBlocks->GetBlock(i));
     }
   }
-  if(BackEnd == BACKEND::INPUT_ATOMS){
+  if(BackEnd == BACKEND::INPUT_ATOMS) {
     atomNumber_ = numInputAtoms;
   }
   if(blocks != nullptr) {
@@ -127,7 +128,9 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
   }
 
   const int numAtom = this->GetatomNumber_();
-  printMsg("Number of atoms: "+ttk::debug::output::YELLOW+ttk::debug::output::UNDERLINED+std::to_string(numAtom)+ttk::debug::output::ENDCOLOR+ttk::debug::output::ENDCOLOR);
+  printMsg("Number of atoms: " + ttk::debug::output::YELLOW
+           + ttk::debug::output::UNDERLINED + std::to_string(numAtom)
+           + ttk::debug::output::ENDCOLOR + ttk::debug::output::ENDCOLOR);
 
   // total number of diagrams
   const int nDiags = inputDiagrams.size();
@@ -164,29 +167,26 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
   double percentage = static_cast<double>(this->percent_);
   for(int i = 0; i < nDiags; ++i) {
 
-    
     double max_dimension
       = getPersistenceDiagram(intermediateDiagrams[i], inputDiagrams[i]);
-    
-    
+
     double max_pers = this->getMaxPers(intermediateDiagrams[i]);
-    if(max_dimension < max_pers){
+    if(max_dimension < max_pers) {
       std::cout << "HOUBA HOUBA" << std::endl;
       std::cout << "MAX DIM" << max_dimension << std::endl;
     }
 
-    
     std::cout << "MAX PERS BEFORE FILTERING " << max_pers << std::endl;
-    //if (max_dimension < this->getMaxPers(intermediateDiagrams[i])){
-      //std::sort(intermediateDiagrams[i].begin(), intermediateDiagrams[i].end(),
-      //          [](ttk::DiagramTuple &t1, ttk::DiagramTuple &t2) {
-      //            return (std::get<10>(t1) - std::get<6>(t1))
-      //                  > (std::get<10>(t2) - std::get<6>(t2));
-      //          });
-      //max_dimension = 
+    // if (max_dimension < this->getMaxPers(intermediateDiagrams[i])){
+    // std::sort(intermediateDiagrams[i].begin(), intermediateDiagrams[i].end(),
+    //           [](ttk::DiagramTuple &t1, ttk::DiagramTuple &t2) {
+    //             return (std::get<10>(t1) - std::get<6>(t1))
+    //                   > (std::get<10>(t2) - std::get<6>(t2));
+    //           });
+    // max_dimension =
     //}
-    //ttk::DiagramTuple &temp = intermediateDiagrams[i][0];
-    //double max_pers = std::get<10>(temp) - std::get<6>(temp);
+    // ttk::DiagramTuple &temp = intermediateDiagrams[i][0];
+    // double max_pers = std::get<10>(temp) - std::get<6>(temp);
     intermediateDiagrams[i].erase(
       std::remove_if(intermediateDiagrams[i].begin(),
                      intermediateDiagrams[i].end(),
@@ -197,7 +197,8 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
       intermediateDiagrams[i].end());
 
     auto &t = intermediateDiagrams[i][0];
-    std::cout << "MAX PERS BEFORE ORDERING " << std::get<10>(t) - std::get<6>(t) << std::endl;
+    std::cout << "MAX PERS BEFORE ORDERING " << std::get<10>(t) - std::get<6>(t)
+              << std::endl;
     if(max_dimension < 0.0) {
       this->printErr("Could not read Persistence Diagram");
       return 0;
@@ -247,7 +248,8 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
   // const auto diagramsDistMat = this->execute(intermediateDiagrams,
   // dictDiagrams, vectorWeights,  nInputs);
   this->execute(intermediateDiagrams, intermediateAtoms, dictDiagrams,
-                vectorWeights, nInputs, seed, numAtom, loss_tab, true_loss_tab, allLosses, this->percent_);
+                vectorWeights, nInputs, seed, numAtom, loss_tab, true_loss_tab,
+                allLosses, this->percent_);
   // zero-padd column name to keep Row Data columns ordered
   // this->printMsg("============WE ARE HERE 173 AFTER EXECUTE============");
   output_weights->SetNumberOfRows(nDiags);
@@ -280,15 +282,14 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
     output_weights->AddColumn(col);
   }
 
-
   vtkNew<vtkFieldData> fd{};
   fd->CopyStructure(inputDiagrams[0]->GetFieldData());
   fd->SetNumberOfTuples(nDiags);
-  for(size_t i = 0; i < nDiags; ++i){
+  for(size_t i = 0; i < nDiags; ++i) {
     fd->SetTuple(i, 0, inputDiagrams[i]->GetFieldData());
   }
 
-  for(int i = 0; i < fd->GetNumberOfArrays(); ++i){
+  for(int i = 0; i < fd->GetNumberOfArrays(); ++i) {
     output_weights->AddColumn(fd->GetAbstractArray(i));
   }
 
@@ -301,11 +302,10 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
   colLoss->Modified();
   output_loss->AddColumn(colLoss);
 
-
   vtkNew<vtkDoubleArray> trueColLoss{};
   trueColLoss->SetNumberOfValues(true_loss_tab.size());
   trueColLoss->SetName("True loss evolution");
-  for(size_t j = 0 ; j < true_loss_tab.size() ; ++j){
+  for(size_t j = 0; j < true_loss_tab.size(); ++j) {
     trueColLoss->SetValue(j, true_loss_tab[j]);
   }
   trueColLoss->Modified();
@@ -342,168 +342,119 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
 }
 
 double ttkPersistenceDiagramDictEncoding::getPersistenceDiagram(
-  ttk::Diagram &diagram, vtkUnstructuredGrid *CTPersistenceDiagram_) {
+  ttk::Diagram &diagram, vtkUnstructuredGrid *vtu) {
 
-  const auto pd = CTPersistenceDiagram_->GetPointData();
-  const auto cd = CTPersistenceDiagram_->GetCellData();
-  const auto points = CTPersistenceDiagram_->GetPoints();
+    const auto pd = vtu->GetPointData();
+    const auto cd = vtu->GetCellData();
 
-  if(pd == nullptr || cd == nullptr || points == nullptr) {
-    this->printErr("Missing Diagram PointData, CellData or Points");
-    return -1.0;
-  }
-
-  const auto vertexIdentifierScalars
-    = vtkIntArray::SafeDownCast(pd->GetArray(ttk::VertexScalarFieldName));
-  const auto nodeTypeScalars
-    = vtkIntArray::SafeDownCast(pd->GetArray("CriticalType"));
-  const auto pairIdentifierScalars
-    = vtkIntArray::SafeDownCast(cd->GetArray("PairIdentifier"));
-  const auto extremumIndexScalars
-    = vtkIntArray::SafeDownCast(cd->GetArray("PairType"));
-  const auto persistenceScalars
-    = cd->GetArray("Persistence");
-  const auto birthScalars = vtkDoubleArray::SafeDownCast(pd->GetArray("Birth"));
-  const auto critCoordinates
-    = vtkFloatArray::SafeDownCast(pd->GetArray("Coordinates"));
-
-  const bool embed = birthScalars != nullptr;
-
-  if(!embed && critCoordinates == nullptr) {
-    this->printErr("Malformed Persistence Diagram");
-    return -2.0;
-  }
-
-  int pairingsSize = (int)pairIdentifierScalars->GetNumberOfTuples();
-  // FIX : no more missed pairs
-  for(int pair_index = 0; pair_index < pairingsSize; pair_index++) {
-    const float index_of_pair = pair_index;
-    if(*pairIdentifierScalars->GetTuple(pair_index) != -1)
-      pairIdentifierScalars->SetTuple(pair_index, &index_of_pair);
-  }
-
-  // If diagram has the diagonal (we assume it is last)
-  if(*pairIdentifierScalars->GetTuple(pairingsSize - 1) == -1)
-    pairingsSize -= 1;
-
-  //if(pairingsSize < 1 || !vertexIdentifierScalars || !pairIdentifierScalars
-    // || !nodeTypeScalars || !persistenceScalars || !extremumIndexScalars
-    // || !points) {
-
-    //this->printErr("Missing Persistence Diagram data array");
-    //return -3.0;
-  //}
-  
-  if(pairingsSize < 1){
-    this->printErr("Missing Persistence Diagram data array 1");
-    return -3.0;
-  }
-  
-  if(!vertexIdentifierScalars){
-    this->printErr("Missing Persistence Diagram data array 2");
-    return -3.0;
-  }
-
-  if(!pairIdentifierScalars){
-    this->printErr("Missing Persistence Diagram data array 3");
-    return -3.0;
-  }
-
-  if(!nodeTypeScalars){
-    this->printErr("Missing Persistence Diagram data array 4");
-    return -3.0;
-  }
-
-  if(!extremumIndexScalars){
-    this->printErr("Missing Persistence Diagram data array 6");
-    return -3.0;
-  }
- 
-  if(!points){
-    this->printErr("Missing Persistence Diagram data array 7");
-    return -3.0;
-  }
- 
-  if(!persistenceScalars){
-    this->printErr("Missing Persistence Diagram data array 5");
-    return -3.0;
-  }
-
-  diagram.resize(pairingsSize);
-  int nbNonCompact = 0;
-  double max_dimension = 0;
-
-  // skip diagonal cell (corresponding points already dealt with)
-  for(int i = 0; i < pairingsSize; ++i) {
-    // this->printMsg("=====" + std::to_string(i) + "=====DEBUT=====");
-    int vertexId1 = vertexIdentifierScalars->GetValue(2 * i);
-    int vertexId2 = vertexIdentifierScalars->GetValue(2 * i + 1);
-    int nodeType1 = nodeTypeScalars->GetValue(2 * i);
-    int nodeType2 = nodeTypeScalars->GetValue(2 * i + 1);
-
-    int pairIdentifier = pairIdentifierScalars->GetValue(i);
-    int pairType = extremumIndexScalars->GetValue(i);
-    double persistence = persistenceScalars->GetTuple1(i);
-
-    std::array<double, 3> coordsBirth{}, coordsDeath{};
-
-    const auto i0 = 2 * i;
-    const auto i1 = 2 * i + 1;
-
-    double birth, death;
-
-    if(embed) {
-      points->GetPoint(i0, coordsBirth.data());
-      points->GetPoint(i1, coordsDeath.data());
-      birth = birthScalars->GetValue(i0);
-      //death = deathScalars->GetValue(i1);
-    } else {
-      critCoordinates->GetTuple(i0, coordsBirth.data());
-      critCoordinates->GetTuple(i1, coordsDeath.data());
-      birth = points->GetPoint(i0)[0];
-      death = points->GetPoint(i1)[1];
+    if(pd == nullptr) {
+      this->printErr("VTU diagram with NULL Point Data");
+      return 0;
+    }
+    if(cd == nullptr) {
+      this->printErr("VTU diagram with NULL Cell Data");
+      return -1;
     }
 
-    if(pairIdentifier != -1 && pairIdentifier < pairingsSize) {
-      if(pairIdentifier == 0) {
-        max_dimension = persistence;
+    // cell data
+    const auto pairId = vtkIntArray::SafeDownCast(cd->GetArray("PairIdentifier"));
+    const auto pairType = vtkIntArray::SafeDownCast(cd->GetArray("PairType"));
+    const auto pairPers = cd->GetArray("Persistence");
+    const auto birthScalars = cd->GetArray("Birth");
 
-        // diagram[0] = std::make_tuple(
-        // vertexId1, ttk::CriticalType::Local_minimum, vertexId2,
-        // ttk::CriticalType::Saddle1, persistence, pairType, birth,
-        // coordsBirth[0], coordsBirth[1], coordsBirth[2], death,
-        // coordsDeath[0], coordsDeath[1], coordsDeath[2]);
-        diagram[0] = std::make_tuple(
-          vertexId1, ttk::CriticalType::Saddle1, vertexId2,
-          ttk::CriticalType::Local_maximum, persistence, pairType, birth,
-          coordsBirth[0], coordsBirth[1], coordsBirth[2], death, coordsDeath[0],
-          coordsDeath[1], coordsDeath[2]);
+    // point data
+    const auto vertexId
+      = vtkIntArray::SafeDownCast(pd->GetArray(ttk::VertexScalarFieldName));
+    const auto critType = vtkIntArray::SafeDownCast(pd->GetArray("CriticalType"));
+    const auto coords = vtkFloatArray::SafeDownCast(pd->GetArray("Coordinates"));
 
+    const auto points = vtu->GetPoints();
+
+    const bool embed = coords == nullptr;
+
+    int nPairs = pairId->GetNumberOfTuples();
+
+    // compact pairIds in [0, nPairs - 1] (diagonal excepted)
+    for(int i = 0; i < nPairs; i++) {
+      if(pairId->GetTuple1(i) != -1) {
+        pairId->SetTuple1(i, i);
+      }
+    }
+
+    // skip diagram diagonal if present (assuming it's the last pair in the
+    // diagram)
+    if(pairId->GetTuple1(nPairs - 1) == -1)
+      nPairs -= 1;
+
+    if(nPairs < 1 || vertexId == nullptr || pairId == nullptr
+       || critType == nullptr || pairPers == nullptr || pairType == nullptr
+       || points == nullptr) {
+      this->printErr("Either no pairs in diagram or some array is NULL");
+      return -2;
+    }
+
+    diagram.resize(nPairs);
+
+    // count the number of pairs whose index is >= nPairs
+    int nbNonCompact = 0;
+
+    // skip diagonal cell (corresponding points already dealt with)
+    for(int i = 0; i < nPairs; ++i) {
+
+      const int v0 = vertexId->GetValue(2 * i);
+      const int v1 = vertexId->GetValue(2 * i + 1);
+      const int ct0 = critType->GetValue(2 * i);
+      const int ct1 = critType->GetValue(2 * i + 1);
+
+      const int pId = pairId->GetValue(i);
+      const int pType = pairType->GetValue(i);
+      const auto pers = pairPers->GetTuple1(i);
+      const auto birth = birthScalars->GetTuple1(i);
+      const auto death = birth + pers;
+
+      std::array<double, 3> coordsBirth{}, coordsDeath{};
+
+      if(embed) {
+        points->GetPoint(2 * i + 0, coordsBirth.data());
+        points->GetPoint(2 * i + 1, coordsDeath.data());
       } else {
-        diagram[pairIdentifier] = std::make_tuple(
-          vertexId1, (BNodeType)nodeType1, vertexId2, (BNodeType)nodeType2,
-          persistence, pairType, birth, coordsBirth[0], coordsBirth[1],
-          coordsBirth[2], death, coordsDeath[0], coordsDeath[1],
-          coordsDeath[2]);
+        coords->GetTuple(2 * i + 0, coordsBirth.data());
+        coords->GetTuple(2 * i + 1, coordsDeath.data());
+      }
+
+      if(pId != -1 && pId < nPairs) {
+
+        if(pId == 0) {
+          // deal with the global min-max pair separately
+          // (what do we do with other infinite pairs?)
+
+          diagram[0] = std::make_tuple(
+            v0, ttk::CriticalType::Local_minimum, v1, ttk::CriticalType::Local_maximum,
+            pers, pType, birth, coordsBirth[0], coordsBirth[1], coordsBirth[2],
+            death, coordsDeath[0], coordsDeath[1], coordsDeath[2]);
+
+        } else {
+          // all other pairs
+          diagram[pId] = std::make_tuple(
+            v0, static_cast<ttk::CriticalType>(ct0), v1,
+            static_cast<ttk::CriticalType>(ct1), pers, pType, birth, coordsBirth[0],
+            coordsBirth[1], coordsBirth[2], death, coordsDeath[0], coordsDeath[1],
+            coordsDeath[2]);
+        }
+      }
+
+      if(pId >= nPairs) {
+        nbNonCompact++;
       }
     }
-    if(pairIdentifier >= pairingsSize) {
-      nbNonCompact++;
-      if(nbNonCompact == 0) {
-        this->printWrn("Diagram pair identifiers must be compact (not exceed "
-                       "the diagram size).");
-      }
+
+    if(nbNonCompact > 0) {
+      this->printWrn("Missed " + std::to_string(nbNonCompact)
+                     + " pairs due to non-compactness.");
     }
-    // this->printMsg("=====" + std::to_string(i) + "=====FIN=====");
-  }
 
-  if(nbNonCompact > 0) {
-    this->printWrn("Missed " + std::to_string(nbNonCompact)
-                   + " pairs due to non-compactness.");
+    return std::get<4>(diagram[0]);
   }
-
-  return max_dimension;
-}
 
 // double ttkPersistenceDiagramDictEncoding::getPersistenceDiagram(
 //   ttk::Diagram &diagram, vtkUnstructuredGrid *CTPersistenceDiagram_) {
@@ -687,6 +638,16 @@ void ttkPersistenceDiagramDictEncoding::diagramToVTU(
   pairPers->SetNumberOfTuples(diagram.size() + 1);
   output->GetCellData()->AddArray(pairPers);
 
+  vtkNew<vtkDoubleArray> birthScalars{};
+  birthScalars->SetName(ttk::PersistenceBirthName);
+  birthScalars->SetNumberOfTuples(diagram.size() + 1);
+  output->GetCellData()->AddArray(birthScalars);
+
+  vtkNew<vtkUnsignedCharArray> isFinite{};
+  isFinite->SetName(ttk::PersistenceIsFinite);
+  isFinite->SetNumberOfTuples(diagram.size() + 1);
+  output->GetCellData()->AddArray(isFinite);
+
   for(size_t j = 0; j < diagram.size(); ++j) {
     const auto &pair{diagram[j]};
     const auto birth{std::get<6>(pair)};
@@ -705,6 +666,8 @@ void ttkPersistenceDiagramDictEncoding::diagramToVTU(
     pairId->SetTuple1(j, j);
     pairType->SetTuple1(j, pType);
     pairPers->SetTuple1(j, death - birth);
+    birthScalars->SetTuple1(j, birth);
+    isFinite->SetTuple1(j, j == 0 ? 0 : 1);
 
     // point data
     coords->SetTuple(2 * j + 0, coordsBirth.data());
@@ -728,7 +691,8 @@ void ttkPersistenceDiagramDictEncoding::diagramToVTU(
 
   // add diagonal
   const auto minmax_birth = std::minmax_element(
-    diagram.begin(), diagram.end(), [](const ttk::DiagramTuple &a, const ttk::DiagramTuple &b) {
+    diagram.begin(), diagram.end(),
+    [](const ttk::DiagramTuple &a, const ttk::DiagramTuple &b) {
       return std::get<6>(a) < std::get<6>(b);
     });
   const std::array<vtkIdType, 2> ids{
@@ -740,6 +704,8 @@ void ttkPersistenceDiagramDictEncoding::diagramToVTU(
   pairType->SetTuple1(diagram.size(), -1);
   // use twice the max persistence of all input diagrams...
   pairPers->SetTuple1(diagram.size(), 2.0 * max_persistence);
+  birthScalars->SetTuple1(diagram.size(), std::get<6>(*minmax_birth.first));
+  isFinite->SetTuple1(diagram.size(), 0);
 }
 
 // void ttkPersistenceDiagramDictEncoding::diagramToVTU(

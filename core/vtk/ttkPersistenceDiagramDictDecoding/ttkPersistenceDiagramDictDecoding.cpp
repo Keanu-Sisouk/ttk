@@ -87,7 +87,7 @@ int ttkPersistenceDiagramDictDecoding::FillOutputPortInformation(
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkMultiBlockDataSet");
     // info->Set(vtkAlgorithm::INPUT_IS_REPEATABLE(), 1);
     return 1;
-  } else if (port == 1){
+  } else if(port == 1) {
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkTable");
     return 1;
   } else {
@@ -164,23 +164,20 @@ int ttkPersistenceDiagramDictDecoding::RequestData(
     }
   }
 
-
   const auto zeroPad
-    = [](std::string &colName, const size_t numberCols, const size_t colIdx){
-      std::string max{std::to_string(numberCols - 1)};
-      std::string cur{std::to_string(colIdx)};
-      std::string zer(max.size() -cur.size(), '0');
-      colName.append(zer).append(cur);
-    };
+    = [](std::string &colName, const size_t numberCols, const size_t colIdx) {
+        std::string max{std::to_string(numberCols - 1)};
+        std::string cur{std::to_string(colIdx)};
+        std::string zer(max.size() - cur.size(), '0');
+        colName.append(zer).append(cur);
+      };
 
   std::cout << "PASSED !!!!" << std::endl;
   std::vector<vtkDataArray *> inputWeights;
   int numWeights = weights_vtk->GetNumberOfRows();
-  for(int i = 0; i < weights_vtk->GetNumberOfColumns(); ++i){
+  for(int i = 0; i < weights_vtk->GetNumberOfColumns(); ++i) {
     std::cout << weights_vtk->GetColumnName(i) << "\n";
   }
-
-
 
   // this->printMsg(std::to_string(numWeights));
   if(weights_vtk != nullptr) {
@@ -190,10 +187,11 @@ int ttkPersistenceDiagramDictDecoding::RequestData(
     for(int i = 0; i < nDiags; ++i) {
       std::string name{"Atom"};
       zeroPad(name, nDiags, i);
-      //std::cout << name << "\n";
-      //const auto array = weights_vtk->GetColumnByName(name.c_str());
-      //array->PrintSelf(std::cout, vtkIndent{});
-      inputWeights[i] = vtkDataArray::SafeDownCast(weights_vtk->GetColumnByName(name.c_str()));
+      // std::cout << name << "\n";
+      // const auto array = weights_vtk->GetColumnByName(name.c_str());
+      // array->PrintSelf(std::cout, vtkIndent{});
+      inputWeights[i] = vtkDataArray::SafeDownCast(
+        weights_vtk->GetColumnByName(name.c_str()));
       // if(this->GetMTime() < input[i]->GetMTime()) {
       //  needUpdate_ = true;
       //}
@@ -202,13 +200,13 @@ int ttkPersistenceDiagramDictDecoding::RequestData(
 
   std::cout << "PASSED 2 !!!!!" << std::endl;
 
-  //const int nWeights = ;
+  // const int nWeights = ;
   std::vector<std::vector<double>> vectorWeights(numWeights);
   for(int i = 0; i < numWeights; ++i) {
     std::vector<double> &t1 = vectorWeights[i];
     // vtkDoubleArray &t2 = inputWeights[i];
     for(int j = 0; j < nDiags; ++j) {
-      //double weight = t1[j];
+      // double weight = t1[j];
       std::cout << "ICI???" << std::endl;
       double weight = inputWeights[j]->GetTuple1(i);
       t1.push_back(weight);
@@ -217,8 +215,7 @@ int ttkPersistenceDiagramDictDecoding::RequestData(
   std::cout << "PASSED 3!!!!!!" << std::endl;
   std::vector<ttk::Diagram> Barycenters(numWeights);
 
-
-  if(!ComputePoints){
+  if(!ComputePoints) {
     this->execute(dictDiagrams, vectorWeights, Barycenters);
   }
   // this->printMsg("=====ICI?======");
@@ -242,26 +239,25 @@ int ttkPersistenceDiagramDictDecoding::RequestData(
   //
   // double max_persistence = getMaxPersistence(diagram);
 
+  outputDiagrams(output_dgm, output_coordinates, Barycenters, dictDiagrams,
+                 weights_vtk, vectorWeights, Spacing, 1);
 
-  outputDiagrams(output_dgm, output_coordinates, Barycenters, dictDiagrams, weights_vtk,vectorWeights,Spacing,1);
-
-  for(int i = 0 ; i < weights_vtk->GetNumberOfColumns() ; ++i){
+  for(int i = 0; i < weights_vtk->GetNumberOfColumns(); ++i) {
     int test = 0;
     const auto array = weights_vtk->GetColumn(i);
 
-    for(int j = 0; j < nDiags ; ++j){
+    for(int j = 0; j < nDiags; ++j) {
       std::string name{"Atom"};
       zeroPad(name, nDiags, j);
-      if(strcmp(name.c_str(), weights_vtk->GetColumnName(i)) == 0){
+      if(strcmp(name.c_str(), weights_vtk->GetColumnName(i)) == 0) {
         test += 1;
       }
     }
-    if(test > 0){
+    if(test > 0) {
       continue;
     }
     output_coordinates->AddColumn(array);
   }
-
 
   // Get input object from input vector
   // Note: has to be a vtkDataSet as required by FillInputPortInformation
@@ -298,9 +294,10 @@ int ttkPersistenceDiagramDictDecoding::RequestData(
 //     = vtkIntArray::SafeDownCast(cd->GetArray("PairType"));
 //   const auto persistenceScalars
 //     = vtkDoubleArray::SafeDownCast(cd->GetArray("Persistence"));
-//   const auto birthScalars = vtkDoubleArray::SafeDownCast(pd->GetArray("Birth"));
-//   const auto deathScalars = vtkDoubleArray::SafeDownCast(pd->GetArray("Death"));
-//   const auto critCoordinates
+//   const auto birthScalars =
+//   vtkDoubleArray::SafeDownCast(pd->GetArray("Birth")); const auto
+//   deathScalars = vtkDoubleArray::SafeDownCast(pd->GetArray("Death")); const
+//   auto critCoordinates
 //     = vtkFloatArray::SafeDownCast(pd->GetArray("Coordinates"));
 //
 //   const bool embed = birthScalars != nullptr && deathScalars != nullptr;
@@ -376,8 +373,8 @@ int ttkPersistenceDiagramDictDecoding::RequestData(
 //         diagram[0] = std::make_tuple(
 //           vertexId1, ttk::CriticalType::Saddle1, vertexId2,
 //           ttk::CriticalType::Local_maximum, persistence, pairType, birth,
-//           coordsBirth[0], coordsBirth[1], coordsBirth[2], death, coordsDeath[0],
-//           coordsDeath[1], coordsDeath[2]);
+//           coordsBirth[0], coordsBirth[1], coordsBirth[2], death,
+//           coordsDeath[0], coordsDeath[1], coordsDeath[2]);
 //
 //       } else {
 //         diagram[pairIdentifier] = std::make_tuple(
@@ -390,7 +387,8 @@ int ttkPersistenceDiagramDictDecoding::RequestData(
 //     if(pairIdentifier >= pairingsSize) {
 //       nbNonCompact++;
 //       if(nbNonCompact == 0) {
-//         this->printWrn("Diagram pair identifiers must be compact (not exceed "
+//         this->printWrn("Diagram pair identifiers must be compact (not exceed
+//         "
 //                        "the diagram size).");
 //       }
 //     }
@@ -406,159 +404,110 @@ int ttkPersistenceDiagramDictDecoding::RequestData(
 // }
 
 double ttkPersistenceDiagramDictDecoding::getPersistenceDiagram(
-  ttk::Diagram &diagram, vtkUnstructuredGrid *CTPersistenceDiagram_) {
+  ttk::Diagram &diagram, vtkUnstructuredGrid *vtu) {
 
-  const auto pd = CTPersistenceDiagram_->GetPointData();
-  const auto cd = CTPersistenceDiagram_->GetCellData();
-  const auto points = CTPersistenceDiagram_->GetPoints();
+  const auto pd = vtu->GetPointData();
+  const auto cd = vtu->GetCellData();
 
-  if(pd == nullptr || cd == nullptr || points == nullptr) {
-    this->printErr("Missing Diagram PointData, CellData or Points");
-    return -1.0;
+  if(pd == nullptr) {
+    this->printErr("VTU diagram with NULL Point Data");
+    return 0;
+  }
+  if(cd == nullptr) {
+    this->printErr("VTU diagram with NULL Cell Data");
+    return -1;
   }
 
-  const auto vertexIdentifierScalars
-    = vtkIntArray::SafeDownCast(pd->GetArray(ttk::VertexScalarFieldName));
-  const auto nodeTypeScalars
-    = vtkIntArray::SafeDownCast(pd->GetArray("CriticalType"));
-  const auto pairIdentifierScalars
-    = vtkIntArray::SafeDownCast(cd->GetArray("PairIdentifier"));
-  const auto extremumIndexScalars
-    = vtkIntArray::SafeDownCast(cd->GetArray("PairType"));
-  const auto persistenceScalars
-    = cd->GetArray("Persistence");
+  // cell data
+  const auto pairId = vtkIntArray::SafeDownCast(cd->GetArray("PairIdentifier"));
+  const auto pairType = vtkIntArray::SafeDownCast(cd->GetArray("PairType"));
+  const auto pairPers = cd->GetArray("Persistence");
   const auto birthScalars = cd->GetArray("Birth");
-  const auto critCoordinates
-    = vtkFloatArray::SafeDownCast(pd->GetArray("Coordinates"));
 
-  const bool embed = birthScalars != nullptr;
+  // point data
+  const auto vertexId
+    = vtkIntArray::SafeDownCast(pd->GetArray(ttk::VertexScalarFieldName));
+  const auto critType = vtkIntArray::SafeDownCast(pd->GetArray("CriticalType"));
+  const auto coords = vtkFloatArray::SafeDownCast(pd->GetArray("Coordinates"));
 
-  if(!embed && critCoordinates == nullptr) {
-    this->printErr("Malformed Persistence Diagram");
-    return -2.0;
+  const auto points = vtu->GetPoints();
+
+  const bool embed = coords == nullptr;
+
+  int nPairs = pairId->GetNumberOfTuples();
+
+  // compact pairIds in [0, nPairs - 1] (diagonal excepted)
+  for(int i = 0; i < nPairs; i++) {
+    if(pairId->GetTuple1(i) != -1) {
+      pairId->SetTuple1(i, i);
+    }
   }
 
-  int pairingsSize = (int)pairIdentifierScalars->GetNumberOfTuples();
-  // FIX : no more missed pairs
-  for(int pair_index = 0; pair_index < pairingsSize; pair_index++) {
-    const float index_of_pair = pair_index;
-    if(*pairIdentifierScalars->GetTuple(pair_index) != -1)
-      pairIdentifierScalars->SetTuple(pair_index, &index_of_pair);
+  // skip diagram diagonal if present (assuming it's the last pair in the
+  // diagram)
+  if(pairId->GetTuple1(nPairs - 1) == -1)
+    nPairs -= 1;
+
+  if(nPairs < 1 || vertexId == nullptr || pairId == nullptr
+     || critType == nullptr || pairPers == nullptr || pairType == nullptr
+     || points == nullptr) {
+    this->printErr("Either no pairs in diagram or some array is NULL");
+    return -2;
   }
 
-  // If diagram has the diagonal (we assume it is last)
-  if(*pairIdentifierScalars->GetTuple(pairingsSize - 1) == -1)
-    pairingsSize -= 1;
+  diagram.resize(nPairs);
 
-  //if(pairingsSize < 1 || !vertexIdentifierScalars || !pairIdentifierScalars
-    // || !nodeTypeScalars || !persistenceScalars || !extremumIndexScalars
-    // || !points) {
-
-    //this->printErr("Missing Persistence Diagram data array");
-    //return -3.0;
-  //}
-
-  if(pairingsSize < 1){
-    this->printErr("Missing Persistence Diagram data array 1");
-    return -3.0;
-  }
-
-  if(!vertexIdentifierScalars){
-    this->printErr("Missing Persistence Diagram data array 2");
-    return -3.0;
-  }
-
-  if(!pairIdentifierScalars){
-    this->printErr("Missing Persistence Diagram data array 3");
-    return -3.0;
-  }
-
-  if(!nodeTypeScalars){
-    this->printErr("Missing Persistence Diagram data array 4");
-    return -3.0;
-  }
-
-  if(!extremumIndexScalars){
-    this->printErr("Missing Persistence Diagram data array 6");
-    return -3.0;
-  }
-
-  if(!points){
-    this->printErr("Missing Persistence Diagram data array 7");
-    return -3.0;
-  }
-
-  if(!persistenceScalars){
-    this->printErr("Missing Persistence Diagram data array 5");
-    return -3.0;
-  }
-
-  diagram.resize(pairingsSize);
+  // count the number of pairs whose index is >= nPairs
   int nbNonCompact = 0;
-  double max_dimension = 0;
 
   // skip diagonal cell (corresponding points already dealt with)
-  for(int i = 0; i < pairingsSize; ++i) {
-    // this->printMsg("=====" + std::to_string(i) + "=====DEBUT=====");
-    int vertexId1 = vertexIdentifierScalars->GetValue(2 * i);
-    int vertexId2 = vertexIdentifierScalars->GetValue(2 * i + 1);
-    int nodeType1 = nodeTypeScalars->GetValue(2 * i);
-    int nodeType2 = nodeTypeScalars->GetValue(2 * i + 1);
+  for(int i = 0; i < nPairs; ++i) {
 
-    int pairIdentifier = pairIdentifierScalars->GetValue(i);
-    int pairType = extremumIndexScalars->GetValue(i);
-    double persistence = persistenceScalars->GetTuple1(i);
+    const int v0 = vertexId->GetValue(2 * i);
+    const int v1 = vertexId->GetValue(2 * i + 1);
+    const int ct0 = critType->GetValue(2 * i);
+    const int ct1 = critType->GetValue(2 * i + 1);
+
+    const int pId = pairId->GetValue(i);
+    const int pType = pairType->GetValue(i);
+    const auto pers = pairPers->GetTuple1(i);
+    const auto birth = birthScalars->GetTuple1(i);
+    const auto death = birth + pers;
 
     std::array<double, 3> coordsBirth{}, coordsDeath{};
 
-    const auto i0 = 2 * i;
-    const auto i1 = 2 * i + 1;
-
-    double birth, death;
-
     if(embed) {
-      points->GetPoint(i0, coordsBirth.data());
-      points->GetPoint(i1, coordsDeath.data());
-      birth = birthScalars->GetTuple1(i);
-      //death = deathScalars->GetValue(i1);
+      points->GetPoint(2 * i + 0, coordsBirth.data());
+      points->GetPoint(2 * i + 1, coordsDeath.data());
     } else {
-      critCoordinates->GetTuple(i0, coordsBirth.data());
-      critCoordinates->GetTuple(i1, coordsDeath.data());
-      birth = points->GetPoint(i0)[0];
-      death = points->GetPoint(i1)[1];
+      coords->GetTuple(2 * i + 0, coordsBirth.data());
+      coords->GetTuple(2 * i + 1, coordsDeath.data());
     }
 
-    if(pairIdentifier != -1 && pairIdentifier < pairingsSize) {
-      if(pairIdentifier == 0) {
-        max_dimension = persistence;
+    if(pId != -1 && pId < nPairs) {
 
-        // diagram[0] = std::make_tuple(
-        // vertexId1, ttk::CriticalType::Local_minimum, vertexId2,
-        // ttk::CriticalType::Saddle1, persistence, pairType, birth,
-        // coordsBirth[0], coordsBirth[1], coordsBirth[2], death,
-        // coordsDeath[0], coordsDeath[1], coordsDeath[2]);
+      if(pId == 0) {
+        // deal with the global min-max pair separately
+        // (what do we do with other infinite pairs?)
+
         diagram[0] = std::make_tuple(
-          vertexId1, ttk::CriticalType::Saddle1, vertexId2,
-          ttk::CriticalType::Local_maximum, persistence, pairType, birth,
-          coordsBirth[0], coordsBirth[1], coordsBirth[2], death, coordsDeath[0],
-          coordsDeath[1], coordsDeath[2]);
+          v0, ttk::CriticalType::Local_minimum, v1, ttk::CriticalType::Local_maximum,
+          pers, pType, birth, coordsBirth[0], coordsBirth[1], coordsBirth[2],
+          death, coordsDeath[0], coordsDeath[1], coordsDeath[2]);
 
       } else {
-        diagram[pairIdentifier] = std::make_tuple(
-          vertexId1, (BNodeType)nodeType1, vertexId2, (BNodeType)nodeType2,
-          persistence, pairType, birth, coordsBirth[0], coordsBirth[1],
-          coordsBirth[2], death, coordsDeath[0], coordsDeath[1],
+        // all other pairs
+        diagram[pId] = std::make_tuple(
+          v0, static_cast<ttk::CriticalType>(ct0), v1,
+          static_cast<ttk::CriticalType>(ct1), pers, pType, birth, coordsBirth[0],
+          coordsBirth[1], coordsBirth[2], death, coordsDeath[0], coordsDeath[1],
           coordsDeath[2]);
       }
     }
-    if(pairIdentifier >= pairingsSize) {
+
+    if(pId >= nPairs) {
       nbNonCompact++;
-      if(nbNonCompact == 0) {
-        this->printWrn("Diagram pair identifiers must be compact (not exceed "
-                       "the diagram size).");
-      }
     }
-    // this->printMsg("=====" + std::to_string(i) + "=====FIN=====");
   }
 
   if(nbNonCompact > 0) {
@@ -566,9 +515,8 @@ double ttkPersistenceDiagramDictDecoding::getPersistenceDiagram(
                    + " pairs due to non-compactness.");
   }
 
-  return max_dimension;
+  return std::get<4>(diagram[0]);
 }
-
 
 void ttkPersistenceDiagramDictDecoding::outputDiagrams(
   vtkMultiBlockDataSet *output,
@@ -585,42 +533,45 @@ void ttkPersistenceDiagramDictDecoding::outputDiagrams(
 
   ttk::SimplexId n_existing_blocks = ShowAtoms ? nAtoms : 0;
 
-  output->SetNumberOfBlocks(nDiags+n_existing_blocks);
-  std::vector<std::pair<double,double>> coords(nAtoms);
-  std::vector<std::pair<double,double>> true_coords(nAtoms);
+  output->SetNumberOfBlocks(nDiags + n_existing_blocks);
+  std::vector<std::pair<double, double>> coords(nAtoms);
+  std::vector<std::pair<double, double>> true_coords(nAtoms);
 
-  if(nAtoms == 3){
+  if(nAtoms == 3) {
     ttk::PersistenceDiagramDistanceMatrix MatrixCalculator;
-    std::array<size_t , 2> nInputs{nAtoms, 0};
+    std::array<size_t, 2> nInputs{nAtoms, 0};
     MatrixCalculator.setDos(true, true, true);
     MatrixCalculator.setThreadNumber(3);
-    std::vector<std::vector<double>> distMatrix = MatrixCalculator.execute(atoms, nInputs);
+    std::vector<std::vector<double>> distMatrix
+      = MatrixCalculator.execute(atoms, nInputs);
     coords[0].first = 0.;
     true_coords[0].first = 0.;
     coords[0].second = 0.;
     true_coords[0].second = 0.;
-    coords[1].first = spacing  * distMatrix[0][1];
+    coords[1].first = spacing * distMatrix[0][1];
     true_coords[1].first = distMatrix[0][1];
     coords[1].second = 0.;
     true_coords[0].second = 0.;
     double distOpposed = distMatrix[2][1];
     double firstDist = distMatrix[0][1];
     double distAdja = distMatrix[0][2];
-    double alpha = std::acos((distOpposed * distOpposed -firstDist * firstDist -distAdja * distAdja)/(-2. * firstDist * distAdja));
+    double alpha = std::acos(
+      (distOpposed * distOpposed - firstDist * firstDist - distAdja * distAdja)
+      / (-2. * firstDist * distAdja));
     coords[2].first = spacing * distAdja * std::cos(alpha);
     true_coords[2].first = distAdja * std::cos(alpha);
     coords[2].second = spacing * distAdja * std::sin(alpha);
     true_coords[2].second = distAdja * std::sin(alpha);
 
-    if(ShowAtoms){
-      for(size_t i = 0 ; i < nAtoms ; ++i){
+    if(ShowAtoms) {
+      for(size_t i = 0; i < nAtoms; ++i) {
         double X = coords[i].first;
         double Y = coords[i].second;
         vtkNew<vtkUnstructuredGrid> vtu{};
         this->diagramToVTU(vtu, atoms[i], max_persistence);
 
         vtkNew<vtkTransform> tr{};
-        tr->Translate(X,Y,0);
+        tr->Translate(X, Y, 0);
 
         vtkNew<vtkTransformFilter> trf{};
         trf->SetTransform(tr);
@@ -634,8 +585,8 @@ void ttkPersistenceDiagramDictDecoding::outputDiagrams(
   } else {
 
     for(size_t i = 0; i < nAtoms; ++i) {
-      const auto angle = 2.0 * M_PI * static_cast<double>(i)
-        / static_cast<double>(nAtoms);
+      const auto angle
+        = 2.0 * M_PI * static_cast<double>(i) / static_cast<double>(nAtoms);
       double X = spacing * max_persistence * std::cos(angle);
       double Y = spacing * max_persistence * std::sin(angle);
       coords[i].first = X;
@@ -643,12 +594,12 @@ void ttkPersistenceDiagramDictDecoding::outputDiagrams(
       true_coords[i].first = max_persistence * std::cos(angle);
       true_coords[i].second = max_persistence * std::sin(angle);
 
-      if(ShowAtoms){
+      if(ShowAtoms) {
         vtkNew<vtkUnstructuredGrid> vtu{};
         this->diagramToVTU(vtu, atoms[i], max_persistence);
 
         vtkNew<vtkTransform> tr{};
-        tr->Translate(X,Y,0);
+        tr->Translate(X, Y, 0);
 
         vtkNew<vtkTransformFilter> trf{};
         trf->SetTransform(tr);
@@ -660,71 +611,67 @@ void ttkPersistenceDiagramDictDecoding::outputDiagrams(
     }
   }
 
-
   int numDiags = diags.size();
 
   for(int i = 0; i < numDiags; ++i) {
     vtkNew<vtkUnstructuredGrid> vtu{};
-    if(!ComputePoints){
+    if(!ComputePoints) {
       this->diagramToVTU(vtu, diags[i], max_persistence);
     }
 
-    
-    //for(int j = 0 ; j < weights_vtk->GetNumberOfColumns() ; ++i){
-      //auto array = weights_vtk->GetColumn(j);
-      //std::string name{"ClusterID"};
-      //if(strcmp(name.c_str(), weights_vtk->GetColumnName(j)) != 0){
-        //continue;
-      //}
-      //vtkNew<vtkDataArray> clusterId{};
-      //clusterId->SetName("ClusterID");
-      //clusterId->SetNumberOfComponents(1);
-      //clusterId->SetNumberOfTuples(1);
-      //clusterId->SetNumberOfValues(1);
-      //clusterId->SetTuple(0,i,array);
-      //clusterId->Fill(array
-      //array->GetTuples(i,i,clusterId);
-      //vtu->GetFieldData()->AddArray(clusterId);
+    // for(int j = 0 ; j < weights_vtk->GetNumberOfColumns() ; ++i){
+    // auto array = weights_vtk->GetColumn(j);
+    // std::string name{"ClusterID"};
+    // if(strcmp(name.c_str(), weights_vtk->GetColumnName(j)) != 0){
+    // continue;
+    //}
+    // vtkNew<vtkDataArray> clusterId{};
+    // clusterId->SetName("ClusterID");
+    // clusterId->SetNumberOfComponents(1);
+    // clusterId->SetNumberOfTuples(1);
+    // clusterId->SetNumberOfValues(1);
+    // clusterId->SetTuple(0,i,array);
+    // clusterId->Fill(array
+    // array->GetTuples(i,i,clusterId);
+    // vtu->GetFieldData()->AddArray(clusterId);
     //}
 
+    double X = 0;
+    double Y = 0;
+    for(size_t iAtom = 0; iAtom < nAtoms; ++iAtom) {
+      X += weights[i][iAtom] * coords[iAtom].first;
+      Y += weights[i][iAtom] * coords[iAtom].second;
+    }
 
-      double X = 0;
-      double Y = 0;
-      for(size_t iAtom = 0; iAtom < nAtoms; ++iAtom) {
-        X += weights[i][iAtom]*coords[iAtom].first;
-        Y += weights[i][iAtom]*coords[iAtom].second;
-      }
+    vtkNew<vtkTransform> tr{};
+    tr->Translate(X, Y, 0);
+    vtkNew<vtkTransformFilter> trf{};
+    trf->SetTransform(tr);
+    trf->SetInputData(vtu);
+    trf->Update();
 
-      vtkNew<vtkTransform> tr{};
-      tr->Translate(X,Y,0);
-      vtkNew<vtkTransformFilter> trf{};
-      trf->SetTransform(tr);
-      trf->SetInputData(vtu);
-      trf->Update();
-
-      output->SetBlock(i+n_existing_blocks, trf->GetOutputDataObject(0));
+    output->SetBlock(i + n_existing_blocks, trf->GetOutputDataObject(0));
   }
 
-
-  for(size_t i = 0 ; i < 2 ; ++i){
+  for(size_t i = 0; i < 2; ++i) {
     vtkNew<vtkDoubleArray> col{};
     col->SetNumberOfValues(nDiags);
     std::string name;
     std::cout << "NANI THE FUCK" << std::endl;
-    if(i == 0){
+    if(i == 0) {
       name = "X";
     } else {
       name = "Y";
     }
-    //name.append(std::to_string(i));
+    // name.append(std::to_string(i));
     col->SetName(name.c_str());
-    for(size_t j = 0 ; j < nDiags ; ++j){
+    for(size_t j = 0; j < nDiags; ++j) {
       double temp = 0;
-      for(size_t iAtom = 0; iAtom < nAtoms ; ++iAtom){
-        if(i == 0){
-          temp += weights[j][iAtom]*true_coords[iAtom].first;
+      for(size_t iAtom = 0; iAtom < nAtoms; ++iAtom) {
+        if(i == 0) {
+          temp += weights[j][iAtom] * true_coords[iAtom].first;
         } else {
-          temp += weights[j][iAtom]*true_coords[iAtom].second;
+          temp += weights[j][iAtom] * true_coords[iAtom].second;
         }
       }
       col->SetValue(j, temp);
@@ -732,8 +679,6 @@ void ttkPersistenceDiagramDictDecoding::outputDiagrams(
     col->Modified();
     output_coordinates->AddColumn(col);
   }
-
-
 }
 
 // void ttkPersistenceDiagramDictDecoding::diagramToVTU(
@@ -846,9 +791,8 @@ void ttkPersistenceDiagramDictDecoding::outputDiagrams(
 // }
 //
 // double
-//   ttkPersistenceDiagramDictDecoding::getMaxPersistence(ttk::Diagram &diagram) {
-//   double max_persistence{0};
-//   for(size_t i = 0; i < diagram.size(); ++i) {
+//   ttkPersistenceDiagramDictDecoding::getMaxPersistence(ttk::Diagram &diagram)
+//   { double max_persistence{0}; for(size_t i = 0; i < diagram.size(); ++i) {
 //     const auto &t = diagram[i];
 //     const double pers = std::get<4>(t);
 //     max_persistence = std::max(pers, max_persistence);
@@ -876,13 +820,6 @@ void ttkPersistenceDiagramDictDecoding::diagramToVTU(
   critType->SetName("CriticalType");
   critType->SetNumberOfTuples(nPoints);
   output->GetPointData()->AddArray(critType);
-
-  // vtkNew<vtkIntArray> clusterId{};
-  // clusterId->SetName("ClusterID");
-  // clusterId->SetNumberOfComponents(1);
-  // clusterId->SetNumberOfTuples(nPoints);
-  // clusterId->Fill(cid);
-  // output->GetPointData()->AddArray(clusterId);
 
   vtkNew<vtkFloatArray> coords{};
   coords->SetNumberOfComponents(3);
@@ -916,6 +853,16 @@ void ttkPersistenceDiagramDictDecoding::diagramToVTU(
   pairPers->SetNumberOfTuples(diagram.size() + 1);
   output->GetCellData()->AddArray(pairPers);
 
+  vtkNew<vtkDoubleArray> birthScalars{};
+  birthScalars->SetName(ttk::PersistenceBirthName);
+  birthScalars->SetNumberOfTuples(diagram.size() + 1);
+  output->GetCellData()->AddArray(birthScalars);
+
+  vtkNew<vtkUnsignedCharArray> isFinite{};
+  isFinite->SetName(ttk::PersistenceIsFinite);
+  isFinite->SetNumberOfTuples(diagram.size() + 1);
+  output->GetCellData()->AddArray(isFinite);
+
   for(size_t j = 0; j < diagram.size(); ++j) {
     const auto &pair{diagram[j]};
     const auto birth{std::get<6>(pair)};
@@ -934,6 +881,8 @@ void ttkPersistenceDiagramDictDecoding::diagramToVTU(
     pairId->SetTuple1(j, j);
     pairType->SetTuple1(j, pType);
     pairPers->SetTuple1(j, death - birth);
+    birthScalars->SetTuple1(j, birth);
+    isFinite->SetTuple1(j, j == 0 ? 0 : 1);
 
     // point data
     coords->SetTuple(2 * j + 0, coordsBirth.data());
@@ -957,7 +906,8 @@ void ttkPersistenceDiagramDictDecoding::diagramToVTU(
 
   // add diagonal
   const auto minmax_birth = std::minmax_element(
-    diagram.begin(), diagram.end(), [](const ttk::DiagramTuple &a, const ttk::DiagramTuple &b) {
+    diagram.begin(), diagram.end(),
+    [](const ttk::DiagramTuple &a, const ttk::DiagramTuple &b) {
       return std::get<6>(a) < std::get<6>(b);
     });
   const std::array<vtkIdType, 2> ids{
@@ -969,6 +919,8 @@ void ttkPersistenceDiagramDictDecoding::diagramToVTU(
   pairType->SetTuple1(diagram.size(), -1);
   // use twice the max persistence of all input diagrams...
   pairPers->SetTuple1(diagram.size(), 2.0 * max_persistence);
+  birthScalars->SetTuple1(diagram.size(), std::get<6>(*minmax_birth.first));
+  isFinite->SetTuple1(diagram.size(), 0);
 }
 
 double
