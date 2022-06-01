@@ -51,6 +51,7 @@ void outputDiagrams(
   vtkTable *output_coordinates,
   const std::vector<ttk::Diagram> &diags,
   const std::vector<ttk::Diagram> &atoms,
+  vtkTable *weights_vtk,
   const std::vector<std::vector<double>> &weights,
   const double spacing,
   const double max_persistence) const;

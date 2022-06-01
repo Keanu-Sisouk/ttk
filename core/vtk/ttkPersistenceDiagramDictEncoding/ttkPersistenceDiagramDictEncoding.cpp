@@ -728,8 +728,7 @@ void ttkPersistenceDiagramDictEncoding::diagramToVTU(
 
   // add diagonal
   const auto minmax_birth = std::minmax_element(
-    diagram.begin(), diagram.end(),
-    [](const ttk::DiagramTuple &a, const ttk::DiagramTuple &b) {
+    diagram.begin(), diagram.end(), [](const ttk::DiagramTuple &a, const ttk::DiagramTuple &b) {
       return std::get<6>(a) < std::get<6>(b);
     });
   const std::array<vtkIdType, 2> ids{
@@ -742,6 +741,115 @@ void ttkPersistenceDiagramDictEncoding::diagramToVTU(
   // use twice the max persistence of all input diagrams...
   pairPers->SetTuple1(diagram.size(), 2.0 * max_persistence);
 }
+
+// void ttkPersistenceDiagramDictEncoding::diagramToVTU(
+//   vtkUnstructuredGrid *output,
+//   const ttk::Diagram &diagram,
+//   const double max_persistence) const {
+//
+//   const auto nPoints = 2 * diagram.size();
+//   if(nPoints == 0) {
+//     this->printWrn("Diagram with no points");
+//     return;
+//   }
+//
+//   vtkNew<vtkPoints> points{};
+//   points->SetNumberOfPoints(nPoints);
+//   output->SetPoints(points);
+//
+//   // point data
+//   vtkNew<vtkIntArray> critType{};
+//   critType->SetName("CriticalType");
+//   critType->SetNumberOfTuples(nPoints);
+//   output->GetPointData()->AddArray(critType);
+//
+//   vtkNew<vtkFloatArray> coords{};
+//   coords->SetNumberOfComponents(3);
+//   coords->SetName("Coordinates");
+//   coords->SetNumberOfTuples(nPoints);
+//   output->GetPointData()->AddArray(coords);
+//
+//   vtkNew<vtkDoubleArray> pointPers{};
+//   pointPers->SetName("Persistence");
+//   pointPers->SetNumberOfTuples(nPoints);
+//   output->GetPointData()->AddArray(pointPers);
+//
+//   vtkNew<ttkSimplexIdTypeArray> vsf{};
+//   vsf->SetName(ttk::VertexScalarFieldName);
+//   vsf->SetNumberOfTuples(nPoints);
+//   output->GetPointData()->AddArray(vsf);
+//
+//   // cell data
+//   vtkNew<vtkIntArray> pairId{};
+//   pairId->SetName("PairIdentifier");
+//   pairId->SetNumberOfTuples(diagram.size() + 1);
+//   output->GetCellData()->AddArray(pairId);
+//
+//   vtkNew<vtkIntArray> pairType{};
+//   pairType->SetName("PairType");
+//   pairType->SetNumberOfTuples(diagram.size() + 1);
+//   output->GetCellData()->AddArray(pairType);
+//
+//   vtkNew<vtkDoubleArray> pairPers{};
+//   pairPers->SetName("Persistence");
+//   pairPers->SetNumberOfTuples(diagram.size() + 1);
+//   output->GetCellData()->AddArray(pairPers);
+//
+//   for(size_t j = 0; j < diagram.size(); ++j) {
+//     const auto &pair{diagram[j]};
+//     const auto birth{std::get<6>(pair)};
+//     const auto death{std::get<10>(pair)};
+//     const auto birtVertId{std::get<0>(pair)};
+//     const auto deathVertId{std::get<2>(pair)};
+//     const auto pType{std::get<5>(pair)};
+//     const auto birthType{std::get<1>(pair)};
+//     const auto deathType{std::get<3>(pair)};
+//     std::array<float, 3> coordsBirth{
+//       std::get<7>(pair), std::get<8>(pair), std::get<9>(pair)};
+//     std::array<float, 3> coordsDeath{
+//       std::get<11>(pair), std::get<12>(pair), std::get<13>(pair)};
+//
+//     // cell data
+//     pairId->SetTuple1(j, j);
+//     pairType->SetTuple1(j, pType);
+//     pairPers->SetTuple1(j, death - birth);
+//
+//     // point data
+//     coords->SetTuple(2 * j + 0, coordsBirth.data());
+//     coords->SetTuple(2 * j + 1, coordsDeath.data());
+//     pointPers->SetTuple1(2 * j + 0, death - birth);
+//     pointPers->SetTuple1(2 * j + 1, death - birth);
+//     critType->SetTuple1(2 * j + 0, static_cast<int>(birthType));
+//     critType->SetTuple1(2 * j + 1, static_cast<int>(deathType));
+//     vsf->SetTuple1(2 * j + 0, birtVertId);
+//     vsf->SetTuple1(2 * j + 1, deathVertId);
+//
+//     points->SetPoint(2 * j + 0, birth, birth, 0);
+//     points->SetPoint(2 * j + 1, birth, death, 0);
+//
+//     const std::array<vtkIdType, 2> ids{
+//       2 * static_cast<vtkIdType>(j) + 0,
+//       2 * static_cast<vtkIdType>(j) + 1,
+//     };
+//     output->InsertNextCell(VTK_LINE, 2, ids.data());
+//   }
+//
+//   // add diagonal
+//   const auto minmax_birth = std::minmax_element(
+//     diagram.begin(), diagram.end(),
+//     [](const ttk::DiagramTuple &a, const ttk::DiagramTuple &b) {
+//       return std::get<6>(a) < std::get<6>(b);
+//     });
+//   const std::array<vtkIdType, 2> ids{
+//     2 * (minmax_birth.first - diagram.begin()),
+//     2 * (minmax_birth.second - diagram.begin()),
+//   };
+//   output->InsertNextCell(VTK_LINE, 2, ids.data());
+//   pairId->SetTuple1(diagram.size(), -1);
+//   pairType->SetTuple1(diagram.size(), -1);
+//   // use twice the max persistence of all input diagrams...
+//   pairPers->SetTuple1(diagram.size(), 2.0 * max_persistence);
+// }
 
 double
   ttkPersistenceDiagramDictEncoding::getMaxPersistence(ttk::Diagram &diagram) {
