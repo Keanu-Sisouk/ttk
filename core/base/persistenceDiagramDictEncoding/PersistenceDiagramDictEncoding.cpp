@@ -724,13 +724,11 @@ void PersistenceDiagramDictEncoding::method(
         const std::vector<size_t> &indexDataSad = origin_index_datasSad[i];
         const std::vector<size_t> &indexDataMax = origin_index_datasMax[i];
         std::vector<double> &weights = vectorWeights[i];
-        std::cout << "Diagram " << i << "\n";
         computeGradientWeights(
           gradWeights, hessianList, dictDiagrams, matchingsAtoms, Barycenter,
           Data, matchingsMin, matchingsMax, matchingsSad, indexBaryMin,
           indexBaryMax, indexBarySad, indexDataMin, indexDataMax, indexDataSad);
         int nb_points = Barycenter.size();
-        std::cout << "=========================================" << std::endl;
         gradActor.executeWeightsProjected(
           hessianList, weights, gradWeights, epoch, nb_points, MaxEigenValue);
       }
@@ -1371,10 +1369,6 @@ void PersistenceDiagramDictEncoding::computeGradientWeights(
       const SimplexId Id1 = std::get<0>(t);
       // Id in barycenter
       const SimplexId Id2 = std::get<1>(t);
-
-      std::cout << "Matchings with atom " << i << " : " << Id1 << " , " << Id2
-                << std::endl;
-
       // if(Id2 < 0) {
       if(Id2 < 0 || static_cast<int>(grad_list.size() <= Id2)
          || static_cast<int>(dictDiagrams[i].size()) <= Id1) {
@@ -1420,9 +1414,6 @@ void PersistenceDiagramDictEncoding::computeGradientWeights(
     const SimplexId Id1 = std::get<0>(t);
     // Id in barycenter
     const SimplexId Id2 = std::get<1>(t);
-
-    std::cout << "Matching data min" << Id1 << " , " << Id2 << std::endl;
-
     if(Id2 < 0) {
       k += 1;
       
@@ -1496,9 +1487,6 @@ void PersistenceDiagramDictEncoding::computeGradientWeights(
     const SimplexId Id1 = std::get<0>(t);
     // Id in barycenter
     const SimplexId Id2 = std::get<1>(t);
-
-    std::cout << "Matching data max" << Id1 << " , " << Id2 << std::endl;
-
     if(Id2 < 0) {
       k += 1;
       
@@ -1572,9 +1560,6 @@ void PersistenceDiagramDictEncoding::computeGradientWeights(
     const SimplexId Id1 = std::get<0>(t);
     // Id in barycenter
     const SimplexId Id2 = std::get<1>(t);
-
-    std::cout << "Matching data sad" << Id1 << " , " << Id2 << std::endl;
-
     if(Id2 < 0) {
       k += 1;
       
