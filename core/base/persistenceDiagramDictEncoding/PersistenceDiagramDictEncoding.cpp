@@ -724,11 +724,13 @@ void PersistenceDiagramDictEncoding::method(
         const std::vector<size_t> &indexDataSad = origin_index_datasSad[i];
         const std::vector<size_t> &indexDataMax = origin_index_datasMax[i];
         std::vector<double> &weights = vectorWeights[i];
+        std::cout << "Diagram " << i << "\n";
         computeGradientWeights(
           gradWeights, hessianList, dictDiagrams, matchingsAtoms, Barycenter,
           Data, matchingsMin, matchingsMax, matchingsSad, indexBaryMin,
           indexBaryMax, indexBarySad, indexDataMin, indexDataMax, indexDataSad);
         int nb_points = Barycenter.size();
+        std::cout << "=========================================" << std::endl;
         gradActor.executeWeightsProjected(
           hessianList, weights, gradWeights, epoch, nb_points, MaxEigenValue);
       }
@@ -956,13 +958,11 @@ void PersistenceDiagramDictEncoding::method(
         const std::vector<double> &weights = vectorWeights[i];
         int nb_points = Barycenters[i].size();
         // std::vector<int> checkerAtoms(Barycenter.size(), 0);
-        std::cout << "Diagram " << i << std::endl;
         computeGradientAtoms(gradsAtoms, weights, Barycenter, Data,
                              matchingsMin, matchingsMax, matchingsSad,
                              indexBaryMin, indexBaryMax, indexBarySad,
                              indexDataMin, indexDataMax, indexDataSad,
                              checkerAtoms, pairToAddGradList, infoToAdd);
-        std::cout << "=========================================" << std::endl;
         // gradActor.executeAtoms(dictDiagrams, matchingsAtoms, Barycenter,
         //                        gradsAtoms, nb_points, checkerAtoms, epoch);
       }
