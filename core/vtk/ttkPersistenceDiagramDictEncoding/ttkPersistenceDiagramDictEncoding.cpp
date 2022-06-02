@@ -154,9 +154,6 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
   // int numAtom = this->GetAtomNumber();
   output_dgm->SetNumberOfBlocks(numAtom);
 
-  this->printMsg("NANIIIIIIII!!!!!!!!!!!!!!!!");
-
-
 
   for(int i = 0; i < numAtom; ++i) {
     vtkNew<vtkUnstructuredGrid> vtu;
@@ -350,7 +347,7 @@ double ttkPersistenceDiagramDictEncoding::getPersistenceDiagram(
 
     const auto pd = vtu->GetPointData();
     const auto cd = vtu->GetCellData();
-
+  
     if(pd == nullptr) {
       this->printErr("VTU diagram with NULL Point Data");
       return 0;
