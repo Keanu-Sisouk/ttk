@@ -154,6 +154,10 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
   // int numAtom = this->GetAtomNumber();
   output_dgm->SetNumberOfBlocks(numAtom);
 
+  this->printMsg("NANIIIIIIII!!!!!!!!!!!!!!!!");
+
+
+
   for(int i = 0; i < numAtom; ++i) {
     vtkNew<vtkUnstructuredGrid> vtu;
     vtu->DeepCopy(inputDiagrams[i]);
