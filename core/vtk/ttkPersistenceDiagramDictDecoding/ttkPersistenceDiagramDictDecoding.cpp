@@ -7,6 +7,7 @@
 #include <vtkDataArray.h>
 #include <vtkDataSet.h>
 #include <vtkDoubleArray.h>
+#include <vtkVariantArray.h>
 #include <vtkFiltersCoreModule.h>
 #include <vtkFloatArray.h>
 #include <vtkIntArray.h>
@@ -242,22 +243,6 @@ int ttkPersistenceDiagramDictDecoding::RequestData(
   outputDiagrams(output_dgm, output_coordinates, Barycenters, dictDiagrams,
                  weights_vtk, vectorWeights, Spacing, 1);
 
-  for(int i = 0; i < weights_vtk->GetNumberOfColumns(); ++i) {
-    int test = 0;
-    const auto array = weights_vtk->GetColumn(i);
-
-    for(int j = 0; j < nDiags; ++j) {
-      std::string name{"Atom"};
-      zeroPad(name, nDiags, j);
-      if(strcmp(name.c_str(), weights_vtk->GetColumnName(i)) == 0) {
-        test += 1;
-      }
-    }
-    if(test > 0) {
-      continue;
-    }
-    output_coordinates->AddColumn(array);
-  }
 
   // Get input object from input vector
   // Note: has to be a vtkDataSet as required by FillInputPortInformation
@@ -679,6 +664,52 @@ void ttkPersistenceDiagramDictDecoding::outputDiagrams(
     col->Modified();
     output_coordinates->AddColumn(col);
   }
+
+  
+  const auto zeroPad
+    = [](std::string &colName, const size_t numberCols, const size_t colIdx) {
+        std::string max{std::to_string(numberCols - 1)};
+        std::string cur{std::to_string(colIdx)};
+        std::string zer(max.size() - cur.size(), '0');
+        colName.append(zer).append(cur);
+      };
+
+  
+  for(int i = 0; i < weights_vtk->GetNumberOfColumns(); ++i) {
+    int test = 0;
+    const auto array = weights_vtk->GetColumn(i);
+
+    for(int j = 0; j < nDiags; ++j) {
+      std::string name{"Atom"};
+      zeroPad(name, nDiags, j);
+      if(strcmp(name.c_str(), weights_vtk->GetColumnName(i)) == 0) {
+        test += 1;
+      }
+    }
+    if(test > 0) {
+      continue;
+    }
+    output_coordinates->AddColumn(array);
+  }
+
+  for(size_t i = 0; i < nAtoms ; ++i){
+    vtkNew<vtkVariantArray> row{};
+    row->SetNumberOfValues(output_coordinates->GetNumberOfColumns());
+    std::cout << "number of values: " << row->GetNumberOfValues() << std::endl;
+    for(int j = 0 ; j < output_coordinates->GetNumberOfColumns() ; ++j){
+      if(strcmp(output_coordinates->GetColumnName(j), "X") == 0){
+        row->SetValue(j, true_coords[i].first);
+      } else if (strcmp(output_coordinates->GetColumnName(j), "Y") == 0){
+        row->SetValue(j, true_coords[i].second);
+      } else if (strcmp(output_coordinates->GetColumnName(j), "ClusterID") == 0){
+        row->SetValue(j, -1);
+      } else {
+        continue;
+      }
+    }
+    row->Modified();
+    output_coordinates->InsertNextRow(row);
+  } 
 }
 
 // void ttkPersistenceDiagramDictDecoding::diagramToVTU(
