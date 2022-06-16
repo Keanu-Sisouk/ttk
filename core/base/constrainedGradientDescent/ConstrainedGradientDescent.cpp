@@ -395,11 +395,6 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
 
             DiagramTuple &t1 = DictDiagrams[index][tracker_temp];
 
-            
-            if ((tracker_temp == 0) && (t2[1] < t2[0])){
-              std::get<6>(t1) = t2[0];    
-              continue;
-            }
 
 
             if (t2[0] < miniBirth[index]){
@@ -411,7 +406,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
               //count +=1;
 
               std::get<6>(t1) = t2[0];
-              std::get<10>(t1) = t2[0];
+              //std::get<10>(t1) = t2[0];
               //std::cout << "Under diag" << std::endl;
               continue;
             } else {
