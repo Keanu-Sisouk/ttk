@@ -1195,13 +1195,15 @@ void PersistenceDiagramDictEncoding::method(
         auto &globalPair = atom[0];
         for(size_t j = 0 ; j < atom.size() ; ++j){
           auto &t = atom[j];
-          if(std::get<6>(t) > std::get<10>(t)){
-            std::get<10>(t) = std::get<6>(t);
-          }
           
           if(std::get<10>(t) > std::get<10>(globalPair)){
             std::get<10>(t) = std::get<10>(globalPair);
           }
+
+          if(std::get<6>(t) > std::get<10>(t)){
+            std::get<10>(t) = std::get<6>(t);
+          }
+          
         }
       }
       this->printMsg("Computed 2nd opt for epoch " + std::to_string(epoch),
