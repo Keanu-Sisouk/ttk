@@ -616,7 +616,7 @@ void PersistenceDiagramDictEncoding::method(
     true_loss_tab.push_back(true_loss);
 
     
-    if(preWeightOpt){
+    if(preWeightOpt && OptimizeAtoms){
       if(epoch < 3){
         do_optimizeAtoms = false;
       } else {
