@@ -522,7 +522,40 @@ void ttkPersistenceDiagramDictDecoding::outputDiagrams(
   std::vector<std::pair<double, double>> coords(nAtoms);
   std::vector<std::pair<double, double>> true_coords(nAtoms);
 
-  if(nAtoms == 3) {
+  if(nAtoms == 2){
+    ttk::PersistenceDiagramDistanceMatrix MatrixCalculator;
+    std::array<size_t, 2> nInputs{nAtoms, 0};
+    MatrixCalculator.setDos(true, true, true);
+    MatrixCalculator.setThreadNumber(2);
+    std::vector<std::vector<double>> distMatrix = MatrixCalculator.execute(atoms, nInputs);
+    coords[0].first = 0.;
+    true_coords[0].first = 0.;
+    coords[0].second = 0.;
+    true_coords[0].first = 0.;
+    coords[1].first = spacing * distMatrix[0][1];
+    true_coords[1].first = distMatrix[0][1];
+
+    
+    if(ShowAtoms) {
+      for(size_t i = 0; i < nAtoms; ++i) {
+        double X = coords[i].first;
+        double Y = coords[i].second;
+        vtkNew<vtkUnstructuredGrid> vtu{};
+        this->diagramToVTU(vtu, atoms[i], max_persistence);
+
+        vtkNew<vtkTransform> tr{};
+        tr->Translate(X, Y, 0);
+
+        vtkNew<vtkTransformFilter> trf{};
+        trf->SetTransform(tr);
+        trf->SetInputData(vtu);
+        trf->Update();
+
+        output->SetBlock(i, trf->GetOutputDataObject(0));
+      }
+    }
+
+  } else if(nAtoms == 3) {
     ttk::PersistenceDiagramDistanceMatrix MatrixCalculator;
     std::array<size_t, 2> nInputs{nAtoms, 0};
     MatrixCalculator.setDos(true, true, true);
