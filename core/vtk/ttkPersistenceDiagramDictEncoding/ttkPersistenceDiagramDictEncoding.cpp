@@ -154,12 +154,22 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
   // int numAtom = this->GetAtomNumber();
   output_dgm->SetNumberOfBlocks(numAtom);
 
-
-  for(int i = 0; i < numAtom; ++i) {
-    vtkNew<vtkUnstructuredGrid> vtu;
-    vtu->DeepCopy(inputDiagrams[i]);
-    output_dgm->SetBlock(i, vtu);
+  if (BackEnd == BACKEND::INPUT_ATOMS){
+    std::cout << "KONICHIWA" << std::endl;
+    for(int i = 0; i < numAtom; ++i){
+      vtkNew<vtkUnstructuredGrid> vtu;
+      vtu->DeepCopy(inputAtoms[i]);
+      output_dgm->SetBlock(i, vtu);
+    }
+  } else {
+    std::cout << "KOMBAWA" << std::endl;
+    for(int i = 0; i < numAtom; ++i) {
+      vtkNew<vtkUnstructuredGrid> vtu;
+      vtu->DeepCopy(inputDiagrams[i]);
+      output_dgm->SetBlock(i, vtu);
+    }
   }
+  std::cout << "BOUYASHAKA" << std::endl;
 
   std::vector<ttk::Diagram> intermediateDiagrams(nDiags);
   std::vector<ttk::Diagram> intermediateAtoms(numInputAtoms);

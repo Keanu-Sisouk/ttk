@@ -2130,7 +2130,7 @@ int PersistenceDiagramDictEncoding::InitDictionary(
             std::remove_if(dictDiagrams[i].begin(),
                            dictDiagrams[i].end(),
                            [max_pers](ttk::DiagramTuple &p){
-                            return (std::get<10>(p) - std::get<6>(p)) < 0.4*max_pers;
+                            return (std::get<10>(p) - std::get<6>(p)) < 0.*max_pers;
                            }),
             dictDiagrams[i].end());
       }
