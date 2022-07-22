@@ -606,9 +606,11 @@ void PersistenceDiagramDictEncoding::method(
 
 
     for(size_t p = 0 ; p < nDiags ; ++p){
-
-      allLosses[p].push_back(allLossesAtEpoch[p]);
-
+      if(!ProgApproach){
+        allLosses[p].push_back(allLossesAtEpoch[p]);
+      } else {
+        allLosses[p].push_back(trueAllLossesAtEpoch[p]);
+      }
     }
 
 
