@@ -323,8 +323,8 @@ void PersistenceDiagramDictEncoding::method(
       if(pers > 0) {
         if(nt1 == CriticalType::Local_minimum
            && nt2 == CriticalType::Local_maximum) {
-          inputDiagramsMax[i].emplace_back(t);
-          origin_index_datasMax[i].push_back(j);
+          inputDiagramsMin[i].emplace_back(t);
+          origin_index_datasMin[i].push_back(j);
         } else {
           if(nt1 == CriticalType::Local_maximum
              || nt2 == CriticalType::Local_maximum) {
@@ -498,8 +498,8 @@ void PersistenceDiagramDictEncoding::method(
         if(pers > 0) {
           if(nt1 == CriticalType::Local_minimum
              && nt2 == CriticalType::Local_maximum) {
-            BarycentersMax[i].emplace_back(t);
-            origin_index_barysMax[i].push_back(j);
+            BarycentersMin[i].emplace_back(t);
+            origin_index_barysMin[i].push_back(j);
           } else {
             if(nt1 == CriticalType::Local_maximum
                || nt2 == CriticalType::Local_maximum) {
@@ -615,6 +615,8 @@ void PersistenceDiagramDictEncoding::method(
 
 
     loss_tab.push_back(loss);
+    
+    printMsg(" Epoch "+std::to_string(epoch)+", loss = "+std::to_string(loss), 1, threadNumber_, ttk::debug::LineMode::REPLACE);
     true_loss_tab.push_back(true_loss);
 
     
@@ -845,8 +847,8 @@ void PersistenceDiagramDictEncoding::method(
           if(pers > 0) {
             if(nt1 == CriticalType::Local_minimum
               && nt2 == CriticalType::Local_maximum) {
-              BarycentersMax[i].emplace_back(t);
-              origin_index_barysMax[i].push_back(j);
+              BarycentersMin[i].emplace_back(t);
+              origin_index_barysMin[i].push_back(j);
             } else {
               if(nt1 == CriticalType::Local_maximum
                 || nt2 == CriticalType::Local_maximum) {
@@ -1234,7 +1236,6 @@ void PersistenceDiagramDictEncoding::method(
 
 
 
-    printMsg(" Epoch "+std::to_string(epoch)+", loss = "+std::to_string(loss), 1, threadNumber_, ttk::debug::LineMode::REPLACE);
   }
   printMsg(" Epoch "+std::to_string(epoch)+", loss = "+std::to_string(loss), 1, threadNumber_);
 
@@ -2252,7 +2253,7 @@ void PersistenceDiagramDictEncoding::gettingBidderDiagrams(
         if(pers > 0) {
           if(nt1 == CriticalType::Local_minimum
             && nt2 == CriticalType::Local_maximum) {
-            inputDiagramsMax[i].emplace_back(t);
+            inputDiagramsMin[i].emplace_back(t);
             //origin_index_datasMax[i].push_back(j);
           } else {
             if(nt1 == CriticalType::Local_maximum
