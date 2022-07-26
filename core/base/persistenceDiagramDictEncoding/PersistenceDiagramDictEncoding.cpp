@@ -960,11 +960,13 @@ void PersistenceDiagramDictEncoding::method(
         const std::vector<double> &weights = vectorWeights[i];
         int nb_points = Barycenters[i].size();
         // std::vector<int> checkerAtoms(Barycenter.size(), 0);
+        std::cout << "DIAG: " << i << " =====================" << "\n";
         computeGradientAtoms(gradsAtoms, weights, Barycenter, Data,
                              matchingsMin, matchingsMax, matchingsSad,
                              indexBaryMin, indexBaryMax, indexBarySad,
                              indexDataMin, indexDataMax, indexDataSad,
                              checkerAtoms, pairToAddGradList, infoToAdd);
+        std::cout << "=========================================" << "\n";
         // gradActor.executeAtoms(dictDiagrams, matchingsAtoms, Barycenter,
         //                        gradsAtoms, nb_points, checkerAtoms, epoch);
       }
@@ -1967,6 +1969,11 @@ void PersistenceDiagramDictEncoding::computeGradientAtoms(
         const std::vector<double> &direction = directions[i];
         temp[0] = -2 * weights[j] * direction[0];
         temp[1] = -2 * weights[j] * direction[1];
+        if(i == 0){
+          std::cout << "Atom: " << j << "\n";
+          std::cout << temp[0] << " and " << temp[1] <<"\n";
+          std::cout << "=====================" << "\n";
+        }
         gradsAtoms[i][j] = temp;
       }
     }
