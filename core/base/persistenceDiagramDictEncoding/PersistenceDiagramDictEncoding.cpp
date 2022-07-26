@@ -619,8 +619,8 @@ void PersistenceDiagramDictEncoding::method(
     printMsg(" Epoch "+std::to_string(epoch)+", loss = "+std::to_string(loss), 1, threadNumber_, ttk::debug::LineMode::REPLACE);
     true_loss_tab.push_back(true_loss);
 
-    
-    if(preWeightOpt && OptimizeAtoms){
+    if(OptimizeWeights && OptimizeAtoms){
+    //if(preWeightOpt && OptimizeAtoms){
       if(epoch < 3){
         do_optimizeAtoms = false;
       } else {
