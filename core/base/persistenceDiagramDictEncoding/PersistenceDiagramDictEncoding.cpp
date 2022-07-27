@@ -401,8 +401,9 @@ void PersistenceDiagramDictEncoding::method(
   // std::vector<double> loss_tab;
   int lag = 0;
   int lag2 = 0;
+  int lag3 = 0;
   int lagLimit = 10;
-  int MIN_EPOCH = 20;
+  int MIN_EPOCH = 5;
   int MAX_EPOCH = MaxEpoch;
   bool cond = true;
   int epoch = 0;
@@ -648,6 +649,28 @@ void PersistenceDiagramDictEncoding::method(
       }
     }
 
+    if(epoch > 1 && loss_tab[epoch] > 2.*loss_tab[epoch - 1]){
+      lag3+=1;
+      if(epoch > MIN_EPOCH){
+        if((lag3 > 2) && StopCondition){
+          //std::cout << "NANI?" << "\n";
+          this->printMsg("Loss increasing too much");
+          for(size_t p = 0; p < dictDiagrams.size();++p){
+            const auto atom = histoDictDiagrams[p];
+            dictDiagrams[p] = atom;
+          }
+          for(size_t p = 0; p < nDiags ; ++p){
+            const auto weights = histoVectorWeights[p];
+            vectorWeights[p] = weights;
+          }
+          do_optimizeWeights = false;
+          do_optimizeAtoms = false;
+          cond = false;
+        }
+      } else {
+        lag3 = 0;
+      }
+    }
 
     // this->printMsg("LAG" + std::to_string(lag));
     // std::cout << "LAG" << lag << std::endl;
@@ -960,13 +983,13 @@ void PersistenceDiagramDictEncoding::method(
         const std::vector<double> &weights = vectorWeights[i];
         int nb_points = Barycenters[i].size();
         // std::vector<int> checkerAtoms(Barycenter.size(), 0);
-        std::cout << "DIAG: " << i << " =====================" << "\n";
+        //std::cout << "DIAG: " << i << " =====================" << "\n";
         computeGradientAtoms(gradsAtoms, weights, Barycenter, Data,
                              matchingsMin, matchingsMax, matchingsSad,
                              indexBaryMin, indexBaryMax, indexBarySad,
                              indexDataMin, indexDataMax, indexDataSad,
                              checkerAtoms, pairToAddGradList, infoToAdd);
-        std::cout << "=========================================" << "\n";
+        //std::cout << "=========================================" << "\n";
         // gradActor.executeAtoms(dictDiagrams, matchingsAtoms, Barycenter,
         //                        gradsAtoms, nb_points, checkerAtoms, epoch);
       }
@@ -1969,11 +1992,11 @@ void PersistenceDiagramDictEncoding::computeGradientAtoms(
         const std::vector<double> &direction = directions[i];
         temp[0] = -2 * weights[j] * direction[0];
         temp[1] = -2 * weights[j] * direction[1];
-        if(i == 0){
-          std::cout << "Atom: " << j << "\n";
-          std::cout << temp[0] << " and " << temp[1] <<"\n";
-          std::cout << "=====================" << "\n";
-        }
+        //if(i == 0){
+          //std::cout << "Atom: " << j << "\n";
+          //std::cout << temp[0] << " and " << temp[1] <<"\n";
+          //std::cout << "=====================" << "\n";
+        //}
         gradsAtoms[i][j] = temp;
       }
     }
