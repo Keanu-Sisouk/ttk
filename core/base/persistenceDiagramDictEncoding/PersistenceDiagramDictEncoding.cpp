@@ -403,7 +403,7 @@ void PersistenceDiagramDictEncoding::method(
   int lag2 = 0;
   int lag3 = 0;
   int lagLimit = 10;
-  int MIN_EPOCH = 5;
+  int MIN_EPOCH = 20;
   int MAX_EPOCH = MaxEpoch;
   bool cond = true;
   int epoch = 0;
@@ -651,22 +651,21 @@ void PersistenceDiagramDictEncoding::method(
 
     if(epoch > 1 && loss_tab[epoch] > 2.*loss_tab[epoch - 1]){
       lag3+=1;
-      if(epoch > MIN_EPOCH){
-        if((lag3 > 2) && StopCondition){
-          //std::cout << "NANI?" << "\n";
-          this->printMsg("Loss increasing too much");
-          for(size_t p = 0; p < dictDiagrams.size();++p){
-            const auto atom = histoDictDiagrams[p];
-            dictDiagrams[p] = atom;
-          }
-          for(size_t p = 0; p < nDiags ; ++p){
-            const auto weights = histoVectorWeights[p];
-            vectorWeights[p] = weights;
-          }
-          do_optimizeWeights = false;
-          do_optimizeAtoms = false;
-          cond = false;
+      //if(epoch > MIN_EPOCH){
+      if((lag3 > 2) && StopCondition){
+        //std::cout << "NANI?" << "\n";
+        this->printMsg("Loss increasing too much");
+        for(size_t p = 0; p < dictDiagrams.size();++p){
+          const auto atom = histoDictDiagrams[p];
+          dictDiagrams[p] = atom;
         }
+        for(size_t p = 0; p < nDiags ; ++p){
+          const auto weights = histoVectorWeights[p];
+          vectorWeights[p] = weights;
+        }
+        do_optimizeWeights = false;
+        do_optimizeAtoms = false;
+        cond = false;
       } else {
         lag3 = 0;
       }
