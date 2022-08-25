@@ -649,10 +649,10 @@ void PersistenceDiagramDictEncoding::method(
       }
     }
 
-    if(loss_tab[epoch] > 2.*loss_tab[epoch - 1]){
+    if(loss_tab[epoch] > (std::static_cast<double>(lag3)+1.)*mini){
       lag3+=1;
       //if(epoch > MIN_EPOCH){
-      if((lag3 > 1) && StopCondition){
+      if((lag3 > 2) && StopCondition){
         std::cout << "NANI?" << "\n";
         this->printMsg("Loss increasing too much");
         for(size_t p = 0; p < dictDiagrams.size();++p){
@@ -666,9 +666,7 @@ void PersistenceDiagramDictEncoding::method(
         do_optimizeWeights = false;
         do_optimizeAtoms = false;
         cond = false;
-      } else {
-        lag3 = 0;
-      }
+      } 
     }
 
     // this->printMsg("LAG" + std::to_string(lag));
