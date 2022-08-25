@@ -649,7 +649,7 @@ void PersistenceDiagramDictEncoding::method(
       }
     }
 
-    if(epoch > 1 && loss_tab[epoch] > 2.*loss_tab[epoch - 1]){
+    if(loss_tab[epoch] > 2.*loss_tab[epoch - 1]){
       lag3+=1;
       //if(epoch > MIN_EPOCH){
       if((lag3 > 2) && StopCondition){
