@@ -652,8 +652,8 @@ void PersistenceDiagramDictEncoding::method(
     if(loss_tab[epoch] > 2.*loss_tab[epoch - 1]){
       lag3+=1;
       //if(epoch > MIN_EPOCH){
-      if((lag3 > 1) && StopCondition){
-        //std::cout << "NANI?" << "\n";
+      if((lag3 > 0) && StopCondition){
+        std::cout << "NANI?" << "\n";
         this->printMsg("Loss increasing too much");
         for(size_t p = 0; p < dictDiagrams.size();++p){
           const auto atom = histoDictDiagrams[p];
