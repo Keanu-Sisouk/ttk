@@ -649,7 +649,7 @@ void PersistenceDiagramDictEncoding::method(
       }
     }
 
-    if(loss_tab[epoch] > (std::static_cast<double>(lag3)+1.)*mini){
+    if(loss_tab[epoch] > (static_cast<double>(lag3)+1.)*mini){
       lag3+=1;
       //if(epoch > MIN_EPOCH){
       if((lag3 > 2) && StopCondition){
