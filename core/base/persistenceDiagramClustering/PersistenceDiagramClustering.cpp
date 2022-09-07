@@ -1,11 +1,11 @@
 #include <PersistenceDiagramClustering.h>
 
-void ttk::PersistenceDiagramClustering::computeWeightedBarycenter(
+void ttk::computeWeightedBarycenter(
   std::vector<DiagramType> &intermediateDiagrams,
   std::vector<double> &weights,
   DiagramType &barycenter,
   std::vector<std::vector<MatchingType>> &matchings,
-  bool ProgBarycenter) {
+  const bool ProgBarycenter) {
 
   std::vector<DiagramType> final_centroids;
   std::vector<std::vector<std::vector<MatchingType>>> all_matchings;

@@ -49,13 +49,6 @@ namespace ttk {
       std::vector<DiagramType> &centroids,
       std::vector<std::vector<std::vector<MatchingType>>> &all_matchings);
 
-    void computeWeightedBarycenter(
-      std::vector<DiagramType> &intermediateDiagrams,
-      std::vector<double> &weights,
-      DiagramType &barycenter,
-      std::vector<std::vector<MatchingType>> &matchings,
-      bool ProgBarycenter);
-
     std::array<double, 3> getDistances() const {
       return this->distances;
     }
@@ -152,5 +145,12 @@ namespace ttk {
     std::vector<double> *CustomWeights{};
     bool UseCustomWeights{false};
   };
+
+  void
+    computeWeightedBarycenter(std::vector<DiagramType> &intermediateDiagrams,
+                              std::vector<double> &weights,
+                              DiagramType &barycenter,
+                              std::vector<std::vector<MatchingType>> &matchings,
+                              const bool ProgBarycenter);
 
 } // namespace ttk
