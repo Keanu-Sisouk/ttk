@@ -72,7 +72,7 @@ public:
   vtkSetMacro(percent_, int);
   vtkGetMacro(percent_, int);
 
-  vtkSetMacro(OptimizeWeights, int); 
+  vtkSetMacro(OptimizeWeights, int);
   vtkGetMacro(OptimizeWeights, int);
 
   vtkSetMacro(OptimizeAtoms, int);
@@ -178,16 +178,6 @@ protected:
   ~ttkPersistenceDiagramDictEncoding() override = default;
 
   // BACKEND BackEnd{BACKEND::BORDER_INIT};
-  double getPersistenceDiagram(ttk::Diagram &diagram,
-                               vtkUnstructuredGrid *CTPersistenceDiagram_);
-
-  void VTUToDiagram(ttk::Diagram &diagram, vtkUnstructuredGrid *vtu) const;
-  void diagramToVTU(vtkUnstructuredGrid *output,
-                    const ttk::Diagram &diagram,
-                    const double max_persistence) const;
-
-  double getMaxPersistence(ttk::Diagram &diagram);
-
   int FillInputPortInformation(int port, vtkInformation *info) override;
   int FillOutputPortInformation(int port, vtkInformation *info) override;
 
