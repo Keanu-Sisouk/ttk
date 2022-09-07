@@ -1,5 +1,3 @@
-/// TODO 1: Provide your information
-///
 /// \ingroup base
 /// \class ttk::PersistenceDiagramDictDecoding
 /// \author Your Name Here <Your Email Address Here>
@@ -21,42 +19,11 @@
 // ttk common includes
 #include <Debug.h>
 #include <PersistenceDiagramClustering.h>
-#include <PersistenceDiagramDistanceMatrix.h>
-#include <Wrapper.h>
+#include <PersistenceDiagramUtils.h>
 
 namespace ttk {
-  using DiagramTuple = std::tuple<
-    /** Vertex Id of low pair element */
-    ttk::SimplexId,
-    /** Critical Type of low pair element */
-    ttk::CriticalType,
-    /** Vertex Id of high pair element */
-    ttk::SimplexId,
-    /** Critical Type of high pair element */
-    ttk::CriticalType,
-    /** Pair persistence value */
-    double,
-    /** Pair type */
-    ttk::SimplexId,
-    /** Pair birth */
-    double,
-    /** Low pair element 3D coordinates */
-    // TODO use std::array<float, 3>
-    float,
-    float,
-    float,
-    /** Pair death */
-    double,
-    /** High pair element 3D coordinates */
-    // TODO use std::array<float, 3>
-    float,
-    float,
-    float>;
-
-  using Diagram = std::vector<DiagramTuple>;
   using Matrice = std::vector<std::vector<double>>;
-  using MatchingTuple = std::tuple<ttk::SimplexId, ttk::SimplexId, double>;
-  using VectorMatchingTuple = std::vector<MatchingTuple>;
+  using VectorMatchingTuple = std::vector<MatchingType>;
 
   /**
    * The PersistenceDiagramDictDecoding class provides methods to compute for
@@ -70,17 +37,9 @@ namespace ttk {
       this->setDebugMsgPrefix("PersistenceDiagramDictDecoding");
     }
 
-    /**
-     * TODO 2: This method preconditions the triangulation for all operations
-     *         the algorithm of this module requires. For instance,
-     *         preconditionVertexNeighbors, preconditionBoundaryEdges, ...
-     *
-     *         Note: If the algorithm does not require a triangulation then
-     *               this method can be deleted.
-     */
-    void execute(std::vector<Diagram> &dictDiagrams,
+    void execute(std::vector<DiagramType> &dictDiagrams,
                  std::vector<std::vector<double>> &vectorWeights,
-                 std::vector<Diagram> &Barycenters) const;
+                 std::vector<DiagramType> &Barycenters) const;
 
   protected:
     bool ProgBarycenter{false};

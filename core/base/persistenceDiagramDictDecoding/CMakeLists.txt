@@ -5,6 +5,7 @@ ttk_add_base_library(persistenceDiagramDictDecoding
     PersistenceDiagramDictDecoding.h
   DEPENDS
     common
+    persistenceDiagram
     persistenceDiagramClustering
     persistenceDiagramDistanceMatrix
   )

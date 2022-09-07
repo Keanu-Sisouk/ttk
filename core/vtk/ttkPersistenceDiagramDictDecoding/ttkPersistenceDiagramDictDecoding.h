@@ -2,9 +2,9 @@
 
 #include <vtkInformation.h>
 #include <vtkInformationVector.h>
-#include <vtkUnstructuredGrid.h>
 #include <vtkMultiBlockDataSet.h>
 #include <vtkTable.h>
+#include <vtkUnstructuredGrid.h>
 // VTK Module
 #include <ttkPersistenceDiagramDictDecodingModule.h>
 
@@ -40,23 +40,22 @@ protected:
 
   int FillOutputPortInformation(int port, vtkInformation *info) override;
 
-  double getPersistenceDiagram(ttk::Diagram &diagram,
+  double getPersistenceDiagram(ttk::DiagramType &diagram,
                                vtkUnstructuredGrid *CTPersistenceDiagram_);
 
   void diagramToVTU(vtkUnstructuredGrid *output,
-                    const ttk::Diagram &diagram,
+                    const ttk::DiagramType &diagram,
                     const double max_persistence) const;
-void outputDiagrams(
-  vtkMultiBlockDataSet *output,
-  vtkTable *output_coordinates,
-  const std::vector<ttk::Diagram> &diags,
-  const std::vector<ttk::Diagram> &atoms,
-  vtkTable *weights_vtk,
-  const std::vector<std::vector<double>> &weights,
-  const double spacing,
-  const double max_persistence) const;
+  void outputDiagrams(vtkMultiBlockDataSet *output,
+                      vtkTable *output_coordinates,
+                      const std::vector<ttk::DiagramType> &diags,
+                      const std::vector<ttk::DiagramType> &atoms,
+                      vtkTable *weights_vtk,
+                      const std::vector<std::vector<double>> &weights,
+                      const double spacing,
+                      const double max_persistence) const;
 
-  double getMaxPersistence(ttk::Diagram &diagram);
+  double getMaxPersistence(ttk::DiagramType &diagram);
 
   /**
    * TODO 10: Pass VTK data to the base code and convert base code output to VTK
@@ -69,5 +68,4 @@ void outputDiagrams(
   double Spacing{};
   int ShowAtoms{1};
   bool ComputePoints{false};
-
 };
