@@ -2,8 +2,8 @@
 
 using namespace ttk;
 
-void InitFarBorderDict::execute(std::vector<Diagram> &DictDiagrams,
-                                const std::vector<Diagram> &datas,
+void InitFarBorderDict::execute(std::vector<ttk::DiagramType> &DictDiagrams,
+                                const std::vector<ttk::DiagramType> &datas,
                                 const int nbAtoms,
                                 bool do_min_,
                                 bool do_sad_,
@@ -33,35 +33,35 @@ void InitFarBorderDict::execute(std::vector<Diagram> &DictDiagrams,
   for(int i = 1; i < nbAtoms; ++i) {
     indices.push_back(getNextIndex(distMatrix, indices));
   }
-  
+
   std::vector<double> tempDistsSummed(nbAtoms);
-  for(int i = 0 ; i < nbAtoms ; ++i){
+  for(int i = 0; i < nbAtoms; ++i) {
     tempDistsSummed[i] = allDistsSummed[indices[i]];
     std::cout << "VALUE: " << tempDistsSummed[i] << std::endl;
   }
 
-  int FirstId = std::min_element(tempDistsSummed.begin() , tempDistsSummed.end()) - tempDistsSummed.begin();
+  int FirstId = std::min_element(tempDistsSummed.begin(), tempDistsSummed.end())
+                - tempDistsSummed.begin();
   DictDiagrams.push_back(datas[indices[FirstId]]);
-  for(int i = 0 ; i < nbAtoms ; ++i){
-    if(i == FirstId){
+  for(int i = 0; i < nbAtoms; ++i) {
+    if(i == FirstId) {
       continue;
     } else {
       DictDiagrams.push_back(datas[indices[i]]);
     }
   }
-  //DictDiagrams.resize(nbAtoms);
-  //for(int i = 0; i < nbAtoms; ++i) {
-    //const Diagram &atom = datas[indices[i]];
-    //std::cout << "INDICE :" << indices[i] << std::endl;
-    //DictDiagrams[i] = atom;
+  // DictDiagrams.resize(nbAtoms);
+  // for(int i = 0; i < nbAtoms; ++i) {
+  // const Diagram &atom = datas[indices[i]];
+  // std::cout << "INDICE :" << indices[i] << std::endl;
+  // DictDiagrams[i] = atom;
   //}
-
 }
 
 void InitFarBorderDict::setBidderDiagrams(
   const size_t nInputs,
-  std::vector<Diagram> &inputDiagrams,
-  std::vector<BidderDiagram<double>> &bidder_diags) const {
+  std::vector<ttk::DiagramType> &inputDiagrams,
+  std::vector<BidderDiagram> &bidder_diags) const {
 
   bidder_diags.resize(nInputs);
 
@@ -71,9 +71,9 @@ void InitFarBorderDict::setBidderDiagrams(
 
     for(size_t j = 0; j < diag.size(); j++) {
       // Add bidder to bidders
-      Bidder<double> b(diag[j], j, this->Lambda);
+      Bidder b(diag[j], j, this->Lambda);
       b.setPositionInAuction(bidders.size());
-      bidders.addBidder(b);
+      bidders.emplace_back(b);
       if(b.isDiagonal() || b.x_ == b.y_) {
         this->printMsg("Diagonal point in diagram " + std::to_string(i) + "!",
                        ttk::debug::Priority::DETAIL);
@@ -82,22 +82,21 @@ void InitFarBorderDict::setBidderDiagrams(
   }
 }
 
-double
-  InitFarBorderDict::computeDistance(const BidderDiagram<double> &D1,
-                                     const BidderDiagram<double> &D2) const {
+double InitFarBorderDict::computeDistance(const BidderDiagram &D1,
+                                          const BidderDiagram &D2) const {
 
-  GoodDiagram<double> D2_bis{};
-  for(int i = 0; i < D2.size(); i++) {
-    const Bidder<double> &b = D2.get(i);
-    Good<double> g(b.x_, b.y_, b.isDiagonal(), D2_bis.size());
-    g.SetCriticalCoordinates(b.coords_x_, b.coords_y_, b.coords_z_);
+  GoodDiagram D2_bis{};
+  for(size_t i = 0; i < D2.size(); i++) {
+    const Bidder &b = D2.at(i);
+    Good g(b.x_, b.y_, b.isDiagonal(), D2_bis.size());
+    g.SetCriticalCoordinates(b.coords_[0], b.coords_[1], b.coords_[2]);
     g.setPrice(0);
-    D2_bis.addGood(g);
+    D2_bis.emplace_back(g);
   }
 
-  PersistenceDiagramAuction<double> auction(
+  PersistenceDiagramAuction auction(
     this->Wasserstein, this->Alpha, this->Lambda, this->DeltaLim, true);
-  auction.BuildAuctionDiagrams(&D1, &D2_bis);
+  auction.BuildAuctionDiagrams(D1, D2_bis);
   double loss;
   loss = auction.run();
   return loss;

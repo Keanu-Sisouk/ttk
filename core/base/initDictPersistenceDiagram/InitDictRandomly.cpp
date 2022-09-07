@@ -5,8 +5,8 @@
 
 using namespace ttk;
 
-void InitRandomDict::execute(std::vector<Diagram> &DictDiagrams,
-                             const std::vector<Diagram> &datas,
+void InitRandomDict::execute(std::vector<ttk::DiagramType> &DictDiagrams,
+                             const std::vector<ttk::DiagramType> &datas,
                              const int nbAtom,
                              const int seed) {
   int nDiags = datas.size();
@@ -17,7 +17,7 @@ void InitRandomDict::execute(std::vector<Diagram> &DictDiagrams,
   random_engine.seed(seed);
   ttk::shuffle(indices, random_engine);
   for(int i = 0; i < nbAtom; ++i) {
-    const Diagram &atom = datas[indices[i]];
+    const auto &atom = datas[indices[i]];
     DictDiagrams[i] = atom;
   }
 }

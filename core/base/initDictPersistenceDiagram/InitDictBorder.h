@@ -4,42 +4,15 @@
 //#include <PersistenceDiagramBarycenter.h>
 #include <PersistenceDiagramAuction.h>
 #include <PersistenceDiagramDistanceMatrix.h>
+#include <PersistenceDiagramUtils.h>
 #include <Wrapper.h>
+
 #include <algorithm>
 #include <array>
 
 namespace ttk {
-  using DiagramTuple = std::tuple<
-    /** Vertex Id of low pair element */
-    ttk::SimplexId,
-    /** Critical Type of low pair element */
-    ttk::CriticalType,
-    /** Vertex Id of high pair element */
-    ttk::SimplexId,
-    /** Critical Type of high pair element */
-    ttk::CriticalType,
-    /** Pair persistence value */
-    double,
-    /** Pair type */
-    ttk::SimplexId,
-    /** Pair birth */
-    double,
-    /** Low pair element 3D coordinates */
-    // TODO use std::array<float, 3>
-    float,
-    float,
-    float,
-    /** Pair death */
-    double,
-    /** High pair element 3D coordinates */
-    // TODO use std::array<float, 3>
-    float,
-    float,
-    float>;
-
-  using Diagram = std::vector<DiagramTuple>;
   using Matrix = std::vector<std::vector<double>>;
-  using MatchingTuple = std::tuple<ttk::SimplexId, ttk::SimplexId, double>;
+
   class InitFarBorderDict : public Debug {
 
   public:
@@ -47,21 +20,20 @@ namespace ttk {
       this->setDebugMsgPrefix("InitFarBorderDict");
     };
 
-    void execute(std::vector<Diagram> &DictDiagrams,
-                 const std::vector<Diagram> &datas,
+    void execute(std::vector<ttk::DiagramType> &DictDiagrams,
+                 const std::vector<ttk::DiagramType> &datas,
                  const int nbAtoms,
                  bool do_min_,
                  bool do_sad_,
                  bool do_max_);
 
   protected:
-    void
-      setBidderDiagrams(const size_t nInputs,
-                        std::vector<Diagram> &inputDiagrams,
-                        std::vector<BidderDiagram<double>> &bidder_diags) const;
+    void setBidderDiagrams(const size_t nInputs,
+                           std::vector<ttk::DiagramType> &inputDiagrams,
+                           std::vector<BidderDiagram> &bidder_diags) const;
 
-    double computeDistance(const BidderDiagram<double> &D1,
-                           const BidderDiagram<double> &D2) const;
+    double computeDistance(const BidderDiagram &D1,
+                           const BidderDiagram &D2) const;
 
     int getNextIndex(const Matrix &distMatrix,
                      const std::vector<int> &indices) const;
