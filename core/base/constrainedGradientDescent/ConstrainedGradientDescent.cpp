@@ -9,9 +9,6 @@
 
 using namespace ttk;
 
-
-
-
 void ConstrainedGradientDescent::executeWeightsProjected(
   std::vector<Matrix> &hessianList,
   std::vector<double> &weights,
@@ -19,24 +16,25 @@ void ConstrainedGradientDescent::executeWeightsProjected(
   const int epoch,
   const int nb_points,
   bool MaxEigenValue) {
-  gradientDescentWeights(hessianList, weights, grad, epoch, nb_points, MaxEigenValue);
+  gradientDescentWeights(
+    hessianList, weights, grad, epoch, nb_points, MaxEigenValue);
   projectionOnSimplex(weights);
 }
 
 void ConstrainedGradientDescent::executeAtoms(
-  std::vector<Diagram> &DictDiagrams,
-  const std::vector<std::vector<MatchingTuple>> &matchings,
-  const Diagram &Barycenter,
+  std::vector<ttk::DiagramType> &DictDiagrams,
+  const std::vector<std::vector<ttk::MatchingType>> &matchings,
+  const ttk::DiagramType &Barycenter,
   const std::vector<Matrix> &gradsLists,
   const int nb_points,
   const std::vector<int> &checkerAtomsExt,
   int epoch,
   std::vector<std::vector<int>> &projForDiag,
-  std::vector<DiagramTuple> &featuresToAdd,
+  ttk::DiagramType &featuresToAdd,
   std::vector<std::array<double, 2>> &projLocations,
   std::vector<std::vector<double>> &vectorForProjContrib,
   std::vector<std::vector<std::array<double, 2>>> &pairToAddGradList,
-  std::vector<DiagramTuple> &infoToAdd) {
+  ttk::DiagramType &infoToAdd) {
   gradientDescentAtoms(DictDiagrams, matchings, Barycenter, gradsLists,
                        nb_points, checkerAtomsExt, epoch, projForDiag,
                        featuresToAdd, projLocations, vectorForProjContrib,
@@ -89,15 +87,15 @@ void ConstrainedGradientDescent::gradientDescentWeights(
 #ifndef TTK_ENABLE_EIGEN
   MaxEigenValue = false;
 #endif // TTK_ENABLE_EIGEN
-  if(MaxEigenValue){
+  if(MaxEigenValue) {
 #ifdef TTK_ENABLE_EIGEN
-    for(size_t i = 0; i < hessianList.size(); ++i){
+    for(size_t i = 0; i < hessianList.size(); ++i) {
       auto &hessian = hessianList[i];
       int m = hessian.size();
-      Eigen::MatrixXd H(m,m);
-      for(size_t j = 0 ; j < hessian.size() ; ++j){
-        for(size_t k = 0 ; k < hessian.size() ; ++k){
-          H(j,k) = hessian[j][k];
+      Eigen::MatrixXd H(m, m);
+      for(size_t j = 0; j < hessian.size(); ++j) {
+        for(size_t k = 0; k < hessian.size(); ++k) {
+          H(j, k) = hessian[j][k];
         }
       }
       Eigen::EigenSolver<Eigen::MatrixXd> es;
@@ -115,9 +113,9 @@ void ConstrainedGradientDescent::gradientDescentWeights(
       }
     }
   }
-  //std::cout << "REGULARITY COEFF: " + std::to_string(L) << std::endl;
+  // std::cout << "REGULARITY COEFF: " + std::to_string(L) << std::endl;
   step = 1. / L;
-  //std::cout << "STEP" << step << std::endl;
+  // std::cout << "STEP" << step << std::endl;
 
   for(int i = 0; i < n; ++i) {
     weights[i] = weights[i] - step * grad[i];
@@ -130,38 +128,36 @@ void ConstrainedGradientDescent::gradientDescentWeights(
 // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
 
 void ConstrainedGradientDescent::gradientDescentAtoms(
-  std::vector<Diagram> &DictDiagrams,
-  const std::vector<std::vector<MatchingTuple>> &matchings,
-  const Diagram &Barycenter,
+  std::vector<ttk::DiagramType> &DictDiagrams,
+  const std::vector<std::vector<ttk::MatchingType>> &matchings,
+  const ttk::DiagramType &Barycenter,
   const std::vector<Matrix> &gradsLists,
   const int nb_points,
   const std::vector<int> &checkerAtomsExt,
   int epoch,
   std::vector<std::vector<int>> &projForDiag,
-  std::vector<DiagramTuple> &featuresToAdd,
+  ttk::DiagramType &featuresToAdd,
   std::vector<std::array<double, 2>> &projLocations,
   std::vector<std::vector<double>> &vectorForProjContrib,
   std::vector<std::vector<std::array<double, 2>>> &pairToAddGradList,
-  std::vector<DiagramTuple> &infoToAdd) {
+  ttk::DiagramType &infoToAdd) {
 
   // Here vector of diagramTuple because it is not a persistence diagram per
   // say.
   // we get the right pairs to update for each barycenter pair.
 
   std::vector<double> miniBirth(matchings.size());
-  for(size_t i = 0 ; i < matchings.size() ; ++i){
+  for(size_t i = 0; i < matchings.size(); ++i) {
     auto &t = DictDiagrams[i][0];
-    miniBirth[i] = std::get<6>(t);
+    miniBirth[i] = t.birth.sfValue;
   }
 
   std::vector<std::vector<std::array<double, 2>>> grad_list(Barycenter.size());
   std::vector<std::vector<double>> projectionsBuffer(Barycenter.size());
 
-
-  for(size_t i = 0 ; i < Barycenter.size() ; ++i){
+  for(size_t i = 0; i < Barycenter.size(); ++i) {
     projectionsBuffer[i].resize(matchings.size());
   }
-
 
   for(size_t i = 0; i < grad_list.size(); ++i) {
     grad_list[i].resize(matchings.size());
@@ -183,7 +179,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
 
   for(size_t i = 0; i < matchings.size(); ++i) {
     for(size_t j = 0; j < matchings[i].size(); ++j) {
-      const MatchingTuple &t = matchings[i][j];
+      const auto &t = matchings[i][j];
       // Id in atom
       const SimplexId Id1 = std::get<0>(t);
       // Id in barycenter
@@ -193,10 +189,10 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
         continue;
       } else {
         if(Id1 < 0) {
-          const DiagramTuple &t3 = Barycenter[Id2];
+          const auto &t3 = Barycenter[Id2];
           auto &point = grad_list[Id2][i];
-          const double birth_barycenter = std::get<6>(t3);
-          const double death_barycenter = std::get<10>(t3);
+          const double birth_barycenter = t3.birth.sfValue;
+          const double death_barycenter = t3.death.sfValue;
           const double birth_death_atom
             = birth_barycenter + (death_barycenter - birth_barycenter) / 2.;
           point[0] = birth_death_atom;
@@ -218,10 +214,10 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
 
         } else {
           // this->printMsg("====UPDATE GRADLIST========");
-          const DiagramTuple &t2 = DictDiagrams[i][Id1];
+          const auto &t2 = DictDiagrams[i][Id1];
           auto &point = grad_list[Id2][i];
-          const double birth_atom = std::get<6>(t2);
-          const double death_atom = std::get<10>(t2);
+          const double birth_atom = t2.birth.sfValue;
+          const double death_atom = t2.death.sfValue;
           point[0] = birth_atom;
           point[1] = death_atom;
           // checker[Id2].push_back(i);
@@ -313,11 +309,10 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
 
       double step;
       double factEquiv = static_cast<double>(DictDiagrams.size());
-      //double factEquiv = 1.;
-      //step = 1. / (sqrt(factEquiv) * 1e1);
-      step = 1. / ( 2. * 2.* factEquiv);
+      // double factEquiv = 1.;
+      // step = 1. / (sqrt(factEquiv) * 1e1);
+      step = 1. / (2. * 2. * factEquiv);
       // double factEquiv = DictDiagrams.size();
-
 
       for(size_t p = 0; p < checker[i].size(); ++p) {
         if(pos2[p]) {
@@ -363,7 +358,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
       continue;
     } else {
       if(i < Barycenter.size()) {
-        const DiagramTuple &infos = Barycenter[i];
+        const auto &infos = Barycenter[i];
         for(size_t j = 0; j < checker[i].size(); ++j) {
           auto &tracker_temp = tracker_match[i][j];
           if(tracker_diagonal[i][j] == 1 || tracker_temp == -1
@@ -381,45 +376,40 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
             for(size_t m = 0; m < DictDiagrams.size(); ++m) {
               projAndIndex[m] = tracker_match[i][m];
             }
-            //projAndIndex[DictDiagrams.size()] = atomIndex;
-            //projForDiag.push_back(projAndIndex);
-            //featuresToAdd.push_back(infos);
-            //projLocations.push_back(grad_list[i][index]);
-            //vectorForProjContrib.push_back(gradsLists[i][index]);
-            // DictDiagrams[index].push_back(newPair);
-            //}
+            // projAndIndex[DictDiagrams.size()] = atomIndex;
+            // projForDiag.push_back(projAndIndex);
+            // featuresToAdd.push_back(infos);
+            // projLocations.push_back(grad_list[i][index]);
+            // vectorForProjContrib.push_back(gradsLists[i][index]);
+            //  DictDiagrams[index].push_back(newPair);
+            // }
 
           } else {
             auto &index = checker[i][j];
             auto &t2 = grad_list[i][index];
 
-            DiagramTuple &t1 = DictDiagrams[index][tracker_temp];
+            auto &t1 = DictDiagrams[index][tracker_temp];
 
-
-
-            if (t2[0] < miniBirth[index]){
-              std::get<6>(t1) = miniBirth[index];
+            if(t2[0] < miniBirth[index]) {
+              t1.birth.sfValue = miniBirth[index];
             } else {
-              std::get<6>(t1) = t2[0];
+              t1.birth.sfValue = t2[0];
             }
-            if (t2[1] < t2[0]){
-              //count +=1;
+            if(t2[1] < t2[0]) {
+              // count +=1;
 
-              std::get<6>(t1) = t2[0];
-              //std::get<10>(t1) = t2[0];
-              //std::cout << "Under diag" << std::endl;
+              t1.birth.sfValue = t2[0];
+              // std::get<10>(t1) = t2[0];
+              // std::cout << "Under diag" << std::endl;
               continue;
             } else {
-              std::get<10>(t1) = t2[1];
+              t1.death.sfValue = t2[1];
             }
-            
-
           }
         }
       } else {
-        const DiagramTuple &infos
-          = infoToAdd[static_cast<int>(i)
-                      - static_cast<int>(Barycenter.size())];
+        const auto &infos = infoToAdd[static_cast<int>(i)
+                                      - static_cast<int>(Barycenter.size())];
 
         for(size_t j = 0; j < checker[i].size(); ++j) {
           auto &tracker_temp = tracker_match[i][j];
@@ -449,25 +439,24 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
           } else {
             auto &index = checker[i][j];
             auto &t2 = grad_list[i][index];
-            DiagramTuple &t1 = DictDiagrams[index][tracker_temp]; 
-            if (t2[0] < miniBirth[index]){
-              std::get<6>(t1) = miniBirth[index];
+            auto &t1 = DictDiagrams[index][tracker_temp];
+            if(t2[0] < miniBirth[index]) {
+              t1.birth.sfValue = miniBirth[index];
             } else {
-              std::get<6>(t1) = t2[0];
+              t1.birth.sfValue = t2[0];
             }
-            if (t2[1] < t2[0]){
-              //count+=1;
-              std::get<6>(t1) = t2[0];
-              //std::cout << "Under diag" << std::endl;
+            if(t2[1] < t2[0]) {
+              // count+=1;
+              t1.birth.sfValue = t2[0];
+              // std::cout << "Under diag" << std::endl;
               continue;
             } else {
-              std::get<10>(t1) = t2[1];
+              t1.death.sfValue = t2[1];
             }
-
           }
         }
       }
     }
   }
-  //std::cout << "COUNT OF UNDER DIAG " << count << std::endl;
+  // std::cout << "COUNT OF UNDER DIAG " << count << std::endl;
 }

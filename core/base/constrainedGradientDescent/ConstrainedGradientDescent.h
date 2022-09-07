@@ -1,44 +1,15 @@
 #pragma once
 
-//#include <PDClustering.h>
-//#include <PersistenceDiagramBarycenter.h>
+#include <PersistenceDiagramUtils.h>
 #include <Wrapper.h>
+
 #include <algorithm>
 #include <array>
 #include <tuple>
 
 namespace ttk {
-  using DiagramTuple = std::tuple<
-    /** Vertex Id of low pair element */
-    ttk::SimplexId,
-    /** Critical Type of low pair element */
-    ttk::CriticalType,
-    /** Vertex Id of high pair element */
-    ttk::SimplexId,
-    /** Critical Type of high pair element */
-    ttk::CriticalType,
-    /** Pair persistence value */
-    double,
-    /** Pair type */
-    ttk::SimplexId,
-    /** Pair birth */
-    double,
-    /** Low pair element 3D coordinates */
-    // TODO use std::array<float, 3>
-    float,
-    float,
-    float,
-    /** Pair death */
-    double,
-    /** High pair element 3D coordinates */
-    // TODO use std::array<float, 3>
-    float,
-    float,
-    float>;
-
-  using Diagram = std::vector<DiagramTuple>;
   using Matrix = std::vector<std::vector<double>>;
-  using MatchingTuple = std::tuple<ttk::SimplexId, ttk::SimplexId, double>;
+
   class ConstrainedGradientDescent : public Debug {
 
   public:
@@ -54,19 +25,19 @@ namespace ttk {
                                  bool MaxEigenValue);
 
     void executeAtoms(
-      std::vector<Diagram> &DictDiagrams,
-      const std::vector<std::vector<MatchingTuple>> &matchings,
-      const Diagram &Barycenter,
+      std::vector<ttk::DiagramType> &DictDiagrams,
+      const std::vector<std::vector<ttk::MatchingType>> &matchings,
+      const ttk::DiagramType &Barycenter,
       const std::vector<Matrix> &gradsLists,
       const int nb_points,
       const std::vector<int> &checkerAtomsExt,
       int epoch,
       std::vector<std::vector<int>> &projForDiag,
-      std::vector<DiagramTuple> &featuresToAdd,
+      ttk::DiagramType &featuresToAdd,
       std::vector<std::array<double, 2>> &projLocations,
       std::vector<std::vector<double>> &vectorForProjContrib,
       std::vector<std::vector<std::array<double, 2>>> &pairToAddGradList,
-      std::vector<DiagramTuple> &infoToAdd);
+      ttk::DiagramType &infoToAdd);
     // void executeAtoms(std::vector<Diagram> &DictDiagrams);
 
     // inline void setNbAtoms(const int nbAtoms) {
@@ -84,19 +55,19 @@ namespace ttk {
                                 bool MaxEigenValue);
 
     void gradientDescentAtoms(
-      std::vector<Diagram> &DictDiagrams,
-      const std::vector<std::vector<MatchingTuple>> &matchings,
-      const Diagram &Barycenter,
+      std::vector<ttk::DiagramType> &DictDiagrams,
+      const std::vector<std::vector<ttk::MatchingType>> &matchings,
+      const ttk::DiagramType &Barycenter,
       const std::vector<Matrix> &gradsLists,
       const int nb_points,
       const std::vector<int> &checkerAtomsExt,
       int epoch,
       std::vector<std::vector<int>> &projForDiag,
-      std::vector<DiagramTuple> &featuresToAdd,
+      ttk::DiagramType &featuresToAdd,
       std::vector<std::array<double, 2>> &projLocations,
       std::vector<std::vector<double>> &vectorForProjContrib,
       std::vector<std::vector<std::array<double, 2>>> &pairToAddGradList,
-      std::vector<DiagramTuple> &infoToAdd);
+      ttk::DiagramType &infoToAdd);
   };
 
 } // namespace ttk

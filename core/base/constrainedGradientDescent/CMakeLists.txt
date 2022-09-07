@@ -5,6 +5,7 @@ ttk_add_base_library(constrainedGradientDescent
     ConstrainedGradientDescent.h
   DEPENDS
     common
+    persistenceDiagram
 )
 
 if(TTK_ENABLE_EIGEN)
