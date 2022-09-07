@@ -19,16 +19,15 @@
 
 // VTK includes
 #include <vtkMultiBlockDataSetAlgorithm.h>
-#include <vtkNew.h>
 
 // VTK Module
 #include <ttkWeightedBarycenterModule.h>
 
 // TTK includes
-#include <PersistenceDiagramBarycenter.h>
 #include <PersistenceDiagramClustering.h>
 #include <ttkAlgorithm.h>
 #include <ttkMacros.h>
+#include <ttkPersistenceDiagramUtils.h>
 
 class vtkUnstructuredGrid;
 
@@ -129,25 +128,6 @@ public:
   ttkSetEnumMacro(Method, METHOD);
   vtkGetEnumMacro(Method, METHOD);
 
-  // TODO: CONVERT TO A STRUCT!
-  using pairTuple = std::tuple<ttk::SimplexId, // birth vertex id
-                               ttk::CriticalType, // birth critical type
-                               ttk::SimplexId, // death vertex id
-                               ttk::CriticalType, // death critical type
-                               double, // persistence
-                               ttk::SimplexId, // pair dimension
-                               double, // birth scalar field value
-                               float,
-                               float,
-                               float, // birth vertex 3D coordinates
-                               double, // death scalar field value
-                               float,
-                               float,
-                               float // death vertex 3D coordinates
-                               >;
-  using diagramType = std::vector<pairTuple>;
-  using matchingType = std::tuple<ttk::SimplexId, ttk::SimplexId, double>;
-
 protected:
   ttkWeightedBarycenter();
 
@@ -162,35 +142,30 @@ protected:
                                const double spacing,
                                const double max_persistence) const;
   void outputCentroids(vtkMultiBlockDataSet *output,
-                       const std::vector<diagramType> &final_centroids,
+                       const std::vector<ttk::DiagramType> &final_centroids,
                        const DISPLAY dm,
                        const double spacing,
                        const double max_persistence) const;
-  void outputMatchings(vtkMultiBlockDataSet *output,
-                       const size_t nClusters,
-                       const std::vector<diagramType> &diags,
-                       const std::vector<std::vector<std::vector<matchingType>>>
-                         &matchingsPerCluster,
-                       const std::vector<diagramType> &centroids,
-                       const std::vector<int> &inv_clustering,
-                       const ttkWeightedBarycenter::DISPLAY dm,
-                       const double spacing,
-                       const double max_persistence) const;
-
-  void VTUToDiagram(diagramType &diagram, vtkUnstructuredGrid *vtu) const;
-  void diagramToVTU(vtkUnstructuredGrid *output,
-                    const diagramType &diagram,
-                    const int cid,
-                    const double max_persistence) const;
+  void outputMatchings(
+    vtkMultiBlockDataSet *output,
+    const size_t nClusters,
+    const std::vector<ttk::DiagramType> &diags,
+    const std::vector<std::vector<std::vector<ttk::MatchingType>>>
+      &matchingsPerCluster,
+    const std::vector<ttk::DiagramType> &centroids,
+    const std::vector<int> &inv_clustering,
+    const ttkWeightedBarycenter::DISPLAY dm,
+    const double spacing,
+    const double max_persistence) const;
 
   int RequestData(vtkInformation *request,
                   vtkInformationVector **inputVector,
                   vtkInformationVector *outputVector) override;
 
 private:
-  std::vector<diagramType> intermediateDiagrams_{};
-  std::vector<std::vector<std::vector<matchingType>>> all_matchings_{};
-  std::vector<diagramType> final_centroids_{};
+  std::vector<ttk::DiagramType> intermediateDiagrams_{};
+  std::vector<std::vector<std::vector<ttk::MatchingType>>> all_matchings_{};
+  std::vector<ttk::DiagramType> final_centroids_{};
   std::vector<int> inv_clustering_{};
 
   std::string DataString{""};

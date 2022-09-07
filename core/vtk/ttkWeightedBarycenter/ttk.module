@@ -6,4 +6,5 @@ HEADERS
   ttkWeightedBarycenter.h
 DEPENDS
   ttkAlgorithm
+  ttkPersistenceDiagram
   persistenceDiagramClustering

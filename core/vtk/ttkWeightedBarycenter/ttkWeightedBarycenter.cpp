@@ -11,9 +11,9 @@
 #include <vtkMultiBlockDataSet.h>
 #include <vtkNew.h>
 #include <vtkPointData.h>
-#include <vtkTransform.h>
-#include <vtkTransformFilter.h>
 #include <vtkUnstructuredGrid.h>
+
+#include <numeric>
 
 using namespace ttk;
 
@@ -92,8 +92,8 @@ int ttkWeightedBarycenter::RequestData(vtkInformation * /*request*/,
     std::vector<double> max_persistences(numInputs);
 
     for(int i = 0; i < numInputs; i++) {
-      this->VTUToDiagram(this->intermediateDiagrams_[i], input[i]);
-      max_persistences[i] = std::get<4>(intermediateDiagrams_[i][0]);
+      VTUToDiagram(this->intermediateDiagrams_[i], input[i], *this);
+      max_persistences[i] = intermediateDiagrams_[i][0].persistence;
     }
 
     this->max_dimension_total_
@@ -127,16 +127,16 @@ int ttkWeightedBarycenter::RequestData(vtkInformation * /*request*/,
 
         weights.resize(vstrings.size());
 
-        for(int iweight = 0; iweight < vstrings.size(); iweight++) {
+        for(size_t iweight = 0; iweight < vstrings.size(); iweight++) {
           double w = std::stod(vstrings[iweight]);
           weights[iweight] = w;
         }
       }
 
-      diagramType barycenter;
-      std::vector<std::vector<matchingType>> matchings;
+      ttk::DiagramType barycenter;
+      std::vector<std::vector<ttk::MatchingType>> matchings;
 
-      computeWeightedBarycenter<double>(
+      computeWeightedBarycenter(
         intermediateDiagrams_, weights, barycenter, matchings, true);
 
       std::cout << "PRINT MATCHINGS" << std::endl;
@@ -160,13 +160,12 @@ int ttkWeightedBarycenter::RequestData(vtkInformation * /*request*/,
       for(int i_input = 0; i_input < numInputs; i_input++) {
         inv_clustering_[i_input] = 0;
       }
-      PersistenceDiagramBarycenter<double> pdBarycenter;
+      PersistenceDiagramBarycenter pdBarycenter;
 
       const auto wassersteinMetric = std::to_string(WassersteinMetric);
       pdBarycenter.setWasserstein(wassersteinMetric);
       pdBarycenter.setMethod(2);
       pdBarycenter.setNumberOfInputs(numInputs);
-      pdBarycenter.setTimeLimit(TimeLimit);
       pdBarycenter.setDeterministic(Deterministic);
       pdBarycenter.setUseProgressive(UseProgressive);
       pdBarycenter.setDebugLevel(debugLevel_);
@@ -243,262 +242,6 @@ int ttkWeightedBarycenter::RequestData(vtkInformation * /*request*/,
   return 1;
 }
 
-void ttkWeightedBarycenter::VTUToDiagram(diagramType &diagram,
-                                         vtkUnstructuredGrid *vtu) const {
-
-  const auto pd = vtu->GetPointData();
-  const auto cd = vtu->GetCellData();
-
-  if(pd == nullptr) {
-    this->printErr("VTU diagram with NULL Point Data");
-    return;
-  }
-  if(cd == nullptr) {
-    this->printErr("VTU diagram with NULL Cell Data");
-    return;
-  }
-
-  // cell data
-  const auto pairId = vtkIntArray::SafeDownCast(cd->GetArray("PairIdentifier"));
-  const auto pairType = vtkIntArray::SafeDownCast(cd->GetArray("PairType"));
-  const auto pairPers
-    = vtkDoubleArray::SafeDownCast(cd->GetArray("Persistence"));
-
-  // point data
-  const auto vertexId
-    = vtkIntArray::SafeDownCast(pd->GetArray(ttk::VertexScalarFieldName));
-  const auto critType = vtkIntArray::SafeDownCast(pd->GetArray("CriticalType"));
-  const auto birthScalars = vtkDoubleArray::SafeDownCast(pd->GetArray("Birth"));
-  const auto deathScalars = vtkDoubleArray::SafeDownCast(pd->GetArray("Death"));
-  const auto coords = vtkFloatArray::SafeDownCast(pd->GetArray("Coordinates"));
-
-  const auto points = vtu->GetPoints();
-
-  const bool embed = birthScalars != nullptr && deathScalars != nullptr;
-
-  if(!embed && coords == nullptr) {
-    this->printErr("Missing coordinates array on non-embedded diagram");
-    return;
-  }
-
-  int nPairs = pairId->GetNumberOfTuples();
-
-  // compact pairIds in [0, nPairs - 1] (diagonal excepted)
-  for(int i = 0; i < nPairs; i++) {
-    if(pairId->GetTuple1(i) != -1) {
-      pairId->SetTuple1(i, i);
-    }
-  }
-
-  // skip diagram diagonal if present (assuming it's the last pair in the
-  // diagram)
-  if(pairId->GetTuple1(nPairs - 1) == -1)
-    nPairs -= 1;
-
-  if(nPairs < 1 || vertexId == nullptr || pairId == nullptr
-     || critType == nullptr || pairPers == nullptr || pairType == nullptr
-     || points == nullptr) {
-    this->printErr("Either no pairs in diagram or some array is NULL");
-    return;
-  }
-
-  if(NumberOfClusters == 1) {
-    diagram.resize(nPairs);
-  } else {
-    diagram.resize(nPairs + 1);
-  }
-
-  // count the number of pairs whose index is >= nPairs
-  int nbNonCompact = 0;
-
-  // skip diagonal cell (corresponding points already dealt with)
-  for(int i = 0; i < nPairs; ++i) {
-
-    const int v0 = vertexId->GetValue(2 * i);
-    const int v1 = vertexId->GetValue(2 * i + 1);
-    const int ct0 = critType->GetValue(2 * i);
-    const int ct1 = critType->GetValue(2 * i + 1);
-
-    const int pId = pairId->GetValue(i);
-    const int pType = pairType->GetValue(i);
-    const double pers = pairPers->GetValue(i);
-
-    std::array<double, 3> coordsBirth{}, coordsDeath{};
-    double birth, death;
-
-    if(embed) {
-      points->GetPoint(2 * i + 0, coordsBirth.data());
-      points->GetPoint(2 * i + 1, coordsDeath.data());
-      birth = birthScalars->GetValue(2 * i + 0);
-      death = deathScalars->GetValue(2 * i + 1);
-    } else {
-      coords->GetTuple(2 * i + 0, coordsBirth.data());
-      coords->GetTuple(2 * i + 1, coordsDeath.data());
-      birth = points->GetPoint(2 * i + 0)[0];
-      death = points->GetPoint(2 * i + 1)[1];
-    }
-
-    if(pId != -1 && pId < nPairs) {
-
-      if(pId == 0) {
-        // deal with the global min-max pair separately
-        // (what do we do with other infinite pairs?)
-
-        if(NumberOfClusters == 1) {
-          diagram[0] = std::make_tuple(
-            v0, CriticalType::Local_minimum, v1, CriticalType::Local_maximum,
-            pers, pType, birth, coordsBirth[0], coordsBirth[1], coordsBirth[2],
-            death, coordsDeath[0], coordsDeath[1], coordsDeath[2]);
-        } else {
-          // duplicate the global min-max pair into two: one min-saddle pair and
-          // one saddle-max pair
-          diagram[0] = std::make_tuple(
-            v0, CriticalType::Local_minimum, v1, CriticalType::Saddle1, pers,
-            pType, birth, coordsBirth[0], coordsBirth[1], coordsBirth[2], death,
-            coordsDeath[0], coordsDeath[1], coordsDeath[2]);
-          // store the saddle max pair at the vector end
-          diagram[nPairs] = std::make_tuple(
-            v0, CriticalType::Saddle1, v1, CriticalType::Local_maximum, pers,
-            pType, birth, coordsBirth[0], coordsBirth[1], coordsBirth[2], death,
-            coordsDeath[0], coordsDeath[1], coordsDeath[2]);
-        }
-
-      } else {
-        // all other pairs
-        diagram[pId] = std::make_tuple(
-          v0, static_cast<CriticalType>(ct0), v1,
-          static_cast<CriticalType>(ct1), pers, pType, birth, coordsBirth[0],
-          coordsBirth[1], coordsBirth[2], death, coordsDeath[0], coordsDeath[1],
-          coordsDeath[2]);
-      }
-    }
-
-    if(pId >= nPairs) {
-      nbNonCompact++;
-    }
-  }
-
-  if(nbNonCompact > 0) {
-    this->printWrn("Missed " + std::to_string(nbNonCompact)
-                   + " pairs due to non-compactness.");
-  }
-}
-
-void ttkWeightedBarycenter::diagramToVTU(vtkUnstructuredGrid *output,
-                                         const diagramType &diagram,
-                                         const int cid,
-                                         const double max_persistence) const {
-
-  const auto nPoints = 2 * diagram.size();
-  if(nPoints == 0) {
-    this->printWrn("Diagram with no points");
-    return;
-  }
-
-  vtkNew<vtkPoints> points{};
-  points->SetNumberOfPoints(nPoints);
-  output->SetPoints(points);
-
-  // point data
-  vtkNew<vtkIntArray> critType{};
-  critType->SetName("CriticalType");
-  critType->SetNumberOfTuples(nPoints);
-  output->GetPointData()->AddArray(critType);
-
-  vtkNew<vtkIntArray> clusterId{};
-  clusterId->SetName("ClusterID");
-  clusterId->SetNumberOfComponents(1);
-  clusterId->SetNumberOfTuples(nPoints);
-  clusterId->Fill(cid);
-  output->GetPointData()->AddArray(clusterId);
-
-  vtkNew<vtkFloatArray> coords{};
-  coords->SetNumberOfComponents(3);
-  coords->SetName("Coordinates");
-  coords->SetNumberOfTuples(nPoints);
-  output->GetPointData()->AddArray(coords);
-
-  vtkNew<vtkDoubleArray> pointPers{};
-  pointPers->SetName("Persistence");
-  pointPers->SetNumberOfTuples(nPoints);
-  output->GetPointData()->AddArray(pointPers);
-
-  vtkNew<ttkSimplexIdTypeArray> vsf{};
-  vsf->SetName(ttk::VertexScalarFieldName);
-  vsf->SetNumberOfTuples(nPoints);
-  output->GetPointData()->AddArray(vsf);
-
-  // cell data
-  vtkNew<vtkIntArray> pairId{};
-  pairId->SetName("PairIdentifier");
-  pairId->SetNumberOfTuples(diagram.size() + 1);
-  output->GetCellData()->AddArray(pairId);
-
-  vtkNew<vtkIntArray> pairType{};
-  pairType->SetName("PairType");
-  pairType->SetNumberOfTuples(diagram.size() + 1);
-  output->GetCellData()->AddArray(pairType);
-
-  vtkNew<vtkDoubleArray> pairPers{};
-  pairPers->SetName("Persistence");
-  pairPers->SetNumberOfTuples(diagram.size() + 1);
-  output->GetCellData()->AddArray(pairPers);
-
-  for(size_t j = 0; j < diagram.size(); ++j) {
-    const auto &pair{diagram[j]};
-    const auto birth{std::get<6>(pair)};
-    const auto death{std::get<10>(pair)};
-    const auto birtVertId{std::get<0>(pair)};
-    const auto deathVertId{std::get<2>(pair)};
-    const auto pType{std::get<5>(pair)};
-    const auto birthType{std::get<1>(pair)};
-    const auto deathType{std::get<3>(pair)};
-    std::array<float, 3> coordsBirth{
-      std::get<7>(pair), std::get<8>(pair), std::get<9>(pair)};
-    std::array<float, 3> coordsDeath{
-      std::get<11>(pair), std::get<12>(pair), std::get<13>(pair)};
-
-    // cell data
-    pairId->SetTuple1(j, j);
-    pairType->SetTuple1(j, pType);
-    pairPers->SetTuple1(j, death - birth);
-
-    // point data
-    coords->SetTuple(2 * j + 0, coordsBirth.data());
-    coords->SetTuple(2 * j + 1, coordsDeath.data());
-    pointPers->SetTuple1(2 * j + 0, death - birth);
-    pointPers->SetTuple1(2 * j + 1, death - birth);
-    critType->SetTuple1(2 * j + 0, static_cast<int>(birthType));
-    critType->SetTuple1(2 * j + 1, static_cast<int>(deathType));
-    vsf->SetTuple1(2 * j + 0, birtVertId);
-    vsf->SetTuple1(2 * j + 1, deathVertId);
-
-    points->SetPoint(2 * j + 0, birth, birth, 0);
-    points->SetPoint(2 * j + 1, birth, death, 0);
-
-    const std::array<vtkIdType, 2> ids{
-      2 * static_cast<vtkIdType>(j) + 0,
-      2 * static_cast<vtkIdType>(j) + 1,
-    };
-    output->InsertNextCell(VTK_LINE, 2, ids.data());
-  }
-
-  // add diagonal
-  const auto minmax_birth = std::minmax_element(
-    diagram.begin(), diagram.end(), [](const pairTuple &a, const pairTuple &b) {
-      return std::get<6>(a) < std::get<6>(b);
-    });
-  const std::array<vtkIdType, 2> ids{
-    2 * (minmax_birth.first - diagram.begin()),
-    2 * (minmax_birth.second - diagram.begin()),
-  };
-  output->InsertNextCell(VTK_LINE, 2, ids.data());
-  pairId->SetTuple1(diagram.size(), -1);
-  pairType->SetTuple1(diagram.size(), -1);
-  // use twice the max persistence of all input diagrams...
-  pairPers->SetTuple1(diagram.size(), 2.0 * max_persistence);
-}
-
 void ttkWeightedBarycenter::outputClusteredDiagrams(
   vtkMultiBlockDataSet *output,
   const std::vector<vtkUnstructuredGrid *> &diags,
@@ -561,70 +304,56 @@ void ttkWeightedBarycenter::outputClusteredDiagrams(
 
     if(dm == DISPLAY::MATCHINGS && spacing > 0) {
       // translate diagrams along the Z axis
-      vtkNew<vtkTransform> tr{};
-      tr->Translate(0, 0, i == 0 ? -spacing : spacing);
-      vtkNew<vtkTransformFilter> trf{};
-      trf->SetTransform(tr);
-      trf->SetInputData(vtu);
-      trf->Update();
-      output->SetBlock(i, trf->GetOutputDataObject(0));
+      TranslateDiagram(
+        vtu, std::array<double, 3>{0, 0, i == 0 ? -spacing : spacing});
+      output->SetBlock(i, vtu);
     } else if(dm == DISPLAY::STARS && spacing > 0) {
       const auto c = inv_clustering[i];
       const auto angle = 2.0 * M_PI * static_cast<double>(diagIdInClust[i])
                          / static_cast<double>(clustSize[c]);
       // translate diagrams in the XY plane
-      vtkNew<vtkTransform> tr{};
-      tr->Translate(3.0 * (spacing + 0.2) * max_persistence * c
-                      + spacing * max_persistence * std::cos(angle) + 0.2,
-                    spacing * max_persistence * std::sin(angle), 0);
-      vtkNew<vtkTransformFilter> trf{};
-      trf->SetTransform(tr);
-      trf->SetInputData(vtu);
-      trf->Update();
-      output->SetBlock(i, trf->GetOutputDataObject(0));
-
-    } else {
-      // add diagram to output multi-block dataset
-      output->SetBlock(i, vtu);
+      TranslateDiagram(
+        vtu, std::array<double, 3>{
+               3.0 * (spacing + 0.2) * max_persistence * c
+                 + spacing * max_persistence * std::cos(angle) + 0.2,
+               spacing * max_persistence * std::sin(angle), 0});
     }
+    // add diagram to output multi-block dataset
+    output->SetBlock(i, vtu);
   }
 }
 
 void ttkWeightedBarycenter::outputCentroids(
   vtkMultiBlockDataSet *output,
-  const std::vector<diagramType> &final_centroids,
+  const std::vector<ttk::DiagramType> &final_centroids,
   const DISPLAY dm,
   const double spacing,
   const double max_persistence) const {
 
+  vtkNew<vtkDoubleArray> dummy{};
+
   for(size_t i = 0; i < final_centroids.size(); ++i) {
     vtkNew<vtkUnstructuredGrid> vtu{};
-    this->diagramToVTU(vtu, final_centroids[i], i, this->max_dimension_total_);
+    DiagramToVTU(vtu, final_centroids[i], dummy, *this, 3, false);
 
     if(dm == DISPLAY::STARS && spacing > 0) {
       // shift centroid along the X axis
-      vtkNew<vtkTransform> tr{};
-      tr->Translate(3.0 * (spacing + 0.2) * max_persistence * i, 0, 0);
-      vtkNew<vtkTransformFilter> trf{};
-      trf->SetTransform(tr);
-      trf->SetInputData(vtu);
-      trf->Update();
-      output->SetBlock(i, trf->GetOutputDataObject(0));
-
-    } else {
-      // add centroid to output multi-block dataset
-      output->SetBlock(i, vtu);
+      TranslateDiagram(
+        vtu, std::array<double, 3>{
+               3.0 * (spacing + 0.2) * max_persistence * i, 0, 0});
     }
+    // add centroid to output multi-block dataset
+    output->SetBlock(i, vtu);
   }
 }
 
 void ttkWeightedBarycenter::outputMatchings(
   vtkMultiBlockDataSet *output,
   const size_t nClusters,
-  const std::vector<diagramType> &diags,
-  const std::vector<std::vector<std::vector<matchingType>>>
+  const std::vector<ttk::DiagramType> &diags,
+  const std::vector<std::vector<std::vector<ttk::MatchingType>>>
     &matchingsPerCluster,
-  const std::vector<diagramType> &centroids,
+  const std::vector<ttk::DiagramType> &centroids,
   const std::vector<int> &inv_clustering,
   const DISPLAY dm,
   const double spacing,
@@ -721,18 +450,18 @@ void ttkWeightedBarycenter::outputMatchings(
       }
 
       const auto &p0{centroids[cid][goodId]};
-      std::array<double, 3> coords0{std::get<6>(p0), std::get<10>(p0), 0};
+      std::array<double, 3> coords0{p0.birth.sfValue, p0.death.sfValue, 0};
 
       std::array<double, 3> coords1{};
 
       if(bidderId >= 0) {
         const auto &p1{diag[bidderId]};
-        coords1[0] = std::get<6>(p1);
-        coords1[1] = std::get<10>(p1);
+        coords1[0] = p1.birth.sfValue;
+        coords1[1] = p1.death.sfValue;
         coords1[2] = 0;
         isDiagonal->SetTuple1(j, 0);
       } else {
-        double diagonal_projection = (std::get<6>(p0) + std::get<10>(p0)) / 2;
+        double diagonal_projection = (p0.birth.sfValue + p0.death.sfValue) / 2;
         coords1[0] = diagonal_projection;
         coords1[1] = diagonal_projection;
         coords1[2] = 0;
@@ -766,7 +495,7 @@ void ttkWeightedBarycenter::outputMatchings(
       diagIdVerts->SetTuple1(2 * j + 1, i);
       pointId->SetTuple1(2 * j + 0, goodId);
       pointId->SetTuple1(2 * j + 1, bidderId);
-      pairType->SetTuple1(j, std::get<5>(p0));
+      pairType->SetTuple1(j, p0.dim);
     }
 
     output->SetBlock(i, matchingsGrid);
