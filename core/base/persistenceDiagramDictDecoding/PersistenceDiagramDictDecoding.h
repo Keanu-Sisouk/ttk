@@ -18,7 +18,6 @@
 
 // ttk common includes
 #include <Debug.h>
-#include <PersistenceDiagramClustering.h>
 #include <PersistenceDiagramUtils.h>
 
 namespace ttk {

@@ -40,12 +40,6 @@ protected:
 
   int FillOutputPortInformation(int port, vtkInformation *info) override;
 
-  double getPersistenceDiagram(ttk::DiagramType &diagram,
-                               vtkUnstructuredGrid *CTPersistenceDiagram_);
-
-  void diagramToVTU(vtkUnstructuredGrid *output,
-                    const ttk::DiagramType &diagram,
-                    const double max_persistence) const;
   void outputDiagrams(vtkMultiBlockDataSet *output,
                       vtkTable *output_coordinates,
                       const std::vector<ttk::DiagramType> &diags,
@@ -55,12 +49,8 @@ protected:
                       const double spacing,
                       const double max_persistence) const;
 
-  double getMaxPersistence(ttk::DiagramType &diagram);
+  double getMaxPersistence(const ttk::DiagramType &diagram) const;
 
-  /**
-   * TODO 10: Pass VTK data to the base code and convert base code output to VTK
-   *          (see cpp file)
-   */
   int RequestData(vtkInformation *request,
                   vtkInformationVector **inputVector,
                   vtkInformationVector *outputVector) override;

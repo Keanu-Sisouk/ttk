@@ -1,14 +1,14 @@
+#include <PersistenceDiagramClustering.h>
 #include <PersistenceDiagramDictDecoding.h>
-#include <algorithm>
-using namespace ttk;
 
-void PersistenceDiagramDictDecoding::execute(
-  std::vector<Diagram> &dictDiagrams,
+void ttk::PersistenceDiagramDictDecoding::execute(
+  std::vector<ttk::DiagramType> &dictDiagrams,
   std::vector<std::vector<double>> &vectorWeights,
-  std::vector<Diagram> &Barycenters) const {
+  std::vector<ttk::DiagramType> &Barycenters) const {
 
   std::vector<std::vector<VectorMatchingTuple>> AllMatchingsAtoms(
     Barycenters.size());
+
   for(size_t i = 0; i < Barycenters.size(); ++i) {
     auto &barycenter = Barycenters[i];
     auto &weight = vectorWeights[i];
