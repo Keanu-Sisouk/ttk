@@ -107,7 +107,7 @@ void PersistenceDiagramDictEncoding::execute(
       for(size_t i = 0; i < intermediateDiagrams.size(); ++i) {
         auto &diag = intermediateDiagrams[i];
         auto &t = diag[0];
-        // double max_pers = std::get<10>(t) - std::get<6>(t);
+        // double max_pers = t.death.sfValue - t.birth.sfValue;
         double max_pers = getMaxPers(diag);
         std::cout << "MAX PERS" << max_pers << std::endl;
         auto &diagTemp = dataTemp[i];
@@ -120,10 +120,10 @@ void PersistenceDiagramDictEncoding::execute(
             continue;
           }
         }
-        // double max_pers = std::get<10>(t) - std::get<6>(t);
+        // double max_pers = t.death.sfValue - t.birth.sfValue;
         // diag.erase(std::remove_if(diag.begin() , diag.end(), [max_pers,
-        // percentage](DiagramTuple &t){ return (std::get<10>(t) -
-        // std::get<6>(t)) < percentage*max_pers;}), diag.end());
+        // percentage](DiagramTuple &t){ return (t.death.sfValue -
+        // t.birth.sfValue) < percentage*max_pers;}), diag.end());
         std::cout << "SIZE OF DIAG " << i << " IS: " << diagTemp.size()
                   << std::endl;
       }
@@ -185,32 +185,32 @@ void PersistenceDiagramDictEncoding::execute(
         // std::cout << "MAX PAIRS TO ADD " << max_pairs_to_add << std::endl;
         // std::cout << "TRIPLE WHAT" << m*q/100 << std::endl;
         // std::cout << "WHAT " << static_cast<int> (m*(q/100)) << std::endl;
-        double previousPers = std::get<10>(lastTuple) - std::get<6>(lastTuple);
+        double previousPers = lastTuple.death.sfValue - lastTuple.birth.sfValue;
         auto &t = diag[0];
         double max_pers = getMaxPers(diag);
-        // double max_pers = std::get<10>(t) - std::get<6>(t);
+        // double max_pers = t.death.sfValue - t.birth.sfValue;
         // auto &diagTemp = dataTemp[i];
         // dataTemp[i].push_back(t);
         for(size_t p = 0; p < diag.size(); ++p) {
           auto &t2 = diag[p];
 
-          if(percentage * max_pers <= (std::get<10>(t2) - std::get<6>(t2))
-             && (std::get<10>(t2) - std::get<6>(t2))
+          if(percentage * max_pers <= (t2.death.sfValue - t2.birth.sfValue)
+             && (t2.death.sfValue - t2.birth.sfValue)
                   < previousPerc * max_pers) {
             dataTemp[i].push_back(t2);
             counter += 1;
           }
 
-          // if((counter <= max_pairs_to_add) && ((std::get<10>(t2) -
-          // std::get<6>(t2)) < previousPers)) { dataTemp[i].push_back(t2);
+          // if((counter <= max_pairs_to_add) && ((t2.death.sfValue -
+          // t2.birth.sfValue) < previousPers)) { dataTemp[i].push_back(t2);
           // counter += 1;
           //}
         }
 
-        // double max_pers = std::get<10>(t) - std::get<6>(t);
+        // double max_pers = t.death.sfValue - t.birth.sfValue;
         // diag.erase(std::remove_if(diag.begin() , diag.end(), [max_pers,
-        // percentage](DiagramTuple &t){ return (std::get<10>(t) -
-        // std::get<6>(t)) < percentage*max_pers;}), diag.end());
+        // percentage](DiagramTuple &t){ return (t.death.sfValue -
+        // t.birth.sfValue) < percentage*max_pers;}), diag.end());
         std::cout << "SIZE OF DIAG " << i << " IS: " << diagTemp.size()
                   << std::endl;
       }
@@ -285,8 +285,8 @@ void PersistenceDiagramDictEncoding::method(
   //   std::cout << "Atom " << i << std::endl;
   //   for(size_t j = 0; j < dictDiagrams[i].size(); ++j) {
   //     DiagramTuple &t = dictDiagrams[i][j];
-  //     std::cout << "Pair atoms: " << std::get<6>(t) << ", " <<
-  //     std::get<10>(t)
+  //     std::cout << "Pair atoms: " << t.birth.sfValue << ", " <<
+  //     t.death.sfValue
   //               << std::endl;
   //   }
   // }
@@ -329,13 +329,13 @@ void PersistenceDiagramDictEncoding::method(
 #pragma omp parallel for num_threads(threadNumber_)
 #endif // TTK_ENABLE_OPENMP
   for(size_t i = 0; i < nDiags; i++) {
-    const Diagram &CTDiagram = intermediateDiagrams[i];
+    const ttk::DiagramType &CTDiagram = intermediateDiagrams[i];
 
     for(size_t j = 0; j < CTDiagram.size(); ++j) {
-      const DiagramTuple &t = CTDiagram[j];
-      const ttk::CriticalType nt1 = std::get<1>(t);
-      const ttk::CriticalType nt2 = std::get<3>(t);
-      const double pers = std::get<4>(t);
+      const ttk::PersistencePair &t = CTDiagram[j];
+      const ttk::CriticalType nt1 = t.birth.type;
+      const ttk::CriticalType nt2 = t.death.type;
+      const double pers = t.persistence;
       // maxDiagPersistence[i] = std::max(pers, maxDiagPersistence[i]);
 
       if(pers > 0) {
@@ -456,7 +456,7 @@ void PersistenceDiagramDictEncoding::method(
 #endif // TTK_ENABLE_OPENMP
     //////////////////////////////WEIGHTS///////////////////////////////////
     for(int i = 0; i < nDiags; ++i) {
-      Diagram &barycenter = Barycenters[i];
+      auto &barycenter = Barycenters[i];
       std::vector<double> &weight = vectorWeights[i];
       // double sum = 0.;
       // for(int q = 0; q < weight.size(); ++q) {
@@ -474,8 +474,8 @@ void PersistenceDiagramDictEncoding::method(
         dictDiagrams, weight, barycenter, matchings, ProgBarycenter);
       // std::cout << "Barycenter" << i << std::endl;
       // for(int j = 0; j < barycenter.size(); ++j) {
-      //   DiagramTuple &t = barycenter[j];
-      //   std::cout << "Pair: " << std::get<6>(t) << ", " << std::get<10>(t)
+      //   ttk::PersistencePair &t = barycenter[j];
+      //   std::cout << "Pair: " << t.birth.sfValue << ", " << t.death.sfValue
       //             << std::endl;
       //
     }
@@ -505,13 +505,13 @@ void PersistenceDiagramDictEncoding::method(
 #pragma omp parallel for num_threads(threadNumber_)
 #endif // TTK_ENABLE_OPENMP
     for(size_t i = 0; i < nDiags; i++) {
-      const Diagram &barycenter = Barycenters[i];
+      const auto &barycenter = Barycenters[i];
 
       for(size_t j = 0; j < barycenter.size(); ++j) {
-        const DiagramTuple &t = barycenter[j];
-        const ttk::CriticalType nt1 = std::get<1>(t);
-        const ttk::CriticalType nt2 = std::get<3>(t);
-        const double pers = std::get<4>(t);
+        const ttk::PersistencePair &t = barycenter[j];
+        const ttk::CriticalType nt1 = t.birth.type;
+        const ttk::CriticalType nt2 = t.death.type;
+        const double pers = t.persistence;
         // maxDiagPersistence[i] = std::max(pers, maxDiagPersistence[i]);
 
         if(pers > 0) {
@@ -755,8 +755,8 @@ void PersistenceDiagramDictEncoding::method(
       for(size_t i = 0; i < nDiags; ++i) {
         auto &gradWeights = gradWeightsList[i];
         const auto &matchingsAtoms = allMatchingsAtoms[i];
-        const Diagram &Barycenter = Barycenters[i];
-        const Diagram &Data = intermediateDiagrams[i];
+        const auto &Barycenter = Barycenters[i];
+        const auto &Data = intermediateDiagrams[i];
         std::vector<Matrix> &hessianList = allHessianLists[i];
         const std::vector<ttk::MatchingType> &matchingsMin
           = matchingsDatasMin[i];
@@ -815,7 +815,7 @@ void PersistenceDiagramDictEncoding::method(
 #pragma omp parallel for num_threads(threadNumber_)
 #endif // TTK_ENABLE_OPENMP
       for(int i = 0; i < nDiags; ++i) {
-        Diagram &barycenter = Barycenters[i];
+        auto &barycenter = Barycenters[i];
         std::vector<double> &weight = vectorWeights[i];
         // double sum = 0.;
         // for(int q = 0; q < weight.size(); ++q) {
@@ -829,8 +829,8 @@ void PersistenceDiagramDictEncoding::method(
         computeWeightedBarycenter(
           dictDiagrams, weight, barycenter, matchings, ProgBarycenter);
         // for(int i = 0; i < barycenter.size(); ++i) {
-        // DiagramTuple &t = barycenter[i];
-        // std::cout << "Pair: " << std::get<6>(t) << ", " << std::get<10>(t)
+        // ttk::PersistencePair &t = barycenter[i];
+        // std::cout << "Pair: " << t.birth.sfValue << ", " << t.death.sfValue
         //          << std::endl;
         // }
       }
@@ -875,13 +875,13 @@ void PersistenceDiagramDictEncoding::method(
 #pragma omp parallel for num_threads(threadNumber_)
 #endif // TTK_ENABLE_OPENMP
       for(size_t i = 0; i < nDiags; i++) {
-        const Diagram &barycenter = Barycenters[i];
+        const auto &barycenter = Barycenters[i];
 
         for(size_t j = 0; j < barycenter.size(); ++j) {
-          const DiagramTuple &t = barycenter[j];
-          const ttk::CriticalType nt1 = std::get<1>(t);
-          const ttk::CriticalType nt2 = std::get<3>(t);
-          const double pers = std::get<4>(t);
+          const ttk::PersistencePair &t = barycenter[j];
+          const ttk::CriticalType nt1 = t.birth.type;
+          const ttk::CriticalType nt2 = t.death.type;
+          const double pers = t.persistence;
           // maxDiagPersistence[i] = std::max(pers, maxDiagPersistence[i]);
 
           if(pers > 0) {
@@ -965,7 +965,7 @@ void PersistenceDiagramDictEncoding::method(
       // if(do_optimizeAtoms) {
       std::vector<std::vector<std::vector<std::array<double, 2>>>>
         allPairToAddToGradList(nDiags);
-      std::vector<std::vector<DiagramTuple>> allInfoToAdd(nDiags);
+      std::vector<ttk::DiagramType> allInfoToAdd(nDiags);
       std::vector<std::vector<Matrix>> gradsAtomsList(nDiags);
       std::vector<std::vector<int>> checkerAtomsList(nDiags);
       // for(size_t i = 0 ; i < nDiags ; ++i){
@@ -982,8 +982,8 @@ void PersistenceDiagramDictEncoding::method(
         auto &gradsAtoms = gradsAtomsList[i];
         auto &checkerAtoms = checkerAtomsList[i];
         const auto &matchingsAtoms = allMatchingsAtoms[i];
-        const Diagram &Barycenter = Barycenters[i];
-        const Diagram &Data = intermediateDiagrams[i];
+        const auto &Barycenter = Barycenters[i];
+        const auto &Data = intermediateDiagrams[i];
         // std::vector<Matrix> &gradsAtoms = gradsAtomsList[i];
         const std::vector<ttk::MatchingType> &matchingsMin
           = matchingsDatasMin[i];
@@ -1015,16 +1015,16 @@ void PersistenceDiagramDictEncoding::method(
       for(int j = 0; j < numAtom; ++j) {
         auto &atom = dictDiagrams[j];
         auto &temp = atom[0];
-        maxiDeath[j] = std::get<10>(temp);
-        minBirth[j] = std::get<6>(temp);
+        maxiDeath[j] = temp.death.sfValue;
+        minBirth[j] = temp.birth.sfValue;
       }
 
       std::vector<std::vector<std::vector<int>>> allProjectionsList(nDiags);
-      std::vector<std::vector<DiagramTuple>> allFeaturesToAdd(nDiags);
+      std::vector<ttk::DiagramType> allFeaturesToAdd(nDiags);
       std::vector<std::vector<std::array<double, 2>>> allProjLocations(nDiags);
       std::vector<std::vector<std::vector<double>>>
         allVectorForProjContributions(nDiags);
-      std::vector<std::vector<DiagramTuple>> allTrueFeaturesToAdd(numAtom);
+      std::vector<ttk::DiagramType> allTrueFeaturesToAdd(numAtom);
       std::vector<std::vector<std::vector<int>>> allTrueProj(numAtom);
       std::vector<std::vector<std::array<double, 2>>> allTrueProjLoc(numAtom);
       // std::vector<std::vector<int>> allAtomIndices(nDiags);
@@ -1039,7 +1039,7 @@ void PersistenceDiagramDictEncoding::method(
         auto &projLocations = allProjLocations[i];
         auto &gradsAtoms = gradsAtomsList[i];
         const auto &matchingsAtoms = allMatchingsAtoms[i];
-        const Diagram &Barycenter = Barycenters[i];
+        const auto &Barycenter = Barycenters[i];
         const auto &checkerAtoms = checkerAtomsList[i];
         int nb_points = Barycenters[i].size();
         gradActor.executeAtoms(
@@ -1064,7 +1064,7 @@ void PersistenceDiagramDictEncoding::method(
           auto &projLocations = allProjLocations[i];
           auto &vectorForProjContrib = allVectorForProjContributions[i];
           for(size_t j = 0; j < projForDiag.size(); ++j) {
-            DiagramTuple &t = featuresToAdd[j];
+            auto &t = featuresToAdd[j];
             std::array<double, 2> &pair = projLocations[j];
             std::vector<double> &vectorContrib = vectorForProjContrib[j];
             std::vector<int> &projAndIndex = projForDiag[j];
@@ -1078,9 +1078,9 @@ void PersistenceDiagramDictEncoding::method(
             // allTrueProj[atomIndex].end();
             bool lenNull = allTrueProj[atomIndex].size() == 0;
             if(lenNull) {
-              const CriticalType c1 = std::get<1>(t);
-              const CriticalType c2 = std::get<3>(t);
-              const SimplexId idTemp = std::get<5>(t);
+              const CriticalType c1 = t.birth.type;
+              const CriticalType c2 = t.death.type;
+              const SimplexId idTemp = t.dim;
               pair[0] = pair[0] - step * vectorContrib[0];
               pair[1] = pair[1] - step * vectorContrib[1];
               if(pair[0] > pair[1]) {
@@ -1089,9 +1089,9 @@ void PersistenceDiagramDictEncoding::method(
               if(pair[0] < minBirth[atomIndex]) {
                 continue;
               }
-              DiagramTuple newPair{0,       c1,      0,  c2, pair[1] - pair[0],
-                                   idTemp,  pair[0], 0., 0., 0.,
-                                   pair[1], 0.,      0., 0.};
+              PersistencePair newPair{CriticalVertex{0, c1, pair[0], {}},
+                                      CriticalVertex{0, c2, pair[1], {}},
+                                      pair[1] - pair[0], idTemp, true};
               allTrueProj[atomIndex].push_back(proj);
               allTrueFeaturesToAdd[atomIndex].push_back(newPair);
               allTrueProjLoc[atomIndex].push_back(pair);
@@ -1117,9 +1117,9 @@ void PersistenceDiagramDictEncoding::method(
               }
               if(ralph) {
 
-                const CriticalType c1 = std::get<1>(t);
-                const CriticalType c2 = std::get<3>(t);
-                const SimplexId idTemp = std::get<5>(t);
+                const CriticalType c1 = t.birth.type;
+                const CriticalType c2 = t.death.type;
+                const SimplexId idTemp = t.dim;
                 pair[0] = pair[0] - step * vectorContrib[0];
                 pair[1] = pair[1] - step * vectorContrib[1];
                 if(pair[0] > pair[1]) {
@@ -1129,10 +1129,9 @@ void PersistenceDiagramDictEncoding::method(
                   continue;
                 }
 
-                DiagramTuple newPair{
-                  0,       c1,      0,  c2, pair[1] - pair[0],
-                  idTemp,  pair[0], 0., 0., 0.,
-                  pair[1], 0.,      0., 0.};
+                PersistencePair newPair{CriticalVertex{0, c1, pair[0], {}},
+                                        CriticalVertex{0, c2, pair[1], {}},
+                                        pair[1] - pair[0], idTemp, true};
                 allTrueProj[atomIndex].push_back(proj);
                 allTrueFeaturesToAdd[atomIndex].push_back(newPair);
                 allTrueProjLoc[atomIndex].push_back(pair);
@@ -1141,12 +1140,12 @@ void PersistenceDiagramDictEncoding::method(
                 // auto index = std::distance(allTrueProj[atomIndex].begin() ,
                 // it);
                 auto &tReal = allTrueFeaturesToAdd[atomIndex][index];
-                std::get<6>(tReal)
-                  = std::get<6>(tReal) - step * vectorContrib[0];
-                std::get<10>(tReal)
-                  = std::get<10>(tReal) - step * vectorContrib[1];
-                if(std::get<6>(tReal) > std::get<10>(tReal)) {
-                  std::get<10>(tReal) = std::get<6>(tReal);
+                tReal.birth.sfValue
+                  = tReal.birth.sfValue - step * vectorContrib[0];
+                tReal.death.sfValue
+                  = tReal.death.sfValue - step * vectorContrib[1];
+                if(tReal.birth.sfValue > tReal.death.sfValue) {
+                  tReal.death.sfValue = tReal.birth.sfValue;
                 }
               }
             }
@@ -1166,10 +1165,10 @@ void PersistenceDiagramDictEncoding::method(
             for(size_t j = 0; j < histoEpochAtom.size(); ++j) {
               auto &t = atom[initSize + j];
               histoEpochAtom[j] += 1;
-              histoBoolAtom[j] = std::get<10>(t) - std::get<6>(t) < 1e-3;
-              boolDiag[j] = std::get<10>(t) - std::get<6>(t) < 1e-6;
-              boolUnderDiag[j] = std::get<10>(t) < std::get<6>(t);
-              boolAboveGlobal[j] = std::get<6>(t) > maxiDeath[i];
+              histoBoolAtom[j] = t.death.sfValue - t.birth.sfValue < 1e-3;
+              boolDiag[j] = t.death.sfValue - t.birth.sfValue < 1e-6;
+              boolUnderDiag[j] = t.death.sfValue < t.birth.sfValue;
+              boolAboveGlobal[j] = t.birth.sfValue > maxiDeath[i];
             }
           }
         }
@@ -1186,10 +1185,10 @@ void PersistenceDiagramDictEncoding::method(
             auto &t = trueFeaturesToAdd[j];
             atom.push_back(t);
             histoEpochAtom.push_back(0);
-            histoBoolAtom.push_back(std::get<10>(t) - std::get<6>(t) < 1e-3);
-            boolDiag.push_back(std::get<10>(t) - std::get<6>(t) < 1e-6);
-            boolUnderDiag.push_back(std::get<10>(t) < std::get<6>(t));
-            boolAboveGlobal.push_back(std::get<6>(t) > maxiDeath[i]);
+            histoBoolAtom.push_back(t.death.sfValue - t.birth.sfValue < 1e-3);
+            boolDiag.push_back(t.death.sfValue - t.birth.sfValue < 1e-6);
+            boolUnderDiag.push_back(t.death.sfValue < t.birth.sfValue);
+            boolAboveGlobal.push_back(t.birth.sfValue > maxiDeath[i]);
           }
         }
 
@@ -1247,12 +1246,12 @@ void PersistenceDiagramDictEncoding::method(
         for(size_t j = 0; j < atom.size(); ++j) {
           auto &t = atom[j];
 
-          if(std::get<10>(t) > std::get<10>(globalPair)) {
-            std::get<10>(t) = std::get<10>(globalPair);
+          if(t.death.sfValue > globalPair.death.sfValue) {
+            t.death.sfValue = globalPair.death.sfValue;
           }
 
-          if(std::get<6>(t) > std::get<10>(t)) {
-            std::get<10>(t) = std::get<6>(t);
+          if(t.birth.sfValue > t.death.sfValue) {
+            t.death.sfValue = t.birth.sfValue;
           }
         }
       }
@@ -1275,8 +1274,8 @@ void PersistenceDiagramDictEncoding::method(
     // std::cout << "ATOM: " + std::to_string(p) << std::endl;
     // for(size_t k = 0 ; k < atom.size() ; ++k){
     // auto &t = atom[k];
-    // std::cout << "PAIR: " + std::to_string(std::get<6>(t)) + " AND " +
-    // std::to_string(std::get<10>(t)) << std::endl;
+    // std::cout << "PAIR: " + std::to_string(t.birth.sfValue) + " AND " +
+    // std::to_string(t.death.sfValue) << std::endl;
     //}
     //}
   }
@@ -1313,9 +1312,9 @@ void PersistenceDiagramDictEncoding::method(
   // std::cout << "Atom " << i << std::endl;
   // for(size_t j = 0; j < dictDiagrams[i].size(); ++j) {
   //   DiagramTuple &t = dictDiagrams[i][j];
-  //   std::cout << "Pair atoms: " << std::get<6>(t) << ", " << std::get<10>(t)
-  //             << " and " << (0. <= std::get<6>(t)) << " and "
-  //             << (std::get<10>(t) >= std::get<6>(t)) << std::endl;
+  //   std::cout << "Pair atoms: " << t.birth.sfValue << ", " << t.death.sfValue
+  //             << " and " << (0. <= t.birth.sfValue) << " and "
+  //             << (t.death.sfValue >= t.birth.sfValue) << std::endl;
   // }
   // }
 }
@@ -1337,7 +1336,7 @@ double PersistenceDiagramDictEncoding::getMostPersistent(
 
   for(unsigned int i = 0; i < bidder_diags.size(); ++i) {
     for(int j = 0; j < bidder_diags[i].size(); ++j) {
-      const double persistence = bidder_diags[i].get(j).getPersistence();
+      const double persistence = bidder_diags[i].at(j).getPersistence();
       if(persistence > max_persistence) {
         max_persistence = persistence;
       }
@@ -1352,20 +1351,19 @@ double PersistenceDiagramDictEncoding::computeDistance(
   const BidderDiagram &D2,
   std::vector<ttk::MatchingType> &matching) const {
 
-  GoodDiagram<double> D2_bis{};
-  for(int i = 0; i < D2.size(); i++) {
-    const Bidder<double> &b = D2.get(i);
-    Good<double> g(b.x_, b.y_, b.isDiagonal(), D2_bis.size());
-    g.SetCriticalCoordinates(b.coords_x_, b.coords_y_, b.coords_z_);
+  GoodDiagram D2_bis{};
+  for(size_t i = 0; i < D2.size(); i++) {
+    const Bidder &b = D2.at(i);
+    Good g(b.x_, b.y_, b.isDiagonal(), D2_bis.size());
+    g.SetCriticalCoordinates(b.coords_);
     g.setPrice(0);
-    D2_bis.addGood(g);
+    D2_bis.emplace_back(g);
   }
 
-  PersistenceDiagramAuction<double> auction(
+  PersistenceDiagramAuction auction(
     this->Wasserstein, this->Alpha, this->Lambda, this->DeltaLim, true);
-  auction.BuildAuctionDiagrams(&D1, &D2_bis);
-  double loss;
-  loss = auction.run(&matching);
+  auction.BuildAuctionDiagrams(D1, D2_bis);
+  double loss = auction.run(matching);
   return loss;
 }
 
@@ -1374,8 +1372,8 @@ void PersistenceDiagramDictEncoding::computeGradientWeights(
   std::vector<Matrix> &hessianList,
   const std::vector<ttk::DiagramType> &dictDiagrams,
   const std::vector<std::vector<ttk::MatchingType>> &matchingsAtoms,
-  const Diagram &Barycenter,
-  const Diagram &newData,
+  const ttk::DiagramType &Barycenter,
+  const ttk::DiagramType &newData,
   const std::vector<ttk::MatchingType> &matchingsMin,
   const std::vector<ttk::MatchingType> &matchingsMax,
   const std::vector<ttk::MatchingType> &matchingsSad,
@@ -1431,10 +1429,10 @@ void PersistenceDiagramDictEncoding::computeGradientWeights(
         continue;
       } else if(Id1 < 0) {
         // this->printMsg("========DIAGONAL=========");
-        const DiagramTuple &t3 = Barycenter[Id2];
+        const PersistencePair &t3 = Barycenter[Id2];
         auto &point = grad_list[Id2][i];
-        const double birth_barycenter = std::get<6>(t3);
-        const double death_barycenter = std::get<10>(t3);
+        const double birth_barycenter = t3.birth.sfValue;
+        const double death_barycenter = t3.death.sfValue;
         // std::cout << "Barycenter Pair:" << birth_barycenter << " "
         //           << death_barycenter << std::endl;
         const double birth_death_atom
@@ -1447,10 +1445,10 @@ void PersistenceDiagramDictEncoding::computeGradientWeights(
         tracker[Id2] = 1;
       } else {
         // this->printMsg("====UPDATE GRADLIST========");
-        const DiagramTuple &t2 = dictDiagrams[i][Id1];
+        const PersistencePair &t2 = dictDiagrams[i][Id1];
         auto &point = grad_list[Id2][i];
-        const double birth_atom = std::get<6>(t2);
-        const double death_atom = std::get<10>(t2);
+        const double birth_atom = t2.birth.sfValue;
+        const double death_atom = t2.death.sfValue;
         point[0] = birth_atom;
         point[1] = death_atom;
         // checker[Id2].push_back(i);
@@ -1477,9 +1475,9 @@ void PersistenceDiagramDictEncoding::computeGradientWeights(
         continue;
       } else {
         if(CreationFeatures) {
-          const DiagramTuple &t2 = newData[indexDataMin[Id1]];
-          const double birth_data = std::get<6>(t2);
-          const double death_data = std::get<10>(t2);
+          const PersistencePair &t2 = newData[indexDataMin[Id1]];
+          const double birth_data = t2.birth.sfValue;
+          const double death_data = t2.death.sfValue;
           const double birth_death_barycenter
             = birth_data + (death_data - birth_data) / 2.;
           std::array<double, 2> direction;
@@ -1510,9 +1508,9 @@ void PersistenceDiagramDictEncoding::computeGradientWeights(
     } else {
       // this->printMsg("==Here?==");
       // this->printMsg(std::to_string(static_cast<int>(indexBaryMin[Id2])));
-      const DiagramTuple &t3 = Barycenter[indexBaryMin[Id2]];
-      const double birth_barycenter = std::get<6>(t3);
-      const double death_barycenter = std::get<10>(t3);
+      const PersistencePair &t3 = Barycenter[indexBaryMin[Id2]];
+      const double birth_barycenter = t3.birth.sfValue;
+      const double death_barycenter = t3.death.sfValue;
       auto &direction = directions[indexBaryMin[Id2]];
       if(Id1 < 0) {
         const double birth_death_data
@@ -1523,11 +1521,11 @@ void PersistenceDiagramDictEncoding::computeGradientWeights(
 
       } else {
         // checker[indexBaryMin[Id2]].push_back(indexDataMin[Id1]);
-        const DiagramTuple &t2 = newData[indexDataMin[Id1]];
-        const double birth_data = std::get<6>(t2);
-        const double death_data = std::get<10>(t2);
-        // direction[0] = std::get<6>(t2) - std::get<6>(t3);
-        // direction[1] = std::get<10>(t2) - std::get<10>(t3);
+        const PersistencePair &t2 = newData[indexDataMin[Id1]];
+        const double birth_data = t2.birth.sfValue;
+        const double death_data = t2.death.sfValue;
+        // direction[0] = t2.birth.sfValue - t3.birth.sfValue;
+        // direction[1] = t2.death.sfValue - t3.death.sfValue;
         direction[0] = birth_data - birth_barycenter;
         direction[1] = death_data - death_barycenter;
         data_assigned[indexBaryMin[Id2]] = {birth_data, death_data};
@@ -1550,9 +1548,9 @@ void PersistenceDiagramDictEncoding::computeGradientWeights(
         continue;
       } else {
         if(CreationFeatures) {
-          const DiagramTuple &t2 = newData[indexDataMax[Id1]];
-          const double birth_data = std::get<6>(t2);
-          const double death_data = std::get<10>(t2);
+          const PersistencePair &t2 = newData[indexDataMax[Id1]];
+          const double birth_data = t2.birth.sfValue;
+          const double death_data = t2.death.sfValue;
           const double birth_death_barycenter
             = birth_data + (death_data - birth_data) / 2.;
           std::array<double, 2> direction;
@@ -1584,9 +1582,9 @@ void PersistenceDiagramDictEncoding::computeGradientWeights(
     } else {
       // this->printMsg("==Here?==");
       // this->printMsg(std::to_string(static_cast<int>(indexBaryMax[Id2])));
-      const DiagramTuple &t3 = Barycenter[indexBaryMax[Id2]];
-      const double birth_barycenter = std::get<6>(t3);
-      const double death_barycenter = std::get<10>(t3);
+      const PersistencePair &t3 = Barycenter[indexBaryMax[Id2]];
+      const double birth_barycenter = t3.birth.sfValue;
+      const double death_barycenter = t3.death.sfValue;
       auto &direction = directions[indexBaryMax[Id2]];
       if(Id1 < 0) {
         const double birth_death_data
@@ -1596,11 +1594,11 @@ void PersistenceDiagramDictEncoding::computeGradientWeights(
         data_assigned[indexBaryMax[Id2]] = {birth_death_data, birth_death_data};
       } else {
         // checker[indexBaryMax[Id2]].push_back(indexDataMax[Id1]);
-        const DiagramTuple &t2 = newData[indexDataMax[Id1]];
-        const double birth_data = std::get<6>(t2);
-        const double death_data = std::get<10>(t2);
-        // direction[0] = std::get<6>(t2) - std::get<6>(t3);
-        // direction[1] = std::get<10>(t2) - std::get<10>(t3);
+        const PersistencePair &t2 = newData[indexDataMax[Id1]];
+        const double birth_data = t2.birth.sfValue;
+        const double death_data = t2.death.sfValue;
+        // direction[0] = t2.birth.sfValue - t3.birth.sfValue;
+        // direction[1] = t2.death.sfValue - t3.death.sfValue;
         direction[0] = birth_data - birth_barycenter;
         direction[1] = death_data - death_barycenter;
         data_assigned[indexBaryMax[Id2]] = {birth_data, death_data};
@@ -1623,9 +1621,9 @@ void PersistenceDiagramDictEncoding::computeGradientWeights(
         continue;
       } else {
         if(CreationFeatures) {
-          const DiagramTuple &t2 = newData[indexDataSad[Id1]];
-          const double birth_data = std::get<6>(t2);
-          const double death_data = std::get<10>(t2);
+          const PersistencePair &t2 = newData[indexDataSad[Id1]];
+          const double birth_data = t2.birth.sfValue;
+          const double death_data = t2.death.sfValue;
           const double birth_death_barycenter
             = birth_data + (death_data - birth_data) / 2.;
           std::array<double, 2> direction;
@@ -1657,9 +1655,9 @@ void PersistenceDiagramDictEncoding::computeGradientWeights(
     } else {
       // this->printMsg("==Here?==");
       // this->printMsg(std::to_string(static_cast<int>(indexBarySad[Id2])));
-      const DiagramTuple &t3 = Barycenter[indexBarySad[Id2]];
-      const double birth_barycenter = std::get<6>(t3);
-      const double death_barycenter = std::get<10>(t3);
+      const PersistencePair &t3 = Barycenter[indexBarySad[Id2]];
+      const double birth_barycenter = t3.birth.sfValue;
+      const double death_barycenter = t3.death.sfValue;
       auto &direction = directions[indexBarySad[Id2]];
       if(Id1 < 0) {
         const double birth_death_data
@@ -1669,11 +1667,11 @@ void PersistenceDiagramDictEncoding::computeGradientWeights(
         data_assigned[indexBarySad[Id2]] = {birth_death_data, birth_death_data};
       } else {
         // checker[indexBarySad[Id2]].push_back(indexDataSad[Id1]);
-        const DiagramTuple &t2 = newData[indexDataSad[Id1]];
-        const double birth_data = std::get<6>(t2);
-        const double death_data = std::get<10>(t2);
-        // direction[0] = std::get<6>(t2) - std::get<6>(t3);
-        // direction[1] = std::get<10>(t2) - std::get<10>(t3);
+        const PersistencePair &t2 = newData[indexDataSad[Id1]];
+        const double birth_data = t2.birth.sfValue;
+        const double death_data = t2.death.sfValue;
+        // direction[0] = t2.birth.sfValue - t3.birth.sfValue;
+        // direction[1] = t2.death.sfValue - t3.death.sfValue;
         direction[0] = birth_data - birth_barycenter;
         direction[1] = death_data - death_barycenter;
         data_assigned[indexBarySad[Id2]] = {birth_data, death_data};
@@ -1719,8 +1717,8 @@ void PersistenceDiagramDictEncoding::computeGradientWeights(
         // std::to_string(checker[i][j])
         //               + "=======");
         const auto &point = grad_list[i][checker[i][j]];
-        // const double birth = std::get<6>(t);
-        // const double death = std::get<10>(t);
+        // const double birth = t.birth.sfValue;
+        // const double death = t.death.sfValue;
         const auto &direction = directions[i];
         // gradient[j] += -2 * (birth * direction[0] + death * direction[1]);
         gradWeights[checker[i][j]]
@@ -1760,8 +1758,8 @@ void PersistenceDiagramDictEncoding::computeGradientWeights(
 void PersistenceDiagramDictEncoding::computeGradientAtoms(
   std::vector<Matrix> &gradsAtoms,
   const std::vector<double> &weights,
-  const Diagram &Barycenter,
-  const Diagram &newData,
+  const ttk::DiagramType &Barycenter,
+  const ttk::DiagramType &newData,
   const std::vector<ttk::MatchingType> &matchingsMin,
   const std::vector<ttk::MatchingType> &matchingsMax,
   const std::vector<ttk::MatchingType> &matchingsSad,
@@ -1773,7 +1771,7 @@ void PersistenceDiagramDictEncoding::computeGradientAtoms(
   const std::vector<size_t> &indexDataSad,
   std::vector<int> &checker,
   std::vector<std::vector<std::array<double, 2>>> &pairToAddGradList,
-  std::vector<DiagramTuple> &infoToAdd) const {
+  std::vector<PersistencePair> &infoToAdd) const {
 
   // std::vector<ttk::MatchingType> matching;
   gradsAtoms.resize(Barycenter.size());
@@ -1805,9 +1803,9 @@ void PersistenceDiagramDictEncoding::computeGradientAtoms(
         continue;
       } else {
         if(CreationFeatures) {
-          const DiagramTuple &t2 = newData[indexDataMin[Id1]];
-          const double birth_data = std::get<6>(t2);
-          const double death_data = std::get<10>(t2);
+          const PersistencePair &t2 = newData[indexDataMin[Id1]];
+          const double birth_data = t2.birth.sfValue;
+          const double death_data = t2.death.sfValue;
           const double birth_death_barycenter
             = birth_data + (death_data - birth_data) / 2.;
           std::vector<double> direction(2);
@@ -1836,9 +1834,9 @@ void PersistenceDiagramDictEncoding::computeGradientAtoms(
       }
       // this->printMsg("k = " + std::to_string(k));
     } else {
-      const DiagramTuple &t3 = Barycenter[indexBaryMin[Id2]];
-      const double birth_barycenter = std::get<6>(t3);
-      const double death_barycenter = std::get<10>(t3);
+      const PersistencePair &t3 = Barycenter[indexBaryMin[Id2]];
+      const double birth_barycenter = t3.birth.sfValue;
+      const double death_barycenter = t3.death.sfValue;
       std::vector<double> direction(2);
       if(Id1 < 0) {
         const double birth_death_data
@@ -1846,11 +1844,11 @@ void PersistenceDiagramDictEncoding::computeGradientAtoms(
         direction[0] = birth_death_data - birth_barycenter;
         direction[1] = birth_death_data - death_barycenter;
       } else {
-        const DiagramTuple &t2 = newData[indexDataMin[Id1]];
-        const double birth_data = std::get<6>(t2);
-        const double death_data = std::get<10>(t2);
-        // direction[0] = std::get<6>(t2) - std::get<6>(t3);
-        // direction[1] = std::get<10>(t2) - std::get<10>(t3);
+        const PersistencePair &t2 = newData[indexDataMin[Id1]];
+        const double birth_data = t2.birth.sfValue;
+        const double death_data = t2.death.sfValue;
+        // direction[0] = t2.birth.sfValue - t3.birth.sfValue;
+        // direction[1] = t2.death.sfValue - t3.death.sfValue;
         direction[0] = birth_data - birth_barycenter;
         direction[1] = death_data - death_barycenter;
         // directions[Id2].push_back(direction);
@@ -1874,9 +1872,9 @@ void PersistenceDiagramDictEncoding::computeGradientAtoms(
         continue;
       } else {
         if(CreationFeatures) {
-          const DiagramTuple &t2 = newData[indexDataMax[Id1]];
-          const double birth_data = std::get<6>(t2);
-          const double death_data = std::get<10>(t2);
+          const PersistencePair &t2 = newData[indexDataMax[Id1]];
+          const double birth_data = t2.birth.sfValue;
+          const double death_data = t2.death.sfValue;
           const double birth_death_barycenter
             = birth_data + (death_data - birth_data) / 2.;
           std::vector<double> direction(2);
@@ -1907,9 +1905,9 @@ void PersistenceDiagramDictEncoding::computeGradientAtoms(
     } else {
       // this->printMsg("==Here?==");
       // this->printMsg(std::to_string(static_cast<int>(indexBaryMax[Id2])));
-      const DiagramTuple &t3 = Barycenter[indexBaryMax[Id2]];
-      const double birth_barycenter = std::get<6>(t3);
-      const double death_barycenter = std::get<10>(t3);
+      const PersistencePair &t3 = Barycenter[indexBaryMax[Id2]];
+      const double birth_barycenter = t3.birth.sfValue;
+      const double death_barycenter = t3.death.sfValue;
       std::vector<double> direction(2);
       if(Id1 < 0) {
         const double birth_death_data
@@ -1917,11 +1915,11 @@ void PersistenceDiagramDictEncoding::computeGradientAtoms(
         direction[0] = birth_death_data - birth_barycenter;
         direction[1] = birth_death_data - death_barycenter;
       } else {
-        const DiagramTuple &t2 = newData[indexDataMax[Id1]];
-        const double birth_data = std::get<6>(t2);
-        const double death_data = std::get<10>(t2);
-        // direction[0] = std::get<6>(t2) - std::get<6>(t3);
-        // direction[1] = std::get<10>(t2) - std::get<10>(t3);
+        const PersistencePair &t2 = newData[indexDataMax[Id1]];
+        const double birth_data = t2.birth.sfValue;
+        const double death_data = t2.death.sfValue;
+        // direction[0] = t2.birth.sfValue - t3.birth.sfValue;
+        // direction[1] = t2.death.sfValue - t3.death.sfValue;
         direction[0] = birth_data - birth_barycenter;
         direction[1] = death_data - death_barycenter;
         // directions[Id2].push_back(direction);
@@ -1944,9 +1942,9 @@ void PersistenceDiagramDictEncoding::computeGradientAtoms(
         continue;
       } else {
         if(CreationFeatures) {
-          const DiagramTuple &t2 = newData[indexDataSad[Id1]];
-          const double birth_data = std::get<6>(t2);
-          const double death_data = std::get<10>(t2);
+          const PersistencePair &t2 = newData[indexDataSad[Id1]];
+          const double birth_data = t2.birth.sfValue;
+          const double death_data = t2.death.sfValue;
           const double birth_death_barycenter
             = birth_data + (death_data - birth_data) / 2.;
           std::vector<double> direction(2);
@@ -1977,9 +1975,9 @@ void PersistenceDiagramDictEncoding::computeGradientAtoms(
     } else {
       // this->printMsg("==Here?==");
       // this->printMsg(std::to_string(static_cast<int>(indexBarySad[Id2])));
-      const DiagramTuple &t3 = Barycenter[indexBarySad[Id2]];
-      const double birth_barycenter = std::get<6>(t3);
-      const double death_barycenter = std::get<10>(t3);
+      const PersistencePair &t3 = Barycenter[indexBarySad[Id2]];
+      const double birth_barycenter = t3.birth.sfValue;
+      const double death_barycenter = t3.death.sfValue;
       std::vector<double> direction(2);
       if(Id1 < 0) {
         const double birth_death_data
@@ -1987,11 +1985,11 @@ void PersistenceDiagramDictEncoding::computeGradientAtoms(
         direction[0] = birth_death_data - birth_barycenter;
         direction[1] = birth_death_data - death_barycenter;
       } else {
-        const DiagramTuple &t2 = newData[indexDataSad[Id1]];
-        const double birth_data = std::get<6>(t2);
-        const double death_data = std::get<10>(t2);
-        // direction[0] = std::get<6>(t2) - std::get<6>(t3);
-        // direction[1] = std::get<10>(t2) - std::get<10>(t3);
+        const PersistencePair &t2 = newData[indexDataSad[Id1]];
+        const double birth_data = t2.birth.sfValue;
+        const double death_data = t2.death.sfValue;
+        // direction[0] = t2.birth.sfValue - t3.birth.sfValue;
+        // direction[1] = t2.death.sfValue - t3.death.sfValue;
         direction[0] = birth_data - birth_barycenter;
         direction[1] = death_data - death_barycenter;
         // directions[Id2].push_back(direction);
@@ -2049,9 +2047,9 @@ void PersistenceDiagramDictEncoding::setBidderDiagrams(
 
     for(size_t j = 0; j < diag.size(); j++) {
       // Add bidder to bidders
-      Bidder<double> b(diag[j], j, this->Lambda);
+      Bidder b(diag[j], j, this->Lambda);
       b.setPositionInAuction(bidders.size());
-      bidders.addBidder(b);
+      bidders.emplace_back(b);
       if(b.isDiagonal() || b.x_ == b.y_) {
         this->printMsg("Diagonal point in diagram " + std::to_string(i) + "!",
                        ttk::debug::Priority::DETAIL);
@@ -2075,7 +2073,7 @@ void PersistenceDiagramDictEncoding::enrichCurrentBidderDiagrams(
      || this->Constraint == ConstraintType::RELATIVE_PERSISTENCE_GLOBAL) {
     for(size_t i = 0; i < nInputs; ++i) {
       for(int j = 0; j < bidder_diags[i].size(); ++j) {
-        auto b = bidder_diags[i].get(j);
+        auto b = bidder_diags[i].at(j);
 
         if( // filter out pairs below absolute persistence threshold
           (this->Constraint == ConstraintType::ABSOLUTE_PERSISTENCE
@@ -2090,7 +2088,7 @@ void PersistenceDiagramDictEncoding::enrichCurrentBidderDiagrams(
            && b.getPersistence() > this->MinPersistence * maxPersistence)) {
           b.id_ = current_bidder_diags[i].size();
           b.setPositionInAuction(current_bidder_diags[i].size());
-          current_bidder_diags[i].addBidder(b);
+          current_bidder_diags[i].emplace_back(b);
         }
       }
     }
@@ -2116,8 +2114,8 @@ void PersistenceDiagramDictEncoding::enrichCurrentBidderDiagrams(
   for(size_t i = 0; i < nInputs; i++) {
     double local_min_persistence = std::numeric_limits<double>::min();
     std::vector<double> persistences;
-    for(int j = 0; j < bidder_diags[i].size(); j++) {
-      Bidder<double> b = bidder_diags[i].get(j);
+    for(size_t j = 0; j < bidder_diags[i].size(); j++) {
+      Bidder b = bidder_diags[i].at(j);
       double persistence = b.getPersistence();
       if(persistence >= 0.0 && persistence <= prev_min_persistence) {
         candidates_to_be_added[i].emplace_back(j);
@@ -2148,22 +2146,21 @@ void PersistenceDiagramDictEncoding::enrichCurrentBidderDiagrams(
     // 3. Add the points to the current diagrams
     const auto s = candidates_to_be_added[i].size();
     for(size_t j = 0; j < std::min(max_points_to_add, s); j++) {
-      Bidder<double> b
-        = bidder_diags[i].get(candidates_to_be_added[i][idx[i][j]]);
+      Bidder b = bidder_diags[i].at(candidates_to_be_added[i][idx[i][j]]);
       const double persistence = b.getPersistence();
       if(persistence >= new_min_persistence) {
         b.id_ = current_bidder_diags[i].size();
         b.setPositionInAuction(current_bidder_diags[i].size());
-        current_bidder_diags[i].addBidder(b);
+        current_bidder_diags[i].emplace_back(b);
       }
     }
   }
 }
 
 int PersistenceDiagramDictEncoding::InitDictionary(
-  std::vector<ttk::Diagram> &dictDiagrams,
-  const std::vector<ttk::Diagram> &datas,
-  const std::vector<ttk::Diagram> &inputAtoms,
+  std::vector<ttk::DiagramType> &dictDiagrams,
+  const std::vector<ttk::DiagramType> &datas,
+  const std::vector<ttk::DiagramType> &inputAtoms,
   const int nbAtom,
   bool do_min,
   bool do_sad,
@@ -2182,8 +2179,8 @@ int PersistenceDiagramDictEncoding::InitDictionary(
         dictDiagrams.push_back(t);
         dictDiagrams[i].erase(
           std::remove_if(dictDiagrams[i].begin(), dictDiagrams[i].end(),
-                         [max_pers](ttk::DiagramTuple &p) {
-                           return (std::get<10>(p) - std::get<6>(p))
+                         [max_pers](ttk::PersistencePair &p) {
+                           return (p.death.sfValue - p.birth.sfValue)
                                   < 0. * max_pers;
                          }),
           dictDiagrams[i].end());
@@ -2267,7 +2264,7 @@ int PersistenceDiagramDictEncoding::InitDictionary(
 }
 
 void PersistenceDiagramDictEncoding::gettingBidderDiagrams(
-  const std::vector<ttk::Diagram> &intermediateDiagrams,
+  const std::vector<ttk::DiagramType> &intermediateDiagrams,
   std::vector<BidderDiagram> &bidder_diagrams_min,
   std::vector<BidderDiagram> &bidder_diagrams_sad,
   std::vector<BidderDiagram> &bidder_diagrams_max) {
@@ -2299,13 +2296,13 @@ void PersistenceDiagramDictEncoding::gettingBidderDiagrams(
 #pragma omp parallel for num_threads(threadNumber_)
 #endif // TTK_ENABLE_OPENMP
   for(size_t i = 0; i < nDiags; i++) {
-    const Diagram &CTDiagram = intermediateDiagrams[i];
+    const auto &CTDiagram = intermediateDiagrams[i];
 
     for(size_t j = 0; j < CTDiagram.size(); ++j) {
-      const DiagramTuple &t = CTDiagram[j];
-      const ttk::CriticalType nt1 = std::get<1>(t);
-      const ttk::CriticalType nt2 = std::get<3>(t);
-      const double pers = std::get<4>(t);
+      const PersistencePair &t = CTDiagram[j];
+      const ttk::CriticalType nt1 = t.birth.type;
+      const ttk::CriticalType nt2 = t.death.type;
+      const double pers = t.persistence;
       // maxDiagPersistence[i] = std::max(pers, maxDiagPersistence[i]);
 
       if(pers > 0) {
@@ -2348,11 +2345,12 @@ void PersistenceDiagramDictEncoding::gettingBidderDiagrams(
   // return distance;
 }
 
-double PersistenceDiagramDictEncoding::getMaxPers(const Diagram &data) {
+double
+  PersistenceDiagramDictEncoding::getMaxPers(const ttk::DiagramType &data) {
   double max_pers = 0.;
   for(size_t j = 0; j < data.size(); ++j) {
     auto &t = data[j];
-    double pers = std::get<10>(t) - std::get<6>(t);
+    double pers = t.death.sfValue - t.birth.sfValue;
     if(pers > max_pers) {
       max_pers = pers;
     }
