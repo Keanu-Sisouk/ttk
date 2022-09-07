@@ -2,5 +2,3 @@ NAME
   ttkPersistenceDiagramDictDecoding
 DEPENDS
   ttkAlgorithm
-PRIVATE_DEPENDS
-  VTK::FiltersGeneral
