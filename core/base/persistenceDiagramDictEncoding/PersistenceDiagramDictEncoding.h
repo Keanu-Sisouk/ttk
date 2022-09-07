@@ -32,9 +32,9 @@ namespace ttk {
       this->setDebugMsgPrefix("PersistenceDiagramDictEncoding");
     }
 
-   void execute(std::vector<Diagram> &intermediateDiagrams,
-                 const std::vector<Diagram> &intermediateAtoms,
-                 std::vector<Diagram> &dictDiagrams,
+    void execute(std::vector<ttk::DiagramType> &intermediateDiagrams,
+                 const std::vector<ttk::DiagramType> &intermediateAtoms,
+                 std::vector<ttk::DiagramType> &dictDiagrams,
                  std::vector<std::vector<double>> &vectorWeights,
                  const std::array<size_t, 2> &nInputs,
                  const int seed,
@@ -44,27 +44,31 @@ namespace ttk {
                  std::vector<std::vector<double>> &allLosses,
                  int percent_);
 
- 
+    void method(const std::vector<ttk::DiagramType> &intermediateDiagrams,
+                const std::vector<ttk::DiagramType> &intermediateAtoms,
+                std::vector<ttk::DiagramType> &dictDiagrams,
+                std::vector<std::vector<double>> &vectorWeights,
+                const std::array<size_t, 2> &nInputs,
+                const int seed,
+                const int numAtom,
+                std::vector<double> &loss_tab,
+                std::vector<double> &true_loss_tab,
+                std::vector<std::vector<double>> &allLosses,
+                std::vector<std::vector<double>> &histoVectorWeights,
+                std::vector<ttk::DiagramType> &histoDictDiagrams,
+                bool preWeightOpt,
+                double acc,
+                std::vector<BidderDiagram> &true_bidder_diagram_min,
+                std::vector<BidderDiagram> &true_bidder_diagram_sad,
+                std::vector<BidderDiagram> &true_bidder_diagram_max);
 
-    void method(const std::vector<Diagram> &intermediateDiagrams,
-                 const std::vector<Diagram> &intermediateAtoms,
-                 std::vector<Diagram> &dictDiagrams,
-                 std::vector<std::vector<double>> &vectorWeights,
-                 const std::array<size_t, 2> &nInputs,
-                 const int seed,
-                 const int numAtom,
-                 std::vector<double> &loss_tab,
-                 std::vector<double> &true_loss_tab,
-                 std::vector<std::vector<double>> &allLosses,
-                 std::vector<std::vector<double>> &histoVectorWeights,
-                 std::vector<Diagram> &histoDictDiagrams,
-                 bool preWeightOpt,
-                 double acc,
-                 std::vector<BidderDiagram<double>> &true_bidder_diagram_min,
-                 std::vector<BidderDiagram<double>> &true_bidder_diagram_sad,
-                 std::vector<BidderDiagram<double>> &true_bidder_diagram_max);
-
-    enum class BACKEND { BORDER_INIT = 0, RANDOM_INIT = 1, FIRST_DIAGS = 2, INPUT_ATOMS = 3, GREEDY_INIT = 4 };
+    enum class BACKEND {
+      BORDER_INIT = 0,
+      RANDOM_INIT = 1,
+      FIRST_DIAGS = 2,
+      INPUT_ATOMS = 3,
+      GREEDY_INIT = 4
+    };
 
     inline void setWasserstein(const int data) {
       Wasserstein = data;
@@ -109,21 +113,21 @@ namespace ttk {
                     const std::vector<double> &vec2) const;
 
     double getMostPersistent(
-      const std::vector<BidderDiagram<double>> &bidder_diags) const;
-    double computeDistance(const BidderDiagram<double> &D1,
-                           const BidderDiagram<double> &D2,
-                           std::vector<MatchingTuple> &matching) const;
+      const std::vector<BidderDiagram> &bidder_diags) const;
+    double computeDistance(const BidderDiagram &D1,
+                           const BidderDiagram &D2,
+                           std::vector<ttk::MatchingType> &matching) const;
 
     void computeGradientWeights(
       std::vector<double> &gradWeights,
       std::vector<Matrix> &hessianList,
-      const std::vector<Diagram> &dictDiagrams,
-      const std::vector<std::vector<MatchingTuple>> &matchingsAtoms,
-      const Diagram &Barycenter,
-      const Diagram &newData,
-      const std::vector<MatchingTuple> &matchingsMin,
-      const std::vector<MatchingTuple> &matchingsMax,
-      const std::vector<MatchingTuple> &matchingsSad,
+      const std::vector<ttk::DiagramType> &dictDiagrams,
+      const std::vector<std::vector<ttk::MatchingType>> &matchingsAtoms,
+      const ttk::DiagramType &Barycenter,
+      const ttk::DiagramType &newData,
+      const std::vector<ttk::MatchingType> &matchingsMin,
+      const std::vector<ttk::MatchingType> &matchingsMax,
+      const std::vector<ttk::MatchingType> &matchingsSad,
       const std::vector<size_t> &indexBaryMin,
       const std::vector<size_t> &indexBaryMax,
       const std::vector<size_t> &indexBarySad,
@@ -134,11 +138,11 @@ namespace ttk {
     void computeGradientAtoms(
       std::vector<Matrix> &gradsAtoms,
       const std::vector<double> &weights,
-      const Diagram &Barycenter,
-      const Diagram &newData,
-      const std::vector<MatchingTuple> &matchingsMin,
-      const std::vector<MatchingTuple> &matchingsMax,
-      const std::vector<MatchingTuple> &matchingsSad,
+      const ttk::DiagramType &Barycenter,
+      const ttk::DiagramType &newData,
+      const std::vector<ttk::MatchingType> &matchingsMin,
+      const std::vector<ttk::MatchingType> &matchingsMax,
+      const std::vector<ttk::MatchingType> &matchingsSad,
       const std::vector<size_t> &indexBaryMin,
       const std::vector<size_t> &indexBaryMax,
       const std::vector<size_t> &indexBarySad,
@@ -147,37 +151,36 @@ namespace ttk {
       const std::vector<size_t> &indexDataSad,
       std::vector<int> &checker,
       std::vector<std::vector<std::array<double, 2>>> &pairToAddGradList,
-      std::vector<DiagramTuple> &infoToAdd) const;
+      ttk::DiagramType &infoToAdd) const;
 
     // A modifier
     void
       setBidderDiagrams(const size_t nInputs,
-                        std::vector<Diagram> &inputDiagrams,
-                        std::vector<BidderDiagram<double>> &bidder_diags) const;
+                        std::vector<ttk::DiagramType> &inputDiagrams,
+                        std::vector<BidderDiagram> &bidder_diags) const;
 
     // A modifier
     void enrichCurrentBidderDiagrams(
-      const std::vector<BidderDiagram<double>> &bidder_diags,
-      std::vector<BidderDiagram<double>> &current_bidder_diags,
+      const std::vector<BidderDiagram> &bidder_diags,
+      std::vector<BidderDiagram> &current_bidder_diags,
       const std::vector<double> &maxDiagPersistence) const;
 
-    int InitDictionary(std::vector<ttk::Diagram> &dictDiagrams,
-                       const std::vector<ttk::Diagram> &datas,
-                       const std::vector<ttk::Diagram> &inputAtoms,
+    int InitDictionary(std::vector<ttk::DiagramType> &dictDiagrams,
+                       const std::vector<ttk::DiagramType> &datas,
+                       const std::vector<ttk::DiagramType> &inputAtoms,
                        const int nbAtom,
                        bool do_min_,
                        bool do_sad_,
                        bool do_max_,
                        int seed);
 
+    void gettingBidderDiagrams(
+      const std::vector<ttk::DiagramType> &intermediateDiagrams,
+      std::vector<BidderDiagram> &bidder_diagrams_min,
+      std::vector<BidderDiagram> &bidder_diagrams_sad,
+      std::vector<BidderDiagram> &bidder_diagrams_max);
 
-    void gettingBidderDiagrams( 
-        const std::vector<ttk::Diagram> &intermediateDiagrams, 
-        std::vector<BidderDiagram<double>> &bidder_diagrams_min,
-        std::vector<BidderDiagram<double>> &bidder_diagrams_sad,
-        std::vector<BidderDiagram<double>> &bidder_diagrams_max);
-
-    double getMaxPers(const Diagram &data);
+    double getMaxPers(const ttk::DiagramType &data);
 
     int Wasserstein{2};
     double Alpha{1.0};
