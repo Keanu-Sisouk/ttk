@@ -40,7 +40,7 @@ void ttk::computeWeightedBarycenter(
 
   PersistenceDiagramClustering barycenterComputer{};
   barycenterComputer.setForceUseOfAlgorithm(true);
-  barycenterComputer.setUseCustomWeights(useCustomWeights);
+  barycenterComputer.setUseCustomWeights(true);
   barycenterComputer.setUseInterruptible(true);
   barycenterComputer.setUseProgressive(ProgBarycenter);
   barycenterComputer.setCustomWeights(&weights);

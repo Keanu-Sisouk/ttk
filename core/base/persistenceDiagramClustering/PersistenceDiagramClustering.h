@@ -143,7 +143,7 @@ namespace ttk {
     int points_deleted_;
 
     std::vector<double> *CustomWeights{};
-    bool UseCustomWeights{false};
+    bool UseCustomWeights{true};
   };
 
   void
