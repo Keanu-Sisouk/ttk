@@ -165,7 +165,7 @@ int ttkPersistenceDiagramDictDecoding::RequestData(
   }
 
 
-  std::cout << "PASSED 4!!!!!!!" << std::endl;
+
   // this->printMsg("=====ICI?======");
   auto output_dgm = vtkMultiBlockDataSet::GetData(outputVector, 0);
   auto output_coordinates = vtkTable::GetData(outputVector, 1);
@@ -224,7 +224,7 @@ void ttkPersistenceDiagramDictDecoding::outputDiagrams(
 
   vtkNew<vtkDoubleArray> dummy{};
 
-  std::cout << "HALO BOUYASHAKA" << "\n";
+
 
   if(nAtoms == 2) {
     ttk::PersistenceDiagramDistanceMatrix MatrixCalculator;
@@ -314,10 +314,10 @@ void ttkPersistenceDiagramDictDecoding::outputDiagrams(
     vtkNew<vtkUnstructuredGrid> vtu{};
     if(!ComputePoints) {
 
-      std::cout << "WAKAWAKA HEHE" << "\n";
+
       std::cout << "SIZE OF BARY: " << i << " IS " << diags[i].size() << "\n";
       DiagramToVTU(vtu, diags[i], dummy, *this, 3, false);
-      std::cout << "BOYASHIGA!!!!!" << "\n";
+
     }
 
     // for(int j = 0 ; j < weights_vtk->GetNumberOfColumns() ; ++i){
@@ -343,7 +343,7 @@ void ttkPersistenceDiagramDictDecoding::outputDiagrams(
       X += weights[i][iAtom] * coords[iAtom].first;
       Y += weights[i][iAtom] * coords[iAtom].second;
     }
-    std::cout << "n_existing_blocks = " << n_existing_blocks << "\n";
+
     TranslateDiagram(vtu, std::array<double, 3>{X, Y, 0.0});
     output->SetBlock(i + n_existing_blocks, vtu);
   }
@@ -352,7 +352,7 @@ void ttkPersistenceDiagramDictDecoding::outputDiagrams(
     vtkNew<vtkDoubleArray> col{};
     col->SetNumberOfValues(nDiags);
     std::string name;
-    std::cout << "NANI THE FUCK" << std::endl;
+
     if(i == 0) {
       name = "X";
     } else {
