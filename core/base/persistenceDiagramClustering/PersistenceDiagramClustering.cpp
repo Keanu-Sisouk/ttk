@@ -5,6 +5,7 @@ void ttk::computeWeightedBarycenter(
   std::vector<double> &weights,
   DiagramType &barycenter,
   std::vector<std::vector<MatchingType>> &matchings,
+  const ttk::Debug &dbg,
   const bool ProgBarycenter) {
 
   std::vector<DiagramType> final_centroids;
@@ -12,8 +13,6 @@ void ttk::computeWeightedBarycenter(
 
   bool useCustomWeights = true;
 
-  ttk::Debug dbg;
-  dbg.setDebugLevel(3);
   if(weights.size() == 0) {
     dbg.printMsg("Uniform weights");
     useCustomWeights = false;

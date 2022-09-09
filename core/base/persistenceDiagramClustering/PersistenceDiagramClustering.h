@@ -151,6 +151,7 @@ namespace ttk {
                               std::vector<double> &weights,
                               DiagramType &barycenter,
                               std::vector<std::vector<MatchingType>> &matchings,
+                              const ttk::Debug &dbg,
                               const bool ProgBarycenter);
 
 } // namespace ttk

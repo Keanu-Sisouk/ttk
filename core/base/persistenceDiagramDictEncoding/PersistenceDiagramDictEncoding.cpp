@@ -471,7 +471,7 @@ void PersistenceDiagramDictEncoding::method(
       std::vector<std::vector<ttk::MatchingType>> &matchings
         = allMatchingsAtoms[i];
       computeWeightedBarycenter(
-        dictDiagrams, weight, barycenter, matchings, ProgBarycenter);
+        dictDiagrams, weight, barycenter, matchings, *this, ProgBarycenter);
       // std::cout << "Barycenter" << i << std::endl;
       // for(int j = 0; j < barycenter.size(); ++j) {
       //   ttk::PersistencePair &t = barycenter[j];
@@ -827,7 +827,7 @@ void PersistenceDiagramDictEncoding::method(
         std::vector<std::vector<ttk::MatchingType>> &matchings
           = allMatchingsAtoms[i];
         computeWeightedBarycenter(
-          dictDiagrams, weight, barycenter, matchings, ProgBarycenter);
+          dictDiagrams, weight, barycenter, matchings, *this, ProgBarycenter);
         // for(int i = 0; i < barycenter.size(); ++i) {
         // ttk::PersistencePair &t = barycenter[i];
         // std::cout << "Pair: " << t.birth.sfValue << ", " << t.death.sfValue

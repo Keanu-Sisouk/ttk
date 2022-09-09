@@ -137,7 +137,7 @@ int ttkWeightedBarycenter::RequestData(vtkInformation * /*request*/,
       std::vector<std::vector<ttk::MatchingType>> matchings;
 
       computeWeightedBarycenter(
-        intermediateDiagrams_, weights, barycenter, matchings, true);
+        intermediateDiagrams_, weights, barycenter, matchings, *this, true);
 
       std::cout << "PRINT MATCHINGS" << std::endl;
       for(size_t ii = 0; ii < matchings.size(); ii++) {

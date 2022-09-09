@@ -16,7 +16,7 @@ void ttk::PersistenceDiagramDictDecoding::execute(
     auto &weight = vectorWeights[i];
     auto &matchings = AllMatchingsAtoms[i];
     computeWeightedBarycenter(
-      dictDiagrams, weight, barycenter, matchings, ProgBarycenter);
+      dictDiagrams, weight, barycenter, matchings, *this, ProgBarycenter);
   }
 
   this->printMsg(
