@@ -6,6 +6,8 @@ void ttk::PersistenceDiagramDictDecoding::execute(
   std::vector<std::vector<double>> &vectorWeights,
   std::vector<ttk::DiagramType> &Barycenters) const {
 
+  Timer tm{};
+
   std::vector<std::vector<std::vector<MatchingType>>> AllMatchingsAtoms(
     Barycenters.size());
 
@@ -16,4 +18,7 @@ void ttk::PersistenceDiagramDictDecoding::execute(
     computeWeightedBarycenter(
       dictDiagrams, weight, barycenter, matchings, ProgBarycenter);
   }
+
+  this->printMsg(
+    "Computed barycenters", 1.0, tm.getElapsedTime(), this->threadNumber_);
 }
