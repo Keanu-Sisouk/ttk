@@ -1253,6 +1253,7 @@ void PersistenceDiagramDictEncoding::method(
           if(t.birth.sfValue > t.death.sfValue) {
             t.death.sfValue = t.birth.sfValue;
           }
+          t.persistence = t.death.sfValue - t.birth.sfValue;
         }
       }
       this->printMsg("Computed 2nd opt for epoch " + std::to_string(epoch),

@@ -399,12 +399,15 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
               // count +=1;
 
               t1.birth.sfValue = t2[0];
+              t1.death.sfValue = t2[0];
+              //t1.persistence = t1.death.sfValue - t1.birth.sfValue;
               // std::get<10>(t1) = t2[0];
               // std::cout << "Under diag" << std::endl;
-              continue;
+              //continue;
             } else {
               t1.death.sfValue = t2[1];
             }
+            t1.persistence = t1.death.sfValue - t1.birth.sfValue;
           }
         }
       } else {
@@ -448,11 +451,16 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
             if(t2[1] < t2[0]) {
               // count+=1;
               t1.birth.sfValue = t2[0];
+              t1.death.sfValue = t2[0];
+              //t1.persistence = t1.death.sfValue - t1.birth.sfValue;
+
               // std::cout << "Under diag" << std::endl;
-              continue;
+              //continue;
             } else {
               t1.death.sfValue = t2[1];
             }
+            t1.persistence = t1.death.sfValue - t1.birth.sfValue;
+
           }
         }
       }
