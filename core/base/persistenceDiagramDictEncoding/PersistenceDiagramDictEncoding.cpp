@@ -649,6 +649,12 @@ void PersistenceDiagramDictEncoding::method(
       }
     }
 
+    if(loss < 1e-7){
+      cond = false;
+      do_optimizeWeights = false;
+      do_optimizeAtoms = false;
+    }
+
     double mini = *std::min_element(
       loss_tab.begin() + nbEpochPrevious, loss_tab.end() - 1);
     if(loss <= mini) {
