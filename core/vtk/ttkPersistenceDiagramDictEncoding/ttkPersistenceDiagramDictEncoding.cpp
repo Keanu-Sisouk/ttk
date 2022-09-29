@@ -21,7 +21,7 @@ vtkStandardNewMacro(ttkPersistenceDiagramDictEncoding);
 
 ttkPersistenceDiagramDictEncoding::ttkPersistenceDiagramDictEncoding() {
   SetNumberOfInputPorts(2);
-  SetNumberOfOutputPorts(5);
+  SetNumberOfOutputPorts(6);
 }
 
 int ttkPersistenceDiagramDictEncoding::FillInputPortInformation(
@@ -54,6 +54,9 @@ int ttkPersistenceDiagramDictEncoding::FillOutputPortInformation(
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkTable");
     return 1;
   } else if(port == 4) {
+    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkTable");
+    return 1;
+  } else if(port == 5) {
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkTable");
     return 1;
   } else {
@@ -152,6 +155,7 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
   auto output_loss = vtkTable::GetData(outputVector, 2);
   auto output_allLosses = vtkTable::GetData(outputVector, 3);
   auto true_output_loss = vtkTable::GetData(outputVector, 4);
+  auto output_timers = vtkTable::GetData(outputVector, 5);
   // int numAtom = this->GetAtomNumber();
   output_dgm->SetNumberOfBlocks(numAtom);
 
@@ -251,11 +255,12 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
 
   std::vector<double> loss_tab;
   std::vector<double> true_loss_tab;
+  std::vector<double> timers;
   std::vector<std::vector<double>> allLosses(nDiags);
   // const auto diagramsDistMat = this->execute(intermediateDiagrams,
   // dictDiagrams, vectorWeights,  nInputs);
   this->execute(intermediateDiagrams, intermediateAtoms, dictDiagrams,
-                vectorWeights, nInputs, seed, numAtom, loss_tab, true_loss_tab,
+                vectorWeights, nInputs, seed, numAtom, loss_tab, timers, true_loss_tab,
                 allLosses, this->percent_);
   // zero-padd column name to keep Row Data columns ordered
   // this->printMsg("============WE ARE HERE 173 AFTER EXECUTE============");
@@ -331,6 +336,16 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
     col->Modified();
     output_allLosses->AddColumn(col);
   }
+
+  vtkNew<vtkDoubleArray> colTimers{};
+  colTimers->SetNumberOfValues(timers.size());
+  colTimers->SetName("Timers");
+  for(size_t j = 0; j < timers.size() ; ++j){
+    colTimers->SetValue(j , timers[j]);
+  }
+  colTimers->Modified();
+  output_timers->AddColumn(colTimers);
+
   // this->printMsg("============WE ARE HERE 204 AFTER EXECUTE============");
 
   vtkNew<vtkFloatArray> dummy{};

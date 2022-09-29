@@ -21,6 +21,7 @@ void PersistenceDiagramDictEncoding::execute(
   const int seed,
   const int numAtom,
   std::vector<double> &loss_tab,
+  std::vector<double> &timers,
   std::vector<double> &true_loss_tab,
   std::vector<std::vector<double>> &allLosses,
   int percent_) {
@@ -48,6 +49,8 @@ void PersistenceDiagramDictEncoding::execute(
       intermediateDiagrams.size());
     std::vector<ttk::DiagramType> histoDictDiagrams(numAtom);
     this->maxLag2 = 5;
+    
+    Timer tm_method{};
     Timer tm_init{};
     bool preWeightOpt = false;
     InitDictionary(dictDiagrams, intermediateDiagrams, intermediateAtoms,
@@ -55,9 +58,9 @@ void PersistenceDiagramDictEncoding::execute(
     this->printMsg("Initialization computed ", 1, tm_init.getElapsedTime(),
                    threadNumber_, debug::LineMode::NEW);
     method(intermediateDiagrams, intermediateAtoms, dictDiagrams, vectorWeights,
-           nInputs, seed, numAtom, loss_tab, true_loss_tab, allLosses,
+           nInputs, seed, numAtom, loss_tab, true_loss_tab, timers, allLosses,
            histoVectorWeights, histoDictDiagrams, preWeightOpt, 0.01,
-           bidder_diagram_min, bidder_diagram_sad, bidder_diagram_max);
+           bidder_diagram_min, bidder_diagram_sad, bidder_diagram_max, tm_method);
   } else {
     for(size_t i = 0; i < intermediateDiagrams.size(); ++i) {
       auto &diag = intermediateDiagrams[i];
@@ -94,6 +97,7 @@ void PersistenceDiagramDictEncoding::execute(
     std::vector<ttk::DiagramType> histoDictDiagrams(numAtom);
     std::vector<ttk::DiagramType> dataTemp(intermediateDiagrams.size());
     bool preWeightOpt = true;
+    Timer tm_method{};
     for(size_t j = 0; j < 1; ++j) {
       double percentage = percentages[j];
       // std::vector<Diagram> dataTemp(intermediateDiagrams.size());
@@ -135,9 +139,9 @@ void PersistenceDiagramDictEncoding::execute(
                      threadNumber_, debug::LineMode::NEW);
 
       method(dataTemp, intermediateAtoms, dictDiagrams, vectorWeights, nInputs,
-             seed, numAtom, loss_tab, true_loss_tab, allLosses,
+             seed, numAtom, loss_tab, true_loss_tab, timers, allLosses,
              histoVectorWeights, histoDictDiagrams, preWeightOpt, 0.01,
-             bidder_diagram_min, bidder_diagram_sad, bidder_diagram_max);
+             bidder_diagram_min, bidder_diagram_sad, bidder_diagram_max, tm_method);
     }
 
     int min_pairs_to_add = 0;
@@ -218,9 +222,9 @@ void PersistenceDiagramDictEncoding::execute(
         continue;
       }
       method(dataTemp, intermediateAtoms, dictDiagrams, vectorWeights, nInputs,
-             seed, numAtom, loss_tab, true_loss_tab, allLosses,
+             seed, numAtom, loss_tab, true_loss_tab, timers, allLosses,
              histoVectorWeights, histoDictDiagrams, preWeightOpt, 0.01,
-             bidder_diagram_min, bidder_diagram_sad, bidder_diagram_max);
+             bidder_diagram_min, bidder_diagram_sad, bidder_diagram_max, tm_method);
       // sum = 0;
       // for(size_t i = 0 ; i < intermediateDiagrams.size() ; ++i){
       // sum += sizeCheck[i];
@@ -228,6 +232,10 @@ void PersistenceDiagramDictEncoding::execute(
 
       // q += 20;
     }
+
+    this->printMsg(
+      "Total time", 1.0, tm_method.getElapsedTime(),
+      threadNumber_);
   }
 }
 
@@ -241,6 +249,7 @@ void PersistenceDiagramDictEncoding::method(
   const int numAtom,
   std::vector<double> &loss_tab,
   std::vector<double> &true_loss_tab,
+  std::vector<double> &timers,
   std::vector<std::vector<double>> &allLosses,
   std::vector<std::vector<double>> &histoVectorWeights,
   std::vector<ttk::DiagramType> &histoDictDiagrams,
@@ -248,7 +257,8 @@ void PersistenceDiagramDictEncoding::method(
   double acc,
   std::vector<BidderDiagram> &true_bidder_diagram_min,
   std::vector<BidderDiagram> &true_bidder_diagram_sad,
-  std::vector<BidderDiagram> &true_bidder_diagram_max) {
+  std::vector<BidderDiagram> &true_bidder_diagram_max,
+  Timer &tm_method) {
 
   Timer tm{};
   double tm_part = 0.;
@@ -634,11 +644,13 @@ void PersistenceDiagramDictEncoding::method(
     }
 
     loss_tab.push_back(loss);
+    
 
     printMsg(
       " Epoch " + std::to_string(epoch) + ", loss = " + std::to_string(loss), 1,
       threadNumber_, ttk::debug::LineMode::REPLACE);
     true_loss_tab.push_back(true_loss);
+    timers.push_back(tm_method.getElapsedTime());
 
     // if(OptimizeWeights && OptimizeAtoms){
     if(preWeightOpt && OptimizeAtoms) {
@@ -2230,8 +2242,10 @@ int PersistenceDiagramDictEncoding::InitDictionary(
           std::vector<ttk::DiagramType> dictTemp;
           std::vector<ttk::DiagramType> dataAlone;
           std::vector<double> lossTabTemp;
+          std::vector<double> timersTemp;
           std::vector<double> trueLossTabTemp;
           std::vector<std::vector<double>> allLossesTemp(1);
+          Timer tm_temp{};
 
           for(size_t p = 0; p < dictDiagrams.size(); ++p) {
             if(p != j) {
@@ -2251,9 +2265,9 @@ int PersistenceDiagramDictEncoding::InitDictionary(
           std::vector<BidderDiagram> bidderTempSad(dataAlone.size());
           this->method(dataAlone, inputAtoms, dictTemp, weightsTemp,
                        nInputsUseless, seed, static_cast<int>(dictTemp.size()),
-                       lossTabTemp, trueLossTabTemp, allLossesTemp,
+                       lossTabTemp, trueLossTabTemp, timersTemp, allLossesTemp,
                        histoVectorWeights, histoDictDiagrams, false, 0.01,
-                       bidderTempMin, bidderTempSad, bidderTempMax);
+                       bidderTempMin, bidderTempSad, bidderTempMax, tm_temp);
           double min_loss
             = *std::min_element(lossTabTemp.begin(), lossTabTemp.end());
           allEnergy[j] = min_loss;

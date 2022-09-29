@@ -40,6 +40,7 @@ namespace ttk {
                  const int seed,
                  const int numAtom,
                  std::vector<double> &loss_tab,
+                 std::vector<double> &timers,
                  std::vector<double> &true_loss_tab,
                  std::vector<std::vector<double>> &allLosses,
                  int percent_);
@@ -53,6 +54,7 @@ namespace ttk {
                 const int numAtom,
                 std::vector<double> &loss_tab,
                 std::vector<double> &true_loss_tab,
+                std::vector<double> &timers,
                 std::vector<std::vector<double>> &allLosses,
                 std::vector<std::vector<double>> &histoVectorWeights,
                 std::vector<ttk::DiagramType> &histoDictDiagrams,
@@ -60,7 +62,8 @@ namespace ttk {
                 double acc,
                 std::vector<BidderDiagram> &true_bidder_diagram_min,
                 std::vector<BidderDiagram> &true_bidder_diagram_sad,
-                std::vector<BidderDiagram> &true_bidder_diagram_max);
+                std::vector<BidderDiagram> &true_bidder_diagram_max,
+                Timer &tm_method);
 
     enum class BACKEND {
       BORDER_INIT = 0,
