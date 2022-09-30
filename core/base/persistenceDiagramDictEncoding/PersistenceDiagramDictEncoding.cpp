@@ -679,6 +679,7 @@ void PersistenceDiagramDictEncoding::method(
         histoVectorWeights[p] = weights;
       }
       lag = 0;
+      lag3 = 0;
     } else {
       if(epoch > MIN_EPOCH) {
         lag += 1;
@@ -690,7 +691,7 @@ void PersistenceDiagramDictEncoding::method(
     if(loss_tab[epoch] > 2 * mini) {
       lag3 += 1;
       // if(epoch > MIN_EPOCH){
-      if((lag3 > 1) && StopCondition) {
+      if((lag3 > 3) && StopCondition) {
         std::cout << "NANI?"
                   << "\n";
         this->printMsg("Loss increasing too much");
