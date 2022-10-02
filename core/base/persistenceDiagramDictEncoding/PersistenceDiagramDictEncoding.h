@@ -206,6 +206,7 @@ namespace ttk {
     bool OptimizeAtoms{true};
 
     bool CreationFeatures{true};
+    bool explicitSol{false};
     bool Fusion{false};
     bool ProgBarycenter{false};
 
