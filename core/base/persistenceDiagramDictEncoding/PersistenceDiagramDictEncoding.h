@@ -154,7 +154,8 @@ namespace ttk {
       const std::vector<size_t> &indexDataSad,
       std::vector<int> &checker,
       std::vector<std::vector<std::array<double, 2>>> &pairToAddGradList,
-      ttk::DiagramType &infoToAdd) const;
+      ttk::DiagramType &infoToAdd,
+      int nbDiags) const;
     
     void computeExplicitSolution(
         std::vector<ttk::DiagramType> &DictDiagrams,
@@ -168,7 +169,7 @@ namespace ttk {
         std::vector<std::vector<std::array<double,2 >>> &allProjLocations,
         std::vector<std::vector<std::vector<double>>> &allVectorForProjContrib,
         std::vector<std::vector<std::vector<std::array<double, 2>>>> &allPairToAddGradList,
-        ttk::DiagramType &allInfoToAdd);
+        std::vector<ttk::DiagramType> &allInfoToAdd);
 
     // A modifier
     void

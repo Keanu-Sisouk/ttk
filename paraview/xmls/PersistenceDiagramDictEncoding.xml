@@ -99,7 +99,7 @@
         </Hints>
       </IntVectorProperty>
 
-      
+
       <IntVectorProperty name = "percent_" label = "percent threshold" command="Setpercent_" number_of_elements = "1" default_values="0" >
       <IntRangeDomain name = "Range" min = "0" max = "50" />
         <Hints>
@@ -138,7 +138,7 @@
       </IntVectorProperty>
 
 
-        
+
         <IntVectorProperty
         name="MaxEigenValue"
         command="SetMaxEigenValue"
@@ -165,7 +165,7 @@
         </Documentation>
       </IntVectorProperty>
 
-          
+
         <IntVectorProperty
         name="ProgBarycenter"
         command="SetProgBarycenter"
@@ -194,7 +194,7 @@
         </Documentation>
       </IntVectorProperty>
 
-        
+
         <IntVectorProperty
         name="StopCondition"
         command="SetStopCondition"
@@ -208,7 +208,20 @@
         </Documentation>
       </IntVectorProperty>
 
-        
+      <IntVectorProperty
+      name="explicitSol"
+      command="SetexplicitSol"
+      label="explicit solution atom"
+      number_of_elements="1"
+      default_values="0"
+      panel_visibility="advanced">
+      <BooleanDomain name="bool"/>
+      <Documentation>
+          Activate progressive approach
+      </Documentation>
+    </IntVectorProperty>
+
+
         <IntVectorProperty
         name="sortedForTest"
         command="SetsortedForTest"
