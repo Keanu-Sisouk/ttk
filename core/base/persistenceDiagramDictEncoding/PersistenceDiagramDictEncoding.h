@@ -155,6 +155,20 @@ namespace ttk {
       std::vector<int> &checker,
       std::vector<std::vector<std::array<double, 2>>> &pairToAddGradList,
       ttk::DiagramType &infoToAdd) const;
+    
+    void computeExplicitSolution(
+        std::vector<ttk::DiagramType> &DictDiagrams,
+        const std::vector<std::vector<Matrix>> &gradsAtomsList,
+        const std::vector<std::vector<std::vector<ttk::MatchingType>>> &allMatchings,
+        const std::vector<ttk::DiagramType> &Barycenters,
+        const int nb_points,
+        const std::vector<std::vector<int>> &checkerAtomsList,
+        std::vector<std::vector<std::vector<int>>> &allProjForDiag,
+        std::vector<ttk::DiagramType> &allFeaturesToAdd,
+        std::vector<std::vector<std::array<double,2 >>> &allProjLocations,
+        std::vector<std::vector<std::vector<double>>> &allVectorForProjContrib,
+        std::vector<std::vector<std::vector<std::array<double, 2>>>> &allPairToAddGradList,
+        ttk::DiagramType &allInfoToAdd);
 
     // A modifier
     void

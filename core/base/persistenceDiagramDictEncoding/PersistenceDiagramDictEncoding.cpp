@@ -2158,6 +2158,75 @@ void PersistenceDiagramDictEncoding::computeGradientAtoms(
   // return gradsLists;
 }
 
+
+void PersistenceDiagramDictEncoding::computeExplicitSolution(
+    std::vector<ttk::DiagramType> &DictDiagrams,
+    const std::vector<std::vector<Matrix>> &gradsAtomsList,
+    const std::vector<std::vector<std::vector<ttk::MatchingType>>> &allMatchings,
+    const std::vector<ttk::DiagramType> &Barycenters,
+    const int nb_points,
+    const std::vector<std::vector<int>> &checkerAtomsList,
+    std::vector<std::vector<std::vector<int>>> &allProjForDiag,
+    std::vector<ttk::DiagramType> &allFeaturesToAdd,
+    std::vector<std::vector<std::array<double, 2>>> &allProjLocations,
+    std::vector<std::vector<std::vector<double>>> &allVectorForProjContrib,
+    std::vector<std::vector<std::vector<std::array<double, 2>>>> &allPairToAddGradList,
+    ttk::DiagramType &allInfoToAdd){
+  
+  size_t nbAtoms = DictDiagrams.size();
+  size_t nbDiags = Barycenters.size();
+  std::vector<std::vector<std::vector<std::array<double, 2>>>> all_grad_list(nbDiags);
+  std::vector<std::vector<std::vector<double>>> allProjectionsBuffer(nbDiags);
+  std::vector<std::vector<std::vector<int>>> allChecker(nbDiags);
+  std::vector<std::vector<int> allTracker(nbDiags);
+  std::vector<std::vector<std::vector<int>>> allTrackerDiagonal(nbDiags);
+  std::vector<std::vector<std::vector<int>>> allTrackerMatch(nbDiags);
+  for(size_t i = 0; i < nbDiags ; ++i){
+    auto &grad_list = all_grad_list[i];
+    auto &projectionBuffer = allProjectionsBuffer[i];
+    auto &checker = allChecker[i];
+    auto &Barycenter = Barycenters[i];
+    auto &tracker = allTracker[i];
+    auto &tracker_diagonal = allTrackerDiagonal[i];
+    auto &tracker_match = allTrackerMatch[i];
+    size_t sizeBary = Barycenter.size();
+    grad_list.resize(sizeTemp);
+    projectionBuffer.resize(sizeBary);
+    checker.resize(sizeBary);
+    tracker.resize(sizeBary);
+    tracker_diagonal.resize(sizeBary);
+    tracker_match.resize(sizeBary);
+    for(size_t j = 0; j < sizeBary; ++j){
+      projectionBuffer[j].resize(nbAtoms);
+      grad_list[j].resize(nbAtoms);
+      checker[j].resize(nbAtoms);
+      tracker[j] = 0;
+      tracker_diagonal[j].resize(nbAtoms);
+      tracker_match[j].resize(nbAtoms);
+    }
+  }
+  
+  for(size_t i = 0 ; i < nbDiags ; ++i){    
+    auto &grad_list = all_grad_list[i];
+    auto &projectionBuffer = allProjectionsBuffer[i];
+    auto &checker = allChecker[i];
+    auto &Barycenter = Barycenters[i];
+    auto &tracker = allTracker[i];
+    auto &tracker_diagonal = allTrackerDiagonal[i];
+    auto &tracker_match = allTrackerMatch[i];
+    size_t sizeBary = Barycenter.size();
+
+
+
+  }
+
+
+
+}
+    
+
+
+
 // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
 // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
 // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
