@@ -2227,14 +2227,14 @@ void PersistenceDiagramDictEncoding::computeExplicitSolution(
   }
 
 
-  std::vector<std::vector<std::vector<std::array<double, 2>>>> all_grad_list(nbDiags);
+  //std::vector<std::vector<std::vector<std::array<double, 2>>>> all_grad_list(nbDiags);
   std::vector<std::vector<std::vector<double>>> allProjectionsBuffer(nbDiags);
   std::vector<std::vector<std::vector<int>>> allChecker(nbDiags);
   std::vector<std::vector<int>> allTracker(nbDiags);
   std::vector<std::vector<std::vector<int>>> allTrackerDiagonal(nbDiags);
   std::vector<std::vector<std::vector<int>>> allTrackerMatch(nbDiags);
   for(size_t i = 0; i < nbDiags ; ++i){
-    auto &grad_list = all_grad_list[i];
+    //auto &grad_list = all_grad_list[i];
     auto &projectionBuffer = allProjectionsBuffer[i];
     auto &checker = allChecker[i];
     auto &Barycenter = Barycenters[i];
@@ -2242,7 +2242,7 @@ void PersistenceDiagramDictEncoding::computeExplicitSolution(
     auto &tracker_diagonal = allTrackerDiagonal[i];
     auto &tracker_match = allTrackerMatch[i];
     size_t sizeBary = Barycenter.size();
-    grad_list.resize(sizeBary);
+    //grad_list.resize(sizeBary);
     projectionBuffer.resize(sizeBary);
     checker.resize(sizeBary);
     tracker.resize(sizeBary);
@@ -2250,7 +2250,7 @@ void PersistenceDiagramDictEncoding::computeExplicitSolution(
     tracker_match.resize(sizeBary);
     for(size_t j = 0; j < sizeBary; ++j){
       projectionBuffer[j].resize(nbAtoms);
-      grad_list[j].resize(nbAtoms);
+      //grad_list[j].resize(nbAtoms);
       checker[j].resize(nbAtoms);
       tracker[j] = 0;
       tracker_diagonal[j].resize(nbAtoms);
@@ -2260,7 +2260,7 @@ void PersistenceDiagramDictEncoding::computeExplicitSolution(
   
   for(size_t i = 0 ; i < nbDiags ; ++i){   
     auto &gradsList = gradsAtomsList[i];
-    auto &grad_list = all_grad_list[i];
+    //auto &grad_list = all_grad_list[i];
     auto &matchings = allMatchings[i];
     auto &projectionBuffer = allProjectionsBuffer[i];
     auto &projForDiag = allProjForDiag[i];
@@ -2283,8 +2283,8 @@ void PersistenceDiagramDictEncoding::computeExplicitSolution(
         const SimplexId Id1 = std::get<0>(t);
         // Id in barycenter
         const SimplexId Id2 = std::get<1>(t);
-        if(Id2 < 0 || static_cast<SimplexId>(grad_list.size()) <= Id2
-            || static_cast<SimplexId>(DictDiagrams[i].size()) <= Id1){
+        if(Id2 < 0 || static_cast<SimplexId>(Barycenter.size()) <= Id2
+            || static_cast<SimplexId>(DictDiagrams[j].size()) <= Id1){
           continue;
         } else {
           if(Id1 < 0){
@@ -2293,23 +2293,23 @@ void PersistenceDiagramDictEncoding::computeExplicitSolution(
             const double death_barycenter = t3.death.sfValue;
             const double birth_death_atom
               = birth_barycenter + (death_barycenter - birth_barycenter) / 2.;
-            checker[Id2][i] = i;
+            checker[Id2][j] = j;
             tracker[Id2] = 1;
-            tracker_match[Id2][i] = Id1;
-            tracker_diagonal[Id2][i] = 1;
-            projectionBuffer[Id2][i] = birth_death_atom;
+            tracker_match[Id2][j] = Id1;
+            tracker_diagonal[Id2][j] = 1;
+            projectionBuffer[Id2][j] = birth_death_atom;
           } else {
-            checker[Id2][i] = i;
+            checker[Id2][j] = j;
             tracker[Id2] = 1;
-            tracker_match[Id2][i] = Id1;
-            tracker_diagonal[Id2][i] = 0;
-            projectionBuffer[Id2][i] = 0.;
+            tracker_match[Id2][j] = Id1;
+            tracker_diagonal[Id2][j] = 0;
+            projectionBuffer[Id2][j] = 0.;
           }
         }
       }
     }
-    grad_list.insert(
-        grad_list.end(), pairToAddGradList.begin(), pairToAddGradList.end());
+    //grad_list.insert(
+    //    grad_list.end(), pairToAddGradList.begin(), pairToAddGradList.end());
     for(size_t j = 0; j < pairToAddGradList.size(); ++j){
       std::vector<int> temp1(matchings.size(), 1);
       std::vector<int> temp2(matchings.size(), -1);
@@ -2358,9 +2358,9 @@ void PersistenceDiagramDictEncoding::computeExplicitSolution(
               projAndIndex[DictDiagrams.size()] = atomIndex;
               projForDiag.push_back(projAndIndex);
               featuresToAdd.push_back(infos);
-              std::array<double, 2> proj{gradsList[i][index][0], gradsList[i][index][1]};
+              std::array<double, 2> proj{gradsList[j][index][0], gradsList[j][index][1]};
               projLocations.push_back(proj);
-              vectorForProjContrib.push_back(gradsList[i][index]);
+              vectorForProjContrib.push_back(gradsList[j][index]);
             } else {
               auto &index = checker[j][k];
               auto &t2 = gradsList[j][index];
