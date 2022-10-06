@@ -1119,8 +1119,12 @@ void PersistenceDiagramDictEncoding::method(
                   continue;
                 }
               } else {
-                pair[0] = vectorContrib[0] / static_cast<double>(nDiags);
-                pair[1] = vectorContrib[1] / static_cast<double>(nDiags);
+                pair[0] = vectorContrib[0]
+                          / (static_cast<double>(nDiags)
+                             * static_cast<double>(numAtom));
+                pair[1] = vectorContrib[1]
+                          / (static_cast<double>(nDiags)
+                             * static_cast<double>(numAtom));
               }
               PersistencePair newPair{CriticalVertex{0, c1, pair[0], {}},
                                       CriticalVertex{0, c2, pair[1], {}},
@@ -1163,8 +1167,12 @@ void PersistenceDiagramDictEncoding::method(
                     continue;
                   }
                 } else {
-                  pair[0] = vectorContrib[0] / static_cast<double>(nDiags);
-                  pair[1] = vectorContrib[1] / static_cast<double>(nDiags);
+                  pair[0] = vectorContrib[0]
+                            / (static_cast<double>(nDiags)
+                               * static_cast<double>(numAtom));
+                  pair[1] = vectorContrib[1]
+                            / (static_cast<double>(nDiags)
+                               * static_cast<double>(numAtom));
                 }
 
                 PersistencePair newPair{CriticalVertex{0, c1, pair[0], {}},
@@ -1187,10 +1195,12 @@ void PersistenceDiagramDictEncoding::method(
                     tReal.death.sfValue = tReal.birth.sfValue;
                   }
                 } else {
-                  tReal.birth.sfValue
-                    += vectorContrib[0] / static_cast<double>(nDiags);
-                  tReal.death.sfValue
-                    += vectorContrib[1] / static_cast<double>(nDiags);
+                  tReal.birth.sfValue += vectorContrib[0]
+                                         / (static_cast<double>(nDiags)
+                                            * static_cast<double>(numAtom));
+                  tReal.death.sfValue += vectorContrib[1]
+                                         / (static_cast<double>(nDiags)
+                                            * static_cast<double>(numAtom));
                 }
                 tReal.persistence = tReal.death.sfValue - tReal.birth.sfValue;
               }
@@ -2376,8 +2386,12 @@ void PersistenceDiagramDictEncoding::computeExplicitSolution(
               auto &index = checker[j][k];
               auto &t2 = gradsList[j][index];
               auto &t1 = atomsBuffer[index][tracker_temp];
-              t1[0] += t2[0] / static_cast<double>(nbDiags);
-              t1[1] += t2[1] / static_cast<double>(nbDiags);
+              t1[0] += t2[0]
+                       / (static_cast<double>(nbDiags)
+                          * static_cast<double>(nbAtoms));
+              t1[1] += t2[1]
+                       / (static_cast<double>(nbDiags)
+                          * static_cast<double>(nbAtoms));
             }
           }
         }
