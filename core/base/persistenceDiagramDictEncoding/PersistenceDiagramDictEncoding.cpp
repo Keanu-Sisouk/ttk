@@ -1,4 +1,3 @@
-#include "PersistenceDiagramUtils.h"
 #include <algorithm>
 #include <cmath>
 
@@ -347,7 +346,7 @@ void PersistenceDiagramDictEncoding::method(
       const ttk::PersistencePair &t = CTDiagram[j];
       const ttk::CriticalType nt1 = t.birth.type;
       const ttk::CriticalType nt2 = t.death.type;
-      const double pers = t.persistence;
+      const double pers = t.persistence();
       // maxDiagPersistence[i] = std::max(pers, maxDiagPersistence[i]);
 
       if(pers > 0) {
@@ -523,7 +522,7 @@ void PersistenceDiagramDictEncoding::method(
         const ttk::PersistencePair &t = barycenter[j];
         const ttk::CriticalType nt1 = t.birth.type;
         const ttk::CriticalType nt2 = t.death.type;
-        const double pers = t.persistence;
+        const double pers = t.persistence();
         // maxDiagPersistence[i] = std::max(pers, maxDiagPersistence[i]);
 
         if(pers > 0) {
@@ -901,7 +900,7 @@ void PersistenceDiagramDictEncoding::method(
           const ttk::PersistencePair &t = barycenter[j];
           const ttk::CriticalType nt1 = t.birth.type;
           const ttk::CriticalType nt2 = t.death.type;
-          const double pers = t.persistence;
+          const double pers = t.persistence();
           // maxDiagPersistence[i] = std::max(pers, maxDiagPersistence[i]);
 
           if(pers > 0) {
@@ -1128,7 +1127,7 @@ void PersistenceDiagramDictEncoding::method(
               }
               PersistencePair newPair{CriticalVertex{0, c1, pair[0], {}},
                                       CriticalVertex{0, c2, pair[1], {}},
-                                      pair[1] - pair[0], idTemp, true};
+                                      idTemp, true};
               allTrueProj[atomIndex].push_back(proj);
               allTrueFeaturesToAdd[atomIndex].push_back(newPair);
               allTrueProjLoc[atomIndex].push_back(pair);
@@ -1177,7 +1176,7 @@ void PersistenceDiagramDictEncoding::method(
 
                 PersistencePair newPair{CriticalVertex{0, c1, pair[0], {}},
                                         CriticalVertex{0, c2, pair[1], {}},
-                                        pair[1] - pair[0], idTemp, true};
+                                        idTemp, true};
                 allTrueProj[atomIndex].push_back(proj);
                 allTrueFeaturesToAdd[atomIndex].push_back(newPair);
                 allTrueProjLoc[atomIndex].push_back(pair);
@@ -1202,7 +1201,6 @@ void PersistenceDiagramDictEncoding::method(
                                          / (static_cast<double>(nDiags)
                                             * static_cast<double>(numAtom));
                 }
-                tReal.persistence = tReal.death.sfValue - tReal.birth.sfValue;
               }
             }
           }
@@ -1309,7 +1307,6 @@ void PersistenceDiagramDictEncoding::method(
           if(t.birth.sfValue > t.death.sfValue) {
             t.death.sfValue = t.birth.sfValue;
           }
-          t.persistence = t.death.sfValue - t.birth.sfValue;
         }
       }
       this->printMsg("Computed 2nd opt for epoch " + std::to_string(epoch),
@@ -2411,7 +2408,6 @@ void PersistenceDiagramDictEncoding::computeExplicitSolution(
       if(t2[1] > 0.) {
         t1.death.sfValue = t2[1];
       }
-      t1.persistence = t1.death.sfValue - t1.birth.sfValue;
     }
   }
 }
@@ -2696,7 +2692,7 @@ void PersistenceDiagramDictEncoding::gettingBidderDiagrams(
       const PersistencePair &t = CTDiagram[j];
       const ttk::CriticalType nt1 = t.birth.type;
       const ttk::CriticalType nt2 = t.death.type;
-      const double pers = t.persistence;
+      const double pers = t.persistence();
       // maxDiagPersistence[i] = std::max(pers, maxDiagPersistence[i]);
 
       if(pers > 0) {

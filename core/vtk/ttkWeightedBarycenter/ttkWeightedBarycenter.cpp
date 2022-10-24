@@ -93,7 +93,7 @@ int ttkWeightedBarycenter::RequestData(vtkInformation * /*request*/,
 
     for(int i = 0; i < numInputs; i++) {
       VTUToDiagram(this->intermediateDiagrams_[i], input[i], *this);
-      max_persistences[i] = intermediateDiagrams_[i][0].persistence;
+      max_persistences[i] = intermediateDiagrams_[i][0].persistence();
     }
 
     this->max_dimension_total_

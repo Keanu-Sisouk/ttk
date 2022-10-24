@@ -407,7 +407,6 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
             } else {
               t1.death.sfValue = t2[1];
             }
-            t1.persistence = t1.death.sfValue - t1.birth.sfValue;
           }
         }
       } else {
@@ -459,7 +458,6 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
             } else {
               t1.death.sfValue = t2[1];
             }
-            t1.persistence = t1.death.sfValue - t1.birth.sfValue;
 
           }
         }

@@ -427,7 +427,7 @@ double ttkPersistenceDiagramDictDecoding::getMaxPersistence(
   double max_persistence{0};
   for(size_t i = 0; i < diagram.size(); ++i) {
     const auto &t = diagram[i];
-    const double &pers = t.persistence;
+    const double &pers = t.persistence();
     max_persistence = std::max(pers, max_persistence);
   }
   return max_persistence;
