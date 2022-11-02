@@ -100,8 +100,8 @@
       </IntVectorProperty>
 
 
-      <IntVectorProperty name = "percent_" label = "percent threshold" command="Setpercent_" number_of_elements = "1" default_values="0" >
-      <IntRangeDomain name = "Range" min = "0" max = "50" />
+      <DoubleVectorProperty name = "percent_" label = "percent threshold" command="Setpercent_" number_of_elements = "1" default_values="0" >
+      <DoubleRangeDomain name = "Range" min = "0.0" max = "50.0" />
         <Hints>
           <PropertyWidgetDecorator type="GenericDecorator"
             mode="visibility"
@@ -109,7 +109,7 @@
             value="3"
             inverse="1"/>
         </Hints>
-      </IntVectorProperty>
+      </DoubleVectorProperty>
 
         <IntVectorProperty
         name="OptimizeWeights"

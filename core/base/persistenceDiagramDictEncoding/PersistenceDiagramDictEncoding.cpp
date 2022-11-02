@@ -29,7 +29,7 @@ void PersistenceDiagramDictEncoding::execute(
   std::vector<double> &timers,
   std::vector<double> &true_loss_tab,
   std::vector<std::vector<double>> &allLosses,
-  int percent_) {
+  double percent_) {
 
   if(!ProgApproach) {
 
@@ -88,7 +88,7 @@ void PersistenceDiagramDictEncoding::execute(
     // std::vector<double> percentages{0.8 , 0.6 , 0.5, 0.4, 0.3 , 0.2};
     // std::vector<double> percentages{0.3 , 0.2 , 0.1 , 0.05, 0.01};
     int start = 20;
-    int stop = percent_;
+    double stop = percent_;
     std::vector<double> percentages;
     for(int value = start; value > stop; value -= 5) {
       percentages.push_back(static_cast<double>(value) / 100.);

@@ -43,7 +43,7 @@ namespace ttk {
                  std::vector<double> &timers,
                  std::vector<double> &true_loss_tab,
                  std::vector<std::vector<double>> &allLosses,
-                 int percent_);
+                 double percent_);
 
     void method(const std::vector<ttk::DiagramType> &intermediateDiagrams,
                 const std::vector<ttk::DiagramType> &intermediateAtoms,
