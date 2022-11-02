@@ -159,6 +159,7 @@ namespace ttk {
     
     void computeExplicitSolution(
         std::vector<ttk::DiagramType> &DictDiagrams,
+        const std::vector<std::vector<double>> &vectorWeights,
         const std::vector<std::vector<Matrix>> &gradsAtomsList,
         const std::vector<std::vector<std::vector<ttk::MatchingType>>> &allMatchings,
         const std::vector<ttk::DiagramType> &Barycenters,
