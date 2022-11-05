@@ -660,7 +660,7 @@ void PersistenceDiagramDictEncoding::method(
 
     // if(OptimizeWeights && OptimizeAtoms){
     if(preWeightOpt && OptimizeAtoms) {
-      if(epoch < 3) {
+      if(epoch < 20) {
         do_optimizeAtoms = false;
       } else {
         do_optimizeAtoms = true;
@@ -1090,7 +1090,7 @@ void PersistenceDiagramDictEncoding::method(
         double factEquiv = static_cast<double>(numAtom);
         // double factEquiv = 1.;
         // double step = 1. / (sqrt(factEquiv) * 1e1);
-        double step = 1. / (2. * 2. * factEquiv);
+        double step = 1. / (2. * 2. * 2. * factEquiv);
         for(size_t i = 0; i < nDiags; ++i) {
           auto &projForDiag = allProjectionsList[i];
           auto &featuresToAdd = allFeaturesToAdd[i];
