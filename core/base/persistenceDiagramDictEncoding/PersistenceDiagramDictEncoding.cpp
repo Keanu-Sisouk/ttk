@@ -660,7 +660,7 @@ void PersistenceDiagramDictEncoding::method(
 
     // if(OptimizeWeights && OptimizeAtoms){
     if(preWeightOpt && OptimizeAtoms) {
-      if(epoch < 20) {
+      if(epoch < 3) {
         do_optimizeAtoms = false;
       } else {
         do_optimizeAtoms = true;
