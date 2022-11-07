@@ -694,7 +694,7 @@ void PersistenceDiagramDictEncoding::method(
       }
     }
 
-    if(loss_tab[epoch] > 2 * mini) {
+    if(loss_tab[epoch] > 2 * loss_tab[epoch - 1]) {
       lag3 += 1;
       // if(epoch > MIN_EPOCH){
       if((lag3 > 3) && StopCondition) {
