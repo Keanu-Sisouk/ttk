@@ -448,7 +448,24 @@ void PersistenceDiagramDictEncoding::method(
     initSizes[j] = dictDiagrams[j].size();
   }
 
+  double factEquiv = static_cast<double>(numAtom);
+  // double factEquiv = 1.;
+  // double step = 1. / (sqrt(factEquiv) * 1e1);
+  double step = 1. / (2. * 2. * factEquiv);
+  gradActor.setStep(factEquiv);
+
   // std::vector<ttk::DiagramType> histoDictDiagrams(dictDiagrams.size());
+  // BUFFERS
+  std::vector<std::vector<int>> bufferHistoAllEpochLife(dictDiagrams.size());
+  std::vector<std::vector<bool>> bufferHistoAllBoolLife(dictDiagrams.size());
+  std::vector<std::vector<bool>> bufferCheckUnderDiag(dictDiagrams.size());
+  std::vector<std::vector<bool>> bufferCheckDiag(dictDiagrams.size());
+  std::vector<std::vector<bool>> bufferCheckAboveGlobal(dictDiagrams.size());
+
+
+
+
+
   std::vector<std::vector<int>> histoAllEpochLife(dictDiagrams.size());
   std::vector<std::vector<bool>> histoAllBoolLife(dictDiagrams.size());
   std::vector<std::vector<bool>> checkUnderDiag(dictDiagrams.size());
@@ -679,6 +696,19 @@ void PersistenceDiagramDictEncoding::method(
       for(size_t p = 0; p < dictDiagrams.size(); ++p) {
         const auto atom = dictDiagrams[p];
         histoDictDiagrams[p] = atom;
+
+        const auto &histoEpochAtom = histoAllEpochLife[p];
+        const auto &histoBoolAtom = histoAllBoolLife[p];
+        const auto &boolUnderDiag = checkUnderDiag[p];
+        const auto &boolDiag = checkDiag[p];
+        const auto &boolAboveGlobal = checkAboveGlobal[p];
+
+        bufferHistoAllEpochLife[p] = histoEpochAtom;
+        bufferHistoAllBoolLife[p] = histoBoolAtom;
+        bufferCheckUnderDiag[p] = boolUnderDiag;
+        bufferCheckDiag[p] = boolDiag;
+        bufferCheckAboveGlobal[p] = boolAboveGlobal;
+        
       }
       for(size_t p = 0; p < nDiags; ++p) {
         const auto weights = vectorWeights[p];
@@ -694,30 +724,11 @@ void PersistenceDiagramDictEncoding::method(
       }
     }
 
-    if(loss_tab[epoch] > 2 * loss_tab[epoch - 1]) {
-      lag3 += 1;
-      // if(epoch > MIN_EPOCH){
-      if((lag3 > 3) && StopCondition) {
-        std::cout << "NANI?"
-                  << "\n";
-        this->printMsg("Loss increasing too much");
-        for(size_t p = 0; p < dictDiagrams.size(); ++p) {
-          const auto atom = histoDictDiagrams[p];
-          dictDiagrams[p] = atom;
-        }
-        for(size_t p = 0; p < nDiags; ++p) {
-          const auto weights = histoVectorWeights[p];
-          vectorWeights[p] = weights;
-        }
-        do_optimizeWeights = false;
-        do_optimizeAtoms = false;
-        cond = false;
-      }
-    }
+
 
     // this->printMsg("LAG" + std::to_string(lag));
     // std::cout << "LAG" << lag << std::endl;
-    if((epoch > MIN_EPOCH) && (loss_tab[epoch] / loss_tab[epoch - 1] > 0.99)) {
+    if((epoch > MIN_EPOCH) && (loss_tab[epoch + nbEpochPrevious] / loss_tab[epoch + nbEpochPrevious - 1] > 0.99)) {
       if(loss_tab[epoch] < loss_tab[epoch - 1]) {
         // if(true){
         if(lag2 == this->maxLag2) {
@@ -761,6 +772,194 @@ void PersistenceDiagramDictEncoding::method(
         do_optimizeAtoms = false;
 
         cond = false;
+      }
+    }
+
+    if(cond  && (epoch > 0) &&  (loss_tab[epoch + nbEpochPrevious] > 2. * mini)) {
+      lag3 += 1;
+      // if(epoch > MIN_EPOCH){
+      if((lag3 > 2) && StopCondition ) {
+        std::cout << "NANI?"
+                  << "\n";
+        this->printMsg("Loss increasing too much, reducing step and recompute Barycenters and matchings");
+        for(size_t p = 0; p < dictDiagrams.size(); ++p) {
+          const auto atom = histoDictDiagrams[p];
+          dictDiagrams[p] = atom;
+
+          const auto &bufferHistoEpochAtom = bufferHistoAllEpochLife[p];
+          const auto &bufferHistoBoolAtom = bufferHistoAllBoolLife[p];
+          const auto &bufferBoolUnderDiag = bufferCheckUnderDiag[p];
+          const auto &bufferBoolDiag = bufferCheckDiag[p];
+          const auto &bufferBoolAboveGlobal = bufferCheckAboveGlobal[p];
+
+          histoAllEpochLife[p] = bufferHistoEpochAtom;
+          histoAllBoolLife[p] = bufferHistoBoolAtom;
+          checkUnderDiag[p] = bufferBoolUnderDiag;
+          checkDiag[p] = bufferBoolDiag;
+          checkAboveGlobal[p] = bufferBoolAboveGlobal;
+        }
+
+
+        for(size_t p = 0; p < nDiags; ++p) {
+          const auto weights = histoVectorWeights[p];
+          vectorWeights[p] = weights;
+        }
+        gradActor.reduceStep();
+        step = step/2.;
+        lag3 = 0;
+
+        Barycenters.clear();
+        Barycenters.resize(nDiags);
+        allMatchingsAtoms.clear();
+        allMatchingsAtoms.resize(nDiags);
+
+        BarycentersMin.clear();
+        BarycentersSad.clear();
+        BarycentersMax.clear();
+
+        BarycentersMin.resize(nDiags);
+        BarycentersSad.resize(nDiags);
+        BarycentersMax.resize(nDiags);
+
+        bidder_barycenters_min.clear();
+        bidder_barycenters_sad.clear();
+        bidder_barycenters_max.clear();
+
+        origin_index_barysMin.clear();
+        origin_index_barysSad.clear();
+        origin_index_barysMax.clear();
+
+        origin_index_barysMin.resize(nDiags);
+        origin_index_barysSad.resize(nDiags);
+        origin_index_barysMax.resize(nDiags);
+
+        matchingsDatasMin.clear();
+        matchingsDatasSad.clear();
+        matchingsDatasMax.clear();
+
+        matchingsDatasMin.resize(nDiags);
+        matchingsDatasSad.resize(nDiags);
+        matchingsDatasMax.resize(nDiags);
+        // std::vector<BidderDiagram> bidder_barycenters_min{};
+        // std::vector<BidderDiagram> bidder_barycenters_sad{};
+        // std::vector<BidderDiagram> bidder_barycenters_max{};
+
+#ifdef TTK_ENABLE_OPENMP
+#pragma omp parallel for num_threads(threadNumber_)
+#endif // TTK_ENABLE_OPENMP
+      //////////////////////////////WEIGHTS///////////////////////////////////
+      for(int i = 0; i < nDiags; ++i) {
+        auto &barycenter = Barycenters[i];
+        std::vector<double> &weight = vectorWeights[i];
+        // double sum = 0.;
+        // for(int q = 0; q < weight.size(); ++q) {
+        //   sum += weight[q];
+        //   std::cout << weight[q] << std::endl;
+        // }
+        // std::cout << "sum: " << sum << std::endl;
+        // std::cout << "Poids: " << weight[0] << weight[1] << weight[2]
+        //           << std::endl;
+        // std::cout << "================================================="
+        //          << std::endl;
+        std::vector<std::vector<ttk::MatchingType>> &matchings
+          = allMatchingsAtoms[i];
+        computeWeightedBarycenter(
+          dictDiagrams, weight, barycenter, matchings, *this, ProgBarycenter);
+        // std::cout << "Barycenter" << i << std::endl;
+        // for(int j = 0; j < barycenter.size(); ++j) {
+        //   ttk::PersistencePair &t = barycenter[j];
+        //   std::cout << "Pair: " << t.birth.sfValue << ", " << t.death.sfValue
+        //             << std::endl;
+        //
+      }
+
+#ifdef TTK_ENABLE_OPENMP
+#pragma omp parallel for num_threads(threadNumber_)
+#endif // TTK_ENABLE_OPENMP
+        for(size_t i = 0; i < nDiags; i++) {
+          const auto &barycenter = Barycenters[i];
+
+          for(size_t j = 0; j < barycenter.size(); ++j) {
+            const ttk::PersistencePair &t = barycenter[j];
+            const ttk::CriticalType nt1 = t.birth.type;
+            const ttk::CriticalType nt2 = t.death.type;
+            const double pers = t.persistence();
+            // maxDiagPersistence[i] = std::max(pers, maxDiagPersistence[i]);
+
+            if(pers > 0) {
+              if(nt1 == CriticalType::Local_minimum
+                && nt2 == CriticalType::Local_maximum) {
+                BarycentersMin[i].emplace_back(t);
+                origin_index_barysMin[i].push_back(j);
+              } else {
+                if(nt1 == CriticalType::Local_maximum
+                  || nt2 == CriticalType::Local_maximum) {
+                  BarycentersMax[i].emplace_back(t);
+                  origin_index_barysMax[i].push_back(j);
+                }
+                if(nt1 == CriticalType::Local_minimum
+                  || nt2 == CriticalType::Local_minimum) {
+                  BarycentersMin[i].emplace_back(t);
+                  origin_index_barysMin[i].push_back(j);
+                }
+                if((nt1 == CriticalType::Saddle1 && nt2 == CriticalType::Saddle2)
+                  || (nt1 == CriticalType::Saddle2
+                      && nt2 == CriticalType::Saddle1)) {
+                  BarycentersSad[i].emplace_back(t);
+                  origin_index_barysSad[i].push_back(j);
+                }
+              }
+            }
+          }
+        }
+        if(this->do_min_) {
+          setBidderDiagrams(nDiags, BarycentersMin, bidder_barycenters_min);
+        }
+        if(this->do_sad_) {
+          setBidderDiagrams(nDiags, BarycentersSad, bidder_barycenters_sad);
+        }
+        if(this->do_max_) {
+          setBidderDiagrams(nDiags, BarycentersMax, bidder_barycenters_max);
+        }
+        // double temp2 = 0;
+
+#ifdef TTK_ENABLE_OPENMP
+#pragma omp parallel for num_threads(threadNumber_)
+#endif // TTK_ENABLE_OPENMP
+        for(size_t i = 0; i < nDiags; ++i) {
+          std::vector<ttk::MatchingType> matching_min;
+          std::vector<ttk::MatchingType> matching_sad;
+          std::vector<ttk::MatchingType> matching_max;
+          if(this->do_min_) {
+            auto &barycentermin = bidder_barycenters_min[i];
+            auto &datamin = bidder_diagrams_min[i];
+            //#ifdef TTK_ENABLE_OPENMP
+            //#pragma omp atomic update
+            //#endif // TTK_ENABLE_OPENMP
+            computeDistance(datamin, barycentermin, matching_min);
+          }
+          if(this->do_max_) {
+            auto &barycentermax = bidder_barycenters_max[i];
+            auto &datamax = bidder_diagrams_max[i];
+
+            //#ifdef TTK_ENABLE_OPENMP
+            //#pragma omp atomic update
+            //#endif // TTK_ENABLE_OPENMP
+            computeDistance(datamax, barycentermax, matching_max);
+          }
+          if(this->do_sad_) {
+            auto &barycentersad = bidder_barycenters_sad[i];
+            auto &datasad = bidder_diagrams_sad[i];
+
+            //#ifdef TTK_ENABLE_OPENMP
+            //#pragma omp atomic update
+            //#endif // TTK_ENABLE_OPENMP
+            computeDistance(datasad, barycentersad, matching_sad);
+          }
+          matchingsDatasMin[i] = std::move(matching_min);
+          matchingsDatasSad[i] = std::move(matching_sad);
+          matchingsDatasMax[i] = std::move(matching_max);
+        }
       }
     }
 
@@ -1087,10 +1286,7 @@ void PersistenceDiagramDictEncoding::method(
       if(CreationFeatures) {
         // std::cout << "CREATING FEATURES" << std::endl;
         // double factEquiv = sqrt(static_cast<double>(numAtom));
-        double factEquiv = static_cast<double>(numAtom);
-        // double factEquiv = 1.;
-        // double step = 1. / (sqrt(factEquiv) * 1e1);
-        double step = 1. / (2. * 2. * 2. * factEquiv);
+
         for(size_t i = 0; i < nDiags; ++i) {
           auto &projForDiag = allProjectionsList[i];
           auto &featuresToAdd = allFeaturesToAdd[i];

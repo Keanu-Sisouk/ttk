@@ -38,6 +38,9 @@ namespace ttk {
       std::vector<std::vector<double>> &vectorForProjContrib,
       std::vector<std::vector<std::array<double, 2>>> &pairToAddGradList,
       ttk::DiagramType &infoToAdd);
+
+    void setStep(double factEquiv);
+    void reduceStep();
     // void executeAtoms(std::vector<Diagram> &DictDiagrams);
 
     // inline void setNbAtoms(const int nbAtoms) {
@@ -68,6 +71,11 @@ namespace ttk {
       std::vector<std::vector<double>> &vectorForProjContrib,
       std::vector<std::vector<std::array<double, 2>>> &pairToAddGradList,
       ttk::DiagramType &infoToAdd);
+
+
+    
+
+    double stepAtom;
   };
 
 } // namespace ttk

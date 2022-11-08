@@ -81,7 +81,7 @@ void ConstrainedGradientDescent::gradientDescentWeights(
 
   double mini = *std::min_element(weights.begin(), weights.end());
   int n = weights.size();
-  double step;
+  double stepWeight;
   double L = 0.;
   // std::cout << "STEP = " << step << std::endl;
 #ifndef TTK_ENABLE_EIGEN
@@ -114,11 +114,11 @@ void ConstrainedGradientDescent::gradientDescentWeights(
     }
   }
   // std::cout << "REGULARITY COEFF: " + std::to_string(L) << std::endl;
-  step = 1. / L;
+  stepWeight = 1. / L;
   // std::cout << "STEP" << step << std::endl;
 
   for(int i = 0; i < n; ++i) {
-    weights[i] = weights[i] - step * grad[i];
+    weights[i] = weights[i] - stepWeight * grad[i];
     // std::cout << "GRAD: " + std::to_string(grad[i]) << std::endl;
   }
 }
@@ -307,19 +307,21 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
       // std::cout << "TEMP SIZE " <<temp.size() << std::endl;
       // double mini = *std::min_element(temp.begin(), temp.end());
 
-      double step;
-      double factEquiv = static_cast<double>(DictDiagrams.size());
+      // double step;
+      // double factEquiv = static_cast<double>(DictDiagrams.size());
       // double factEquiv = 1.;
       // step = 1. / (sqrt(factEquiv) * 1e1);
-      step = 1. / (2. * 2. * 2. * factEquiv);
+      // step = 1. / (2. * 2. * factEquiv);
       // double factEquiv = DictDiagrams.size();
+
+      // setStep(factEquiv);
 
       for(size_t p = 0; p < checker[i].size(); ++p) {
         if(pos2[p]) {
 
           auto &t = grad_list[i][checker[i][p]];
 
-          t[1] = t[1] - step * gradsLists[i][checker[i][p]][1];
+          t[1] = t[1] - (this->stepAtom) * gradsLists[i][checker[i][p]][1];
         } else if(pos[p] < 1e-7) {
 
           // auto &t0 = grad_list[i][checker[i][p]];
@@ -331,8 +333,8 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
 
           auto &t0 = grad_list[i][checker[i][p]];
 
-          t0[0] = t0[0] - step * gradsLists[i][checker[i][p]][0];
-          t0[1] = t0[1] - step * gradsLists[i][checker[i][p]][1];
+          t0[0] = t0[0] - (this->stepAtom) * gradsLists[i][checker[i][p]][0];
+          t0[1] = t0[1] - (this->stepAtom) * gradsLists[i][checker[i][p]][1];
 
           if(t0[0] > t0[1]) {
             t0[1] = t0[0];
@@ -465,4 +467,13 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
     }
   }
   // std::cout << "COUNT OF UNDER DIAG " << count << std::endl;
+}
+
+
+void ConstrainedGradientDescent::setStep(double factEquiv){
+  this->stepAtom = 1. / (2. * 2. * factEquiv);
+}
+
+void ConstrainedGradientDescent::reduceStep(){
+  this->stepAtom = this->stepAtom/2.;
 }
