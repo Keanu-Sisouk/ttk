@@ -848,30 +848,30 @@ void PersistenceDiagramDictEncoding::method(
 #pragma omp parallel for num_threads(threadNumber_)
 #endif // TTK_ENABLE_OPENMP
       //////////////////////////////WEIGHTS///////////////////////////////////
-      for(int i = 0; i < nDiags; ++i) {
-        auto &barycenter = Barycenters[i];
-        std::vector<double> &weight = vectorWeights[i];
-        // double sum = 0.;
-        // for(int q = 0; q < weight.size(); ++q) {
-        //   sum += weight[q];
-        //   std::cout << weight[q] << std::endl;
-        // }
-        // std::cout << "sum: " << sum << std::endl;
-        // std::cout << "Poids: " << weight[0] << weight[1] << weight[2]
-        //           << std::endl;
-        // std::cout << "================================================="
-        //          << std::endl;
-        std::vector<std::vector<ttk::MatchingType>> &matchings
-          = allMatchingsAtoms[i];
-        computeWeightedBarycenter(
-          dictDiagrams, weight, barycenter, matchings, *this, ProgBarycenter);
-        // std::cout << "Barycenter" << i << std::endl;
-        // for(int j = 0; j < barycenter.size(); ++j) {
-        //   ttk::PersistencePair &t = barycenter[j];
-        //   std::cout << "Pair: " << t.birth.sfValue << ", " << t.death.sfValue
-        //             << std::endl;
-        //
-      }
+        for(int i = 0; i < nDiags; ++i) {
+          auto &barycenter = Barycenters[i];
+          std::vector<double> &weight = vectorWeights[i];
+          // double sum = 0.;
+          // for(int q = 0; q < weight.size(); ++q) {
+          //   sum += weight[q];
+          //   std::cout << weight[q] << std::endl;
+          // }
+          // std::cout << "sum: " << sum << std::endl;
+          // std::cout << "Poids: " << weight[0] << weight[1] << weight[2]
+          //           << std::endl;
+          // std::cout << "================================================="
+          //          << std::endl;
+          std::vector<std::vector<ttk::MatchingType>> &matchings
+            = allMatchingsAtoms[i];
+          computeWeightedBarycenter(
+            dictDiagrams, weight, barycenter, matchings, *this, ProgBarycenter);
+          // std::cout << "Barycenter" << i << std::endl;
+          // for(int j = 0; j < barycenter.size(); ++j) {
+          //   ttk::PersistencePair &t = barycenter[j];
+          //   std::cout << "Pair: " << t.birth.sfValue << ", " << t.death.sfValue
+          //             << std::endl;
+          //
+        }
 
 #ifdef TTK_ENABLE_OPENMP
 #pragma omp parallel for num_threads(threadNumber_)
@@ -998,7 +998,8 @@ void PersistenceDiagramDictEncoding::method(
         computeGradientWeights(
           gradWeights, hessianList, dictDiagrams, matchingsAtoms, Barycenter,
           Data, matchingsMin, matchingsMax, matchingsSad, indexBaryMin,
-          indexBaryMax, indexBarySad, indexDataMin, indexDataMax, indexDataSad);
+          indexBaryMax, indexBarySad, indexDataMin, indexDataMax, indexDataSad,
+          do_optimizeAtoms);
         int nb_points = Barycenter.size();
         gradActor.executeWeightsProjected(
           hessianList, weights, gradWeights, epoch, nb_points, MaxEigenValue);
@@ -1632,7 +1633,8 @@ void PersistenceDiagramDictEncoding::computeGradientWeights(
   const std::vector<size_t> &indexBarySad,
   const std::vector<size_t> &indexDataMin,
   const std::vector<size_t> &indexDataMax,
-  const std::vector<size_t> &indexDataSad) const {
+  const std::vector<size_t> &indexDataSad,
+  const bool do_optimizeAtoms) const {
 
   // initialization
   std::vector<std::vector<std::array<double, 2>>> grad_list(Barycenter.size());
@@ -1723,36 +1725,36 @@ void PersistenceDiagramDictEncoding::computeGradientWeights(
 
       if(Id1 < 0) {
         continue;
-      // } else {
-      //   if(CreationFeatures) {
-      //     const PersistencePair &t2 = newData[indexDataMin[Id1]];
-      //     const double birth_data = t2.birth.sfValue;
-      //     const double death_data = t2.death.sfValue;
-      //     const double birth_death_barycenter
-      //       = birth_data + (death_data - birth_data) / 2.;
-      //     std::array<double, 2> direction;
-      //     direction[0] = birth_data - birth_death_barycenter;
-      //     direction[1] = death_data - birth_death_barycenter;
-      //     /* std::vector<std::vector<double>> temp3(weights.size()); */
-      //     /* std::vector<double> temp2(2); */
-      //     /* for(size_t j = 0; j < weights.size(); ++j) { */
-      //     /*   temp2[0] += -2 * weights[j] * direction[0]; */
-      //     /*   temp2[1] += -2 * weights[j] * direction[1]; */
-      //     /*   temp3[j] = temp2; */
-      //     /* } */
+      } else {
+        if(do_optimizeAtoms && CreationFeatures && ProgApproach) {
+          const PersistencePair &t2 = newData[indexDataMin[Id1]];
+          const double birth_data = t2.birth.sfValue;
+          const double death_data = t2.death.sfValue;
+          const double birth_death_barycenter
+            = birth_data + (death_data - birth_data) / 2.;
+          std::array<double, 2> direction;
+          direction[0] = birth_data - birth_death_barycenter;
+          direction[1] = death_data - birth_death_barycenter;
+          /* std::vector<std::vector<double>> temp3(weights.size()); */
+          /* std::vector<double> temp2(2); */
+          /* for(size_t j = 0; j < weights.size(); ++j) { */
+          /*   temp2[0] += -2 * weights[j] * direction[0]; */
+          /*   temp2[1] += -2 * weights[j] * direction[1]; */
+          /*   temp3[j] = temp2; */
+          /* } */
 
-      //     std::vector<std::array<double, 2>> newPairs(matchingsAtoms.size());
-      //     for(size_t j = 0; j < matchingsAtoms.size(); ++j) {
-      //       std::array<double, 2> pair{
-      //         birth_death_barycenter, birth_death_barycenter};
-      //       newPairs[j] = pair;
-      //     }
-      //     pairToAddGradList.push_back(newPairs);
-      //     data_assigned.push_back({birth_data, death_data});
-      //     directions.push_back(direction);
-      //   } else {
-      //     continue;
-      //   }
+          std::vector<std::array<double, 2>> newPairs(matchingsAtoms.size());
+          for(size_t j = 0; j < matchingsAtoms.size(); ++j) {
+            std::array<double, 2> pair{
+              birth_death_barycenter, birth_death_barycenter};
+            newPairs[j] = pair;
+          }
+          pairToAddGradList.push_back(newPairs);
+          data_assigned.push_back({birth_data, death_data});
+          directions.push_back(direction);
+        } else {
+          continue;
+        }
       }
       // this->printMsg("k = " + std::to_string(k));
     } else {
@@ -1796,37 +1798,37 @@ void PersistenceDiagramDictEncoding::computeGradientWeights(
 
       if(Id1 < 0) {
         continue;
-      // } else {
-      //   if(CreationFeatures) {
-      //     const PersistencePair &t2 = newData[indexDataMax[Id1]];
-      //     const double birth_data = t2.birth.sfValue;
-      //     const double death_data = t2.death.sfValue;
-      //     const double birth_death_barycenter
-      //       = birth_data + (death_data - birth_data) / 2.;
-      //     std::array<double, 2> direction;
-      //     direction[0] = birth_data - birth_death_barycenter;
-      //     direction[1] = death_data - birth_death_barycenter;
-      //     /* std::vector<std::vector<double>> temp3(weights.size()); */
-      //     /* std::vector<double> temp2(2); */
-      //     /* for(size_t j = 0; j < weights.size(); ++j) { */
-      //     /*   temp2[0] += -2 * weights[j] * direction[0]; */
-      //     /*   temp2[1] += -2 * weights[j] * direction[1]; */
-      //     /*   temp3[j] = temp2; */
-      //     /* } */
+      } else {
+        if(do_optimizeAtoms && CreationFeatures && ProgApproach) {
+          const PersistencePair &t2 = newData[indexDataMax[Id1]];
+          const double birth_data = t2.birth.sfValue;
+          const double death_data = t2.death.sfValue;
+          const double birth_death_barycenter
+            = birth_data + (death_data - birth_data) / 2.;
+          std::array<double, 2> direction;
+          direction[0] = birth_data - birth_death_barycenter;
+          direction[1] = death_data - birth_death_barycenter;
+          /* std::vector<std::vector<double>> temp3(weights.size()); */
+          /* std::vector<double> temp2(2); */
+          /* for(size_t j = 0; j < weights.size(); ++j) { */
+          /*   temp2[0] += -2 * weights[j] * direction[0]; */
+          /*   temp2[1] += -2 * weights[j] * direction[1]; */
+          /*   temp3[j] = temp2; */
+          /* } */
 
-      //     std::vector<std::array<double, 2>> newPairs(matchingsAtoms.size());
-      //     for(size_t j = 0; j < matchingsAtoms.size(); ++j) {
-      //       std::array<double, 2> pair{
-      //         birth_death_barycenter, birth_death_barycenter};
-      //       newPairs[j] = pair;
-      //     }
-      //     pairToAddGradList.push_back(newPairs);
-      //     data_assigned.push_back({birth_data, death_data});
+          std::vector<std::array<double, 2>> newPairs(matchingsAtoms.size());
+          for(size_t j = 0; j < matchingsAtoms.size(); ++j) {
+            std::array<double, 2> pair{
+              birth_death_barycenter, birth_death_barycenter};
+            newPairs[j] = pair;
+          }
+          pairToAddGradList.push_back(newPairs);
+          data_assigned.push_back({birth_data, death_data});
 
-      //     directions.push_back(direction);
-      //   } else {
-      //     continue;
-      //   }
+          directions.push_back(direction);
+        } else {
+          continue;
+        }
       }
       // this->printMsg("k = " + std::to_string(k));
     } else {
@@ -1869,37 +1871,37 @@ void PersistenceDiagramDictEncoding::computeGradientWeights(
 
       if(Id1 < 0) {
         continue;
-      // } else {
-      //   if(CreationFeatures) {
-      //     const PersistencePair &t2 = newData[indexDataSad[Id1]];
-      //     const double birth_data = t2.birth.sfValue;
-      //     const double death_data = t2.death.sfValue;
-      //     const double birth_death_barycenter
-      //       = birth_data + (death_data - birth_data) / 2.;
-      //     std::array<double, 2> direction;
-      //     direction[0] = birth_data - birth_death_barycenter;
-      //     direction[1] = death_data - birth_death_barycenter;
-      //     /* std::vector<std::vector<double>> temp3(weights.size()); */
-      //     /* std::vector<double> temp2(2); */
-      //     /* for(size_t j = 0; j < weights.size(); ++j) { */
-      //     /*   temp2[0] += -2 * weights[j] * direction[0]; */
-      //     /*   temp2[1] += -2 * weights[j] * direction[1]; */
-      //     /*   temp3[j] = temp2; */
-      //     /* } */
+      } else {
+        if(do_optimizeAtoms && CreationFeatures && ProgApproach) {
+          const PersistencePair &t2 = newData[indexDataSad[Id1]];
+          const double birth_data = t2.birth.sfValue;
+          const double death_data = t2.death.sfValue;
+          const double birth_death_barycenter
+            = birth_data + (death_data - birth_data) / 2.;
+          std::array<double, 2> direction;
+          direction[0] = birth_data - birth_death_barycenter;
+          direction[1] = death_data - birth_death_barycenter;
+          /* std::vector<std::vector<double>> temp3(weights.size()); */
+          /* std::vector<double> temp2(2); */
+          /* for(size_t j = 0; j < weights.size(); ++j) { */
+          /*   temp2[0] += -2 * weights[j] * direction[0]; */
+          /*   temp2[1] += -2 * weights[j] * direction[1]; */
+          /*   temp3[j] = temp2; */
+          /* } */
 
-      //     std::vector<std::array<double, 2>> newPairs(matchingsAtoms.size());
-      //     for(size_t j = 0; j < matchingsAtoms.size(); ++j) {
-      //       std::array<double, 2> pair{
-      //         birth_death_barycenter, birth_death_barycenter};
-      //       newPairs[j] = pair;
-      //     }
-      //     pairToAddGradList.push_back(newPairs);
-      //     data_assigned.push_back({birth_data, death_data});
+          std::vector<std::array<double, 2>> newPairs(matchingsAtoms.size());
+          for(size_t j = 0; j < matchingsAtoms.size(); ++j) {
+            std::array<double, 2> pair{
+              birth_death_barycenter, birth_death_barycenter};
+            newPairs[j] = pair;
+          }
+          pairToAddGradList.push_back(newPairs);
+          data_assigned.push_back({birth_data, death_data});
 
-      //     directions.push_back(direction);
-      //   } else {
-      //     continue;
-      //   }
+          directions.push_back(direction);
+        } else {
+          continue;
+        }
       }
       // this->printMsg("k = " + std::to_string(k));
     } else {

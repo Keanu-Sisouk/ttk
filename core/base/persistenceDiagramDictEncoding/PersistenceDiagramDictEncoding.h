@@ -136,7 +136,8 @@ namespace ttk {
       const std::vector<size_t> &indexBarySad,
       const std::vector<size_t> &indexDataMin,
       const std::vector<size_t> &indexDataMax,
-      const std::vector<size_t> &indexDataSad) const;
+      const std::vector<size_t> &indexDataSad,
+      const bool do_optimizeAtoms) const;
 
     void computeGradientAtoms(
       std::vector<Matrix> &gradsAtoms,
