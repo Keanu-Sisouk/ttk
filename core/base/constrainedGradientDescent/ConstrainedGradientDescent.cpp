@@ -113,8 +113,12 @@ void ConstrainedGradientDescent::gradientDescentWeights(
       }
     }
   }
-  // std::cout << "REGULARITY COEFF: " + std::to_string(L) << std::endl;
-  stepWeight = 1. / L;
+
+  if(L > 0){
+    stepWeight = 1. / L;
+  } else {
+    stepWeight = 0;
+  }
   // std::cout << "STEP" << step << std::endl;
 
   for(int i = 0; i < n; ++i) {
