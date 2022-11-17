@@ -16,5 +16,3 @@ if(TTK_ENABLE_EIGEN)
   target_link_libraries(persistenceDiagramDictEncoding PRIVATE Eigen3::Eigen)
 endif()
 
-target_compile_options(persistenceDiagramDictEncoding PRIVATE -O0 -fsanitize=address)
-target_link_options(persistenceDiagramDictEncoding PRIVATE -fsanitize=address)
