@@ -677,7 +677,7 @@ void PersistenceDiagramDictEncoding::method(
 
     // if(OptimizeWeights && OptimizeAtoms){
     if(preWeightOpt && OptimizeAtoms) {
-      if(epoch < 5) {
+      if(epoch < 10) {
         do_optimizeAtoms = false;
       } else {
         do_optimizeAtoms = true;
@@ -1755,7 +1755,8 @@ void PersistenceDiagramDictEncoding::computeGradientWeights(
       if(Id1 < 0) {
         continue;
       } else {
-        if(do_optimizeAtoms && CreationFeatures && ProgApproach) {
+        if(false){
+        // if(do_optimizeAtoms && CreationFeatures && ProgApproach) {
           const PersistencePair &t2 = newData[indexDataMin[Id1]];
           const double birth_data = t2.birth.sfValue;
           const double death_data = t2.death.sfValue;
@@ -1828,7 +1829,8 @@ void PersistenceDiagramDictEncoding::computeGradientWeights(
       if(Id1 < 0) {
         continue;
       } else {
-        if(do_optimizeAtoms && CreationFeatures && ProgApproach) {
+        if(false){
+        // if(do_optimizeAtoms && CreationFeatures && ProgApproach) {
           const PersistencePair &t2 = newData[indexDataMax[Id1]];
           const double birth_data = t2.birth.sfValue;
           const double death_data = t2.death.sfValue;
@@ -1901,7 +1903,8 @@ void PersistenceDiagramDictEncoding::computeGradientWeights(
       if(Id1 < 0) {
         continue;
       } else {
-        if(do_optimizeAtoms && CreationFeatures && ProgApproach) {
+        if(false){
+        // if(do_optimizeAtoms && CreationFeatures && ProgApproach) {
           const PersistencePair &t2 = newData[indexDataSad[Id1]];
           const double birth_data = t2.birth.sfValue;
           const double death_data = t2.death.sfValue;
@@ -2377,7 +2380,7 @@ void PersistenceDiagramDictEncoding::computeExplicitSolutionWeights(
     for(size_t j = 0; j < checker[i].size(); ++j) {
       auto &point = grad_list[i][checker[i][j]];
       auto temp = point[0] * data_point[0] + point[1] * data_point[1];
-      y(j) += temp;
+      y(j) += 2. * temp;
     }
   }
 
