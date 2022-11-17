@@ -139,6 +139,23 @@ namespace ttk {
       const std::vector<size_t> &indexDataSad,
       const bool do_optimizeAtoms) const;
 
+    void computeExplicitSolutionWeights(
+      std::vector<double> &weights,
+      const std::vector<ttk::DiagramType> &dictDiagrams,
+      const std::vector<std::vector<ttk::MatchingType>> &matchingsAtoms,
+      const ttk::DiagramType &Barycenter,
+      const ttk::DiagramType &newData,
+      const std::vector<ttk::MatchingType> &matchingsMin,
+      const std::vector<ttk::MatchingType> &matchingsMax,
+      const std::vector<ttk::MatchingType> &matchingsSad,
+      const std::vector<size_t> &indexBaryMin,
+      const std::vector<size_t> &indexBaryMax,
+      const std::vector<size_t> &indexBarySad,
+      const std::vector<size_t> &indexDataMin,
+      const std::vector<size_t> &indexDataMax,
+      const std::vector<size_t> &indexDataSad,
+      const bool do_optimizeAtoms) const;
+
     void computeGradientAtoms(
       std::vector<Matrix> &gradsAtoms,
       const std::vector<double> &weights,
@@ -223,6 +240,7 @@ namespace ttk {
     bool OptimizeAtoms{true};
 
     bool CreationFeatures{true};
+    bool explicitSolWeights{false};
     bool explicitSol{false};
     bool Fusion{false};
     bool ProgBarycenter{false};

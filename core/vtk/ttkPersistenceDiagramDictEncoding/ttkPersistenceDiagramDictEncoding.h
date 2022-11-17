@@ -87,6 +87,9 @@ public:
   vtkSetMacro(ProgBarycenter, int);
   vtkGetMacro(ProgBarycenter, int);
 
+  vtkSetMacro(explicitSolWeights, int);
+  vtkGetMacro(explicitSolWeights, int);
+
   vtkSetMacro(explicitSol, int);
   vtkGetMacro(explicitSol, int);
 
