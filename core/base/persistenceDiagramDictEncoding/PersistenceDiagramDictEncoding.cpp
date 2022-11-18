@@ -677,7 +677,7 @@ void PersistenceDiagramDictEncoding::method(
 
     // if(OptimizeWeights && OptimizeAtoms){
     if(preWeightOpt && OptimizeAtoms) {
-      if(epoch < 15) {
+      if(epoch < 5) {
         do_optimizeAtoms = false;
       } else {
         do_optimizeAtoms = true;
@@ -1755,8 +1755,8 @@ void PersistenceDiagramDictEncoding::computeGradientWeights(
       if(Id1 < 0) {
         continue;
       } else {
-        if(false){
-        // if(do_optimizeAtoms && CreationFeatures && ProgApproach) {
+        // if(false){
+        if(do_optimizeAtoms && CreationFeatures && ProgApproach) {
           const PersistencePair &t2 = newData[indexDataMin[Id1]];
           const double birth_data = t2.birth.sfValue;
           const double death_data = t2.death.sfValue;
@@ -1829,8 +1829,8 @@ void PersistenceDiagramDictEncoding::computeGradientWeights(
       if(Id1 < 0) {
         continue;
       } else {
-        if(false){
-        // if(do_optimizeAtoms && CreationFeatures && ProgApproach) {
+        // if(false){
+        if(do_optimizeAtoms && CreationFeatures && ProgApproach) {
           const PersistencePair &t2 = newData[indexDataMax[Id1]];
           const double birth_data = t2.birth.sfValue;
           const double death_data = t2.death.sfValue;
@@ -1903,8 +1903,8 @@ void PersistenceDiagramDictEncoding::computeGradientWeights(
       if(Id1 < 0) {
         continue;
       } else {
-        if(false){
-        // if(do_optimizeAtoms && CreationFeatures && ProgApproach) {
+        // if(false){
+        if(do_optimizeAtoms && CreationFeatures && ProgApproach) {
           const PersistencePair &t2 = newData[indexDataSad[Id1]];
           const double birth_data = t2.birth.sfValue;
           const double death_data = t2.death.sfValue;
@@ -1970,12 +1970,11 @@ void PersistenceDiagramDictEncoding::computeGradientWeights(
     grad_list.end(), pairToAddGradList.begin(), pairToAddGradList.end());
   tracker2.insert(tracker2.end(), temp.begin(), temp.end());
   tracker.insert(tracker.end(), temp.begin(), temp.end());
-
+  std::vector<int> temp2(matchingsAtoms.size());
+  for(size_t j = 0; j < matchingsAtoms.size(); ++j) {
+    temp2.push_back(static_cast<int>(j));
+  }
   for(size_t j = 0; j < pairToAddGradList.size(); ++j) {
-    std::vector<int> temp2(matchingsAtoms.size());
-    for(size_t p = 0; p < matchingsAtoms.size(); ++p) {
-      temp2[p] = static_cast<int>(p);
-    }
     checker.push_back(temp2);
   }
 
