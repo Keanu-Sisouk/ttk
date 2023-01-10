@@ -59,14 +59,14 @@ void PersistenceDiagramDictEncoding::execute(
     Timer tm_init{};
     bool preWeightOpt = false;
     InitDictionary(dictDiagrams, intermediateDiagrams, intermediateAtoms,
-                   numAtom, this->do_min_, this->do_sad_, this->do_max_, seed);
+                   numAtom, this->do_min_, this->do_sad_, this->do_max_, seed, percent_);
     this->printMsg("Initialization computed ", 1, tm_init.getElapsedTime(),
                    threadNumber_, debug::LineMode::NEW);
     method(intermediateDiagrams, intermediateAtoms, dictDiagrams, vectorWeights,
            nInputs, seed, numAtom, loss_tab, true_loss_tab, timers, allLosses,
            histoVectorWeights, histoDictDiagrams, preWeightOpt, 0.01,
            bidder_diagram_min, bidder_diagram_sad, bidder_diagram_max,
-           tm_method);
+           tm_method, percent_);
   } else {
     for(size_t i = 0; i < intermediateDiagrams.size(); ++i) {
       auto &diag = intermediateDiagrams[i];
@@ -140,7 +140,7 @@ void PersistenceDiagramDictEncoding::execute(
 
       Timer tm_init{};
       InitDictionary(dictDiagrams, dataTemp, intermediateAtoms, numAtom,
-                     this->do_min_, this->do_sad_, this->do_max_, seed);
+                     this->do_min_, this->do_sad_, this->do_max_, seed, percent_);
       this->printMsg("Initialization computed ", 1, tm_init.getElapsedTime(),
                      threadNumber_, debug::LineMode::NEW);
 
@@ -148,7 +148,7 @@ void PersistenceDiagramDictEncoding::execute(
              seed, numAtom, loss_tab, true_loss_tab, timers, allLosses,
              histoVectorWeights, histoDictDiagrams, preWeightOpt, 0.01,
              bidder_diagram_min, bidder_diagram_sad, bidder_diagram_max,
-             tm_method);
+             tm_method, percent_);
     }
 
     int min_pairs_to_add = 0;
@@ -232,7 +232,7 @@ void PersistenceDiagramDictEncoding::execute(
              seed, numAtom, loss_tab, true_loss_tab, timers, allLosses,
              histoVectorWeights, histoDictDiagrams, preWeightOpt, 0.01,
              bidder_diagram_min, bidder_diagram_sad, bidder_diagram_max,
-             tm_method);
+             tm_method, percent_);
       // sum = 0;
       // for(size_t i = 0 ; i < intermediateDiagrams.size() ; ++i){
       // sum += sizeCheck[i];
@@ -265,7 +265,8 @@ void PersistenceDiagramDictEncoding::method(
   std::vector<BidderDiagram> &true_bidder_diagram_min,
   std::vector<BidderDiagram> &true_bidder_diagram_sad,
   std::vector<BidderDiagram> &true_bidder_diagram_max,
-  Timer &tm_method) {
+  Timer &tm_method,
+  double percent_) {
 
   Timer tm{};
   double tm_part = 0.;
@@ -1349,6 +1350,9 @@ void PersistenceDiagramDictEncoding::method(
                 if(pair[0] < minBirth[atomIndex]) {
                   continue;
                 }
+                if(pair[1] - pair[0] < 1e-7){
+                  continue;
+                }
               } else {
                 pair[0] = vectorContrib[0];
                 pair[1] = vectorContrib[1];
@@ -1391,6 +1395,9 @@ void PersistenceDiagramDictEncoding::method(
                     pair[1] = pair[0];
                   }
                   if(pair[0] < minBirth[atomIndex]) {
+                    continue;
+                  }
+                  if(pair[1] - pair[0] < 1e-7 ){
                     continue;
                   }
                 } else {
@@ -1439,7 +1446,7 @@ void PersistenceDiagramDictEncoding::method(
             for(size_t j = 0; j < histoEpochAtom.size(); ++j) {
               auto &t = atom[initSize + j];
               histoEpochAtom[j] += 1;
-              histoBoolAtom[j] = t.death.sfValue - t.birth.sfValue < 1e-3;
+              histoBoolAtom[j] = t.death.sfValue - t.birth.sfValue < 0.25*(percent_/100.)*maxiDeath[i];
               boolDiag[j] = t.death.sfValue - t.birth.sfValue < 1e-6;
               boolUnderDiag[j] = t.death.sfValue < t.birth.sfValue;
               boolAboveGlobal[j] = t.birth.sfValue > maxiDeath[i];
@@ -1459,7 +1466,7 @@ void PersistenceDiagramDictEncoding::method(
             auto &t = trueFeaturesToAdd[j];
             atom.push_back(t);
             histoEpochAtom.push_back(0);
-            histoBoolAtom.push_back(t.death.sfValue - t.birth.sfValue < 1e-3);
+            histoBoolAtom.push_back(t.death.sfValue - t.birth.sfValue < 0.25*(percent_/100.)*maxiDeath[i]);
             boolDiag.push_back(t.death.sfValue - t.birth.sfValue < 1e-6);
             boolUnderDiag.push_back(t.death.sfValue < t.birth.sfValue);
             boolAboveGlobal.push_back(t.birth.sfValue > maxiDeath[i]);
@@ -1476,7 +1483,7 @@ void PersistenceDiagramDictEncoding::method(
           auto &boolAboveGlobal = checkAboveGlobal[i];
           for(size_t j = 0; j < histoEpochAtom.size(); ++j) {
             if(boolUnderDiag[j] || boolDiag[j] || boolAboveGlobal[j]
-               || (histoEpochAtom[j] > 1000 && histoBoolAtom[j])) {
+               || (histoEpochAtom[j] > 5 && histoBoolAtom[j])) {
               // if(boolUnderDiag[j] || (histoEpochAtom[j] > 2 &&
               // histoBoolAtom[j])){
               indicesAtomToDelete.push_back(j);
@@ -2456,7 +2463,7 @@ void PersistenceDiagramDictEncoding::computeGradientAtoms(
   std::vector<std::vector<std::array<double, 2>>> &pairToAddGradList,
   std::vector<PersistencePair> &infoToAdd,
   int nbDiags) const {
-
+  
   // std::vector<ttk::MatchingType> matching;
   gradsAtoms.resize(Barycenter.size());
   for(size_t i = 0; i < Barycenter.size(); ++i) {
@@ -2470,7 +2477,9 @@ void PersistenceDiagramDictEncoding::computeGradientAtoms(
   std::vector<std::vector<double>> directions(Barycenter.size());
   // std::vector<int> checker(Barycenter.size(), 0);
   // computeDistance(newDataBidder, barycenterBidder, matching);
+  
 
+  int max = std::max_element(weights.begin(), weights.end()) - weights.begin();
   int k = 0;
 
   for(size_t i = 0; i < matchingsMin.size(); ++i) {
@@ -2517,12 +2526,12 @@ void PersistenceDiagramDictEncoding::computeGradientAtoms(
             std::vector<std::vector<double>> temp3(weights.size());
             std::vector<double> temp2(2);
             for(size_t j = 0; j < weights.size(); ++j) {
-              if(weights[j] > 0) {
+              if(j == static_cast<size_t>(max)) {
                 temp2[0] = birth_data ;
                 temp2[1] = death_data ;
               } else {
-                temp2[0] = birth_data ;
-                temp2[1] = death_data ;
+                temp2[0] = 0.;
+                temp2[1] = 0. ;
               }
               temp3[j] = temp2;
             }
@@ -2531,12 +2540,12 @@ void PersistenceDiagramDictEncoding::computeGradientAtoms(
             std::vector<std::array<double, 2>> newPairs(weights.size());
             for(size_t j = 0; j < weights.size(); ++j) {
               std::array<double, 2> pair;
-              if(weights[j] > 0) {
+              if(j == static_cast<size_t>(max)) {
                 pair
                   = {birth_data ,
                      death_data };
               } else {
-                pair = {birth_data, death_data};
+                pair = {0., 0.};
               }
               newPairs[j] = pair;
             }
@@ -2627,12 +2636,12 @@ void PersistenceDiagramDictEncoding::computeGradientAtoms(
             std::vector<std::vector<double>> temp3(weights.size());
             std::vector<double> temp2(2);
             for(size_t j = 0; j < weights.size(); ++j) {
-              if(weights[j] > 0) {
+              if(j == static_cast<size_t>(max)) {
                 temp2[0] = birth_data ;
                 temp2[1] = death_data ;
               } else {
-                temp2[0] = birth_data ;
-                temp2[1] = death_data ;
+                temp2[0] = 0. ;
+                temp2[1] = 0. ;
               }
               temp3[j] = temp2;
             }
@@ -2641,12 +2650,12 @@ void PersistenceDiagramDictEncoding::computeGradientAtoms(
             std::vector<std::array<double, 2>> newPairs(weights.size());
             for(size_t j = 0; j < weights.size(); ++j) {
               std::array<double, 2> pair;
-              if(weights[j] > 0) {
+              if(j == static_cast<size_t>(max)) {
                 pair
                   = {birth_data ,
                      death_data };
               } else {
-                pair = {birth_data, birth_data};
+                pair = {0., 0.};
               }
               newPairs[j] = pair;
             }
@@ -2739,12 +2748,12 @@ void PersistenceDiagramDictEncoding::computeGradientAtoms(
             std::vector<std::vector<double>> temp3(weights.size());
             std::vector<double> temp2(2);
             for(size_t j = 0; j < weights.size(); ++j) {
-              if(weights[j] > 0) {
+              if(j == static_cast<size_t>(max)) {
                 temp2[0] = birth_data ;
-                temp2[1] = death_data ;
+                temp2[1] = birth_data ;
               } else {
-                temp2[0] = birth_data ;
-                temp2[1] = death_data ;
+                temp2[0] = 0. ;
+                temp2[1] = 0. ;
               }
               temp3[j] = temp2;
             }
@@ -2753,12 +2762,12 @@ void PersistenceDiagramDictEncoding::computeGradientAtoms(
             std::vector<std::array<double, 2>> newPairs(weights.size());
             for(size_t j = 0; j < weights.size(); ++j) {
               std::array<double, 2> pair;
-              if(weights[j] > 0) {
+              if(j == static_cast<size_t>(max)) {
                 pair
                   = {birth_data ,
                      death_data };
               } else {
-                pair = {birth_data, birth_data};
+                pair = {0., 0.};
               }
               newPairs[j] = pair;
             }
@@ -3204,7 +3213,8 @@ int PersistenceDiagramDictEncoding::InitDictionary(
   bool do_min,
   bool do_sad,
   bool do_max,
-  int seed) {
+  int seed,
+  double percent_) {
   switch(this->BackEnd) {
     case BACKEND::INPUT_ATOMS: {
       if(static_cast<int>(inputAtoms.size()) != nbAtom) {
@@ -3287,7 +3297,7 @@ int PersistenceDiagramDictEncoding::InitDictionary(
                        nInputsUseless, seed, static_cast<int>(dictTemp.size()),
                        lossTabTemp, trueLossTabTemp, timersTemp, allLossesTemp,
                        histoVectorWeights, histoDictDiagrams, false, 0.01,
-                       bidderTempMin, bidderTempSad, bidderTempMax, tm_temp);
+                       bidderTempMin, bidderTempSad, bidderTempMax, tm_temp, percent_);
           double min_loss
             = *std::min_element(lossTabTemp.begin(), lossTabTemp.end());
           allEnergy[j] = min_loss;

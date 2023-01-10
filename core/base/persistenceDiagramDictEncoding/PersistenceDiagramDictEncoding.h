@@ -63,7 +63,8 @@ namespace ttk {
                 std::vector<BidderDiagram> &true_bidder_diagram_min,
                 std::vector<BidderDiagram> &true_bidder_diagram_sad,
                 std::vector<BidderDiagram> &true_bidder_diagram_max,
-                Timer &tm_method);
+                Timer &tm_method,
+                double percent_);
 
     enum class BACKEND {
       BORDER_INIT = 0,
@@ -209,7 +210,8 @@ namespace ttk {
                        bool do_min_,
                        bool do_sad_,
                        bool do_max_,
-                       int seed);
+                       int seed,
+                       double percent_);
 
     void gettingBidderDiagrams(
       const std::vector<ttk::DiagramType> &intermediateDiagrams,
