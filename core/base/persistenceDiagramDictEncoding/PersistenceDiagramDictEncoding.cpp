@@ -1446,7 +1446,7 @@ void PersistenceDiagramDictEncoding::method(
             for(size_t j = 0; j < histoEpochAtom.size(); ++j) {
               auto &t = atom[initSize + j];
               histoEpochAtom[j] += 1;
-              histoBoolAtom[j] = t.death.sfValue - t.birth.sfValue < 0.25*(percent_/100.)*maxiDeath[i];
+              histoBoolAtom[j] = t.death.sfValue - t.birth.sfValue < 0.4*(percent_/100.)*maxiDeath[i];
               boolDiag[j] = t.death.sfValue - t.birth.sfValue < 1e-6;
               boolUnderDiag[j] = t.death.sfValue < t.birth.sfValue;
               boolAboveGlobal[j] = t.birth.sfValue > maxiDeath[i];
@@ -1466,7 +1466,7 @@ void PersistenceDiagramDictEncoding::method(
             auto &t = trueFeaturesToAdd[j];
             atom.push_back(t);
             histoEpochAtom.push_back(0);
-            histoBoolAtom.push_back(t.death.sfValue - t.birth.sfValue < 0.25*(percent_/100.)*maxiDeath[i]);
+            histoBoolAtom.push_back(t.death.sfValue - t.birth.sfValue < 0.4*(percent_/100.)*maxiDeath[i]);
             boolDiag.push_back(t.death.sfValue - t.birth.sfValue < 1e-6);
             boolUnderDiag.push_back(t.death.sfValue < t.birth.sfValue);
             boolAboveGlobal.push_back(t.birth.sfValue > maxiDeath[i]);
@@ -2508,8 +2508,13 @@ void PersistenceDiagramDictEncoding::computeGradientAtoms(
             std::vector<std::vector<double>> temp3(weights.size());
             std::vector<double> temp2(2);
             for(size_t j = 0; j < weights.size(); ++j) {
-              temp2[0] += -2 * weights[j] * direction[0];
-              temp2[1] += -2 * weights[j] * direction[1];
+              if(j == static_cast<size_t>(max)){
+                temp2[0] = -2 * weights[j] * direction[0];
+                temp2[1] = -2 * weights[j] * direction[1];
+              } else {
+                temp2[0] = 0.;
+                temp2[1] = 0.;
+              }
               temp3[j] = temp2;
             }
             gradsAtoms.push_back(temp3);
@@ -2531,7 +2536,7 @@ void PersistenceDiagramDictEncoding::computeGradientAtoms(
                 temp2[1] = death_data ;
               } else {
                 temp2[0] = 0.;
-                temp2[1] = 0. ;
+                temp2[1] = 0.;
               }
               temp3[j] = temp2;
             }
@@ -2618,8 +2623,13 @@ void PersistenceDiagramDictEncoding::computeGradientAtoms(
             std::vector<std::vector<double>> temp3(weights.size());
             std::vector<double> temp2(2);
             for(size_t j = 0; j < weights.size(); ++j) {
-              temp2[0] += -2 * weights[j] * direction[0];
-              temp2[1] += -2 * weights[j] * direction[1];
+              if(j == static_cast<size_t>(max)){
+                temp2[0] = -2 * weights[j] * direction[0];
+                temp2[1] = -2 * weights[j] * direction[1];
+              } else {
+                temp2[0] = 0.;
+                temp2[1] = 0.;
+              }
               temp3[j] = temp2;
             }
             gradsAtoms.push_back(temp3);
@@ -2730,8 +2740,13 @@ void PersistenceDiagramDictEncoding::computeGradientAtoms(
             std::vector<std::vector<double>> temp3(weights.size());
             std::vector<double> temp2(2);
             for(size_t j = 0; j < weights.size(); ++j) {
-              temp2[0] += -2 * weights[j] * direction[0];
-              temp2[1] += -2 * weights[j] * direction[1];
+              if(j == static_cast<size_t>(max)){
+                temp2[0] = -2 * weights[j] * direction[0];
+                temp2[1] = -2 * weights[j] * direction[1];
+              } else {
+                temp2[0] = 0.;
+                temp2[1] = 0.;
+              }
               temp3[j] = temp2;
             }
             gradsAtoms.push_back(temp3);
