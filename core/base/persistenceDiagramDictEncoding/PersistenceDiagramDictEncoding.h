@@ -14,6 +14,7 @@
 
 #pragma once
 
+#include "PersistenceDiagramUtils.h"
 #include <array>
 #include <limits>
 
@@ -64,7 +65,8 @@ namespace ttk {
                 std::vector<BidderDiagram> &true_bidder_diagram_sad,
                 std::vector<BidderDiagram> &true_bidder_diagram_max,
                 Timer &tm_method,
-                double percent_);
+                double percent_,
+                bool do_compression);
 
     enum class BACKEND {
       BORDER_INIT = 0,
@@ -219,6 +221,11 @@ namespace ttk {
       std::vector<BidderDiagram> &bidder_diagrams_sad,
       std::vector<BidderDiagram> &bidder_diagrams_max);
 
+    void controlAtomsSize(
+      const std::vector<ttk::DiagramType> &intermediateDiagrams,
+      std::vector<ttk::DiagramType> &dictDiagrams
+    );
+
     double getMaxPers(const ttk::DiagramType &data);
 
     int Wasserstein{2};
@@ -250,6 +257,8 @@ namespace ttk {
     bool sortedForTest{false};
     bool ProgApproach{false};
     bool StopCondition{true};
+
+    bool CompressionMode{false};
 
     enum class ConstraintType {
       FULL_DIAGRAMS,

@@ -261,6 +261,19 @@
         </Documentation>
       </IntVectorProperty>
 
+      <IntVectorProperty
+        name="CompressionMode"
+        command="SetCompressionMode"
+        label="Compression Mode"
+        number_of_elements="1"
+        default_values="0"
+        panel_visibility="advanced">
+        <BooleanDomain name="bool"/>
+        <Documentation>
+            Activate compression mode
+        </Documentation>
+      </IntVectorProperty>
+
 
       <IntVectorProperty name = "MaxEpoch" label = "Max Epoch" command="SetMaxEpoch" number_of_elements = "1" default_values="1000" >
       <IntRangeDomain name = "Range" min = "0" max = "1000" />

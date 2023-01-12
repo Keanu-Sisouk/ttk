@@ -20,6 +20,7 @@
 // VTK includes
 #include <vtkInformation.h>
 #include <vtkInformationVector.h>
+#include <vtkSetGet.h>
 #include <vtkUnstructuredGrid.h>
 
 // VTK Module
@@ -101,6 +102,9 @@ public:
 
   vtkSetMacro(StopCondition, int);
   vtkGetMacro(StopCondition, int);
+
+  vtkSetMacro(CompressionMode, int);
+  vtkGetMacro(CompressionMode, int);
 
   vtkSetMacro(sortedForTest, int);
   vtkGetMacro(sortedForTest, int);

@@ -1,3 +1,4 @@
+#include "PersistenceDiagramUtils.h"
 #include <algorithm>
 #include <cmath>
 #ifdef TTK_ENABLE_EIGEN
@@ -46,6 +47,11 @@ void PersistenceDiagramDictEncoding::execute(
       }
     }
 
+    bool do_compression = false;
+    if(CompressionMode){
+      do_compression = true;
+    }
+
     std::vector<BidderDiagram> bidder_diagram_min(intermediateDiagrams.size());
     std::vector<BidderDiagram> bidder_diagram_sad(intermediateDiagrams.size());
     std::vector<BidderDiagram> bidder_diagram_max(intermediateDiagrams.size());
@@ -66,8 +72,10 @@ void PersistenceDiagramDictEncoding::execute(
            nInputs, seed, numAtom, loss_tab, true_loss_tab, timers, allLosses,
            histoVectorWeights, histoDictDiagrams, preWeightOpt, 0.01,
            bidder_diagram_min, bidder_diagram_sad, bidder_diagram_max,
-           tm_method, percent_);
+           tm_method, percent_, do_compression);
   } else {
+
+    bool do_compression = false;
     for(size_t i = 0; i < intermediateDiagrams.size(); ++i) {
       auto &diag = intermediateDiagrams[i];
       std::sort(diag.begin(), diag.end(),
@@ -148,7 +156,7 @@ void PersistenceDiagramDictEncoding::execute(
              seed, numAtom, loss_tab, true_loss_tab, timers, allLosses,
              histoVectorWeights, histoDictDiagrams, preWeightOpt, 0.01,
              bidder_diagram_min, bidder_diagram_sad, bidder_diagram_max,
-             tm_method, percent_);
+             tm_method, percent_, do_compression);
     }
 
     int min_pairs_to_add = 0;
@@ -165,6 +173,9 @@ void PersistenceDiagramDictEncoding::execute(
     // preWeightOpt = false;
     int counter = 0;
     for(size_t j = 1; j < percentages.size(); ++j) {
+      if(j == percentages.size() - static_cast<size_t>(1) && CompressionMode){
+        do_compression = true;
+      }
       double percentage = percentages[j];
       double previousPerc = percentages[j - 1];
       if(j < percentages.size() - 1) {
@@ -232,7 +243,7 @@ void PersistenceDiagramDictEncoding::execute(
              seed, numAtom, loss_tab, true_loss_tab, timers, allLosses,
              histoVectorWeights, histoDictDiagrams, preWeightOpt, 0.01,
              bidder_diagram_min, bidder_diagram_sad, bidder_diagram_max,
-             tm_method, percent_);
+             tm_method, percent_, do_compression);
       // sum = 0;
       // for(size_t i = 0 ; i < intermediateDiagrams.size() ; ++i){
       // sum += sizeCheck[i];
@@ -266,7 +277,8 @@ void PersistenceDiagramDictEncoding::method(
   std::vector<BidderDiagram> &true_bidder_diagram_sad,
   std::vector<BidderDiagram> &true_bidder_diagram_max,
   Timer &tm_method,
-  double percent_) {
+  double percent_,
+  bool do_compression) {
 
   Timer tm{};
   double tm_part = 0.;
@@ -1315,6 +1327,7 @@ void PersistenceDiagramDictEncoding::method(
       }
 
       if(CreationFeatures) {
+        
         // std::cout << "CREATING FEATURES" << std::endl;
         // double factEquiv = sqrt(static_cast<double>(numAtom));
 
@@ -1375,7 +1388,7 @@ void PersistenceDiagramDictEncoding::method(
                   auto &projLocStocked = allTrueProj[atomIndex][n];
                   double distance
                     = sqrt(pow((pair[0] - projLocStocked[0]), 2)
-                           + pow((pair[1] - projLocStocked[1]), 2));
+                          + pow((pair[1] - projLocStocked[1]), 2));
                   if(proj == projStocked && distance < 1e-3) {
                     ralph = false;
                     index = n;
@@ -1433,90 +1446,105 @@ void PersistenceDiagramDictEncoding::method(
           }
         }
 
-        // if (CreationFeatures){
-        for(int i = 0; i < numAtom; ++i) {
-          auto &atom = dictDiagrams[i];
-          auto &histoEpochAtom = histoAllEpochLife[i];
-          auto &histoBoolAtom = histoAllBoolLife[i];
-          auto &boolUnderDiag = checkUnderDiag[i];
-          auto &boolDiag = checkDiag[i];
-          auto initSize = initSizes[i];
-          auto &boolAboveGlobal = checkAboveGlobal[i];
-          if(histoEpochAtom.size() > 0) {
+        if(!do_compression){
+          // if (CreationFeatures){
+          for(int i = 0; i < numAtom; ++i) {
+            auto &atom = dictDiagrams[i];
+            auto &histoEpochAtom = histoAllEpochLife[i];
+            auto &histoBoolAtom = histoAllBoolLife[i];
+            auto &boolUnderDiag = checkUnderDiag[i];
+            auto &boolDiag = checkDiag[i];
+            auto initSize = initSizes[i];
+            auto &boolAboveGlobal = checkAboveGlobal[i];
+            if(histoEpochAtom.size() > 0) {
+              for(size_t j = 0; j < histoEpochAtom.size(); ++j) {
+                auto &t = atom[initSize + j];
+                histoEpochAtom[j] += 1;
+                histoBoolAtom[j] = t.death.sfValue - t.birth.sfValue < 0.1*(percent_/100.)*maxiDeath[i];
+                boolDiag[j] = t.death.sfValue - t.birth.sfValue < 1e-6;
+                boolUnderDiag[j] = t.death.sfValue < t.birth.sfValue;
+                boolAboveGlobal[j] = t.birth.sfValue > maxiDeath[i];
+              }
+            }
+          }
+
+          for(int i = 0; i < numAtom; ++i) {
+            auto &atom = dictDiagrams[i];
+            auto &histoEpochAtom = histoAllEpochLife[i];
+            auto &histoBoolAtom = histoAllBoolLife[i];
+            auto &boolUnderDiag = checkUnderDiag[i];
+            auto &boolDiag = checkDiag[i];
+            auto &trueFeaturesToAdd = allTrueFeaturesToAdd[i];
+            auto &boolAboveGlobal = checkAboveGlobal[i];
+            for(size_t j = 0; j < trueFeaturesToAdd.size(); ++j) {
+              auto &t = trueFeaturesToAdd[j];
+              atom.push_back(t);
+              histoEpochAtom.push_back(0);
+              histoBoolAtom.push_back(t.death.sfValue - t.birth.sfValue < 0.1*(percent_/100.)*maxiDeath[i]);
+              boolDiag.push_back(t.death.sfValue - t.birth.sfValue < 1e-6);
+              boolUnderDiag.push_back(t.death.sfValue < t.birth.sfValue);
+              boolAboveGlobal.push_back(t.birth.sfValue > maxiDeath[i]);
+            }
+          }
+
+          std::vector<std::vector<size_t>> allIndicesToDelete(numAtom);
+          for(int i = 0; i < numAtom; ++i) {
+            auto &indicesAtomToDelete = allIndicesToDelete[i];
+            auto &histoEpochAtom = histoAllEpochLife[i];
+            auto &histoBoolAtom = histoAllBoolLife[i];
+            auto &boolUnderDiag = checkUnderDiag[i];
+            auto &boolDiag = checkDiag[i];
+            auto &boolAboveGlobal = checkAboveGlobal[i];
             for(size_t j = 0; j < histoEpochAtom.size(); ++j) {
-              auto &t = atom[initSize + j];
-              histoEpochAtom[j] += 1;
-              histoBoolAtom[j] = t.death.sfValue - t.birth.sfValue < 0.4*(percent_/100.)*maxiDeath[i];
-              boolDiag[j] = t.death.sfValue - t.birth.sfValue < 1e-6;
-              boolUnderDiag[j] = t.death.sfValue < t.birth.sfValue;
-              boolAboveGlobal[j] = t.birth.sfValue > maxiDeath[i];
+              if(boolUnderDiag[j] || boolDiag[j] || boolAboveGlobal[j]
+                || (histoEpochAtom[j] > 5 && histoBoolAtom[j])) {
+                // if(boolUnderDiag[j] || (histoEpochAtom[j] > 2 &&
+                // histoBoolAtom[j])){
+                indicesAtomToDelete.push_back(j);
+              }
             }
           }
-        }
 
-        for(int i = 0; i < numAtom; ++i) {
-          auto &atom = dictDiagrams[i];
-          auto &histoEpochAtom = histoAllEpochLife[i];
-          auto &histoBoolAtom = histoAllBoolLife[i];
-          auto &boolUnderDiag = checkUnderDiag[i];
-          auto &boolDiag = checkDiag[i];
-          auto &trueFeaturesToAdd = allTrueFeaturesToAdd[i];
-          auto &boolAboveGlobal = checkAboveGlobal[i];
-          for(size_t j = 0; j < trueFeaturesToAdd.size(); ++j) {
-            auto &t = trueFeaturesToAdd[j];
-            atom.push_back(t);
-            histoEpochAtom.push_back(0);
-            histoBoolAtom.push_back(t.death.sfValue - t.birth.sfValue < 0.4*(percent_/100.)*maxiDeath[i]);
-            boolDiag.push_back(t.death.sfValue - t.birth.sfValue < 1e-6);
-            boolUnderDiag.push_back(t.death.sfValue < t.birth.sfValue);
-            boolAboveGlobal.push_back(t.birth.sfValue > maxiDeath[i]);
-          }
-        }
-
-        std::vector<std::vector<size_t>> allIndicesToDelete(numAtom);
-        for(int i = 0; i < numAtom; ++i) {
-          auto &indicesAtomToDelete = allIndicesToDelete[i];
-          auto &histoEpochAtom = histoAllEpochLife[i];
-          auto &histoBoolAtom = histoAllBoolLife[i];
-          auto &boolUnderDiag = checkUnderDiag[i];
-          auto &boolDiag = checkDiag[i];
-          auto &boolAboveGlobal = checkAboveGlobal[i];
-          for(size_t j = 0; j < histoEpochAtom.size(); ++j) {
-            if(boolUnderDiag[j] || boolDiag[j] || boolAboveGlobal[j]
-               || (histoEpochAtom[j] > 5 && histoBoolAtom[j])) {
-              // if(boolUnderDiag[j] || (histoEpochAtom[j] > 2 &&
-              // histoBoolAtom[j])){
-              indicesAtomToDelete.push_back(j);
-            }
-          }
-        }
-
-        for(int i = 0; i < numAtom; ++i) {
-          auto &atom = dictDiagrams[i];
-          auto &histoEpochAtom = histoAllEpochLife[i];
-          auto &histoBoolAtom = histoAllBoolLife[i];
-          auto &indicesAtomToDelete = allIndicesToDelete[i];
-          auto &boolUnderDiag = checkUnderDiag[i];
-          auto &boolDiag = checkDiag[i];
-          auto &boolAboveGlobal = checkAboveGlobal[i];
-          auto initSize = initSizes[i];
-          // size_t initAtomSize = atom.size() -histoEpochAtom.size();
-          if(static_cast<int>(indicesAtomToDelete.size()) > 0) {
-            for(int j = static_cast<int>(indicesAtomToDelete.size()) - 1;
-                j >= 0; j--) {
-              atom.erase(atom.begin() + initSize + indicesAtomToDelete[j]);
-              histoEpochAtom.erase(histoEpochAtom.begin()
-                                   + indicesAtomToDelete[j]);
-              histoBoolAtom.erase(histoBoolAtom.begin()
-                                  + indicesAtomToDelete[j]);
-              boolUnderDiag.erase(boolUnderDiag.begin()
-                                  + indicesAtomToDelete[j]);
-              boolDiag.erase(boolDiag.begin() + indicesAtomToDelete[j]);
-              boolAboveGlobal.erase(boolAboveGlobal.begin()
+          for(int i = 0; i < numAtom; ++i) {
+            auto &atom = dictDiagrams[i];
+            auto &histoEpochAtom = histoAllEpochLife[i];
+            auto &histoBoolAtom = histoAllBoolLife[i];
+            auto &indicesAtomToDelete = allIndicesToDelete[i];
+            auto &boolUnderDiag = checkUnderDiag[i];
+            auto &boolDiag = checkDiag[i];
+            auto &boolAboveGlobal = checkAboveGlobal[i];
+            auto initSize = initSizes[i];
+            // size_t initAtomSize = atom.size() -histoEpochAtom.size();
+            if(static_cast<int>(indicesAtomToDelete.size()) > 0) {
+              for(int j = static_cast<int>(indicesAtomToDelete.size()) - 1;
+                  j >= 0; j--) {
+                atom.erase(atom.begin() + initSize + indicesAtomToDelete[j]);
+                histoEpochAtom.erase(histoEpochAtom.begin()
                                     + indicesAtomToDelete[j]);
+                histoBoolAtom.erase(histoBoolAtom.begin()
+                                    + indicesAtomToDelete[j]);
+                boolUnderDiag.erase(boolUnderDiag.begin()
+                                    + indicesAtomToDelete[j]);
+                boolDiag.erase(boolDiag.begin() + indicesAtomToDelete[j]);
+                boolAboveGlobal.erase(boolAboveGlobal.begin()
+                                      + indicesAtomToDelete[j]);
+              }
+            } else {
+              continue;
             }
-          } else {
-            continue;
+          }
+        } else {
+          for(int i = 0; i < numAtom; ++i) {
+            auto &atom = dictDiagrams[i];
+            auto &trueFeaturesToAdd = allTrueFeaturesToAdd[i];
+            for(size_t j = 0; j < trueFeaturesToAdd.size(); ++j) {
+              auto &t = trueFeaturesToAdd[j];
+              atom.push_back(t);
+            }
+          }
+          if(epoch > 1){
+              std::cout << "HALO?.?!!!!!!!" << std::endl;
+              controlAtomsSize(intermediateDiagrams, dictDiagrams);
           }
         }
       }
@@ -3308,11 +3336,13 @@ int PersistenceDiagramDictEncoding::InitDictionary(
           std::vector<BidderDiagram> bidderTempMin(dataAlone.size());
           std::vector<BidderDiagram> bidderTempMax(dataAlone.size());
           std::vector<BidderDiagram> bidderTempSad(dataAlone.size());
+          bool do_compression = false;
           this->method(dataAlone, inputAtoms, dictTemp, weightsTemp,
                        nInputsUseless, seed, static_cast<int>(dictTemp.size()),
                        lossTabTemp, trueLossTabTemp, timersTemp, allLossesTemp,
                        histoVectorWeights, histoDictDiagrams, false, 0.01,
-                       bidderTempMin, bidderTempSad, bidderTempMax, tm_temp, percent_);
+                       bidderTempMin, bidderTempSad, bidderTempMax, tm_temp, percent_,
+                       do_compression);
           double min_loss
             = *std::min_element(lossTabTemp.begin(), lossTabTemp.end());
           allEnergy[j] = min_loss;
@@ -3411,8 +3441,7 @@ void PersistenceDiagramDictEncoding::gettingBidderDiagrams(
   // return distance;
 }
 
-double
-  PersistenceDiagramDictEncoding::getMaxPers(const ttk::DiagramType &data) {
+double PersistenceDiagramDictEncoding::getMaxPers(const ttk::DiagramType &data) {
   double max_pers = 0.;
   for(size_t j = 0; j < data.size(); ++j) {
     auto &t = data[j];
@@ -3423,4 +3452,64 @@ double
   }
 
   return max_pers;
+}
+
+void PersistenceDiagramDictEncoding::controlAtomsSize(
+  const std::vector<ttk::DiagramType> &intermediateDiagrams,
+  std::vector<ttk::DiagramType> &dictDiagrams){
+
+  size_t m = dictDiagrams.size();
+  int globalSize = 0;
+
+  for(size_t j = 0; j < intermediateDiagrams.size() ; ++j){
+    auto &data = intermediateDiagrams[j];
+    globalSize += static_cast<int>(data.size());
+  }
+
+  int dictSize = 0;
+
+  for(size_t j = 0; j < m ; ++j){
+    auto &atom = dictDiagrams[j];
+    dictSize += static_cast<int>(atom.size());
+  }
+
+  if(static_cast<double>(dictSize) > 0.2*static_cast<double>(globalSize)){
+    double factor = 0.2*static_cast<double>(globalSize)/static_cast<double>(dictSize);
+    std::vector<std::vector<double>> tempDictPersistencePairs(m);
+
+    for(size_t j = 0; j < m ; ++j){
+      auto &temp = tempDictPersistencePairs[j];
+      auto &atom = dictDiagrams[j];
+      temp.resize(atom.size());
+      for(size_t p = 0; p < atom.size(); ++p){
+        auto &t = atom[p];
+        temp[p] = t.persistence();
+      }
+    }
+
+    for(size_t j = 0; j < m; ++j) {
+      auto &temp = tempDictPersistencePairs[j];
+      std::sort(temp.begin(), temp.end(), std::greater<double>());
+    }
+
+    std::vector<double> persThresholds(m);
+    for(size_t j = 0; j < m ; ++j){
+      auto &temp = tempDictPersistencePairs[j];
+      int index = static_cast<int>(floor(factor*static_cast<double>(temp.size())));
+      persThresholds[j] = temp[index];
+    }
+
+    for(size_t j = 0; j < m ; ++j){
+      double persThreshold = persThresholds[j];
+      auto &atom = dictDiagrams[j];
+      atom.erase(
+        std::remove_if(atom.begin(),
+                      atom.end(),
+                      [persThreshold](ttk::PersistencePair &t) {
+                        return (t.death.sfValue - t.birth.sfValue)
+                                < persThreshold;
+                      }),
+        dictDiagrams[j].end());
+    }
+  }
 }
