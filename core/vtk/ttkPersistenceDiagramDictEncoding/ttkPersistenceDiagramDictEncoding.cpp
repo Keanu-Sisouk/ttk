@@ -180,14 +180,13 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
   std::vector<ttk::DiagramType> intermediateAtoms(numInputAtoms);
 
   double max_dimension_total = 0.0;
-  double percentage = static_cast<double>(this->percent_);
   for(int i = 0; i < nDiags; ++i) {
 
     const auto ret
       = VTUToDiagram(intermediateDiagrams[i], inputDiagrams[i], *this);
 
     double max_pers = this->getMaxPers(intermediateDiagrams[i]);
-
+    double percentage = this->percent_;
     std::cout << "MAX PERS BEFORE FILTERING " << max_pers << std::endl;
     // if (max_dimension < this->getMaxPers(intermediateDiagrams[i])){
     // std::sort(intermediateDiagrams[i].begin(), intermediateDiagrams[i].end(),

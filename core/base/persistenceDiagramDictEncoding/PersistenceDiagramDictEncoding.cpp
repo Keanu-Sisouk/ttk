@@ -1543,7 +1543,6 @@ void PersistenceDiagramDictEncoding::method(
             }
           }
           if(epoch > 1){
-              std::cout << "HALO?.?!!!!!!!" << std::endl;
               controlAtomsSize(intermediateDiagrams, dictDiagrams);
           }
         }
