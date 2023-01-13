@@ -111,6 +111,17 @@
         </Hints>
       </DoubleVectorProperty>
 
+      <DoubleVectorProperty name = "CompressionFactor" label = "Compression factor" command="SetCompressionFactor" number_of_elements = "1" default_values="5." >
+      <DoubleRangeDomain name = "Range" min = "1.0" max = "50.0" />
+        <Hints>
+          <PropertyWidgetDecorator type="GenericDecorator"
+            mode="visibility"
+            property="BackEnd"
+            value="3"
+            inverse="1"/>
+        </Hints>
+      </DoubleVectorProperty>
+
         <IntVectorProperty
         name="OptimizeWeights"
         command="SetOptimizeWeights"

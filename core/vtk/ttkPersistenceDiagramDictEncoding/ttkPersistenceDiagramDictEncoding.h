@@ -183,6 +183,9 @@ public:
   vtkSetMacro(MinPersistence, double);
   vtkGetMacro(MinPersistence, double);
 
+  vtkSetMacro(CompressionFactor, double);
+  vtkGetMacro(CompressionFactor, double);
+
 protected:
   ttkPersistenceDiagramDictEncoding();
   ~ttkPersistenceDiagramDictEncoding() override = default;

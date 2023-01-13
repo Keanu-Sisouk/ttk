@@ -3472,8 +3472,8 @@ void PersistenceDiagramDictEncoding::controlAtomsSize(
     dictSize += static_cast<int>(atom.size());
   }
 
-  if(static_cast<double>(dictSize) > 0.2*static_cast<double>(globalSize)){
-    double factor = 0.2*static_cast<double>(globalSize)/static_cast<double>(dictSize);
+  if(static_cast<double>(dictSize) > (1./this->CompressionFactor)*static_cast<double>(globalSize)){
+    double factor = (1./this->CompressionFactor)*static_cast<double>(globalSize)/static_cast<double>(dictSize);
     std::vector<std::vector<double>> tempDictPersistencePairs(m);
 
     for(size_t j = 0; j < m ; ++j){

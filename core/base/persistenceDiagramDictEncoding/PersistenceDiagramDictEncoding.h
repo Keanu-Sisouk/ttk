@@ -239,6 +239,7 @@ namespace ttk {
     double Lambda;
     size_t MaxNumberOfPairs{20};
     double MinPersistence{0.1};
+    double CompressionFactor{5.};
     bool do_min_{true}, do_sad_{true}, do_max_{true};
 
     int maxLag2;
