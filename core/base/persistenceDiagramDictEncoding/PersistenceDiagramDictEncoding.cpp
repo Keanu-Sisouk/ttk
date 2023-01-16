@@ -4,7 +4,7 @@
 #ifdef TTK_ENABLE_EIGEN
 #include <Eigen/Dense>
 #include <Eigen/Eigenvalues>
-#endif 
+#endif
 
 #include <PersistenceDiagramDictEncoding.h>
 
@@ -690,7 +690,7 @@ void PersistenceDiagramDictEncoding::method(
 
     // if(OptimizeWeights && OptimizeAtoms){
     if(preWeightOpt && OptimizeAtoms) {
-      if(epoch < 5) {
+      if(epoch < 15) {
         do_optimizeAtoms = false;
       } else {
         do_optimizeAtoms = true;
@@ -721,7 +721,7 @@ void PersistenceDiagramDictEncoding::method(
         bufferCheckUnderDiag[p] = boolUnderDiag;
         bufferCheckDiag[p] = boolDiag;
         bufferCheckAboveGlobal[p] = boolAboveGlobal;
-        
+
       }
       for(size_t p = 0; p < nDiags; ++p) {
         const auto weights = vectorWeights[p];
@@ -1327,7 +1327,7 @@ void PersistenceDiagramDictEncoding::method(
       }
 
       if(CreationFeatures) {
-        
+
         // std::cout << "CREATING FEATURES" << std::endl;
         // double factEquiv = sqrt(static_cast<double>(numAtom));
 
@@ -1566,7 +1566,7 @@ void PersistenceDiagramDictEncoding::method(
             t.birth.sfValue = globalPair.birth.sfValue;
           }
 
-          
+
         }
       }
       this->printMsg("Computed 2nd opt for epoch " + std::to_string(epoch),
@@ -2405,7 +2405,7 @@ void PersistenceDiagramDictEncoding::computeExplicitSolutionWeights(
     checker.push_back(temp2);
   }
 
-    
+
 
   // this->printMsg("======================PASSED2==========================");
   for(size_t i = 0; i < grad_list.size(); ++i) {
@@ -2490,7 +2490,7 @@ void PersistenceDiagramDictEncoding::computeGradientAtoms(
   std::vector<std::vector<std::array<double, 2>>> &pairToAddGradList,
   std::vector<PersistencePair> &infoToAdd,
   int nbDiags) const {
-  
+
   // std::vector<ttk::MatchingType> matching;
   gradsAtoms.resize(Barycenter.size());
   for(size_t i = 0; i < Barycenter.size(); ++i) {
@@ -2504,7 +2504,7 @@ void PersistenceDiagramDictEncoding::computeGradientAtoms(
   std::vector<std::vector<double>> directions(Barycenter.size());
   // std::vector<int> checker(Barycenter.size(), 0);
   // computeDistance(newDataBidder, barycenterBidder, matching);
-  
+
 
   int max = std::max_element(weights.begin(), weights.end()) - weights.begin();
   int k = 0;
