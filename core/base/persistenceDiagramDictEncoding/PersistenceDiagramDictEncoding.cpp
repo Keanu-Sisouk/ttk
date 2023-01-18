@@ -690,7 +690,7 @@ void PersistenceDiagramDictEncoding::method(
 
     // if(OptimizeWeights && OptimizeAtoms){
     if(preWeightOpt && OptimizeAtoms) {
-      if(epoch < 25) {
+      if(epoch < 10) {
         do_optimizeAtoms = false;
       } else {
         do_optimizeAtoms = true;
@@ -2538,7 +2538,7 @@ void PersistenceDiagramDictEncoding::computeGradientAtoms(
             std::vector<std::vector<double>> temp3(weights.size());
             std::vector<double> temp2(2);
             for(size_t j = 0; j < weights.size(); ++j) {
-              if(j == static_cast<size_t>(max)){
+              if(true){
                 temp2[0] = -2 * weights[j] * direction[0];
                 temp2[1] = -2 * weights[j] * direction[1];
               } else {
@@ -2653,7 +2653,7 @@ void PersistenceDiagramDictEncoding::computeGradientAtoms(
             std::vector<std::vector<double>> temp3(weights.size());
             std::vector<double> temp2(2);
             for(size_t j = 0; j < weights.size(); ++j) {
-              if(j == static_cast<size_t>(max)){
+              if(true){
                 temp2[0] = -2 * weights[j] * direction[0];
                 temp2[1] = -2 * weights[j] * direction[1];
               } else {
@@ -2770,7 +2770,7 @@ void PersistenceDiagramDictEncoding::computeGradientAtoms(
             std::vector<std::vector<double>> temp3(weights.size());
             std::vector<double> temp2(2);
             for(size_t j = 0; j < weights.size(); ++j) {
-              if(j == static_cast<size_t>(max)){
+              if(true){
                 temp2[0] = -2 * weights[j] * direction[0];
                 temp2[1] = -2 * weights[j] * direction[1];
               } else {
