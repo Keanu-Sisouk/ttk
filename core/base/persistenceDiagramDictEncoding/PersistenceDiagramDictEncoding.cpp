@@ -742,7 +742,7 @@ void PersistenceDiagramDictEncoding::method(
     // this->printMsg("LAG" + std::to_string(lag));
     // std::cout << "LAG" << lag << std::endl;
     if((epoch > MIN_EPOCH) && (loss_tab[epoch + nbEpochPrevious] / loss_tab[epoch + nbEpochPrevious - 1] > 0.99)) {
-      if(loss_tab[epoch] < loss_tab[epoch - 1]) {
+      if(loss_tab[epoch + nbEpochPrevious] < loss_tab[epoch + nbEpochPrevious - 1]) {
         // if(true){
         if(lag2 == this->maxLag2) {
           // lag = 0;
@@ -790,6 +790,8 @@ void PersistenceDiagramDictEncoding::method(
 
     if(cond  && (epoch > 0) &&  (loss_tab[epoch + nbEpochPrevious] > 2. * mini)) {
       lag3 += 1;
+      lag2 = 0;
+
       // if(epoch > MIN_EPOCH){
       if((lag3 > 2) && StopCondition ) {
         std::cout << "NANI?"
@@ -820,6 +822,7 @@ void PersistenceDiagramDictEncoding::method(
         gradActor.reduceStep();
         step = step/2.;
         lag3 = 0;
+
 
         Barycenters.clear();
         Barycenters.resize(nDiags);
