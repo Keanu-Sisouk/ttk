@@ -3511,7 +3511,7 @@ void PersistenceDiagramDictEncoding::controlAtomsSize(
                         return (t.death.sfValue - t.birth.sfValue)
                                 < persThreshold;
                       }),
-        dictDiagrams[j].end());
+        atom.end());
     }
   }
 }
