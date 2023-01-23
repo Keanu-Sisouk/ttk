@@ -1549,6 +1549,12 @@ void PersistenceDiagramDictEncoding::method(
               controlAtomsSize(intermediateDiagrams, dictDiagrams);
           }
         }
+      } else {
+        if(do_compression){
+          if(epoch > 10){
+              controlAtomsSize(intermediateDiagrams, dictDiagrams);
+          }
+        } 
       }
 
       for(int i = 0; i < numAtom; ++i) {
