@@ -1557,7 +1557,7 @@ void PersistenceDiagramDictEncoding::method(
               atom.push_back(t);
             }
           }
-          if(epoch > 15){
+          if(epoch > 9){
               controlAtomsSize(intermediateDiagrams, dictDiagrams);
           }
         }
