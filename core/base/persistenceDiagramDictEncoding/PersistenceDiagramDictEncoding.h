@@ -176,7 +176,8 @@ namespace ttk {
       std::vector<int> &checker,
       std::vector<std::vector<std::array<double, 2>>> &pairToAddGradList,
       ttk::DiagramType &infoToAdd,
-      int nbDiags) const;
+      int nbDiags,
+      bool do_DimReduct) const;
     
     void computeExplicitSolution(
         std::vector<ttk::DiagramType> &DictDiagrams,
@@ -260,6 +261,7 @@ namespace ttk {
     bool StopCondition{true};
 
     bool CompressionMode{false};
+    bool DimReductMode{false};
 
     enum class ConstraintType {
       FULL_DIAGRAMS,

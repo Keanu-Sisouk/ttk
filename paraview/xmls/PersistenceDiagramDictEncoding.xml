@@ -285,6 +285,19 @@
         </Documentation>
       </IntVectorProperty>
 
+      <IntVectorProperty
+        name="DimReductMode"
+        command="SetDimReductMode"
+        label="Dimension Reduction Mode"
+        number_of_elements="1"
+        default_values="0"
+        panel_visibility="advanced">
+        <BooleanDomain name="bool"/>
+        <Documentation>
+            Activate dimension reduction mode
+        </Documentation>
+      </IntVectorProperty>
+
 
       <IntVectorProperty name = "MaxEpoch" label = "Max Epoch" command="SetMaxEpoch" number_of_elements = "1" default_values="1000" >
       <IntRangeDomain name = "Range" min = "0" max = "1000" />

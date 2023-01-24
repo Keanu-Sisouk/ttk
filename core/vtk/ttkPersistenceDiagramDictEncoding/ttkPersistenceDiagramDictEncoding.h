@@ -106,6 +106,9 @@ public:
   vtkSetMacro(CompressionMode, int);
   vtkGetMacro(CompressionMode, int);
 
+  vtkSetMacro(DimReductMode, int);
+  vtkGetMacro(DimReductMode, int);
+
   vtkSetMacro(sortedForTest, int);
   vtkGetMacro(sortedForTest, int);
 

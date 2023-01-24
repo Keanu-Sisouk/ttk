@@ -1242,6 +1242,14 @@ void PersistenceDiagramDictEncoding::method(
       //   auto &checkerAtoms = checkerAtomsList[i];
       //   checkerAtoms.resize()
       // }
+
+      bool do_DimReduct = false;
+      if(DimReductMode && numAtom <= 3){
+        do_DimReduct = true;
+      } else {
+        do_DimReduct = false;
+      }
+
       Timer tm_opt2{};
 #ifdef TTK_ENABLE_OPENMP
 #pragma omp parallel for num_threads(threadNumber_)
@@ -1275,7 +1283,7 @@ void PersistenceDiagramDictEncoding::method(
           gradsAtoms, weights, Barycenter, Data, matchingsMin, matchingsMax,
           matchingsSad, indexBaryMin, indexBaryMax, indexBarySad, indexDataMin,
           indexDataMax, indexDataSad, checkerAtoms, pairToAddGradList,
-          infoToAdd, static_cast<int>(nDiags));
+          infoToAdd, static_cast<int>(nDiags), do_DimReduct);
         // std::cout << "=========================================" << "\n";
         //  gradActor.executeAtoms(dictDiagrams, matchingsAtoms, Barycenter,
         //                         gradsAtoms, nb_points, checkerAtoms, epoch);
@@ -2498,7 +2506,8 @@ void PersistenceDiagramDictEncoding::computeGradientAtoms(
   std::vector<int> &checker,
   std::vector<std::vector<std::array<double, 2>>> &pairToAddGradList,
   std::vector<PersistencePair> &infoToAdd,
-  int nbDiags) const {
+  int nbDiags,
+  bool do_DimReduct) const {
 
   // std::vector<ttk::MatchingType> matching;
   gradsAtoms.resize(Barycenter.size());
@@ -2543,15 +2552,23 @@ void PersistenceDiagramDictEncoding::computeGradientAtoms(
             direction[1] = death_data - birth_death_barycenter;
             std::vector<std::vector<double>> temp3(weights.size());
             std::vector<double> temp2(2);
-            for(size_t j = 0; j < weights.size(); ++j) {
-              if(true){
+            if(CompressionMode && !do_DimReduct){
+              for(size_t j = 0; j < weights.size(); ++j) {
+                if(j == static_cast<size_t>(max)){
+                  temp2[0] = -2 * weights[j] * direction[0];
+                  temp2[1] = -2 * weights[j] * direction[1];
+                } else {
+                  temp2[0] = 0.;
+                  temp2[1] = 0.;
+                }
+                temp3[j] = temp2;
+              }
+            }else{
+              for(size_t j = 0; j < weights.size(); ++j) {
                 temp2[0] = -2 * weights[j] * direction[0];
                 temp2[1] = -2 * weights[j] * direction[1];
-              } else {
-                temp2[0] = 0.;
-                temp2[1] = 0.;
+                temp3[j] = temp2;
               }
-              temp3[j] = temp2;
             }
             gradsAtoms.push_back(temp3);
             checker.push_back(1);
@@ -2658,15 +2675,23 @@ void PersistenceDiagramDictEncoding::computeGradientAtoms(
             direction[1] = death_data - birth_death_barycenter;
             std::vector<std::vector<double>> temp3(weights.size());
             std::vector<double> temp2(2);
-            for(size_t j = 0; j < weights.size(); ++j) {
-              if(true){
+            if(CompressionMode && !do_DimReduct){
+              for(size_t j = 0; j < weights.size(); ++j) {
+                if(j == static_cast<size_t>(max)){
+                  temp2[0] = -2 * weights[j] * direction[0];
+                  temp2[1] = -2 * weights[j] * direction[1];
+                } else {
+                  temp2[0] = 0.;
+                  temp2[1] = 0.;
+                }
+                temp3[j] = temp2;
+              }
+            }else{
+              for(size_t j = 0; j < weights.size(); ++j) {
                 temp2[0] = -2 * weights[j] * direction[0];
                 temp2[1] = -2 * weights[j] * direction[1];
-              } else {
-                temp2[0] = 0.;
-                temp2[1] = 0.;
+                temp3[j] = temp2;
               }
-              temp3[j] = temp2;
             }
             gradsAtoms.push_back(temp3);
             checker.push_back(1);
@@ -2775,15 +2800,23 @@ void PersistenceDiagramDictEncoding::computeGradientAtoms(
             direction[1] = death_data - birth_death_barycenter;
             std::vector<std::vector<double>> temp3(weights.size());
             std::vector<double> temp2(2);
-            for(size_t j = 0; j < weights.size(); ++j) {
-              if(true){
+            if(CompressionMode && !do_DimReduct){
+              for(size_t j = 0; j < weights.size(); ++j) {
+                if(j == static_cast<size_t>(max)){
+                  temp2[0] = -2 * weights[j] * direction[0];
+                  temp2[1] = -2 * weights[j] * direction[1];
+                } else {
+                  temp2[0] = 0.;
+                  temp2[1] = 0.;
+                }
+                temp3[j] = temp2;
+              }
+            }else{
+              for(size_t j = 0; j < weights.size(); ++j) {
                 temp2[0] = -2 * weights[j] * direction[0];
                 temp2[1] = -2 * weights[j] * direction[1];
-              } else {
-                temp2[0] = 0.;
-                temp2[1] = 0.;
+                temp3[j] = temp2;
               }
-              temp3[j] = temp2;
             }
             gradsAtoms.push_back(temp3);
             checker.push_back(1);
