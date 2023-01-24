@@ -63,11 +63,14 @@ void PersistenceDiagramDictEncoding::execute(
 
     Timer tm_method{};
     Timer tm_init{};
-    bool preWeightOpt = false;
+    bool preWeightOpt = true;
     InitDictionary(dictDiagrams, intermediateDiagrams, intermediateAtoms,
                    numAtom, this->do_min_, this->do_sad_, this->do_max_, seed, percent_);
     this->printMsg("Initialization computed ", 1, tm_init.getElapsedTime(),
                    threadNumber_, debug::LineMode::NEW);
+    if(CompressionMode && !CreationFeatures){
+      controlAtomsSize(intermediateDiagrams, dictDiagrams);
+    }
     method(intermediateDiagrams, intermediateAtoms, dictDiagrams, vectorWeights,
            nInputs, seed, numAtom, loss_tab, true_loss_tab, timers, allLosses,
            histoVectorWeights, histoDictDiagrams, preWeightOpt, 0.01,
@@ -696,6 +699,7 @@ void PersistenceDiagramDictEncoding::method(
         do_optimizeAtoms = true;
       }
     }
+    
 
     if(loss < 1e-7) {
       cond = false;
@@ -1553,13 +1557,13 @@ void PersistenceDiagramDictEncoding::method(
               atom.push_back(t);
             }
           }
-          if(epoch > 1){
+          if(epoch > 15){
               controlAtomsSize(intermediateDiagrams, dictDiagrams);
           }
         }
       } else {
         if(do_compression){
-          if(epoch > 10){
+          if(epoch > 15){
               controlAtomsSize(intermediateDiagrams, dictDiagrams);
           }
         } 
