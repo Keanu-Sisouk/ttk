@@ -225,7 +225,12 @@ namespace ttk {
     void controlAtomsSize(
       const std::vector<ttk::DiagramType> &intermediateDiagrams,
       std::vector<ttk::DiagramType> &dictDiagrams
-    );
+    ) const;
+
+    void controlAtomsSize2(
+      const std::vector<ttk::DiagramType> &intermediateDiagrams,
+      std::vector<ttk::DiagramType> &dictDiagrasm
+    ) const;
 
     double getMaxPers(const ttk::DiagramType &data);
 

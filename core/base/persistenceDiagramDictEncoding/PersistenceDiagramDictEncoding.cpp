@@ -3501,7 +3501,7 @@ double PersistenceDiagramDictEncoding::getMaxPers(const ttk::DiagramType &data) 
 
 void PersistenceDiagramDictEncoding::controlAtomsSize(
   const std::vector<ttk::DiagramType> &intermediateDiagrams,
-  std::vector<ttk::DiagramType> &dictDiagrams){
+  std::vector<ttk::DiagramType> &dictDiagrams) const{
 
   size_t m = dictDiagrams.size();
   int globalSize = 0;
@@ -3558,3 +3558,52 @@ void PersistenceDiagramDictEncoding::controlAtomsSize(
     }
   }
 }
+
+void PersistenceDiagramDictEncoding::controlAtomsSize2(
+  const std::vector<ttk::DiagramType> &intermediateDiagrams,
+  std::vector<ttk::DiagramType> &dictDiagrams) const{
+  size_t m = dictDiagrams.size();
+  int globalSize = 0;
+
+  for(size_t j = 0; j < intermediateDiagrams.size() ; ++j){
+    auto &data = intermediateDiagrams[j];
+    globalSize += static_cast<int>(data.size());
+  }
+
+  int dictSize = 0;
+
+  for(size_t j = 0; j < m ; ++j){
+    auto &atom = dictDiagrams[j];
+    dictSize += static_cast<int>(atom.size());
+  }
+
+  if(static_cast<double>(dictSize) > (1./this->CompressionFactor)*static_cast<double>(globalSize)){
+    double factor = (1./this->CompressionFactor)*static_cast<double>(globalSize)/static_cast<double>(dictSize);
+    std::vector<double> tempDictPersistencePairs;
+    for(size_t j = 0; j < m ; ++j){
+      auto &atom = dictDiagrams[j];
+      for(size_t p = 0; p < atom.size(); ++p){
+        auto &t = atom[p];
+        tempDictPersistencePairs.emplace_back(t.persistence());
+      }
+    }
+
+    std::sort(tempDictPersistencePairs.begin(), tempDictPersistencePairs.end(), std::greater<double>());
+    int index = static_cast<int>(floor(factor*static_cast<double>(tempDictPersistencePairs.size())));
+    double persThreshold = tempDictPersistencePairs[index];
+
+    for(size_t j = 0; j < m ; ++j){
+      auto &atom = dictDiagrams[j];
+      atom.erase(
+        std::remove_if(atom.begin(),
+                      atom.end(),
+                      [persThreshold](ttk::PersistencePair &t) {
+                        return (t.death.sfValue - t.birth.sfValue)
+                                < persThreshold;
+                      }),
+        atom.end());
+    }
+  }
+
+}
+
