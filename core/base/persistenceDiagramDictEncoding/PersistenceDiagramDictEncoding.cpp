@@ -1560,7 +1560,7 @@ void PersistenceDiagramDictEncoding::method(
           }
 
           if(ProgApproach){
-            if(epoch > 9){
+            if(epoch > 4){
                 controlAtomsSize(intermediateDiagrams, dictDiagrams);
             }
           }else{
