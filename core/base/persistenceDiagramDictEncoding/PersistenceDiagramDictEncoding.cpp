@@ -694,7 +694,7 @@ void PersistenceDiagramDictEncoding::method(
 
     // if(OptimizeWeights && OptimizeAtoms){
     if(preWeightOpt && OptimizeAtoms) {
-      if(epoch < 5) {
+      if(epoch < 10) {
         do_optimizeAtoms = false;
       } else {
         do_optimizeAtoms = true;
@@ -1560,7 +1560,7 @@ void PersistenceDiagramDictEncoding::method(
           }
 
           if(ProgApproach){
-            if(epoch > 4){
+            if(epoch > 9){
                 controlAtomsSize(intermediateDiagrams, dictDiagrams);
             }
           }else{
