@@ -1061,7 +1061,7 @@ void PersistenceDiagramDictEncoding::method(
                      debug::LineMode::NEW, debug::Priority::DETAIL);
     }
 
-    std::vector<double> &weight = vectorWeights[0];
+    // std::vector<double> &weight = vectorWeights[0];
 
     for(size_t p = 0; p < nDiags; ++p) {
       allLossesAtEpoch[p] = 0.;
