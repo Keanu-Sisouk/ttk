@@ -1559,22 +1559,23 @@ void PersistenceDiagramDictEncoding::method(
             }
           }
 
-          if(ProgApproach){
-            if(epoch > 9){
-                controlAtomsSize(intermediateDiagrams, dictDiagrams);
-            }
-          }else{
-            if(0 <= epoch){
-              controlAtomsSize(intermediateDiagrams, dictDiagrams);
-            }
-          }
+          // if(ProgApproach){
+          //   if(epoch > 4){
+          //       controlAtomsSize(intermediateDiagrams, dictDiagrams);
+          //   }
+          // }else{
+          //   if(0 <= epoch){
+          //     controlAtomsSize(intermediateDiagrams, dictDiagrams);
+          //   }
+          // }
+          controlAtomsSize(intermediateDiagrams, dictDiagrams);
         }
       } else {
         if(do_compression){
           if(epoch > -1){
               controlAtomsSize(intermediateDiagrams, dictDiagrams);
           }
-        } 
+        }
       }
 
       for(int i = 0; i < numAtom; ++i) {
@@ -3527,7 +3528,7 @@ void PersistenceDiagramDictEncoding::controlAtomsSize(
   }
 
   if(static_cast<double>(dictSize) > (1./this->CompressionFactor)*static_cast<double>(globalSize)){
-    double factor = (1./this->CompressionFactor)*static_cast<double>(globalSize)/static_cast<double>(dictSize);
+    double factor = (1./this->CompressionFactor)*(static_cast<double>(globalSize)/static_cast<double>(dictSize));
     std::vector<std::vector<double>> tempDictPersistencePairs(m);
 
     for(size_t j = 0; j < m ; ++j){
