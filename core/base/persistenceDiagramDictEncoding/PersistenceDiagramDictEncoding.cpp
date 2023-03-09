@@ -798,7 +798,8 @@ void PersistenceDiagramDictEncoding::method(
       lag2 = 0;
 
       // if(epoch > MIN_EPOCH){
-      if((lag3 > 2) && StopCondition ) {
+      // if((lag3 > 2) && StopCondition ) {
+      if(lag3 > 2) {
         std::cout << "NANI?"
                   << "\n";
         this->printMsg("Loss increasing too much, reducing step and recompute Barycenters and matchings");
