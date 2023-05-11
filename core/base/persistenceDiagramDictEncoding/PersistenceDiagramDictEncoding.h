@@ -44,7 +44,7 @@ namespace ttk {
                  std::vector<double> &timers,
                  std::vector<double> &true_loss_tab,
                  std::vector<std::vector<double>> &allLosses,
-                 double percent_);
+                 double percent);
 
     void method(const std::vector<ttk::DiagramType> &intermediateDiagrams,
                 const std::vector<ttk::DiagramType> &intermediateAtoms,
@@ -65,7 +65,7 @@ namespace ttk {
                 std::vector<BidderDiagram> &true_bidder_diagram_sad,
                 std::vector<BidderDiagram> &true_bidder_diagram_max,
                 Timer &tm_method,
-                double percent_,
+                double percent,
                 bool do_compression);
 
     enum class BACKEND {
@@ -214,7 +214,7 @@ namespace ttk {
                        bool do_sad_,
                        bool do_max_,
                        int seed,
-                       double percent_);
+                       double percent);
 
     void gettingBidderDiagrams(
       const std::vector<ttk::DiagramType> &intermediateDiagrams,

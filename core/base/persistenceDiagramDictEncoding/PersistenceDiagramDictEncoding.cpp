@@ -30,7 +30,7 @@ void PersistenceDiagramDictEncoding::execute(
   std::vector<double> &timers,
   std::vector<double> &true_loss_tab,
   std::vector<std::vector<double>> &allLosses,
-  double percent_) {
+  double percent) {
 
   if(!ProgApproach) {
 
@@ -65,7 +65,7 @@ void PersistenceDiagramDictEncoding::execute(
     Timer tm_init{};
     bool preWeightOpt = false;
     InitDictionary(dictDiagrams, intermediateDiagrams, intermediateAtoms,
-                   numAtom, this->do_min_, this->do_sad_, this->do_max_, seed, percent_);
+                   numAtom, this->do_min_, this->do_sad_, this->do_max_, seed, percent);
     this->printMsg("Initialization computed ", 1, tm_init.getElapsedTime(),
                    threadNumber_, debug::LineMode::NEW);
     if(true){
@@ -76,7 +76,7 @@ void PersistenceDiagramDictEncoding::execute(
            nInputs, seed, numAtom, loss_tab, true_loss_tab, timers, allLosses,
            histoVectorWeights, histoDictDiagrams, preWeightOpt, 0.01,
            bidder_diagram_min, bidder_diagram_sad, bidder_diagram_max,
-           tm_method, percent_, do_compression);
+           tm_method, percent, do_compression);
   } else {
 
     bool do_compression = false;
@@ -100,12 +100,12 @@ void PersistenceDiagramDictEncoding::execute(
     // std::vector<double> percentages{0.8 , 0.6 , 0.5, 0.4, 0.3 , 0.2};
     // std::vector<double> percentages{0.3 , 0.2 , 0.1 , 0.05, 0.01};
     int start = 20;
-    double stop = percent_;
+    double stop = percent;
     std::vector<double> percentages;
     for(int value = start; value > stop; value -= 5) {
       percentages.push_back(static_cast<double>(value) / 100.);
     }
-    percentages.push_back(static_cast<double>(percent_) / 100.);
+    percentages.push_back(static_cast<double>(percent) / 100.);
     for(size_t k = 0; k < percentages.size(); ++k) {
       std::cout << "PERCENT " << percentages[k] << std::endl;
     }
@@ -152,7 +152,7 @@ void PersistenceDiagramDictEncoding::execute(
 
       Timer tm_init{};
       InitDictionary(dictDiagrams, dataTemp, intermediateAtoms, numAtom,
-                     this->do_min_, this->do_sad_, this->do_max_, seed, percent_);
+                     this->do_min_, this->do_sad_, this->do_max_, seed, percent);
       this->printMsg("Initialization computed ", 1, tm_init.getElapsedTime(),
                      threadNumber_, debug::LineMode::NEW);
 
@@ -160,7 +160,7 @@ void PersistenceDiagramDictEncoding::execute(
              seed, numAtom, loss_tab, true_loss_tab, timers, allLosses,
              histoVectorWeights, histoDictDiagrams, preWeightOpt, 0.01,
              bidder_diagram_min, bidder_diagram_sad, bidder_diagram_max,
-             tm_method, percent_, do_compression);
+             tm_method, percent, do_compression);
     }
 
     int min_pairs_to_add = 0;
@@ -247,7 +247,7 @@ void PersistenceDiagramDictEncoding::execute(
              seed, numAtom, loss_tab, true_loss_tab, timers, allLosses,
              histoVectorWeights, histoDictDiagrams, preWeightOpt, 0.01,
              bidder_diagram_min, bidder_diagram_sad, bidder_diagram_max,
-             tm_method, percent_, do_compression);
+             tm_method, percent, do_compression);
       // sum = 0;
       // for(size_t i = 0 ; i < intermediateDiagrams.size() ; ++i){
       // sum += sizeCheck[i];
@@ -281,7 +281,7 @@ void PersistenceDiagramDictEncoding::method(
   std::vector<BidderDiagram> &true_bidder_diagram_sad,
   std::vector<BidderDiagram> &true_bidder_diagram_max,
   Timer &tm_method,
-  double percent_,
+  double percent,
   bool do_compression) {
 
   Timer tm{};
@@ -1477,7 +1477,7 @@ void PersistenceDiagramDictEncoding::method(
               for(size_t j = 0; j < histoEpochAtom.size(); ++j) {
                 auto &t = atom[initSize + j];
                 histoEpochAtom[j] += 1;
-                histoBoolAtom[j] = t.death.sfValue - t.birth.sfValue < 0.1*(percent_/100.)*maxiDeath[i];
+                histoBoolAtom[j] = t.death.sfValue - t.birth.sfValue < 0.1*(percent/100.)*maxiDeath[i];
                 boolDiag[j] = t.death.sfValue - t.birth.sfValue < 1e-6;
                 boolUnderDiag[j] = t.death.sfValue < t.birth.sfValue;
                 boolAboveGlobal[j] = t.birth.sfValue > maxiDeath[i];
@@ -1497,7 +1497,7 @@ void PersistenceDiagramDictEncoding::method(
               auto &t = trueFeaturesToAdd[j];
               atom.push_back(t);
               histoEpochAtom.push_back(0);
-              histoBoolAtom.push_back(t.death.sfValue - t.birth.sfValue < 0.1*(percent_/100.)*maxiDeath[i]);
+              histoBoolAtom.push_back(t.death.sfValue - t.birth.sfValue < 0.1*(percent/100.)*maxiDeath[i]);
               boolDiag.push_back(t.death.sfValue - t.birth.sfValue < 1e-6);
               boolUnderDiag.push_back(t.death.sfValue < t.birth.sfValue);
               boolAboveGlobal.push_back(t.birth.sfValue > maxiDeath[i]);
@@ -3312,7 +3312,7 @@ int PersistenceDiagramDictEncoding::InitDictionary(
   bool do_sad,
   bool do_max,
   int seed,
-  double percent_) {
+  double percent) {
   switch(this->BackEnd) {
     case BACKEND::INPUT_ATOMS: {
       if(static_cast<int>(inputAtoms.size()) != nbAtom) {
@@ -3396,7 +3396,7 @@ int PersistenceDiagramDictEncoding::InitDictionary(
                        nInputsUseless, seed, static_cast<int>(dictTemp.size()),
                        lossTabTemp, trueLossTabTemp, timersTemp, allLossesTemp,
                        histoVectorWeights, histoDictDiagrams, false, 0.01,
-                       bidderTempMin, bidderTempSad, bidderTempMax, tm_temp, percent_,
+                       bidderTempMin, bidderTempSad, bidderTempMax, tm_temp, percent,
                        do_compression);
           double min_loss
             = *std::min_element(lossTabTemp.begin(), lossTabTemp.end());

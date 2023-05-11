@@ -100,7 +100,7 @@
       </IntVectorProperty>
 
 
-      <DoubleVectorProperty name = "percent_" label = "percent threshold" command="Setpercent_" number_of_elements = "1" default_values="0" >
+      <DoubleVectorProperty name = "Percent" label = "percent threshold" command="SetPercent" number_of_elements = "1" default_values="0" >
       <DoubleRangeDomain name = "Range" min = "0.0" max = "50.0" />
         <Hints>
           <PropertyWidgetDecorator type="GenericDecorator"
