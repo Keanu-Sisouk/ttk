@@ -185,9 +185,9 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
     const auto ret
       = VTUToDiagram(intermediateDiagrams[i], inputDiagrams[i], *this);
 
-    double max_pers = this->getMaxPers(intermediateDiagrams[i]);
+    double maxPers = this->getMaxPers(intermediateDiagrams[i]);
     double percentage = this->Percent;
-    std::cout << "MAX PERS BEFORE FILTERING " << max_pers << std::endl;
+    std::cout << "MAX PERS BEFORE FILTERING " << maxPers << std::endl;
     // if (max_dimension < this->getMaxPers(intermediateDiagrams[i])){
     // std::sort(intermediateDiagrams[i].begin(), intermediateDiagrams[i].end(),
     //           [](ttk::DiagramTuple &t1, ttk::DiagramTuple &t2) {
@@ -197,13 +197,13 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
     // max_dimension =
     //}
     // ttk::DiagramTuple &temp = intermediateDiagrams[i][0];
-    // double max_pers = std::get<10>(temp) - std::get<6>(temp);
+    // double maxPers = std::get<10>(temp) - std::get<6>(temp);
     intermediateDiagrams[i].erase(
       std::remove_if(intermediateDiagrams[i].begin(),
                      intermediateDiagrams[i].end(),
-                     [max_pers, percentage](ttk::PersistencePair &t) {
+                     [maxPers, percentage](ttk::PersistencePair &t) {
                        return (t.death.sfValue - t.birth.sfValue)
-                              < (percentage / 100.) * max_pers;
+                              < (percentage / 100.) * maxPers;
                      }),
       intermediateDiagrams[i].end());
 
@@ -214,8 +214,8 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
       this->printErr("Could not read Persistence Diagram");
       return 0;
     }
-    if(max_dimension_total < max_pers) {
-      max_dimension_total = max_pers;
+    if(max_dimension_total < maxPers) {
+      max_dimension_total = maxPers;
     }
   }
   for(int i = 0; i < numInputAtoms; ++i) {

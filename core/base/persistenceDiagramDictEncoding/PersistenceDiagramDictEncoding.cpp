@@ -124,23 +124,23 @@ void PersistenceDiagramDictEncoding::execute(
       for(size_t i = 0; i < intermediateDiagrams.size(); ++i) {
         auto &diag = intermediateDiagrams[i];
         auto &t = diag[0];
-        // double max_pers = t.death.sfValue - t.birth.sfValue;
-        double max_pers = getMaxPers(diag);
-        std::cout << "MAX PERS" << max_pers << std::endl;
+        // double maxPers = t.death.sfValue - t.birth.sfValue;
+        double maxPers = getMaxPers(diag);
+        std::cout << "MAX PERS" << maxPers << std::endl;
         auto &diagTemp = dataTemp[i];
         dataTemp[i].push_back(t);
         for(size_t p = 1; p < diag.size(); ++p) {
           auto &t2 = diag[p];
-          if(percentage * max_pers <= (t2.death.sfValue - t2.birth.sfValue)) {
+          if(percentage * maxPers <= (t2.death.sfValue - t2.birth.sfValue)) {
             dataTemp[i].push_back(t2);
           } else {
             continue;
           }
         }
-        // double max_pers = t.death.sfValue - t.birth.sfValue;
-        // diag.erase(std::remove_if(diag.begin() , diag.end(), [max_pers,
+        // double maxPers = t.death.sfValue - t.birth.sfValue;
+        // diag.erase(std::remove_if(diag.begin() , diag.end(), [maxPers,
         // percentage](DiagramTuple &t){ return (t.death.sfValue -
-        // t.birth.sfValue) < percentage*max_pers;}), diag.end());
+        // t.birth.sfValue) < percentage*maxPers;}), diag.end());
         std::cout << "SIZE OF DIAG " << i << " IS: " << diagTemp.size()
                   << std::endl;
       }
@@ -208,16 +208,16 @@ void PersistenceDiagramDictEncoding::execute(
         // std::cout << "WHAT " << static_cast<int> (m*(q/100)) << std::endl;
         double previousPers = lastTuple.death.sfValue - lastTuple.birth.sfValue;
         auto &t = diag[0];
-        double max_pers = getMaxPers(diag);
-        // double max_pers = t.death.sfValue - t.birth.sfValue;
+        double maxPers = getMaxPers(diag);
+        // double maxPers = t.death.sfValue - t.birth.sfValue;
         // auto &diagTemp = dataTemp[i];
         // dataTemp[i].push_back(t);
         for(size_t p = 0; p < diag.size(); ++p) {
           auto &t2 = diag[p];
 
-          if(percentage * max_pers <= (t2.death.sfValue - t2.birth.sfValue)
+          if(percentage * maxPers <= (t2.death.sfValue - t2.birth.sfValue)
              && (t2.death.sfValue - t2.birth.sfValue)
-                  < previousPerc * max_pers) {
+                  < previousPerc * maxPers) {
             dataTemp[i].push_back(t2);
             counter += 1;
           }
@@ -228,10 +228,10 @@ void PersistenceDiagramDictEncoding::execute(
           //}
         }
 
-        // double max_pers = t.death.sfValue - t.birth.sfValue;
-        // diag.erase(std::remove_if(diag.begin() , diag.end(), [max_pers,
+        // double maxPers = t.death.sfValue - t.birth.sfValue;
+        // diag.erase(std::remove_if(diag.begin() , diag.end(), [maxPers,
         // percentage](DiagramTuple &t){ return (t.death.sfValue -
-        // t.birth.sfValue) < percentage*max_pers;}), diag.end());
+        // t.birth.sfValue) < percentage*maxPers;}), diag.end());
         std::cout << "SIZE OF DIAG " << i << " IS: " << diagTemp.size()
                   << std::endl;
       }
@@ -2520,14 +2520,14 @@ int PersistenceDiagramDictEncoding::initDictionary(
       }
       for(size_t i = 0; i < inputAtoms.size(); i++) {
         const auto &t = inputAtoms[i];
-        double max_pers = getMaxPers(t);
+        double maxPers = getMaxPers(t);
 
         dictDiagrams.push_back(t);
         dictDiagrams[i].erase(
           std::remove_if(dictDiagrams[i].begin(), dictDiagrams[i].end(),
-                         [max_pers](ttk::PersistencePair &p) {
+                         [maxPers](ttk::PersistencePair &p) {
                            return (p.death.sfValue - p.birth.sfValue)
-                                  < 0. * max_pers;
+                                  < 0. * maxPers;
                          }),
           dictDiagrams[i].end());
       }
@@ -2696,16 +2696,16 @@ void PersistenceDiagramDictEncoding::gettingBidderDiagrams(
 }
 
 double PersistenceDiagramDictEncoding::getMaxPers(const ttk::DiagramType &data) {
-  double max_pers = 0.;
+  double maxPers = 0.;
   for(size_t j = 0; j < data.size(); ++j) {
     auto &t = data[j];
     double pers = t.death.sfValue - t.birth.sfValue;
-    if(pers > max_pers) {
-      max_pers = pers;
+    if(pers > maxPers) {
+      maxPers = pers;
     }
   }
 
-  return max_pers;
+  return maxPers;
 }
 
 void PersistenceDiagramDictEncoding::controlAtomsSize(
