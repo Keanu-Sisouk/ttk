@@ -142,23 +142,6 @@ namespace ttk {
       const std::vector<size_t> &indexDataSad,
       const bool do_optimizeAtoms) const;
 
-    void computeExplicitSolutionWeights(
-      std::vector<double> &weights,
-      const std::vector<ttk::DiagramType> &dictDiagrams,
-      const std::vector<std::vector<ttk::MatchingType>> &matchingsAtoms,
-      const ttk::DiagramType &Barycenter,
-      const ttk::DiagramType &newData,
-      const std::vector<ttk::MatchingType> &matchingsMin,
-      const std::vector<ttk::MatchingType> &matchingsMax,
-      const std::vector<ttk::MatchingType> &matchingsSad,
-      const std::vector<size_t> &indexBaryMin,
-      const std::vector<size_t> &indexBaryMax,
-      const std::vector<size_t> &indexBarySad,
-      const std::vector<size_t> &indexDataMin,
-      const std::vector<size_t> &indexDataMax,
-      const std::vector<size_t> &indexDataSad,
-      const bool do_optimizeAtoms) const;
-
     void computeGradientAtoms(
       std::vector<Matrix> &gradsAtoms,
       const std::vector<double> &weights,
@@ -179,20 +162,6 @@ namespace ttk {
       int nbDiags,
       bool do_DimReduct) const;
     
-    void computeExplicitSolution(
-        std::vector<ttk::DiagramType> &DictDiagrams,
-        const std::vector<std::vector<double>> &vectorWeights,
-        const std::vector<std::vector<Matrix>> &gradsAtomsList,
-        const std::vector<std::vector<std::vector<ttk::MatchingType>>> &allMatchings,
-        const std::vector<ttk::DiagramType> &Barycenters,
-        const int nb_points,
-        const std::vector<std::vector<int>> &checkerAtomsList,
-        std::vector<std::vector<std::vector<int>>> &allProjForDiag,
-        std::vector<ttk::DiagramType> &allFeaturesToAdd,
-        std::vector<std::vector<std::array<double,2 >>> &allProjLocations,
-        std::vector<std::vector<std::vector<double>>> &allVectorForProjContrib,
-        std::vector<std::vector<std::vector<std::array<double, 2>>>> &allPairToAddGradList,
-        std::vector<ttk::DiagramType> &allInfoToAdd);
 
     // A modifier
     void
@@ -256,8 +225,6 @@ namespace ttk {
     bool OptimizeAtoms{true};
 
     bool CreationFeatures{true};
-    bool explicitSolWeights{false};
-    bool explicitSol{false};
     bool Fusion{false};
     bool ProgBarycenter{false};
 

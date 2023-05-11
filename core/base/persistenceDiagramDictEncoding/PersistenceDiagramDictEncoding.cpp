@@ -995,66 +995,37 @@ void PersistenceDiagramDictEncoding::method(
 
     // WEIGHT OPTIMIZATION
     if(do_optimizeWeights) {
-      if(!explicitSolWeights){
 #ifdef TTK_ENABLE_OPENMP
 #pragma omp parallel for num_threads(threadNumber_)
 #endif // TTK_ENABLE_OPENMP
-        for(size_t i = 0; i < nDiags; ++i) {
-          auto &gradWeights = gradWeightsList[i];
-          const auto &matchingsAtoms = allMatchingsAtoms[i];
-          const auto &Barycenter = Barycenters[i];
-          const auto &Data = intermediateDiagrams[i];
-          std::vector<Matrix> &hessianList = allHessianLists[i];
-          const std::vector<ttk::MatchingType> &matchingsMin
-            = matchingsDatasMin[i];
-          const std::vector<ttk::MatchingType> &matchingsMax
-            = matchingsDatasMax[i];
-          const std::vector<ttk::MatchingType> &matchingsSad
-            = matchingsDatasSad[i];
-          const std::vector<size_t> &indexBaryMin = origin_index_barysMin[i];
-          const std::vector<size_t> &indexBarySad = origin_index_barysSad[i];
-          const std::vector<size_t> &indexBaryMax = origin_index_barysMax[i];
-          const std::vector<size_t> &indexDataMin = origin_index_datasMin[i];
-          const std::vector<size_t> &indexDataSad = origin_index_datasSad[i];
-          const std::vector<size_t> &indexDataMax = origin_index_datasMax[i];
-          std::vector<double> &weights = vectorWeights[i];
-          computeGradientWeights(
-            gradWeights, hessianList, dictDiagrams, matchingsAtoms, Barycenter,
-            Data, matchingsMin, matchingsMax, matchingsSad, indexBaryMin,
-            indexBaryMax, indexBarySad, indexDataMin, indexDataMax, indexDataSad,
-            do_optimizeAtoms);
-          int nb_points = Barycenter.size();
-          gradActor.executeWeightsProjected(
-            hessianList, weights, gradWeights, epoch, nb_points, MaxEigenValue);
+      for(size_t i = 0; i < nDiags; ++i) {
+        auto &gradWeights = gradWeightsList[i];
+        const auto &matchingsAtoms = allMatchingsAtoms[i];
+        const auto &Barycenter = Barycenters[i];
+        const auto &Data = intermediateDiagrams[i];
+        std::vector<Matrix> &hessianList = allHessianLists[i];
+        const std::vector<ttk::MatchingType> &matchingsMin
+          = matchingsDatasMin[i];
+        const std::vector<ttk::MatchingType> &matchingsMax
+          = matchingsDatasMax[i];
+        const std::vector<ttk::MatchingType> &matchingsSad
+          = matchingsDatasSad[i];
+        const std::vector<size_t> &indexBaryMin = origin_index_barysMin[i];
+        const std::vector<size_t> &indexBarySad = origin_index_barysSad[i];
+        const std::vector<size_t> &indexBaryMax = origin_index_barysMax[i];
+        const std::vector<size_t> &indexDataMin = origin_index_datasMin[i];
+        const std::vector<size_t> &indexDataSad = origin_index_datasSad[i];
+        const std::vector<size_t> &indexDataMax = origin_index_datasMax[i];
+        std::vector<double> &weights = vectorWeights[i];
+        computeGradientWeights(
+          gradWeights, hessianList, dictDiagrams, matchingsAtoms, Barycenter,
+          Data, matchingsMin, matchingsMax, matchingsSad, indexBaryMin,
+          indexBaryMax, indexBarySad, indexDataMin, indexDataMax, indexDataSad,
+          do_optimizeAtoms);
+        int nb_points = Barycenter.size();
+        gradActor.executeWeightsProjected(
+          hessianList, weights, gradWeights, epoch, nb_points, MaxEigenValue);
         }
-      } else {
-#ifdef TTK_ENABLE_OPENMP
-#pragma omp parallel for num_threads(threadNumber_)
-#endif // TTK_ENABLE_OPENMP
-          for(size_t i = 0; i < nDiags; ++i) {
-          const auto &matchingsAtoms = allMatchingsAtoms[i];
-          const auto &Barycenter = Barycenters[i];
-          const auto &Data = intermediateDiagrams[i];
-          const std::vector<ttk::MatchingType> &matchingsMin
-            = matchingsDatasMin[i];
-          const std::vector<ttk::MatchingType> &matchingsMax
-            = matchingsDatasMax[i];
-          const std::vector<ttk::MatchingType> &matchingsSad
-            = matchingsDatasSad[i];
-          const std::vector<size_t> &indexBaryMin = origin_index_barysMin[i];
-          const std::vector<size_t> &indexBarySad = origin_index_barysSad[i];
-          const std::vector<size_t> &indexBaryMax = origin_index_barysMax[i];
-          const std::vector<size_t> &indexDataMin = origin_index_datasMin[i];
-          const std::vector<size_t> &indexDataSad = origin_index_datasSad[i];
-          const std::vector<size_t> &indexDataMax = origin_index_datasMax[i];
-          std::vector<double> &weights = vectorWeights[i];
-          computeExplicitSolutionWeights(
-            weights, dictDiagrams, matchingsAtoms, Barycenter,
-            Data, matchingsMin, matchingsMax, matchingsSad, indexBaryMin,
-            indexBaryMax, indexBarySad, indexDataMin, indexDataMax, indexDataSad,
-            do_optimizeAtoms);
-        }
-      }
 
       this->printMsg("Computed 1st opt for epoch " + std::to_string(epoch),
                      epoch / static_cast<double>(MAX_EPOCH),
@@ -1294,6 +1265,7 @@ void PersistenceDiagramDictEncoding::method(
         //  gradActor.executeAtoms(dictDiagrams, matchingsAtoms, Barycenter,
         //                         gradsAtoms, nb_points, checkerAtoms, epoch);
       }
+
       std::vector<double> maxiDeath(numAtom);
       std::vector<double> minBirth(numAtom);
       for(int j = 0; j < numAtom; ++j) {
@@ -1313,34 +1285,26 @@ void PersistenceDiagramDictEncoding::method(
       std::vector<std::vector<std::array<double, 2>>> allTrueProjLoc(numAtom);
       // std::vector<std::vector<int>> allAtomIndices(nDiags);
 
-      if(!explicitSol) {
-        for(size_t i = 0; i < nDiags; ++i) {
-          // std::cout << " OPTIM DIAG: " << i << std::endl;
-          auto &pairToAddGradList = allPairToAddToGradList[i];
-          auto &infoToAdd = allInfoToAdd[i];
-          auto &projForDiag = allProjectionsList[i];
-          auto &vectorForProjContrib = allVectorForProjContributions[i];
-          auto &featuresToAdd = allFeaturesToAdd[i];
-          auto &projLocations = allProjLocations[i];
-          auto &gradsAtoms = gradsAtomsList[i];
-          const auto &matchingsAtoms = allMatchingsAtoms[i];
-          const auto &Barycenter = Barycenters[i];
-          const auto &checkerAtoms = checkerAtomsList[i];
-          int nb_points = Barycenters[i].size();
-          gradActor.executeAtoms(
-            dictDiagrams, matchingsAtoms, Barycenter, gradsAtoms, nb_points,
-            checkerAtoms, epoch, projForDiag, featuresToAdd, projLocations,
-            vectorForProjContrib, pairToAddGradList, infoToAdd);
-          // std::cout << " OPTIM DIAG: " << i << std::endl;
-          // std::cout << "=================================================="
-          // << std::endl;
-        }
-      } else {
-        computeExplicitSolution(dictDiagrams, vectorWeights, gradsAtomsList, allMatchingsAtoms,
-                                Barycenters, 0, checkerAtomsList,
-                                allProjectionsList, allFeaturesToAdd,
-                                allProjLocations, allVectorForProjContributions,
-                                allPairToAddToGradList, allInfoToAdd);
+      for(size_t i = 0; i < nDiags; ++i) {
+        // std::cout << " OPTIM DIAG: " << i << std::endl;
+        auto &pairToAddGradList = allPairToAddToGradList[i];
+        auto &infoToAdd = allInfoToAdd[i];
+        auto &projForDiag = allProjectionsList[i];
+        auto &vectorForProjContrib = allVectorForProjContributions[i];
+        auto &featuresToAdd = allFeaturesToAdd[i];
+        auto &projLocations = allProjLocations[i];
+        auto &gradsAtoms = gradsAtomsList[i];
+        const auto &matchingsAtoms = allMatchingsAtoms[i];
+        const auto &Barycenter = Barycenters[i];
+        const auto &checkerAtoms = checkerAtomsList[i];
+        int nb_points = Barycenters[i].size();
+        gradActor.executeAtoms(
+          dictDiagrams, matchingsAtoms, Barycenter, gradsAtoms, nb_points,
+          checkerAtoms, epoch, projForDiag, featuresToAdd, projLocations,
+          vectorForProjContrib, pairToAddGradList, infoToAdd);
+        // std::cout << " OPTIM DIAG: " << i << std::endl;
+        // std::cout << "=================================================="
+        // << std::endl;
       }
 
       if(CreationFeatures) {
@@ -1371,22 +1335,18 @@ void PersistenceDiagramDictEncoding::method(
               const CriticalType c1 = t.birth.type;
               const CriticalType c2 = t.death.type;
               const SimplexId idTemp = t.dim;
-              if(!explicitSol) {
-                pair[0] = pair[0] - step * vectorContrib[0];
-                pair[1] = pair[1] - step * vectorContrib[1];
-                if(pair[0] > pair[1]) {
-                  pair[1] = pair[0];
-                }
-                if(pair[0] < minBirth[atomIndex]) {
-                  continue;
-                }
-                if(pair[1] - pair[0] < 1e-7){
-                  continue;
-                }
-              } else {
-                pair[0] = vectorContrib[0];
-                pair[1] = vectorContrib[1];
+              pair[0] = pair[0] - step * vectorContrib[0];
+              pair[1] = pair[1] - step * vectorContrib[1];
+              if(pair[0] > pair[1]) {
+                pair[1] = pair[0];
               }
+              if(pair[0] < minBirth[atomIndex]) {
+                continue;
+              }
+              if(pair[1] - pair[0] < 1e-7){
+                continue;
+              }
+
               PersistencePair newPair{CriticalVertex{0, c1, pair[0], {}},
                                       CriticalVertex{0, c2, pair[1], {}},
                                       idTemp, true};
@@ -1418,22 +1378,18 @@ void PersistenceDiagramDictEncoding::method(
                 const CriticalType c1 = t.birth.type;
                 const CriticalType c2 = t.death.type;
                 const SimplexId idTemp = t.dim;
-                if(!explicitSol) {
-                  pair[0] = pair[0] - step * vectorContrib[0];
-                  pair[1] = pair[1] - step * vectorContrib[1];
-                  if(pair[0] > pair[1]) {
-                    pair[1] = pair[0];
-                  }
-                  if(pair[0] < minBirth[atomIndex]) {
-                    continue;
-                  }
-                  if(pair[1] - pair[0] < 1e-7 ){
-                    continue;
-                  }
-                } else {
-                  pair[0] = vectorContrib[0];
-                  pair[1] = vectorContrib[1];
+                pair[0] = pair[0] - step * vectorContrib[0];
+                pair[1] = pair[1] - step * vectorContrib[1];
+                if(pair[0] > pair[1]) {
+                  pair[1] = pair[0];
                 }
+                if(pair[0] < minBirth[atomIndex]) {
+                  continue;
+                }
+                if(pair[1] - pair[0] < 1e-7 ){
+                  continue;
+                }
+
 
                 PersistencePair newPair{CriticalVertex{0, c1, pair[0], {}},
                                         CriticalVertex{0, c2, pair[1], {}},
@@ -1446,17 +1402,12 @@ void PersistenceDiagramDictEncoding::method(
                 // auto index = std::distance(allTrueProj[atomIndex].begin() ,
                 // it);
                 auto &tReal = allTrueFeaturesToAdd[atomIndex][index];
-                if(!explicitSol) {
-                  tReal.birth.sfValue
-                    = tReal.birth.sfValue - step * vectorContrib[0];
-                  tReal.death.sfValue
-                    = tReal.death.sfValue - step * vectorContrib[1];
-                  if(tReal.birth.sfValue > tReal.death.sfValue) {
-                    tReal.death.sfValue = tReal.birth.sfValue;
-                  }
-                } else {
-                  tReal.birth.sfValue += vectorContrib[0];
-                  tReal.death.sfValue += vectorContrib[1];
+                tReal.birth.sfValue
+                  = tReal.birth.sfValue - step * vectorContrib[0];
+                tReal.death.sfValue
+                  = tReal.death.sfValue - step * vectorContrib[1];
+                if(tReal.birth.sfValue > tReal.death.sfValue) {
+                  tReal.death.sfValue = tReal.birth.sfValue;
                 }
               }
             }
@@ -1662,6 +1613,7 @@ void PersistenceDiagramDictEncoding::method(
   //             << (t.death.sfValue >= t.birth.sfValue) << std::endl;
   // }
   // }
+  
 }
 
 double PersistenceDiagramDictEncoding::distVect(
@@ -2097,405 +2049,6 @@ void PersistenceDiagramDictEncoding::computeGradientWeights(
   // return gradient;
 }
 
-
-
-void PersistenceDiagramDictEncoding::computeExplicitSolutionWeights(
-  std::vector<double> &weights,
-  const std::vector<ttk::DiagramType> &dictDiagrams,
-  const std::vector<std::vector<ttk::MatchingType>> &matchingsAtoms,
-  const ttk::DiagramType &Barycenter,
-  const ttk::DiagramType &newData,
-  const std::vector<ttk::MatchingType> &matchingsMin,
-  const std::vector<ttk::MatchingType> &matchingsMax,
-  const std::vector<ttk::MatchingType> &matchingsSad,
-  const std::vector<size_t> &indexBaryMin,
-  const std::vector<size_t> &indexBaryMax,
-  const std::vector<size_t> &indexBarySad,
-  const std::vector<size_t> &indexDataMin,
-  const std::vector<size_t> &indexDataMax,
-  const std::vector<size_t> &indexDataSad,
-  const bool do_optimizeAtoms) const {
-  // initialization
-  #ifdef TTK_ENABLE_EIGEN
-  int m = dictDiagrams.size();
-  Eigen::MatrixXd hessian(m,m);
-  Eigen::VectorXd y(m);
-  for(int j = 0; j < m ; ++j){
-    y(j) = 0.;
-    for(int k = 0; k < m ; ++k){
-      hessian(j,k) = 0.;
-    }
-  }
-  std::vector<std::vector<std::array<double, 2>>> grad_list(Barycenter.size());
-  std::vector<std::vector<std::array<double, 2>>> pairToAddGradList;
-  for(int i = 0; i < grad_list.size(); ++i) {
-    grad_list[i].resize(matchingsAtoms.size());
-  }
-  // std::vector<ttk::MatchingType> matching;
-  // std::vector<std::array<double, 2>> directions(Barycenter.size());
-  std::vector<std::array<double, 2>> data_assigned(Barycenter.size());
-  // std::vector<double> gradient(dictDiagrams.size(), 0.);
-
-
-  std::vector<std::vector<int>> checker(Barycenter.size());
-  for(size_t j = 0; j < Barycenter.size(); ++j) {
-    checker[j].resize(dictDiagrams.size());
-  }
-  std::vector<int> tracker(Barycenter.size(), 0);
-  std::vector<int> tracker2(Barycenter.size(), 0);
-
-  // this->printMsg("error?2");
-  // computing gradients
-  for(int i = 0; i < matchingsAtoms.size(); ++i) {
-    // this->printMsg("Atom " + std::to_string(i));
-    // this->printMsg("======================= atom size: "
-    //             + std::to_string(static_cast<int>(dictDiagrams[i].size()))
-    //             + ", and nb matchings: "
-    //             + std::to_string(static_cast<int>(matchingsAtoms[i].size()))
-    //             + ", and bary size: "
-    //             + std::to_string(static_cast<int>(Barycenter.size()))
-    //             + "=====================================");
-    for(int j = 0; j < matchingsAtoms[i].size(); ++j) {
-      const ttk::MatchingType &t = matchingsAtoms[i][j];
-      // Id in atom
-      const SimplexId Id1 = std::get<0>(t);
-      // Id in barycenter
-      const SimplexId Id2 = std::get<1>(t);
-      // if(Id2 < 0) {
-      if(Id2 < 0 || static_cast<int>(grad_list.size() <= Id2)
-         || static_cast<int>(dictDiagrams[i].size()) <= Id1) {
-        continue;
-      } else if(Id1 < 0) {
-        // this->printMsg("========DIAGONAL=========");
-        const PersistencePair &t3 = Barycenter[Id2];
-        auto &point = grad_list[Id2][i];
-        const double birth_barycenter = t3.birth.sfValue;
-        const double death_barycenter = t3.death.sfValue;
-        // std::cout << "Barycenter Pair:" << birth_barycenter << " "
-        //           << death_barycenter << std::endl;
-        const double birth_death_atom
-          = birth_barycenter + (death_barycenter - birth_barycenter) / 2.;
-        point[0] = birth_death_atom;
-        point[1] = birth_death_atom;
-        // std::cout << "Proj coordinates" << birth_death_atom << std::endl;
-        // checker[Id2].push_back(i);
-        checker[Id2][i] = i;
-        tracker[Id2] = 1;
-      } else {
-        // this->printMsg("====UPDATE GRADLIST========");
-        const PersistencePair &t2 = dictDiagrams[i][Id1];
-        auto &point = grad_list[Id2][i];
-        const double birth_atom = t2.birth.sfValue;
-        const double death_atom = t2.death.sfValue;
-        point[0] = birth_atom;
-        point[1] = death_atom;
-        // checker[Id2].push_back(i);
-        checker[Id2][i] = i;
-        tracker[Id2] = 1;
-      }
-    }
-  }
-
-  // this->printMsg("===================PASSED============================");
-  // computeDistance(newDataBidder, barycenterBidder, matching);
-
-  int k = 0;
-  for(int i = 0; i < matchingsMin.size(); ++i) {
-    const ttk::MatchingType &t = matchingsMin[i];
-    // Id in newData
-    const SimplexId Id1 = std::get<0>(t);
-    // Id in barycenter
-    const SimplexId Id2 = std::get<1>(t);
-    if(Id2 < 0) {
-      k += 1;
-
-      if(Id1 < 0) {
-        continue;
-      } else {
-        if(do_optimizeAtoms && CreationFeatures && ProgApproach) {
-          const PersistencePair &t2 = newData[indexDataMin[Id1]];
-          const double birth_data = t2.birth.sfValue;
-          const double death_data = t2.death.sfValue;
-          const double birth_death_barycenter
-            = birth_data + (death_data - birth_data) / 2.;
-          // std::array<double, 2> direction;
-          // direction[0] = birth_data - birth_death_barycenter;
-          // direction[1] = death_data - birth_death_barycenter;
-          /* std::vector<std::vector<double>> temp3(weights.size()); */
-          /* std::vector<double> temp2(2); */
-          /* for(size_t j = 0; j < weights.size(); ++j) { */
-          /*   temp2[0] += -2 * weights[j] * direction[0]; */
-          /*   temp2[1] += -2 * weights[j] * direction[1]; */
-          /*   temp3[j] = temp2; */
-          /* } */
-
-          std::vector<std::array<double, 2>> newPairs(matchingsAtoms.size());
-          for(size_t j = 0; j < matchingsAtoms.size(); ++j) {
-            std::array<double, 2> pair{
-              birth_death_barycenter, birth_death_barycenter};
-            newPairs[j] = pair;
-          }
-          pairToAddGradList.push_back(newPairs);
-          data_assigned.push_back({birth_data, death_data});
-          // directions.push_back(direction);
-        } else {
-          continue;
-        }
-      }
-      // this->printMsg("k = " + std::to_string(k));
-    } else {
-      // this->printMsg("==Here?==");
-      // this->printMsg(std::to_string(static_cast<int>(indexBaryMin[Id2])));
-      const PersistencePair &t3 = Barycenter[indexBaryMin[Id2]];
-      const double birth_barycenter = t3.birth.sfValue;
-      const double death_barycenter = t3.death.sfValue;
-      // auto &direction = directions[indexBaryMin[Id2]];
-      if(Id1 < 0) {
-        const double birth_death_data
-          = birth_barycenter + (death_barycenter - birth_barycenter) / 2.;
-        // direction[0] = birth_death_data - birth_barycenter;
-        // direction[1] = birth_death_data - death_barycenter;
-        data_assigned[indexBaryMin[Id2]] = {birth_death_data, birth_death_data};
-
-      } else {
-        // checker[indexBaryMin[Id2]].push_back(indexDataMin[Id1]);
-        const PersistencePair &t2 = newData[indexDataMin[Id1]];
-        const double birth_data = t2.birth.sfValue;
-        const double death_data = t2.death.sfValue;
-        // direction[0] = t2.birth.sfValue - t3.birth.sfValue;
-        // direction[1] = t2.death.sfValue - t3.death.sfValue;
-        // direction[0] = birth_data - birth_barycenter;
-        // direction[1] = death_data - death_barycenter;
-        data_assigned[indexBaryMin[Id2]] = {birth_data, death_data};
-        // directions[Id2].push_back(direction);
-      }
-      tracker2[indexBaryMin[Id2]] = 1;
-    }
-  }
-
-  for(int i = 0; i < matchingsMax.size(); ++i) {
-    const ttk::MatchingType &t = matchingsMax[i];
-    // Id in newData
-    const SimplexId Id1 = std::get<0>(t);
-    // Id in barycenter
-    const SimplexId Id2 = std::get<1>(t);
-    if(Id2 < 0) {
-      k += 1;
-
-      if(Id1 < 0) {
-        continue;
-      } else {
-        if(do_optimizeAtoms && CreationFeatures && ProgApproach) {
-          const PersistencePair &t2 = newData[indexDataMax[Id1]];
-          const double birth_data = t2.birth.sfValue;
-          const double death_data = t2.death.sfValue;
-          const double birth_death_barycenter
-            = birth_data + (death_data - birth_data) / 2.;
-          // std::array<double, 2> direction;
-          // direction[0] = birth_data - birth_death_barycenter;
-          // direction[1] = death_data - birth_death_barycenter;
-          /* std::vector<std::vector<double>> temp3(weights.size()); */
-          /* std::vector<double> temp2(2); */
-          /* for(size_t j = 0; j < weights.size(); ++j) { */
-          /*   temp2[0] += -2 * weights[j] * direction[0]; */
-          /*   temp2[1] += -2 * weights[j] * direction[1]; */
-          /*   temp3[j] = temp2; */
-          /* } */
-
-          std::vector<std::array<double, 2>> newPairs(matchingsAtoms.size());
-          for(size_t j = 0; j < matchingsAtoms.size(); ++j) {
-            std::array<double, 2> pair{
-              birth_death_barycenter, birth_death_barycenter};
-            newPairs[j] = pair;
-          }
-          pairToAddGradList.push_back(newPairs);
-          data_assigned.push_back({birth_data, death_data});
-
-          // directions.push_back(direction);
-        } else {
-          continue;
-        }
-      }
-      // this->printMsg("k = " + std::to_string(k));
-    } else {
-      // this->printMsg("==Here?==");
-      // this->printMsg(std::to_string(static_cast<int>(indexBaryMax[Id2])));
-      const PersistencePair &t3 = Barycenter[indexBaryMax[Id2]];
-      const double birth_barycenter = t3.birth.sfValue;
-      const double death_barycenter = t3.death.sfValue;
-      // auto &direction = directions[indexBaryMax[Id2]];
-      if(Id1 < 0) {
-        const double birth_death_data
-          = birth_barycenter + (death_barycenter - birth_barycenter) / 2.;
-        // direction[0] = birth_death_data - birth_barycenter;
-        // direction[1] = birth_death_data - death_barycenter;
-        data_assigned[indexBaryMax[Id2]] = {birth_death_data, birth_death_data};
-      } else {
-        // checker[indexBaryMax[Id2]].push_back(indexDataMax[Id1]);
-        const PersistencePair &t2 = newData[indexDataMax[Id1]];
-        const double birth_data = t2.birth.sfValue;
-        const double death_data = t2.death.sfValue;
-        // direction[0] = t2.birth.sfValue - t3.birth.sfValue;
-        // direction[1] = t2.death.sfValue - t3.death.sfValue;
-        // direction[0] = birth_data - birth_barycenter;
-        // direction[1] = death_data - death_barycenter;
-        data_assigned[indexBaryMax[Id2]] = {birth_data, death_data};
-        // directions[Id2].push_back(direction);
-      }
-      tracker2[indexBaryMax[Id2]] = 1;
-    }
-  }
-
-  for(int i = 0; i < matchingsSad.size(); ++i) {
-    const ttk::MatchingType &t = matchingsSad[i];
-    // Id in newData
-    const SimplexId Id1 = std::get<0>(t);
-    // Id in barycenter
-    const SimplexId Id2 = std::get<1>(t);
-    if(Id2 < 0) {
-      k += 1;
-
-      if(Id1 < 0) {
-        continue;
-      } else {
-        if(do_optimizeAtoms && CreationFeatures && ProgApproach) {
-          const PersistencePair &t2 = newData[indexDataSad[Id1]];
-          const double birth_data = t2.birth.sfValue;
-          const double death_data = t2.death.sfValue;
-          const double birth_death_barycenter
-            = birth_data + (death_data - birth_data) / 2.;
-          std::array<double, 2> direction;
-          // direction[0] = birth_data - birth_death_barycenter;
-          // direction[1] = death_data - birth_death_barycenter;
-          /* std::vector<std::vector<double>> temp3(weights.size()); */
-          /* std::vector<double> temp2(2); */
-          /* for(size_t j = 0; j < weights.size(); ++j) { */
-          /*   temp2[0] += -2 * weights[j] * direction[0]; */
-          /*   temp2[1] += -2 * weights[j] * direction[1]; */
-          /*   temp3[j] = temp2; */
-          /* } */
-
-          std::vector<std::array<double, 2>> newPairs(matchingsAtoms.size());
-          for(size_t j = 0; j < matchingsAtoms.size(); ++j) {
-            std::array<double, 2> pair{
-              birth_death_barycenter, birth_death_barycenter};
-            newPairs[j] = pair;
-          }
-          pairToAddGradList.push_back(newPairs);
-          data_assigned.push_back({birth_data, death_data});
-
-          // directions.push_back(direction);
-        } else {
-          continue;
-        }
-      }
-      // this->printMsg("k = " + std::to_string(k));
-    } else {
-      // this->printMsg("==Here?==");
-      // this->printMsg(std::to_string(static_cast<int>(indexBarySad[Id2])));
-      const PersistencePair &t3 = Barycenter[indexBarySad[Id2]];
-      const double birth_barycenter = t3.birth.sfValue;
-      const double death_barycenter = t3.death.sfValue;
-      // auto &direction = directions[indexBarySad[Id2]];
-      if(Id1 < 0) {
-        const double birth_death_data
-          = birth_barycenter + (death_barycenter - birth_barycenter) / 2.;
-        // direction[0] = birth_death_data - birth_barycenter;
-        // direction[1] = birth_death_data - death_barycenter;
-        data_assigned[indexBarySad[Id2]] = {birth_death_data, birth_death_data};
-      } else {
-        // checker[indexBarySad[Id2]].push_back(indexDataSad[Id1]);
-        const PersistencePair &t2 = newData[indexDataSad[Id1]];
-        const double birth_data = t2.birth.sfValue;
-        const double death_data = t2.death.sfValue;
-        // direction[0] = t2.birth.sfValue - t3.birth.sfValue;
-        // direction[1] = t2.death.sfValue - t3.death.sfValue;
-        // direction[0] = birth_data - birth_barycenter;
-        // direction[1] = death_data - death_barycenter;
-        data_assigned[indexBarySad[Id2]] = {birth_data, death_data};
-        // directions[Id2].push_back(direction);
-      }
-      tracker2[indexBarySad[Id2]] = 1;
-    }
-  }
-
-  std::vector<int> temp(pairToAddGradList.size(), 1);
-  grad_list.insert(
-    grad_list.end(), pairToAddGradList.begin(), pairToAddGradList.end());
-  tracker2.insert(tracker2.end(), temp.begin(), temp.end());
-  tracker.insert(tracker.end(), temp.begin(), temp.end());
-  // std::vector<int> temp2(matchingsAtoms.size());
-  // for(size_t j = 0; j < matchingsAtoms.size(); ++j) {
-  //   temp2[j] = static_cast<int>(j);
-  // }
-  for(size_t j = 0; j < pairToAddGradList.size(); ++j) {
-    std::vector<int> temp2(matchingsAtoms.size());
-    for(size_t j = 0; j < matchingsAtoms.size(); ++j) {
-      temp2[j] = static_cast<int>(j);
-    }
-    checker.push_back(temp2);
-  }
-
-
-
-  // this->printMsg("======================PASSED2==========================");
-  for(size_t i = 0; i < grad_list.size(); ++i) {
-    const auto &data_point = data_assigned[i];
-    for(size_t j = 0; j < checker[i].size(); ++j) {
-      auto &point = grad_list[i][checker[i][j]];
-      auto temp = point[0] * data_point[0] + point[1] * data_point[1];
-      y(j) += 2. * temp;
-    }
-  }
-
-
-  // this->printMsg("======================PASSED2==========================");
-  for(size_t i = 0; i < grad_list.size(); ++i) {
-    for(size_t j = 0; j < checker[i].size(); ++j) {
-      // hessian[j].resize(checker[i].size());
-      const auto &point = grad_list[i][checker[i][j]];
-      for(size_t q = 0; q < checker[i].size(); ++q) {
-        const auto &point_temp = grad_list[i][checker[i][q]];
-        hessian(j,q) += point[0] * point_temp[0] + point[1] * point_temp[1];
-        // this->printMsg("======================COMPUTING==========================");
-      }
-    }
-  }
-  // this->printMsg("======================PASSED3==========================");
-  Eigen::VectorXd w = hessian.colPivHouseholderQr().solve(y);
-  // return gradient;
-  for(size_t j = 0; j < dictDiagrams.size() ; ++j){
-    weights[j] = w(j);
-  }
-
-  int n = weights.size();
-  std::vector<double> copy_temp = weights;
-  std::sort(copy_temp.rbegin(), copy_temp.rend());
-  // std::vector<double> u = std::sort(weights.begin(), weights.end(),
-  // std::greater<double>());
-  double K = 1.;
-  double somme_u = copy_temp[0];
-  double theta = (somme_u - 1.) / K;
-  while(K < n && (somme_u + copy_temp[K] - 1.) / (K + 1.) < copy_temp[K]) {
-    somme_u += copy_temp[K];
-    K += 1.;
-    theta = (somme_u - 1.) / K;
-  }
-  for(int i = 0; i < n; ++i) {
-    weights[i] = std::max(weights[i] - theta, 0.);
-  }
-
-  double sum = 0.;
-  for(int i = 0; i < n - 1; ++i) {
-    weights[i] = trunc(weights[i] * 1e8) / 1e8;
-    sum += weights[i];
-  }
-  weights[n - 1] = 1. - sum;
-
-  #endif
-
-}
-
 // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
 // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
 // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
@@ -2558,72 +2111,42 @@ void PersistenceDiagramDictEncoding::computeGradientAtoms(
           const PersistencePair &t2 = newData[indexDataMin[Id1]];
           const double birth_data = t2.birth.sfValue;
           const double death_data = t2.death.sfValue;
-          if(!explicitSol) {
-            const double birth_death_barycenter
-              = birth_data + (death_data - birth_data) / 2.;
-            std::vector<double> direction(2);
-            direction[0] = birth_data - birth_death_barycenter;
-            direction[1] = death_data - birth_death_barycenter;
-            std::vector<std::vector<double>> temp3(weights.size());
-            std::vector<double> temp2(2);
-            if(CompressionMode && !do_DimReduct){
-              for(size_t j = 0; j < weights.size(); ++j) {
-                if(j == static_cast<size_t>(max)){
-                  temp2[0] = -2 * weights[j] * direction[0];
-                  temp2[1] = -2 * weights[j] * direction[1];
-                } else {
-                  temp2[0] = 0.;
-                  temp2[1] = 0.;
-                }
-                temp3[j] = temp2;
-              }
-            }else{
-              for(size_t j = 0; j < weights.size(); ++j) {
+          const double birth_death_barycenter
+            = birth_data + (death_data - birth_data) / 2.;
+          std::vector<double> direction(2);
+          direction[0] = birth_data - birth_death_barycenter;
+          direction[1] = death_data - birth_death_barycenter;
+          std::vector<std::vector<double>> temp3(weights.size());
+          std::vector<double> temp2(2);
+          if(CompressionMode && !do_DimReduct){
+            for(size_t j = 0; j < weights.size(); ++j) {
+              if(j == static_cast<size_t>(max)){
                 temp2[0] = -2 * weights[j] * direction[0];
                 temp2[1] = -2 * weights[j] * direction[1];
-                temp3[j] = temp2;
-              }
-            }
-            gradsAtoms.push_back(temp3);
-            checker.push_back(1);
-            std::vector<std::array<double, 2>> newPairs(weights.size());
-            for(size_t j = 0; j < weights.size(); ++j) {
-              std::array<double, 2> pair{
-                birth_death_barycenter, birth_death_barycenter};
-              newPairs[j] = pair;
-            }
-            pairToAddGradList.push_back(newPairs);
-            infoToAdd.push_back(t2);
-          } else {
-            std::vector<std::vector<double>> temp3(weights.size());
-            std::vector<double> temp2(2);
-            for(size_t j = 0; j < weights.size(); ++j) {
-              if(j == static_cast<size_t>(max)) {
-                temp2[0] = birth_data ;
-                temp2[1] = death_data ;
               } else {
                 temp2[0] = 0.;
                 temp2[1] = 0.;
               }
               temp3[j] = temp2;
             }
-            gradsAtoms.push_back(temp3);
-            checker.push_back(1);
-            std::vector<std::array<double, 2>> newPairs(weights.size());
+          }else{
             for(size_t j = 0; j < weights.size(); ++j) {
-              std::array<double, 2> pair;
-              if(j == static_cast<size_t>(max)) {
-                pair
-                  = {birth_data ,
-                     death_data };
-              } else {
-                pair = {0., 0.};
-              }
-              newPairs[j] = pair;
+              temp2[0] = -2 * weights[j] * direction[0];
+              temp2[1] = -2 * weights[j] * direction[1];
+              temp3[j] = temp2;
             }
-            pairToAddGradList.push_back(newPairs);
-            infoToAdd.push_back(t2);
           }
+          gradsAtoms.push_back(temp3);
+          checker.push_back(1);
+          std::vector<std::array<double, 2>> newPairs(weights.size());
+          for(size_t j = 0; j < weights.size(); ++j) {
+            std::array<double, 2> pair{
+              birth_death_barycenter, birth_death_barycenter};
+            newPairs[j] = pair;
+          }
+          pairToAddGradList.push_back(newPairs);
+          infoToAdd.push_back(t2);
+          
         } else {
           continue;
         }
@@ -2637,27 +2160,17 @@ void PersistenceDiagramDictEncoding::computeGradientAtoms(
       if(Id1 < 0) {
         const double birth_death_data
           = birth_barycenter + (death_barycenter - birth_barycenter) / 2.;
-        if(!explicitSol) {
-          direction[0] = birth_death_data - birth_barycenter;
-          direction[1] = birth_death_data - death_barycenter;
-        } else {
-          direction[0] = birth_death_data;
-          direction[1] = birth_death_data;
-        }
+        direction[0] = birth_death_data - birth_barycenter;
+        direction[1] = birth_death_data - death_barycenter;
+
       } else {
         const PersistencePair &t2 = newData[indexDataMin[Id1]];
         const double birth_data = t2.birth.sfValue;
         const double death_data = t2.death.sfValue;
         // direction[0] = t2.birth.sfValue - t3.birth.sfValue;
         // direction[1] = t2.death.sfValue - t3.death.sfValue;
-        if(!explicitSol) {
-          direction[0] = birth_data - birth_barycenter;
-          direction[1] = death_data - death_barycenter;
-          // directions[Id2].push_back(direction);
-        } else {
-          direction[0] = birth_data;
-          direction[1] = death_data;
-        }
+        direction[0] = birth_data - birth_barycenter;
+        direction[1] = death_data - death_barycenter;
       }
       directions[indexBaryMin[Id2]] = std::move(direction);
       checker[indexBaryMin[Id2]] = 1;
@@ -2681,72 +2194,42 @@ void PersistenceDiagramDictEncoding::computeGradientAtoms(
           const PersistencePair &t2 = newData[indexDataMax[Id1]];
           const double birth_data = t2.birth.sfValue;
           const double death_data = t2.death.sfValue;
-          if(!explicitSol) {
-            const double birth_death_barycenter
-              = birth_data + (death_data - birth_data) / 2.;
-            std::vector<double> direction(2);
-            direction[0] = birth_data - birth_death_barycenter;
-            direction[1] = death_data - birth_death_barycenter;
-            std::vector<std::vector<double>> temp3(weights.size());
-            std::vector<double> temp2(2);
-            if(CompressionMode && !do_DimReduct){
-              for(size_t j = 0; j < weights.size(); ++j) {
-                if(j == static_cast<size_t>(max)){
-                  temp2[0] = -2 * weights[j] * direction[0];
-                  temp2[1] = -2 * weights[j] * direction[1];
-                } else {
-                  temp2[0] = 0.;
-                  temp2[1] = 0.;
-                }
-                temp3[j] = temp2;
-              }
-            }else{
-              for(size_t j = 0; j < weights.size(); ++j) {
+          const double birth_death_barycenter
+            = birth_data + (death_data - birth_data) / 2.;
+          std::vector<double> direction(2);
+          direction[0] = birth_data - birth_death_barycenter;
+          direction[1] = death_data - birth_death_barycenter;
+          std::vector<std::vector<double>> temp3(weights.size());
+          std::vector<double> temp2(2);
+          if(CompressionMode && !do_DimReduct){
+            for(size_t j = 0; j < weights.size(); ++j) {
+              if(j == static_cast<size_t>(max)){
                 temp2[0] = -2 * weights[j] * direction[0];
                 temp2[1] = -2 * weights[j] * direction[1];
-                temp3[j] = temp2;
-              }
-            }
-            gradsAtoms.push_back(temp3);
-            checker.push_back(1);
-            std::vector<std::array<double, 2>> newPairs(weights.size());
-            for(size_t j = 0; j < weights.size(); ++j) {
-              std::array<double, 2> pair{
-                birth_death_barycenter, birth_death_barycenter};
-              newPairs[j] = pair;
-            }
-            pairToAddGradList.push_back(newPairs);
-            infoToAdd.push_back(t2);
-          } else {
-            std::vector<std::vector<double>> temp3(weights.size());
-            std::vector<double> temp2(2);
-            for(size_t j = 0; j < weights.size(); ++j) {
-              if(j == static_cast<size_t>(max)) {
-                temp2[0] = birth_data ;
-                temp2[1] = death_data ;
               } else {
-                temp2[0] = 0. ;
-                temp2[1] = 0. ;
+                temp2[0] = 0.;
+                temp2[1] = 0.;
               }
               temp3[j] = temp2;
             }
-            gradsAtoms.push_back(temp3);
-            checker.push_back(1);
-            std::vector<std::array<double, 2>> newPairs(weights.size());
+          }else{
             for(size_t j = 0; j < weights.size(); ++j) {
-              std::array<double, 2> pair;
-              if(j == static_cast<size_t>(max)) {
-                pair
-                  = {birth_data ,
-                     death_data };
-              } else {
-                pair = {0., 0.};
-              }
-              newPairs[j] = pair;
+              temp2[0] = -2 * weights[j] * direction[0];
+              temp2[1] = -2 * weights[j] * direction[1];
+              temp3[j] = temp2;
             }
-            pairToAddGradList.push_back(newPairs);
-            infoToAdd.push_back(t2);
           }
+          gradsAtoms.push_back(temp3);
+          checker.push_back(1);
+          std::vector<std::array<double, 2>> newPairs(weights.size());
+          for(size_t j = 0; j < weights.size(); ++j) {
+            std::array<double, 2> pair{
+              birth_death_barycenter, birth_death_barycenter};
+            newPairs[j] = pair;
+          }
+          pairToAddGradList.push_back(newPairs);
+          infoToAdd.push_back(t2);
+          
         } else {
           continue;
         }
@@ -2762,28 +2245,17 @@ void PersistenceDiagramDictEncoding::computeGradientAtoms(
       if(Id1 < 0) {
         const double birth_death_data
           = birth_barycenter + (death_barycenter - birth_barycenter) / 2;
-        if(!explicitSol) {
-          direction[0] = birth_death_data - birth_barycenter;
-          direction[1] = birth_death_data - death_barycenter;
-        } else {
-          direction[0] = birth_death_data;
-          direction[1] = birth_death_data;
-        }
+        direction[0] = birth_death_data - birth_barycenter;
+        direction[1] = birth_death_data - death_barycenter;
+
       } else {
         const PersistencePair &t2 = newData[indexDataMax[Id1]];
         const double birth_data = t2.birth.sfValue;
         const double death_data = t2.death.sfValue;
         // direction[0] = t2.birth.sfValue - t3.birth.sfValue;
         // direction[1] = t2.death.sfValue - t3.death.sfValue;
-        if(!explicitSol) {
-          direction[0] = birth_data - birth_barycenter;
-          direction[1] = death_data - death_barycenter;
-          // directions[Id2].push_back(direction);
-        } else {
-          direction[0] = birth_data;
-          direction[1] = death_data;
-        }
-        // directions[Id2].push_back(direction);
+        direction[0] = birth_data - birth_barycenter;
+        direction[1] = death_data - death_barycenter;
       }
       directions[indexBaryMax[Id2]] = std::move(direction);
       checker[indexBaryMax[Id2]] = 1;
@@ -2806,72 +2278,42 @@ void PersistenceDiagramDictEncoding::computeGradientAtoms(
           const PersistencePair &t2 = newData[indexDataSad[Id1]];
           const double birth_data = t2.birth.sfValue;
           const double death_data = t2.death.sfValue;
-          if(!explicitSol) {
-            const double birth_death_barycenter
-              = birth_data + (death_data - birth_data) / 2.;
-            std::vector<double> direction(2);
-            direction[0] = birth_data - birth_death_barycenter;
-            direction[1] = death_data - birth_death_barycenter;
-            std::vector<std::vector<double>> temp3(weights.size());
-            std::vector<double> temp2(2);
-            if(CompressionMode && !do_DimReduct){
-              for(size_t j = 0; j < weights.size(); ++j) {
-                if(j == static_cast<size_t>(max)){
-                  temp2[0] = -2 * weights[j] * direction[0];
-                  temp2[1] = -2 * weights[j] * direction[1];
-                } else {
-                  temp2[0] = 0.;
-                  temp2[1] = 0.;
-                }
-                temp3[j] = temp2;
-              }
-            }else{
-              for(size_t j = 0; j < weights.size(); ++j) {
+          const double birth_death_barycenter
+            = birth_data + (death_data - birth_data) / 2.;
+          std::vector<double> direction(2);
+          direction[0] = birth_data - birth_death_barycenter;
+          direction[1] = death_data - birth_death_barycenter;
+          std::vector<std::vector<double>> temp3(weights.size());
+          std::vector<double> temp2(2);
+          if(CompressionMode && !do_DimReduct){
+            for(size_t j = 0; j < weights.size(); ++j) {
+              if(j == static_cast<size_t>(max)){
                 temp2[0] = -2 * weights[j] * direction[0];
                 temp2[1] = -2 * weights[j] * direction[1];
-                temp3[j] = temp2;
-              }
-            }
-            gradsAtoms.push_back(temp3);
-            checker.push_back(1);
-            std::vector<std::array<double, 2>> newPairs(weights.size());
-            for(size_t j = 0; j < weights.size(); ++j) {
-              std::array<double, 2> pair{
-                birth_death_barycenter, birth_death_barycenter};
-              newPairs[j] = pair;
-            }
-            pairToAddGradList.push_back(newPairs);
-            infoToAdd.push_back(t2);
-          } else {
-            std::vector<std::vector<double>> temp3(weights.size());
-            std::vector<double> temp2(2);
-            for(size_t j = 0; j < weights.size(); ++j) {
-              if(j == static_cast<size_t>(max)) {
-                temp2[0] = birth_data ;
-                temp2[1] = birth_data ;
               } else {
-                temp2[0] = 0. ;
-                temp2[1] = 0. ;
+                temp2[0] = 0.;
+                temp2[1] = 0.;
               }
               temp3[j] = temp2;
             }
-            gradsAtoms.push_back(temp3);
-            checker.push_back(1);
-            std::vector<std::array<double, 2>> newPairs(weights.size());
+          }else{
             for(size_t j = 0; j < weights.size(); ++j) {
-              std::array<double, 2> pair;
-              if(j == static_cast<size_t>(max)) {
-                pair
-                  = {birth_data ,
-                     death_data };
-              } else {
-                pair = {0., 0.};
-              }
-              newPairs[j] = pair;
+              temp2[0] = -2 * weights[j] * direction[0];
+              temp2[1] = -2 * weights[j] * direction[1];
+              temp3[j] = temp2;
             }
-            pairToAddGradList.push_back(newPairs);
-            infoToAdd.push_back(t2);
           }
+          gradsAtoms.push_back(temp3);
+          checker.push_back(1);
+          std::vector<std::array<double, 2>> newPairs(weights.size());
+          for(size_t j = 0; j < weights.size(); ++j) {
+            std::array<double, 2> pair{
+              birth_death_barycenter, birth_death_barycenter};
+            newPairs[j] = pair;
+          }
+          pairToAddGradList.push_back(newPairs);
+          infoToAdd.push_back(t2);
+          
         } else {
           continue;
         }
@@ -2887,27 +2329,18 @@ void PersistenceDiagramDictEncoding::computeGradientAtoms(
       if(Id1 < 0) {
         const double birth_death_data
           = birth_barycenter + (death_barycenter - birth_barycenter) / 2;
-        if(!explicitSol) {
-          direction[0] = birth_death_data - birth_barycenter;
-          direction[1] = birth_death_data - death_barycenter;
-        } else {
-          direction[0] = birth_death_data;
-          direction[1] = birth_death_data;
-        }
+        direction[0] = birth_death_data - birth_barycenter;
+        direction[1] = birth_death_data - death_barycenter;
       } else {
         const PersistencePair &t2 = newData[indexDataSad[Id1]];
         const double birth_data = t2.birth.sfValue;
         const double death_data = t2.death.sfValue;
         // direction[0] = t2.birth.sfValue - t3.birth.sfValue;
         // direction[1] = t2.death.sfValue - t3.death.sfValue;
-        if(!explicitSol) {
-          direction[0] = birth_data - birth_barycenter;
-          direction[1] = death_data - death_barycenter;
+        direction[0] = birth_data - birth_barycenter;
+        direction[1] = death_data - death_barycenter;
           // directions[Id2].push_back(direction);
-        } else {
-          direction[0] = birth_data;
-          direction[1] = death_data;
-        }
+
         // directions[Id2].push_back(direction);
       }
       directions[indexBarySad[Id2]] = std::move(direction);
@@ -2926,18 +2359,8 @@ void PersistenceDiagramDictEncoding::computeGradientAtoms(
       for(size_t j = 0; j < weights.size(); ++j) {
         std::vector<double> temp(2);
         const std::vector<double> &direction = directions[i];
-        if(!explicitSol) {
-          temp[0] = -2 * weights[j] * direction[0];
-          temp[1] = -2 * weights[j] * direction[1];
-        } else {
-          if(weights[j] > 0) {
-            temp[0] = direction[0] ;
-            temp[1] = direction[1] ;
-          } else {
-            temp[0] = direction[0] ;
-            temp[1] = direction[1] ;
-          }
-        }
+        temp[0] = -2 * weights[j] * direction[0];
+        temp[1] = -2 * weights[j] * direction[1];
         // if(i == 0){
         // std::cout << "Atom: " << j << "\n";
         // std::cout << temp[0] << " and " << temp[1] <<"\n";
@@ -2950,225 +2373,6 @@ void PersistenceDiagramDictEncoding::computeGradientAtoms(
   // return gradsLists;
 }
 
-void PersistenceDiagramDictEncoding::computeExplicitSolution(
-  std::vector<ttk::DiagramType> &DictDiagrams,
-  const std::vector<std::vector<double>> &vectorWeights,
-  const std::vector<std::vector<Matrix>> &gradsAtomsList,
-  const std::vector<std::vector<std::vector<ttk::MatchingType>>> &allMatchings,
-  const std::vector<ttk::DiagramType> &Barycenters,
-  const int nb_points,
-  const std::vector<std::vector<int>> &checkerAtomsList,
-  std::vector<std::vector<std::vector<int>>> &allProjForDiag,
-  std::vector<ttk::DiagramType> &allFeaturesToAdd,
-  std::vector<std::vector<std::array<double, 2>>> &allProjLocations,
-  std::vector<std::vector<std::vector<double>>> &allVectorForProjContrib,
-  std::vector<std::vector<std::vector<std::array<double, 2>>>>
-    &allPairToAddGradList,
-  std::vector<ttk::DiagramType> &allInfoToAdd) {
-
-  size_t nbAtoms = DictDiagrams.size();
-  size_t nbDiags = Barycenters.size();
-  std::vector<std::vector<std::array<double, 2>>> atomsBuffer(nbAtoms);
-  for(size_t i = 0; i < nbAtoms; ++i) {
-    auto &atom = atomsBuffer[i];
-    atom.resize(DictDiagrams[i].size());
-    for(size_t j = 0; j < DictDiagrams[i].size(); ++j) {
-      atom[j] = {0., 0.};
-    }
-  }
-
-#ifdef TTK_ENABLE_EIGEN
-  int m = DictDiagrams.size();
-  int N = Barycenters.size();
-  Eigen::MatrixXd L(N, m);
-  for(auto i = 0; i < nbDiags ; ++i){
-    const auto &weight = vectorWeights[i];
-    for(auto j = 0; j < nbAtoms; ++j){
-       L(i,j) = weight[j];
-    }
-  }
-
-  Eigen::MatrixXd symLInv(m,m);
-  symLInv = (L.transpose()*L).eval().inverse();
-
-  Eigen::MatrixXd finalL(m,N);
-  finalL = symLInv*L.transpose();
-
-
-  // std::vector<std::vector<std::vector<std::array<double, 2>>>>
-  // all_grad_list(nbDiags);
-  std::vector<std::vector<std::vector<double>>> allProjectionsBuffer(nbDiags);
-  std::vector<std::vector<std::vector<int>>> allChecker(nbDiags);
-  std::vector<std::vector<int>> allTracker(nbDiags);
-  std::vector<std::vector<std::vector<int>>> allTrackerDiagonal(nbDiags);
-  std::vector<std::vector<std::vector<int>>> allTrackerMatch(nbDiags);
-  for(size_t i = 0; i < nbDiags; ++i) {
-    // auto &grad_list = all_grad_list[i];
-    auto &projectionBuffer = allProjectionsBuffer[i];
-    auto &checker = allChecker[i];
-    auto &Barycenter = Barycenters[i];
-    auto &tracker = allTracker[i];
-    auto &tracker_diagonal = allTrackerDiagonal[i];
-    auto &tracker_match = allTrackerMatch[i];
-    size_t sizeBary = Barycenter.size();
-    // grad_list.resize(sizeBary);
-    projectionBuffer.resize(sizeBary);
-    checker.resize(sizeBary);
-    tracker.resize(sizeBary);
-    tracker_diagonal.resize(sizeBary);
-    tracker_match.resize(sizeBary);
-    for(size_t j = 0; j < sizeBary; ++j) {
-      projectionBuffer[j].resize(nbAtoms);
-      // grad_list[j].resize(nbAtoms);
-      checker[j].resize(nbAtoms);
-      tracker[j] = 0;
-      tracker_diagonal[j].resize(nbAtoms);
-      tracker_match[j].resize(nbAtoms);
-    }
-  }
-
-  for(size_t i = 0; i < nbDiags; ++i) {
-    auto &gradsList = gradsAtomsList[i];
-    // auto &grad_list = all_grad_list[i];
-    auto &matchings = allMatchings[i];
-    auto &projectionBuffer = allProjectionsBuffer[i];
-    auto &projForDiag = allProjForDiag[i];
-    auto &projLocations = allProjLocations[i];
-    auto &vectorForProjContrib = allVectorForProjContrib[i];
-    auto &featuresToAdd = allFeaturesToAdd[i];
-    auto &checker = allChecker[i];
-    auto &checkerAtomsExt = checkerAtomsList[i];
-    auto &Barycenter = Barycenters[i];
-    auto &tracker = allTracker[i];
-    auto &tracker_diagonal = allTrackerDiagonal[i];
-    auto &tracker_match = allTrackerMatch[i];
-    auto &pairToAddGradList = allPairToAddGradList[i];
-    auto &infoToAdd = allInfoToAdd[i];
-    size_t sizeBary = Barycenter.size();
-    for(size_t j = 0; j < matchings.size(); ++j) {
-      for(size_t k = 0; k < matchings[j].size(); ++k) {
-        const auto &t = matchings[j][k];
-        // Id in atom
-        const SimplexId Id1 = std::get<0>(t);
-        // Id in barycenter
-        const SimplexId Id2 = std::get<1>(t);
-        if(Id2 < 0 || static_cast<SimplexId>(Barycenter.size()) <= Id2
-           || static_cast<SimplexId>(DictDiagrams[j].size()) <= Id1) {
-          continue;
-        } else {
-          if(Id1 < 0) {
-            const auto &t3 = Barycenter[Id2];
-            const double birth_barycenter = t3.birth.sfValue;
-            const double death_barycenter = t3.death.sfValue;
-            const double birth_death_atom
-              = birth_barycenter + (death_barycenter - birth_barycenter) / 2.;
-            checker[Id2][j] = j;
-            tracker[Id2] = 1;
-            tracker_match[Id2][j] = Id1;
-            tracker_diagonal[Id2][j] = 1;
-            projectionBuffer[Id2][j] = birth_death_atom;
-          } else {
-            checker[Id2][j] = j;
-            tracker[Id2] = 1;
-            tracker_match[Id2][j] = Id1;
-            tracker_diagonal[Id2][j] = 0;
-            projectionBuffer[Id2][j] = 0.;
-          }
-        }
-      }
-    }
-    // grad_list.insert(
-    //     grad_list.end(), pairToAddGradList.begin(), pairToAddGradList.end());
-    for(size_t j = 0; j < pairToAddGradList.size(); ++j) {
-      std::vector<int> temp1(matchings.size(), 1);
-      std::vector<int> temp2(matchings.size(), -1);
-      std::vector<int> temp3(matchings.size());
-      for(size_t l = 0; l < matchings.size(); ++l) {
-        temp3[l] = static_cast<int>(l);
-      }
-      tracker_diagonal.push_back(temp1);
-      tracker_match.push_back(temp1);
-      checker.push_back(temp3);
-      tracker.push_back(1);
-    }
-
-    for(size_t j = 0; j < checker.size(); ++j) {
-      if(tracker[j] == 0 || checkerAtomsExt[j] == 0) {
-        continue;
-      } else {
-        if(j < Barycenter.size()) {
-          const auto &infos = Barycenter[j];
-          for(size_t k = 0; k < checker[j].size(); ++k) {
-            auto &tracker_temp = tracker_match[j][k];
-            if(tracker_diagonal[j][k] == 1 || tracker_temp == -1
-               || tracker_temp > 10000) {
-              continue;
-              // auto &index = checker[j][k];
-              //  auto &t2 = gradsLists[j][index];
-            } else {
-              auto &index = checker[j][k];
-              auto &t2 = gradsList[j][index];
-              auto &t1 = atomsBuffer[index][tracker_temp];
-              t1[0] += finalL(index,i) * t2[0] ;
-              t1[1] += finalL(index,i) * t2[1] ;
-            }
-          }
-        } else {
-          const auto &infos = infoToAdd[static_cast<int>(j)
-                                        - static_cast<int>(Barycenter.size())];
-          for(size_t k = 0; k < checker[j].size(); ++k) {
-            auto &tracker_temp = tracker_match[j][k];
-            if(tracker_diagonal[j][k] == 1 || tracker_temp == -1
-               || tracker_temp > 10000) {
-              auto &index = checker[j][k];
-              auto &t2 = gradsList[j][index];
-              std::vector<int> projAndIndex(DictDiagrams.size() + 1);
-              int atomIndex = static_cast<int>(index);
-              for(size_t m = 0; m < DictDiagrams.size(); ++m) {
-                projAndIndex[m] = tracker_match[j][m];
-              }
-              projAndIndex[DictDiagrams.size()] = atomIndex;
-              projForDiag.push_back(projAndIndex);
-              featuresToAdd.push_back(infos);
-              std::array<double, 2> proj{
-                gradsList[j][index][0], gradsList[j][index][1]};
-              projLocations.push_back(proj);
-              std::vector<double> temp(2);
-              temp[0] = finalL(index, i) * gradsList[j][index][0];
-              temp[1] = finalL(index, i) * gradsList[j][index][1];
-              vectorForProjContrib.push_back(temp);
-            } else {
-              auto &index = checker[j][k];
-              auto &t2 = gradsList[j][index];
-              auto &t1 = atomsBuffer[index][tracker_temp];
-              t1[0] += finalL(index,i) * t2[0] ;
-              t1[1] += finalL(index,i) * t2[1] ;
-            }
-          }
-        }
-      }
-    }
-  }
-
-  for(size_t i = 0; i < nbAtoms; ++i) {
-    auto &atom = DictDiagrams[i];
-    auto &atomTemp = atomsBuffer[i];
-    for(size_t j = 0; j < atom.size(); ++j) {
-      auto &t1 = atom[j];
-      auto &t2 = atomTemp[j];
-      // if(t2[0] > 0.) {
-      //   t1.birth.sfValue = t2[0];
-      // }
-      // if(t2[1] > 0.) {
-      //   t1.death.sfValue = t2[1];
-      // }
-      t1.birth.sfValue = t2[0];
-      t1.death.sfValue = t2[1];
-    }
-  }
-
-  #endif
-}
 
 // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
 // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
