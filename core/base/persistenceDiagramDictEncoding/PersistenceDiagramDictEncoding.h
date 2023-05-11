@@ -175,7 +175,7 @@ namespace ttk {
       std::vector<BidderDiagram> &current_bidder_diags,
       const std::vector<double> &maxDiagPersistence) const;
 
-    int InitDictionary(std::vector<ttk::DiagramType> &dictDiagrams,
+    int initDictionary(std::vector<ttk::DiagramType> &dictDiagrams,
                        const std::vector<ttk::DiagramType> &datas,
                        const std::vector<ttk::DiagramType> &inputAtoms,
                        const int nbAtom,

@@ -12,11 +12,6 @@
 
 using namespace ttk;
 
-static bool testNeg(ttk::PersistencePair &t) {
-  double birth = t.birth.sfValue;
-  double death = t.death.sfValue;
-  return death < birth;
-}
 
 void PersistenceDiagramDictEncoding::execute(
   std::vector<ttk::DiagramType> &intermediateDiagrams,
@@ -64,7 +59,7 @@ void PersistenceDiagramDictEncoding::execute(
     Timer tm_method{};
     Timer tm_init{};
     bool preWeightOpt = false;
-    InitDictionary(dictDiagrams, intermediateDiagrams, intermediateAtoms,
+    initDictionary(dictDiagrams, intermediateDiagrams, intermediateAtoms,
                    numAtom, this->do_min_, this->do_sad_, this->do_max_, seed, percent);
     this->printMsg("Initialization computed ", 1, tm_init.getElapsedTime(),
                    threadNumber_, debug::LineMode::NEW);
@@ -151,7 +146,7 @@ void PersistenceDiagramDictEncoding::execute(
       }
 
       Timer tm_init{};
-      InitDictionary(dictDiagrams, dataTemp, intermediateAtoms, numAtom,
+      initDictionary(dictDiagrams, dataTemp, intermediateAtoms, numAtom,
                      this->do_min_, this->do_sad_, this->do_max_, seed, percent);
       this->printMsg("Initialization computed ", 1, tm_init.getElapsedTime(),
                      threadNumber_, debug::LineMode::NEW);
@@ -304,7 +299,7 @@ void PersistenceDiagramDictEncoding::method(
   }
 
   // Timer tm_init{};
-  // InitDictionary(dictDiagrams, intermediateDiagrams, intermediateAtoms,
+  // initDictionary(dictDiagrams, intermediateDiagrams, intermediateAtoms,
   // numAtom, this->do_min_,
   //                this->do_sad_, this->do_max_, seed);
   // this->printMsg("Initialization computed ", 1, tm_init.getElapsedTime(),
@@ -2507,7 +2502,7 @@ void PersistenceDiagramDictEncoding::enrichCurrentBidderDiagrams(
   }
 }
 
-int PersistenceDiagramDictEncoding::InitDictionary(
+int PersistenceDiagramDictEncoding::initDictionary(
   std::vector<ttk::DiagramType> &dictDiagrams,
   const std::vector<ttk::DiagramType> &datas,
   const std::vector<ttk::DiagramType> &inputAtoms,
