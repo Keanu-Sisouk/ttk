@@ -39,7 +39,7 @@ class TTKPERSISTENCEDIAGRAMDICTENCODING_EXPORT ttkPersistenceDiagramDictEncoding
 private:
   int atomNumber_{3};
   int seed_{0};
-  double Percent{0};
+  double Percent_{0};
 
 public:
   // enum class BACKEND{BORDER_INIT = 0 , RANDOM_INIT = 1 , FIRST_DIAGS = 2};
@@ -70,44 +70,44 @@ public:
 
   vtkGetMacro(Alpha, double);
 
-  vtkSetMacro(Percent, double);
-  vtkGetMacro(Percent, double);
+  vtkSetMacro(Percent_, double);
+  vtkGetMacro(Percent_, double);
 
-  vtkSetMacro(OptimizeWeights, int);
-  vtkGetMacro(OptimizeWeights, int);
+  vtkSetMacro(OptimizeWeights_, int);
+  vtkGetMacro(OptimizeWeights_, int);
 
-  vtkSetMacro(OptimizeAtoms, int);
-  vtkGetMacro(OptimizeAtoms, int);
+  vtkSetMacro(OptimizeAtoms_, int);
+  vtkGetMacro(OptimizeAtoms_, int);
 
-  vtkSetMacro(MaxEigenValue, int);
-  vtkGetMacro(MaxEigenValue, int);
+  vtkSetMacro(MaxEigenValue_, int);
+  vtkGetMacro(MaxEigenValue_, int);
 
-  vtkSetMacro(Fusion, int);
-  vtkGetMacro(Fusion, int);
+  vtkSetMacro(Fusion_, int);
+  vtkGetMacro(Fusion_, int);
 
-  vtkSetMacro(ProgBarycenter, int);
-  vtkGetMacro(ProgBarycenter, int);
+  vtkSetMacro(ProgBarycenter_, int);
+  vtkGetMacro(ProgBarycenter_, int);
 
-  vtkSetMacro(MaxEpoch, int);
-  vtkGetMacro(MaxEpoch, int);
+  vtkSetMacro(MaxEpoch_, int);
+  vtkGetMacro(MaxEpoch_, int);
 
-  vtkSetMacro(ProgApproach, int);
-  vtkGetMacro(ProgApproach, int);
+  vtkSetMacro(ProgApproach_, int);
+  vtkGetMacro(ProgApproach_, int);
 
-  vtkSetMacro(StopCondition, int);
-  vtkGetMacro(StopCondition, int);
+  vtkSetMacro(StopCondition_, int);
+  vtkGetMacro(StopCondition_, int);
 
-  vtkSetMacro(CompressionMode, int);
-  vtkGetMacro(CompressionMode, int);
+  vtkSetMacro(CompressionMode_, int);
+  vtkGetMacro(CompressionMode_, int);
 
-  vtkSetMacro(DimReductMode, int);
-  vtkGetMacro(DimReductMode, int);
+  vtkSetMacro(DimReductMode_, int);
+  vtkGetMacro(DimReductMode_, int);
 
-  vtkSetMacro(sortedForTest, int);
-  vtkGetMacro(sortedForTest, int);
+  vtkSetMacro(sortedForTest_, int);
+  vtkGetMacro(sortedForTest_, int);
 
-  vtkSetMacro(CreationFeatures, int);
-  vtkGetMacro(CreationFeatures, int);
+  vtkSetMacro(CreationFeatures_, int);
+  vtkGetMacro(CreationFeatures_, int);
 
   vtkSetMacro(atomNumber_, int);
   vtkGetMacro(atomNumber_, int);
@@ -123,6 +123,9 @@ public:
 
   ttkSetEnumMacro(BackEnd, BACKEND);
   vtkGetEnumMacro(BackEnd, BACKEND);
+
+  vtkSetMacro(CompressionFactor, double);
+  vtkGetMacro(CompressionFactor, double);
 
   void SetPairType(const int data) {
     switch(data) {
@@ -177,11 +180,8 @@ public:
   vtkSetMacro(MaxNumberOfPairs, unsigned int);
   vtkGetMacro(MaxNumberOfPairs, unsigned int);
 
-  vtkSetMacro(MinPersistence, double);
-  vtkGetMacro(MinPersistence, double);
-
-  vtkSetMacro(CompressionFactor, double);
-  vtkGetMacro(CompressionFactor, double);
+  vtkSetMacro(MinPersistence_, double);
+  vtkGetMacro(MinPersistence_, double);
 
 protected:
   ttkPersistenceDiagramDictEncoding();

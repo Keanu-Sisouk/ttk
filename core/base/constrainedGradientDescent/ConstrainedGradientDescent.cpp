@@ -15,9 +15,9 @@ void ConstrainedGradientDescent::executeWeightsProjected(
   const std::vector<double> &grad,
   const int epoch,
   const int nb_points,
-  bool MaxEigenValue) {
+  bool maxEigenValue) {
   gradientDescentWeights(
-    hessianList, weights, grad, epoch, nb_points, MaxEigenValue);
+    hessianList, weights, grad, epoch, nb_points, maxEigenValue);
   projectionOnSimplex(weights);
 }
 
@@ -77,7 +77,7 @@ void ConstrainedGradientDescent::gradientDescentWeights(
   const std::vector<double> &grad,
   const int epoch,
   const int nb_points,
-  bool MaxEigenValue) {
+  bool maxEigenValue) {
 
   double mini = *std::min_element(weights.begin(), weights.end());
   int n = weights.size();
@@ -85,9 +85,9 @@ void ConstrainedGradientDescent::gradientDescentWeights(
   double L = 0.;
   // std::cout << "STEP = " << step << std::endl;
 #ifndef TTK_ENABLE_EIGEN
-  MaxEigenValue = false;
+  maxEigenValue = false;
 #endif // TTK_ENABLE_EIGEN
-  if(MaxEigenValue) {
+  if(maxEigenValue) {
 #ifdef TTK_ENABLE_EIGEN
     for(size_t i = 0; i < hessianList.size(); ++i) {
       auto &hessian = hessianList[i];

@@ -22,7 +22,7 @@ namespace ttk {
                                  const std::vector<double> &grad,
                                  const int epoch,
                                  const int nb_points,
-                                 bool MaxEigenValue);
+                                 bool maxEigenValue);
 
     void executeAtoms(
       std::vector<ttk::DiagramType> &DictDiagrams,
@@ -55,7 +55,7 @@ namespace ttk {
                                 const std::vector<double> &grad,
                                 const int epoch,
                                 const int nb_points,
-                                bool MaxEigenValue);
+                                bool maxEigenValue);
 
     void gradientDescentAtoms(
       std::vector<ttk::DiagramType> &DictDiagrams,

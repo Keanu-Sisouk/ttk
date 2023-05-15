@@ -186,7 +186,7 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
       = VTUToDiagram(intermediateDiagrams[i], inputDiagrams[i], *this);
 
     double maxPers = this->getMaxPers(intermediateDiagrams[i]);
-    double percentage = this->Percent;
+    double percentage = this->Percent_;
     std::cout << "MAX PERS BEFORE FILTERING " << maxPers << std::endl;
     // if (max_dimension < this->getMaxPers(intermediateDiagrams[i])){
     // std::sort(intermediateDiagrams[i].begin(), intermediateDiagrams[i].end(),
@@ -259,8 +259,8 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
   // const auto diagramsDistMat = this->execute(intermediateDiagrams,
   // dictDiagrams, vectorWeights,  nInputs);
   this->execute(intermediateDiagrams, intermediateAtoms, dictDiagrams,
-                vectorWeights, nInputs, seed, numAtom, loss_tab, timers, true_loss_tab,
-                allLosses, this->Percent);
+                vectorWeights, nInputs, seed, numAtom, loss_tab, timers,
+                true_loss_tab, allLosses, this->Percent_);
   // zero-padd column name to keep Row Data columns ordered
   // this->printMsg("============WE ARE HERE 173 AFTER EXECUTE============");
   output_weights->SetNumberOfRows(nDiags);

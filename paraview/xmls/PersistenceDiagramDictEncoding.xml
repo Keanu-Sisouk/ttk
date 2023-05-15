@@ -100,7 +100,7 @@
       </IntVectorProperty>
 
 
-      <DoubleVectorProperty name = "Percent" label = "percent threshold" command="SetPercent" number_of_elements = "1" default_values="0" >
+      <DoubleVectorProperty name = "Percent_" label = "percent threshold" command="SetPercent_" number_of_elements = "1" default_values="0" >
       <DoubleRangeDomain name = "Range" min = "0.0" max = "50.0" />
         <Hints>
           <PropertyWidgetDecorator type="GenericDecorator"
@@ -123,8 +123,8 @@
       </DoubleVectorProperty>
 
         <IntVectorProperty
-        name="OptimizeWeights"
-        command="SetOptimizeWeights"
+        name="OptimizeWeights_"
+        command="SetOptimizeWeights_"
         label="Optimize weights"
         number_of_elements="1"
         default_values="1"
@@ -136,8 +136,8 @@
       </IntVectorProperty>
 
         <IntVectorProperty
-        name="OptimizeAtoms"
-        command="SetOptimizeAtoms"
+        name="OptimizeAtoms_"
+        command="SetOptimizeAtoms_"
         label="Optimize atoms"
         number_of_elements="1"
         default_values="1"
@@ -151,8 +151,8 @@
 
 
         <IntVectorProperty
-        name="MaxEigenValue"
-        command="SetMaxEigenValue"
+        name="MaxEigenValue_"
+        command="SetMaxEigenValue_"
         label="Max Eigen Value"
         number_of_elements="1"
         default_values="1"
@@ -164,8 +164,8 @@
       </IntVectorProperty>
 
         <IntVectorProperty
-        name="Fusion"
-        command="SetFusion"
+        name="Fusion_"
+        command="SetFusion_"
         label="Fusion"
         number_of_elements="1"
         default_values="0"
@@ -178,8 +178,8 @@
 
 
         <IntVectorProperty
-        name="ProgBarycenter"
-        command="SetProgBarycenter"
+        name="ProgBarycenter_"
+        command="SetProgBarycenter_"
         label="Progressive barycenter"
         number_of_elements="1"
         default_values="0"
@@ -193,8 +193,8 @@
 
 
         <IntVectorProperty
-        name="ProgApproach"
-        command="SetProgApproach"
+        name="ProgApproach_"
+        command="SetProgApproach_"
         label="Progressive approach"
         number_of_elements="1"
         default_values="0"
@@ -207,8 +207,8 @@
 
 
         <IntVectorProperty
-        name="StopCondition"
-        command="SetStopCondition"
+        name="StopCondition_"
+        command="SetStopCondition_"
         label="Stopping condition"
         number_of_elements="1"
         default_values="1"
@@ -247,8 +247,8 @@
 
 
         <IntVectorProperty
-        name="sortedForTest"
-        command="SetsortedForTest"
+        name="sortedForTest_"
+        command="SetsortedForTest_"
         label="sort for testing"
         number_of_elements="1"
         default_values="0"
@@ -260,8 +260,8 @@
       </IntVectorProperty>
 
         <IntVectorProperty
-        name="CreationFeatures"
-        command="SetCreationFeatures"
+        name="CreationFeatures_"
+        command="SetCreationFeatures_"
         label="Creation of features"
         number_of_elements="1"
         default_values="1"
@@ -273,8 +273,8 @@
       </IntVectorProperty>
 
       <IntVectorProperty
-        name="CompressionMode"
-        command="SetCompressionMode"
+        name="CompressionMode_"
+        command="SetCompressionMode_"
         label="Compression Mode"
         number_of_elements="1"
         default_values="1"
@@ -286,8 +286,8 @@
       </IntVectorProperty>
 
       <IntVectorProperty
-        name="DimReductMode"
-        command="SetDimReductMode"
+        name="DimReductMode_"
+        command="SetDimReductMode_"
         label="Dimension Reduction Mode"
         number_of_elements="1"
         default_values="0"
@@ -299,7 +299,7 @@
       </IntVectorProperty>
 
 
-      <IntVectorProperty name = "MaxEpoch" label = "Max Epoch" command="SetMaxEpoch" number_of_elements = "1" default_values="1000" >
+      <IntVectorProperty name = "MaxEpoch_" label = "Max Epoch" command="SetMaxEpoch_" number_of_elements = "1" default_values="1000" >
       <IntRangeDomain name = "Range" min = "0" max = "1000" />
       </IntVectorProperty>
 

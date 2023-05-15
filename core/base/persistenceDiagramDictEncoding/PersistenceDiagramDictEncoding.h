@@ -47,7 +47,6 @@ namespace ttk {
                  double percent);
 
     void method(const std::vector<ttk::DiagramType> &intermediateDiagrams,
-                const std::vector<ttk::DiagramType> &intermediateAtoms,
                 std::vector<ttk::DiagramType> &dictDiagrams,
                 std::vector<std::vector<double>> &vectorWeights,
                 const std::array<size_t, 2> &nInputs,
@@ -96,8 +95,8 @@ namespace ttk {
     inline void setMaxNumberOfPairs(const size_t data) {
       MaxNumberOfPairs = data;
     }
-    inline void setMinPersistence(const double data) {
-      MinPersistence = data;
+    inline void setMinPersistence_(const double data) {
+      MinPersistence_ = data;
     }
     inline void setConstraint(const int data) {
       if(data == 0) {
@@ -213,27 +212,28 @@ namespace ttk {
     // of the 2 critical points of the pair
     double Lambda;
     size_t MaxNumberOfPairs{20};
-    double MinPersistence{0.1};
+    double MinPersistence_{0.1};
+
     double CompressionFactor{1.5};
     bool do_min_{true}, do_sad_{true}, do_max_{true};
 
-    int maxLag2;
+    int maxLag2_;
 
-    int MaxEpoch;
-    bool MaxEigenValue{true};
-    bool OptimizeWeights{true};
-    bool OptimizeAtoms{true};
+    int MaxEpoch_;
+    bool MaxEigenValue_{true};
+    bool OptimizeWeights_{true};
+    bool OptimizeAtoms_{true};
 
-    bool CreationFeatures{true};
-    bool Fusion{false};
-    bool ProgBarycenter{false};
+    bool CreationFeatures_{true};
+    bool Fusion_{false};
+    bool ProgBarycenter_{false};
 
-    bool sortedForTest{false};
-    bool ProgApproach{false};
-    bool StopCondition{true};
+    bool sortedForTest_{false};
+    bool ProgApproach_{false};
+    bool StopCondition_{true};
 
-    bool CompressionMode{false};
-    bool DimReductMode{false};
+    bool CompressionMode_{false};
+    bool DimReductMode_{false};
 
     enum class ConstraintType {
       FULL_DIAGRAMS,
