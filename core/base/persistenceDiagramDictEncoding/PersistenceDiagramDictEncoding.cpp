@@ -1974,6 +1974,17 @@ void PersistenceDiagramDictEncoding::computeGradientWeights(
     }
   }
 
+  // computeDirectionsGradWeight(matchingsAtoms, Barycenter, newData, matchingsMin, indexBaryMin, 
+  //   indexDataMin, pairToAddGradList, directions, data_assigned, tracker2, do_optimizeAtoms);
+
+
+  // computeDirectionsGradWeight(matchingsAtoms, Barycenter, newData, matchingsMax, indexBaryMax, 
+  //   indexDataMax, pairToAddGradList, directions, data_assigned, tracker2, do_optimizeAtoms);
+
+
+  // computeDirectionsGradWeight(matchingsAtoms, Barycenter, newData, matchingsSad, indexBarySad, 
+  //   indexDataSad, pairToAddGradList, directions, data_assigned, tracker2, do_optimizeAtoms);
+
   std::vector<int> temp(pairToAddGradList.size(), 1);
   grad_list.insert(
     grad_list.end(), pairToAddGradList.begin(), pairToAddGradList.end());
@@ -2814,3 +2825,93 @@ void PersistenceDiagramDictEncoding::controlAtomsSize2(
 
 }
 
+
+
+void PersistenceDiagramDictEncoding::computeDirectionsGradWeight(
+  const std::vector<std::vector<ttk::MatchingType>> &matchingsAtoms,
+  const ttk::DiagramType &Barycenter,
+  const ttk::DiagramType &newData,
+  const std::vector<ttk::MatchingType> &matchingsCritType,
+  const std::vector<size_t> &indexBaryCritType,
+  const std::vector<size_t> &indexDataCritType,
+  std::vector<std::vector<std::array<double, 2>>> &pairToAddGradList,
+  std::vector<std::array<double, 2>> &directions,
+  std::vector<std::array<double, 2>> &data_assigned,
+  std::vector<int> &tracker2,
+  const bool do_optimizeAtoms) const {
+
+  int k = 0;
+  for(int i = 0; i < matchingsCritType.size(); ++i) {
+    const ttk::MatchingType &t = matchingsCritType[i];
+    // Id in newData
+    const SimplexId Id1 = std::get<0>(t);
+    // Id in barycenter
+    const SimplexId Id2 = std::get<1>(t);
+    if(Id2 < 0) {
+      k += 1;
+
+      if(Id1 < 0) {
+        continue;
+      } else {
+        // if(false){
+        if(do_optimizeAtoms && CreationFeatures_ && ProgApproach_) {
+          const PersistencePair &t2 = newData[indexDataCritType[Id1]];
+          const double birth_data = t2.birth.sfValue;
+          const double death_data = t2.death.sfValue;
+          const double birth_death_barycenter
+            = birth_data + (death_data - birth_data) / 2.;
+          std::array<double, 2> direction;
+          direction[0] = birth_data - birth_death_barycenter;
+          direction[1] = death_data - birth_death_barycenter;
+          /* std::vector<std::vector<double>> temp3(weights.size()); */
+          /* std::vector<double> temp2(2); */
+          /* for(size_t j = 0; j < weights.size(); ++j) { */
+          /*   temp2[0] += -2 * weights[j] * direction[0]; */
+          /*   temp2[1] += -2 * weights[j] * direction[1]; */
+          /*   temp3[j] = temp2; */
+          /* } */
+
+          std::vector<std::array<double, 2>> newPairs(matchingsAtoms.size());
+          for(size_t j = 0; j < matchingsAtoms.size(); ++j) {
+            std::array<double, 2> pair{
+              birth_death_barycenter, birth_death_barycenter};
+            newPairs[j] = pair;
+          }
+          pairToAddGradList.push_back(newPairs);
+          data_assigned.push_back({birth_data, death_data});
+          directions.push_back(direction);
+        } else {
+          continue;
+        }
+      }
+      // this->printMsg("k = " + std::to_string(k));
+    } else {
+      // this->printMsg("==Here?==");
+      // this->printMsg(std::to_string(static_cast<int>(indexBaryCritType[Id2])));
+      const PersistencePair &t3 = Barycenter[indexBaryCritType[Id2]];
+      const double birth_barycenter = t3.birth.sfValue;
+      const double death_barycenter = t3.death.sfValue;
+      auto &direction = directions[indexBaryCritType[Id2]];
+      if(Id1 < 0) {
+        const double birth_death_data
+          = birth_barycenter + (death_barycenter - birth_barycenter) / 2.;
+        direction[0] = birth_death_data - birth_barycenter;
+        direction[1] = birth_death_data - death_barycenter;
+        data_assigned[indexBaryCritType[Id2]] = {birth_death_data, birth_death_data};
+
+      } else {
+        // checker[indexBaryCritType[Id2]].push_back(indexDataCritType[Id1]);
+        const PersistencePair &t2 = newData[indexDataCritType[Id1]];
+        const double birth_data = t2.birth.sfValue;
+        const double death_data = t2.death.sfValue;
+        // direction[0] = t2.birth.sfValue - t3.birth.sfValue;
+        // direction[1] = t2.death.sfValue - t3.death.sfValue;
+        direction[0] = birth_data - birth_barycenter;
+        direction[1] = death_data - death_barycenter;
+        data_assigned[indexBaryCritType[Id2]] = {birth_data, death_data};
+        // directions[Id2].push_back(direction);
+      }
+      tracker2[indexBaryCritType[Id2]] = 1;
+    }
+  }
+}
