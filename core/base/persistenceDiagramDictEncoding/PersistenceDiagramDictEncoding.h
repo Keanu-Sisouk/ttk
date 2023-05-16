@@ -204,13 +204,20 @@ namespace ttk {
       std::vector<BidderDiagram> &bidder_diagrams_max);
 
     void computeAllDistances(
+      std::vector<ttk::DiagramType> &Barycenters,
       const size_t nDiag,
+      std::vector<ttk::DiagramType> &BarycentersMin,
+      std::vector<ttk::DiagramType> &BarycentersSad,
+      std::vector<ttk::DiagramType> &BarycentersMax,
+      std::vector<BidderDiagram> &bidder_barycenters_min,
+      std::vector<BidderDiagram> &bidder_barycenters_sad,
+      std::vector<BidderDiagram> &bidder_barycenters_max,
+      std::vector<std::vector<size_t>> &origin_index_barysMin,
+      std::vector<std::vector<size_t>> &origin_index_barysSad,
+      std::vector<std::vector<size_t>> &origin_index_barysMax,
       std::vector<BidderDiagram> &bidder_diagrams_min,
       std::vector<BidderDiagram> &bidder_diagrams_max,
       std::vector<BidderDiagram> &bidder_diagrams_sad,
-      std::vector<BidderDiagram> &bidder_barycenters_min,
-      std::vector<BidderDiagram> &bidder_barycenters_max,
-      std::vector<BidderDiagram> &bidder_barycenters_sad,
       std::vector<std::vector<ttk::MatchingType>> &matchingsDatasMin,
       std::vector<std::vector<ttk::MatchingType>> &matchingsDatasMax,
       std::vector<std::vector<ttk::MatchingType>> &matchingsDatasSad,
