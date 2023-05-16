@@ -88,7 +88,7 @@
       <!-- Create a UI group that contains all input parameter widgets (here only one) -->
       <!-- OUTPUT PARAMETER WIDGETS -->
 
-      <IntVectorProperty name = "atomNumber_" label = "Number of Atoms" command="SetatomNumber_" number_of_elements = "1" default_values="3" >
+      <IntVectorProperty name = "AtomNumber_" label = "Number of Atoms" command="SetAtomNumber_" number_of_elements = "1" default_values="3" >
       <IntRangeDomain name = "Range" min = "0" max = "20" />
         <Hints>
           <PropertyWidgetDecorator type="GenericDecorator"
@@ -303,7 +303,7 @@
       <IntRangeDomain name = "Range" min = "0" max = "1000" />
       </IntVectorProperty>
 
-      <IntVectorProperty name = "seed_" label = "Seed for random init" command="Setseed_" number_of_elements = "1" default_values="0" >
+      <IntVectorProperty name = "Seed_" label = "Seed for random init" command="SetSeed_" number_of_elements = "1" default_values="0" >
       <IntRangeDomain name = "Range" min = "0" max = "1000" />
       </IntVectorProperty>
 

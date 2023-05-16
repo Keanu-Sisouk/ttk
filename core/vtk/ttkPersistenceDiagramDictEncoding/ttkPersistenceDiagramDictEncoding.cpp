@@ -118,7 +118,7 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
     }
   }
   if(BackEnd == BACKEND::INPUT_ATOMS) {
-    atomNumber_ = numInputAtoms;
+    AtomNumber_ = numInputAtoms;
   }
   if(blocks != nullptr) {
     int numInputs = blocks->GetNumberOfBlocks();
@@ -131,7 +131,7 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
     }
   }
 
-  const int numAtom = this->GetatomNumber_();
+  const int numAtom = this->GetAtomNumber_();
   printMsg("Number of atoms: " + ttk::debug::output::YELLOW
            + ttk::debug::output::UNDERLINED + std::to_string(numAtom)
            + ttk::debug::output::ENDCOLOR + ttk::debug::output::ENDCOLOR);
@@ -240,7 +240,7 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
   // }
 
   std::vector<ttk::DiagramType> dictDiagrams;
-  const int seed = this->Getseed_();
+  const int seed = this->GetSeed_();
 
   // this->printMsg("==============COUCHE TTK=======================");
 

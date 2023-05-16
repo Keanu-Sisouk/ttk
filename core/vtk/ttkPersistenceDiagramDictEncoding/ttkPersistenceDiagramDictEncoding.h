@@ -37,8 +37,8 @@ class TTKPERSISTENCEDIAGRAMDICTENCODING_EXPORT ttkPersistenceDiagramDictEncoding
     protected ttk::PersistenceDiagramDictEncoding {
 
 private:
-  int atomNumber_{3};
-  int seed_{0};
+  int AtomNumber_{3};
+  int Seed_{0};
   double Percent_{0};
 
 public:
@@ -109,11 +109,11 @@ public:
   vtkSetMacro(CreationFeatures_, int);
   vtkGetMacro(CreationFeatures_, int);
 
-  vtkSetMacro(atomNumber_, int);
-  vtkGetMacro(atomNumber_, int);
+  vtkSetMacro(AtomNumber_, int);
+  vtkGetMacro(AtomNumber_, int);
 
-  vtkSetMacro(seed_, int);
-  vtkGetMacro(seed_, int);
+  vtkSetMacro(Seed_, int);
+  vtkGetMacro(Seed_, int);
 
   vtkSetMacro(DeltaLim, double);
   vtkGetMacro(DeltaLim, double);
