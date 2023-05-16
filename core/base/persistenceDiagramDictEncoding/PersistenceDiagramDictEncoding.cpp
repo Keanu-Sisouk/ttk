@@ -47,9 +47,9 @@ void PersistenceDiagramDictEncoding::execute(
       do_compression = true;
     }
 
-    std::vector<BidderDiagram> bidder_diagram_min(intermediateDiagrams.size());
-    std::vector<BidderDiagram> bidder_diagram_sad(intermediateDiagrams.size());
-    std::vector<BidderDiagram> bidder_diagram_max(intermediateDiagrams.size());
+    std::vector<BidderDiagram> true_bidder_diagram_min(intermediateDiagrams.size());
+    std::vector<BidderDiagram> true_bidder_diagram_sad(intermediateDiagrams.size());
+    std::vector<BidderDiagram> true_bidder_diagram_max(intermediateDiagrams.size());
 
     std::vector<std::vector<double>> histoVectorWeights(
       intermediateDiagrams.size());
@@ -70,7 +70,7 @@ void PersistenceDiagramDictEncoding::execute(
     method(intermediateDiagrams, dictDiagrams, vectorWeights, nInputs, seed,
            numAtom, loss_tab, true_loss_tab, timers, allLosses,
            histoVectorWeights, histoDictDiagrams, preWeightOpt, 0.01,
-           bidder_diagram_min, bidder_diagram_sad, bidder_diagram_max,
+           true_bidder_diagram_min, true_bidder_diagram_sad, true_bidder_diagram_max,
            tm_method, percent, do_compression);
   } else {
 
@@ -84,12 +84,12 @@ void PersistenceDiagramDictEncoding::execute(
                 });
     }
 
-    std::vector<BidderDiagram> bidder_diagram_min{};
-    std::vector<BidderDiagram> bidder_diagram_sad{};
-    std::vector<BidderDiagram> bidder_diagram_max{};
+    std::vector<BidderDiagram> true_bidder_diagram_min{};
+    std::vector<BidderDiagram> true_bidder_diagram_sad{};
+    std::vector<BidderDiagram> true_bidder_diagram_max{};
 
-    gettingBidderDiagrams(intermediateDiagrams, bidder_diagram_min,
-                          bidder_diagram_sad, bidder_diagram_max);
+    gettingBidderDiagrams(intermediateDiagrams, true_bidder_diagram_min,
+                          true_bidder_diagram_sad, true_bidder_diagram_max);
 
     // std::vector<double> percentages{0.2 , 0.15 , 0.1 , 0.05};
     // std::vector<double> percentages{0.8 , 0.6 , 0.5, 0.4, 0.3 , 0.2};
@@ -153,8 +153,8 @@ void PersistenceDiagramDictEncoding::execute(
 
       method(dataTemp, dictDiagrams, vectorWeights, nInputs, seed, numAtom,
              loss_tab, true_loss_tab, timers, allLosses, histoVectorWeights,
-             histoDictDiagrams, preWeightOpt, 0.01, bidder_diagram_min,
-             bidder_diagram_sad, bidder_diagram_max, tm_method, percent,
+             histoDictDiagrams, preWeightOpt, 0.01, true_bidder_diagram_min,
+             true_bidder_diagram_sad, true_bidder_diagram_max, tm_method, percent,
              do_compression);
     }
 
@@ -240,8 +240,8 @@ void PersistenceDiagramDictEncoding::execute(
       }
       method(dataTemp, dictDiagrams, vectorWeights, nInputs, seed, numAtom,
              loss_tab, true_loss_tab, timers, allLosses, histoVectorWeights,
-             histoDictDiagrams, preWeightOpt, 0.01, bidder_diagram_min,
-             bidder_diagram_sad, bidder_diagram_max, tm_method, percent,
+             histoDictDiagrams, preWeightOpt, 0.01, true_bidder_diagram_min,
+             true_bidder_diagram_sad, true_bidder_diagram_max, tm_method, percent,
              do_compression);
       // sum = 0;
       // for(size_t i = 0 ; i < intermediateDiagrams.size() ; ++i){
@@ -612,7 +612,7 @@ void PersistenceDiagramDictEncoding::method(
         auto &barycentermin = bidder_barycenters_min[i];
         auto &datamin = bidder_diagrams_min[i];
         auto &truedatamin = true_bidder_diagram_min[i];
-        size_t s = truedatamin.size();
+        size_t sizeMin = truedatamin.size();
 
         //#ifdef TTK_ENABLE_OPENMP
         //#pragma omp atomic update
@@ -620,7 +620,7 @@ void PersistenceDiagramDictEncoding::method(
         allLossesAtEpoch[i]
           += computeDistance(datamin, barycentermin, matching_min);
 
-        if((ProgApproach_) && (s != 0)) {
+        if((ProgApproach_) && (sizeMin != 0)) {
           trueAllLossesAtEpoch[i]
             += computeDistance(truedatamin, barycentermin, matching_min_temp);
         }
@@ -629,14 +629,14 @@ void PersistenceDiagramDictEncoding::method(
         auto &barycentermax = bidder_barycenters_max[i];
         auto &datamax = bidder_diagrams_max[i];
         auto &truedatamax = true_bidder_diagram_max[i];
-        size_t s = truedatamax.size();
+        size_t sizeMax = truedatamax.size();
         //#ifdef TTK_ENABLE_OPENMP
         //#pragma omp atomic update
         //#endif // TTK_ENABLE_OPENMP
         allLossesAtEpoch[i]
           += computeDistance(datamax, barycentermax, matching_max);
 
-        if((ProgApproach_) && (s != 0)) {
+        if((ProgApproach_) && (sizeMax != 0)) {
           trueAllLossesAtEpoch[i]
             += computeDistance(truedatamax, barycentermax, matching_max_temp);
         }
@@ -645,14 +645,14 @@ void PersistenceDiagramDictEncoding::method(
         auto &barycentersad = bidder_barycenters_sad[i];
         auto &datasad = bidder_diagrams_sad[i];
         auto &truedatasad = true_bidder_diagram_sad[i];
-        size_t s = truedatasad.size();
+        size_t sizeSad = truedatasad.size();
         //#ifdef TTK_ENABLE_OPENMP
         //#pragma omp atomic update
         //#endif // TTK_ENABLE_OPENMP
         allLossesAtEpoch[i]
           += computeDistance(datasad, barycentersad, matching_sad);
 
-        if((ProgApproach_) && (s != 0)) {
+        if((ProgApproach_) && (sizeSad != 0)) {
           trueAllLossesAtEpoch[i]
             += computeDistance(truedatasad, barycentersad, matching_sad_temp);
         }
@@ -2693,3 +2693,102 @@ void PersistenceDiagramDictEncoding::computeDirectionsGradWeight(
     }
   }
 }
+
+
+void PersistenceDiagramDictEncoding::computeAllDistances(
+  const size_t nDiags,
+  std::vector<BidderDiagram> &bidder_diagrams_min,
+  std::vector<BidderDiagram> &bidder_diagrams_max,
+  std::vector<BidderDiagram> &bidder_diagrams_sad,
+  std::vector<BidderDiagram> &bidder_barycenters_min,
+  std::vector<BidderDiagram> &bidder_barycenters_max,
+  std::vector<BidderDiagram> &bidder_barycenters_sad,
+  std::vector<std::vector<ttk::MatchingType>> &matchingsDatasMin,
+  std::vector<std::vector<ttk::MatchingType>> &matchingsDatasMax,
+  std::vector<std::vector<ttk::MatchingType>> &matchingsDatasSad,
+  std::vector<BidderDiagram> &true_bidder_diagram_min,
+  std::vector<BidderDiagram> &true_bidder_diagram_sad,
+  std::vector<BidderDiagram> &true_bidder_diagram_max,
+  std::vector<double> &allLossesAtEpoch,
+  std::vector<double> &trueAllLossesAtEpoch,
+  bool firstDistComputation) const{
+    // Compute distance and matchings
+#ifdef TTK_ENABLE_OPENMP
+#pragma omp parallel for num_threads(threadNumber_)
+#endif // TTK_ENABLE_OPENMP
+    for(size_t i = 0; i < nDiags; ++i) {
+      std::vector<ttk::MatchingType> matching_min;
+      std::vector<ttk::MatchingType> matching_sad;
+      std::vector<ttk::MatchingType> matching_max;
+
+      std::vector<ttk::MatchingType> matching_min_temp;
+      std::vector<ttk::MatchingType> matching_sad_temp;
+      std::vector<ttk::MatchingType> matching_max_temp;
+
+      if(this->do_min_) {
+        auto &barycentermin = bidder_barycenters_min[i];
+        auto &datamin = bidder_diagrams_min[i];
+        auto &truedatamin = true_bidder_diagram_min[i];
+        size_t sizeMin = truedatamin.size();
+
+        //#ifdef TTK_ENABLE_OPENMP
+        //#pragma omp atomic update
+        //#endif // TTK_ENABLE_OPENMP
+        if(firstDistComputation){
+          allLossesAtEpoch[i]
+            += computeDistance(datamin, barycentermin, matching_min);
+
+          if((ProgApproach_) && (sizeMin != 0)) {
+            trueAllLossesAtEpoch[i]
+              += computeDistance(truedatamin, barycentermin, matching_min_temp);
+          }
+        } else {
+          computeDistance(datamin, barycentermin, matching_min);
+        }
+      }
+      if(this->do_max_) {
+        auto &barycentermax = bidder_barycenters_max[i];
+        auto &datamax = bidder_diagrams_max[i];
+        auto &truedatamax = true_bidder_diagram_max[i];
+        size_t sizeMax = truedatamax.size();
+        //#ifdef TTK_ENABLE_OPENMP
+        //#pragma omp atomic update
+        //#endif // TTK_ENABLE_OPENMP
+        if(firstDistComputation){
+          allLossesAtEpoch[i]
+            += computeDistance(datamax, barycentermax, matching_max);
+
+          if((ProgApproach_) && (sizeMax != 0)) {
+            trueAllLossesAtEpoch[i]
+              += computeDistance(truedatamax, barycentermax, matching_max_temp);
+          }
+        } else {
+          computeDistance(datamax, barycentermax, matching_max);
+        }
+      }
+      if(this->do_sad_) {
+        auto &barycentersad = bidder_barycenters_sad[i];
+        auto &datasad = bidder_diagrams_sad[i];
+        auto &truedatasad = true_bidder_diagram_sad[i];
+        size_t sizeSad = truedatasad.size();
+        //#ifdef TTK_ENABLE_OPENMP
+        //#pragma omp atomic update
+        //#endif // TTK_ENABLE_OPENMP
+        if(firstDistComputation){
+          allLossesAtEpoch[i]
+            += computeDistance(datasad, barycentersad, matching_sad);
+
+          if((ProgApproach_) && (sizeSad != 0)) {
+            trueAllLossesAtEpoch[i]
+              += computeDistance(truedatasad, barycentersad, matching_sad_temp);
+          }
+        } else {
+          computeDistance(datasad, barycentersad, matching_sad);
+        }
+      }
+      matchingsDatasMin[i] = std::move(matching_min);
+      matchingsDatasSad[i] = std::move(matching_sad);
+      matchingsDatasMax[i] = std::move(matching_max);
+    }
+
+  }

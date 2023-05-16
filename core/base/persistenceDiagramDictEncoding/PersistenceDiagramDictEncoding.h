@@ -203,6 +203,24 @@ namespace ttk {
       std::vector<BidderDiagram> &bidder_diagrams_sad,
       std::vector<BidderDiagram> &bidder_diagrams_max);
 
+    void computeAllDistances(
+      const size_t nDiag,
+      std::vector<BidderDiagram> &bidder_diagrams_min,
+      std::vector<BidderDiagram> &bidder_diagrams_max,
+      std::vector<BidderDiagram> &bidder_diagrams_sad,
+      std::vector<BidderDiagram> &bidder_barycenters_min,
+      std::vector<BidderDiagram> &bidder_barycenters_max,
+      std::vector<BidderDiagram> &bidder_barycenters_sad,
+      std::vector<std::vector<ttk::MatchingType>> &matchingsDatasMin,
+      std::vector<std::vector<ttk::MatchingType>> &matchingsDatasMax,
+      std::vector<std::vector<ttk::MatchingType>> &matchingsDatasSad,
+      std::vector<BidderDiagram> &true_bidder_diagram_min,
+      std::vector<BidderDiagram> &true_bidder_diagram_sad,
+      std::vector<BidderDiagram> &true_bidder_diagram_max,
+      std::vector<double> &allLossesAtEpoch,
+      std::vector<double> &trueAllLossesAtEpoch,
+      bool firstDistComputation) const;
+
     void controlAtomsSize(
       const std::vector<ttk::DiagramType> &intermediateDiagrams,
       std::vector<ttk::DiagramType> &dictDiagrams
