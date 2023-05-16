@@ -473,10 +473,6 @@ void PersistenceDiagramDictEncoding::method(
   std::vector<std::vector<bool>> bufferCheckDiag(dictDiagrams.size());
   std::vector<std::vector<bool>> bufferCheckAboveGlobal(dictDiagrams.size());
 
-
-
-
-
   std::vector<std::vector<int>> histoAllEpochLife(dictDiagrams.size());
   std::vector<std::vector<bool>> histoAllBoolLife(dictDiagrams.size());
   std::vector<std::vector<bool>> checkUnderDiag(dictDiagrams.size());
@@ -545,130 +541,13 @@ void PersistenceDiagramDictEncoding::method(
     std::vector<std::vector<size_t>> origin_index_barysSad(nDiags);
     std::vector<std::vector<size_t>> origin_index_barysMax(nDiags);
 
-    // setting BidderDiagram Barycenters
-#ifdef TTK_ENABLE_OPENMP
-#pragma omp parallel for num_threads(threadNumber_)
-#endif // TTK_ENABLE_OPENMP
-    for(size_t i = 0; i < nDiags; i++) {
-      const auto &barycenter = Barycenters[i];
-
-      for(size_t j = 0; j < barycenter.size(); ++j) {
-        const ttk::PersistencePair &t = barycenter[j];
-        const ttk::CriticalType nt1 = t.birth.type;
-        const ttk::CriticalType nt2 = t.death.type;
-        const double pers = t.persistence();
-        // maxDiagPersistence[i] = std::max(pers, maxDiagPersistence[i]);
-
-        if(pers > 0) {
-          if(nt1 == CriticalType::Local_minimum
-             && nt2 == CriticalType::Local_maximum) {
-            BarycentersMin[i].emplace_back(t);
-            origin_index_barysMin[i].push_back(j);
-          } else {
-            if(nt1 == CriticalType::Local_maximum
-               || nt2 == CriticalType::Local_maximum) {
-              BarycentersMax[i].emplace_back(t);
-              origin_index_barysMax[i].push_back(j);
-            }
-            if(nt1 == CriticalType::Local_minimum
-               || nt2 == CriticalType::Local_minimum) {
-              BarycentersMin[i].emplace_back(t);
-              origin_index_barysMin[i].push_back(j);
-            }
-            if((nt1 == CriticalType::Saddle1 && nt2 == CriticalType::Saddle2)
-               || (nt1 == CriticalType::Saddle2
-                   && nt2 == CriticalType::Saddle1)) {
-              BarycentersSad[i].emplace_back(t);
-              origin_index_barysSad[i].push_back(j);
-            }
-          }
-        }
-      }
-    }
-    if(this->do_min_) {
-      setBidderDiagrams(nDiags, BarycentersMin, bidder_barycenters_min);
-    }
-    if(this->do_sad_) {
-      setBidderDiagrams(nDiags, BarycentersSad, bidder_barycenters_sad);
-    }
-    if(this->do_max_) {
-      setBidderDiagrams(nDiags, BarycentersMax, bidder_barycenters_max);
-    }
-
-    // Compute distance and matchings
-#ifdef TTK_ENABLE_OPENMP
-#pragma omp parallel for num_threads(threadNumber_)
-#endif // TTK_ENABLE_OPENMP
-    for(size_t i = 0; i < nDiags; ++i) {
-      std::vector<ttk::MatchingType> matching_min;
-      std::vector<ttk::MatchingType> matching_sad;
-      std::vector<ttk::MatchingType> matching_max;
-
-      std::vector<ttk::MatchingType> matching_min_temp;
-      std::vector<ttk::MatchingType> matching_sad_temp;
-      std::vector<ttk::MatchingType> matching_max_temp;
-
-      if(this->do_min_) {
-        auto &barycentermin = bidder_barycenters_min[i];
-        auto &datamin = bidder_diagrams_min[i];
-        auto &truedatamin = true_bidder_diagram_min[i];
-        size_t sizeMin = truedatamin.size();
-
-        //#ifdef TTK_ENABLE_OPENMP
-        //#pragma omp atomic update
-        //#endif // TTK_ENABLE_OPENMP
-        allLossesAtEpoch[i]
-          += computeDistance(datamin, barycentermin, matching_min);
-
-        if((ProgApproach_) && (sizeMin != 0)) {
-          trueAllLossesAtEpoch[i]
-            += computeDistance(truedatamin, barycentermin, matching_min_temp);
-        }
-      }
-      if(this->do_max_) {
-        auto &barycentermax = bidder_barycenters_max[i];
-        auto &datamax = bidder_diagrams_max[i];
-        auto &truedatamax = true_bidder_diagram_max[i];
-        size_t sizeMax = truedatamax.size();
-        //#ifdef TTK_ENABLE_OPENMP
-        //#pragma omp atomic update
-        //#endif // TTK_ENABLE_OPENMP
-        allLossesAtEpoch[i]
-          += computeDistance(datamax, barycentermax, matching_max);
-
-        if((ProgApproach_) && (sizeMax != 0)) {
-          trueAllLossesAtEpoch[i]
-            += computeDistance(truedatamax, barycentermax, matching_max_temp);
-        }
-      }
-      if(this->do_sad_) {
-        auto &barycentersad = bidder_barycenters_sad[i];
-        auto &datasad = bidder_diagrams_sad[i];
-        auto &truedatasad = true_bidder_diagram_sad[i];
-        size_t sizeSad = truedatasad.size();
-        //#ifdef TTK_ENABLE_OPENMP
-        //#pragma omp atomic update
-        //#endif // TTK_ENABLE_OPENMP
-        allLossesAtEpoch[i]
-          += computeDistance(datasad, barycentersad, matching_sad);
-
-        if((ProgApproach_) && (sizeSad != 0)) {
-          trueAllLossesAtEpoch[i]
-            += computeDistance(truedatasad, barycentersad, matching_sad_temp);
-        }
-      }
-      matchingsDatasMin[i] = std::move(matching_min);
-      matchingsDatasSad[i] = std::move(matching_sad);
-      matchingsDatasMax[i] = std::move(matching_max);
-    }
-
-    // computeAllDistances(nDiags, BarycentersMin, BarycentersSad, BarycentersMax,
-    //   bidder_barycenters_min, bidder_barycenters_sad, bidder_barycenters_max,
-    //   origin_index_barysMin, origin_index_barysSad, origin_index_barysMax,
-    //   bidder_diagrams_min, bidder_diagrams_max, bidder_diagrams_sad,
-    //   matchingsDatasMin, matchingsDatasMax, matchingsDatasSad, true_bidder_diagram_min,
-    //   true_bidder_diagram_sad, true_bidder_diagram_max, allLossesAtEpoch,
-    //   trueAllLossesAtEpoch, true);
+    computeAllDistances(Barycenters, nDiags, BarycentersMin, BarycentersSad, BarycentersMax,
+      bidder_barycenters_min, bidder_barycenters_sad, bidder_barycenters_max,
+      origin_index_barysMin, origin_index_barysSad, origin_index_barysMax,
+      bidder_diagrams_min, bidder_diagrams_max, bidder_diagrams_sad,
+      matchingsDatasMin, matchingsDatasMax, matchingsDatasSad, true_bidder_diagram_min,
+      true_bidder_diagram_sad, true_bidder_diagram_max, allLossesAtEpoch,
+      trueAllLossesAtEpoch, true);
 
     for(size_t p = 0; p < nDiags; ++p) {
       loss += allLossesAtEpoch[p];
@@ -896,95 +775,16 @@ void PersistenceDiagramDictEncoding::method(
           //
         }
 
-#ifdef TTK_ENABLE_OPENMP
-#pragma omp parallel for num_threads(threadNumber_)
-#endif // TTK_ENABLE_OPENMP
-        for(size_t i = 0; i < nDiags; i++) {
-          const auto &barycenter = Barycenters[i];
-
-          for(size_t j = 0; j < barycenter.size(); ++j) {
-            const ttk::PersistencePair &t = barycenter[j];
-            const ttk::CriticalType nt1 = t.birth.type;
-            const ttk::CriticalType nt2 = t.death.type;
-            const double pers = t.persistence();
-            // maxDiagPersistence[i] = std::max(pers, maxDiagPersistence[i]);
-
-            if(pers > 0) {
-              if(nt1 == CriticalType::Local_minimum
-                && nt2 == CriticalType::Local_maximum) {
-                BarycentersMin[i].emplace_back(t);
-                origin_index_barysMin[i].push_back(j);
-              } else {
-                if(nt1 == CriticalType::Local_maximum
-                  || nt2 == CriticalType::Local_maximum) {
-                  BarycentersMax[i].emplace_back(t);
-                  origin_index_barysMax[i].push_back(j);
-                }
-                if(nt1 == CriticalType::Local_minimum
-                  || nt2 == CriticalType::Local_minimum) {
-                  BarycentersMin[i].emplace_back(t);
-                  origin_index_barysMin[i].push_back(j);
-                }
-                if((nt1 == CriticalType::Saddle1 && nt2 == CriticalType::Saddle2)
-                  || (nt1 == CriticalType::Saddle2
-                      && nt2 == CriticalType::Saddle1)) {
-                  BarycentersSad[i].emplace_back(t);
-                  origin_index_barysSad[i].push_back(j);
-                }
-              }
-            }
-          }
-        }
-        if(this->do_min_) {
-          setBidderDiagrams(nDiags, BarycentersMin, bidder_barycenters_min);
-        }
-        if(this->do_sad_) {
-          setBidderDiagrams(nDiags, BarycentersSad, bidder_barycenters_sad);
-        }
-        if(this->do_max_) {
-          setBidderDiagrams(nDiags, BarycentersMax, bidder_barycenters_max);
-        }
-        // double temp2 = 0;
-
-#ifdef TTK_ENABLE_OPENMP
-#pragma omp parallel for num_threads(threadNumber_)
-#endif // TTK_ENABLE_OPENMP
-        for(size_t i = 0; i < nDiags; ++i) {
-          std::vector<ttk::MatchingType> matching_min;
-          std::vector<ttk::MatchingType> matching_sad;
-          std::vector<ttk::MatchingType> matching_max;
-          if(this->do_min_) {
-            auto &barycentermin = bidder_barycenters_min[i];
-            auto &datamin = bidder_diagrams_min[i];
-            //#ifdef TTK_ENABLE_OPENMP
-            //#pragma omp atomic update
-            //#endif // TTK_ENABLE_OPENMP
-            computeDistance(datamin, barycentermin, matching_min);
-          }
-          if(this->do_max_) {
-            auto &barycentermax = bidder_barycenters_max[i];
-            auto &datamax = bidder_diagrams_max[i];
-
-            //#ifdef TTK_ENABLE_OPENMP
-            //#pragma omp atomic update
-            //#endif // TTK_ENABLE_OPENMP
-            computeDistance(datamax, barycentermax, matching_max);
-          }
-          if(this->do_sad_) {
-            auto &barycentersad = bidder_barycenters_sad[i];
-            auto &datasad = bidder_diagrams_sad[i];
-
-            //#ifdef TTK_ENABLE_OPENMP
-            //#pragma omp atomic update
-            //#endif // TTK_ENABLE_OPENMP
-            computeDistance(datasad, barycentersad, matching_sad);
-          }
-          matchingsDatasMin[i] = std::move(matching_min);
-          matchingsDatasSad[i] = std::move(matching_sad);
-          matchingsDatasMax[i] = std::move(matching_max);
-        }
+        computeAllDistances(Barycenters, nDiags, BarycentersMin, BarycentersSad, BarycentersMax,
+        bidder_barycenters_min, bidder_barycenters_sad, bidder_barycenters_max,
+        origin_index_barysMin, origin_index_barysSad, origin_index_barysMax,
+        bidder_diagrams_min, bidder_diagrams_max, bidder_diagrams_sad,
+        matchingsDatasMin, matchingsDatasMax, matchingsDatasSad, true_bidder_diagram_min,
+        true_bidder_diagram_sad, true_bidder_diagram_max, allLossesAtEpoch,
+        trueAllLossesAtEpoch, false);
       }
     }
+
 
     // if(epoch == 1) {
     //   loss1 = loss;
@@ -1119,93 +919,13 @@ void PersistenceDiagramDictEncoding::method(
       // std::vector<BidderDiagram> bidder_barycenters_sad{};
       // std::vector<BidderDiagram> bidder_barycenters_max{};
 
-#ifdef TTK_ENABLE_OPENMP
-#pragma omp parallel for num_threads(threadNumber_)
-#endif // TTK_ENABLE_OPENMP
-      for(size_t i = 0; i < nDiags; i++) {
-        const auto &barycenter = Barycenters[i];
-
-        for(size_t j = 0; j < barycenter.size(); ++j) {
-          const ttk::PersistencePair &t = barycenter[j];
-          const ttk::CriticalType nt1 = t.birth.type;
-          const ttk::CriticalType nt2 = t.death.type;
-          const double pers = t.persistence();
-          // maxDiagPersistence[i] = std::max(pers, maxDiagPersistence[i]);
-
-          if(pers > 0) {
-            if(nt1 == CriticalType::Local_minimum
-               && nt2 == CriticalType::Local_maximum) {
-              BarycentersMin[i].emplace_back(t);
-              origin_index_barysMin[i].push_back(j);
-            } else {
-              if(nt1 == CriticalType::Local_maximum
-                 || nt2 == CriticalType::Local_maximum) {
-                BarycentersMax[i].emplace_back(t);
-                origin_index_barysMax[i].push_back(j);
-              }
-              if(nt1 == CriticalType::Local_minimum
-                 || nt2 == CriticalType::Local_minimum) {
-                BarycentersMin[i].emplace_back(t);
-                origin_index_barysMin[i].push_back(j);
-              }
-              if((nt1 == CriticalType::Saddle1 && nt2 == CriticalType::Saddle2)
-                 || (nt1 == CriticalType::Saddle2
-                     && nt2 == CriticalType::Saddle1)) {
-                BarycentersSad[i].emplace_back(t);
-                origin_index_barysSad[i].push_back(j);
-              }
-            }
-          }
-        }
-      }
-      if(this->do_min_) {
-        setBidderDiagrams(nDiags, BarycentersMin, bidder_barycenters_min);
-      }
-      if(this->do_sad_) {
-        setBidderDiagrams(nDiags, BarycentersSad, bidder_barycenters_sad);
-      }
-      if(this->do_max_) {
-        setBidderDiagrams(nDiags, BarycentersMax, bidder_barycenters_max);
-      }
-      // double temp2 = 0;
-
-#ifdef TTK_ENABLE_OPENMP
-#pragma omp parallel for num_threads(threadNumber_)
-#endif // TTK_ENABLE_OPENMP
-      for(size_t i = 0; i < nDiags; ++i) {
-        std::vector<ttk::MatchingType> matching_min;
-        std::vector<ttk::MatchingType> matching_sad;
-        std::vector<ttk::MatchingType> matching_max;
-        if(this->do_min_) {
-          auto &barycentermin = bidder_barycenters_min[i];
-          auto &datamin = bidder_diagrams_min[i];
-          //#ifdef TTK_ENABLE_OPENMP
-          //#pragma omp atomic update
-          //#endif // TTK_ENABLE_OPENMP
-          computeDistance(datamin, barycentermin, matching_min);
-        }
-        if(this->do_max_) {
-          auto &barycentermax = bidder_barycenters_max[i];
-          auto &datamax = bidder_diagrams_max[i];
-
-          //#ifdef TTK_ENABLE_OPENMP
-          //#pragma omp atomic update
-          //#endif // TTK_ENABLE_OPENMP
-          computeDistance(datamax, barycentermax, matching_max);
-        }
-        if(this->do_sad_) {
-          auto &barycentersad = bidder_barycenters_sad[i];
-          auto &datasad = bidder_diagrams_sad[i];
-
-          //#ifdef TTK_ENABLE_OPENMP
-          //#pragma omp atomic update
-          //#endif // TTK_ENABLE_OPENMP
-          computeDistance(datasad, barycentersad, matching_sad);
-        }
-        matchingsDatasMin[i] = std::move(matching_min);
-        matchingsDatasSad[i] = std::move(matching_sad);
-        matchingsDatasMax[i] = std::move(matching_max);
-      }
+      computeAllDistances(Barycenters, nDiags, BarycentersMin, BarycentersSad, BarycentersMax,
+        bidder_barycenters_min, bidder_barycenters_sad, bidder_barycenters_max,
+        origin_index_barysMin, origin_index_barysSad, origin_index_barysMax,
+        bidder_diagrams_min, bidder_diagrams_max, bidder_diagrams_sad,
+        matchingsDatasMin, matchingsDatasMax, matchingsDatasSad, true_bidder_diagram_min,
+        true_bidder_diagram_sad, true_bidder_diagram_max, allLossesAtEpoch,
+        trueAllLossesAtEpoch, false);
 
       // this->printMsg("====================NOW ATOM
       // UPDATE======================"); ATOM OPTIMIZATION
