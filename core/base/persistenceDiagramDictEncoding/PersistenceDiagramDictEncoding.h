@@ -184,9 +184,7 @@ namespace ttk {
       const std::vector<size_t> &indexDataCritType,
       std::vector<std::vector<std::array<double, 2>>> &pairToAddGradList,
       std::vector<std::vector<double>> &directions,
-      std::vector<std::array<double, 2>> &data_assigned,
       std::vector<int> &checker,
-      std::vector<int> &tracker2,
       std::vector<PersistencePair> &infoToAdd,
       const bool do_optimizeAtoms) const;
 

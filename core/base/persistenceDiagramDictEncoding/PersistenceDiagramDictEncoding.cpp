@@ -1472,266 +1472,22 @@ void PersistenceDiagramDictEncoding::computeGradientAtoms(
     checker[i] = 0;
   }
   std::vector<std::vector<double>> directions(Barycenter.size());
-  // std::vector<int> checker(Barycenter.size(), 0);
-  // computeDistance(newDataBidder, barycenterBidder, matching);
 
+  computeDirectionsGradAtoms( gradsAtoms, Barycenter, weights, newData,
+  matchingsMin, indexBaryMin, indexDataMin, 
+  pairToAddGradList, directions, checker, 
+  infoToAdd, do_DimReduct);
 
-  int max = std::max_element(weights.begin(), weights.end()) - weights.begin();
-  int k = 0;
+  computeDirectionsGradAtoms( gradsAtoms, Barycenter, weights, newData,
+  matchingsMax, indexBaryMax, indexDataMax, 
+  pairToAddGradList, directions, checker, 
+  infoToAdd, do_DimReduct);
 
-  for(size_t i = 0; i < matchingsMin.size(); ++i) {
-    const ttk::MatchingType &t = matchingsMin[i];
-    // Id in newData
-    const SimplexId Id1 = std::get<0>(t);
-    // Id in barycenter
-    const SimplexId Id2 = std::get<1>(t);
-    // std::cout << Id1 << ""
+computeDirectionsGradAtoms( gradsAtoms, Barycenter, weights, newData,
+  matchingsSad, indexBarySad, indexDataSad, 
+  pairToAddGradList, directions, checker, 
+  infoToAdd, do_DimReduct);
 
-    if(Id2 < 0) {
-      k += 1;
-      if(Id1 < 0) {
-        continue;
-      } else {
-        if(CreationFeatures_) {
-          const PersistencePair &t2 = newData[indexDataMin[Id1]];
-          const double birth_data = t2.birth.sfValue;
-          const double death_data = t2.death.sfValue;
-          const double birth_death_barycenter
-            = birth_data + (death_data - birth_data) / 2.;
-          std::vector<double> direction(2);
-          direction[0] = birth_data - birth_death_barycenter;
-          direction[1] = death_data - birth_death_barycenter;
-          std::vector<std::vector<double>> temp3(weights.size());
-          std::vector<double> temp2(2);
-          if(CompressionMode_ && !do_DimReduct) {
-            for(size_t j = 0; j < weights.size(); ++j) {
-              if(j == static_cast<size_t>(max)){
-                temp2[0] = -2 * weights[j] * direction[0];
-                temp2[1] = -2 * weights[j] * direction[1];
-              } else {
-                temp2[0] = 0.;
-                temp2[1] = 0.;
-              }
-              temp3[j] = temp2;
-            }
-          } else {
-            for(size_t j = 0; j < weights.size(); ++j) {
-              temp2[0] = -2 * weights[j] * direction[0];
-              temp2[1] = -2 * weights[j] * direction[1];
-              temp3[j] = temp2;
-            }
-          }
-          gradsAtoms.push_back(temp3);
-          checker.push_back(1);
-          std::vector<std::array<double, 2>> newPairs(weights.size());
-          for(size_t j = 0; j < weights.size(); ++j) {
-            std::array<double, 2> pair{
-              birth_death_barycenter, birth_death_barycenter};
-            newPairs[j] = pair;
-          }
-          pairToAddGradList.push_back(newPairs);
-          infoToAdd.push_back(t2);
-
-        } else {
-          continue;
-        }
-      }
-      // this->printMsg("k = " + std::to_string(k));
-    } else {
-      const PersistencePair &t3 = Barycenter[indexBaryMin[Id2]];
-      const double birth_barycenter = t3.birth.sfValue;
-      const double death_barycenter = t3.death.sfValue;
-      std::vector<double> direction(2);
-      if(Id1 < 0) {
-        const double birth_death_data
-          = birth_barycenter + (death_barycenter - birth_barycenter) / 2.;
-        direction[0] = birth_death_data - birth_barycenter;
-        direction[1] = birth_death_data - death_barycenter;
-
-      } else {
-        const PersistencePair &t2 = newData[indexDataMin[Id1]];
-        const double birth_data = t2.birth.sfValue;
-        const double death_data = t2.death.sfValue;
-        // direction[0] = t2.birth.sfValue - t3.birth.sfValue;
-        // direction[1] = t2.death.sfValue - t3.death.sfValue;
-        direction[0] = birth_data - birth_barycenter;
-        direction[1] = death_data - death_barycenter;
-      }
-      directions[indexBaryMin[Id2]] = std::move(direction);
-      checker[indexBaryMin[Id2]] = 1;
-    }
-  }
-
-  for(size_t i = 0; i < matchingsMax.size(); ++i) {
-    const ttk::MatchingType &t = matchingsMax[i];
-    // Id in newData
-    const SimplexId Id1 = std::get<0>(t);
-    // Id in barycenter
-    const SimplexId Id2 = std::get<1>(t);
-
-    if(Id2 < 0) {
-      k += 1;
-
-      if(Id1 < 0) {
-        continue;
-      } else {
-        if(CreationFeatures_) {
-          const PersistencePair &t2 = newData[indexDataMax[Id1]];
-          const double birth_data = t2.birth.sfValue;
-          const double death_data = t2.death.sfValue;
-          const double birth_death_barycenter
-            = birth_data + (death_data - birth_data) / 2.;
-          std::vector<double> direction(2);
-          direction[0] = birth_data - birth_death_barycenter;
-          direction[1] = death_data - birth_death_barycenter;
-          std::vector<std::vector<double>> temp3(weights.size());
-          std::vector<double> temp2(2);
-          if(CompressionMode_ && !do_DimReduct) {
-            for(size_t j = 0; j < weights.size(); ++j) {
-              if(j == static_cast<size_t>(max)){
-                temp2[0] = -2 * weights[j] * direction[0];
-                temp2[1] = -2 * weights[j] * direction[1];
-              } else {
-                temp2[0] = 0.;
-                temp2[1] = 0.;
-              }
-              temp3[j] = temp2;
-            }
-          } else {
-            for(size_t j = 0; j < weights.size(); ++j) {
-              temp2[0] = -2 * weights[j] * direction[0];
-              temp2[1] = -2 * weights[j] * direction[1];
-              temp3[j] = temp2;
-            }
-          }
-          gradsAtoms.push_back(temp3);
-          checker.push_back(1);
-          std::vector<std::array<double, 2>> newPairs(weights.size());
-          for(size_t j = 0; j < weights.size(); ++j) {
-            std::array<double, 2> pair{
-              birth_death_barycenter, birth_death_barycenter};
-            newPairs[j] = pair;
-          }
-          pairToAddGradList.push_back(newPairs);
-          infoToAdd.push_back(t2);
-
-        } else {
-          continue;
-        }
-      }
-      // this->printMsg("k = " + std::to_string(k));
-    } else {
-      // this->printMsg("==Here?==");
-      // this->printMsg(std::to_string(static_cast<int>(indexBaryMax[Id2])));
-      const PersistencePair &t3 = Barycenter[indexBaryMax[Id2]];
-      const double birth_barycenter = t3.birth.sfValue;
-      const double death_barycenter = t3.death.sfValue;
-      std::vector<double> direction(2);
-      if(Id1 < 0) {
-        const double birth_death_data
-          = birth_barycenter + (death_barycenter - birth_barycenter) / 2;
-        direction[0] = birth_death_data - birth_barycenter;
-        direction[1] = birth_death_data - death_barycenter;
-
-      } else {
-        const PersistencePair &t2 = newData[indexDataMax[Id1]];
-        const double birth_data = t2.birth.sfValue;
-        const double death_data = t2.death.sfValue;
-        // direction[0] = t2.birth.sfValue - t3.birth.sfValue;
-        // direction[1] = t2.death.sfValue - t3.death.sfValue;
-        direction[0] = birth_data - birth_barycenter;
-        direction[1] = death_data - death_barycenter;
-      }
-      directions[indexBaryMax[Id2]] = std::move(direction);
-      checker[indexBaryMax[Id2]] = 1;
-    }
-  }
-
-  for(size_t i = 0; i < matchingsSad.size(); ++i) {
-    const ttk::MatchingType &t = matchingsSad[i];
-    // Id in newData
-    const SimplexId Id1 = std::get<0>(t);
-    // Id in barycenter
-    const SimplexId Id2 = std::get<1>(t);
-
-    if(Id2 < 0) {
-      k += 1;
-      if(Id1 < 0) {
-        continue;
-      } else {
-        if(CreationFeatures_) {
-          const PersistencePair &t2 = newData[indexDataSad[Id1]];
-          const double birth_data = t2.birth.sfValue;
-          const double death_data = t2.death.sfValue;
-          const double birth_death_barycenter
-            = birth_data + (death_data - birth_data) / 2.;
-          std::vector<double> direction(2);
-          direction[0] = birth_data - birth_death_barycenter;
-          direction[1] = death_data - birth_death_barycenter;
-          std::vector<std::vector<double>> temp3(weights.size());
-          std::vector<double> temp2(2);
-          if(CompressionMode_ && !do_DimReduct) {
-            for(size_t j = 0; j < weights.size(); ++j) {
-              if(j == static_cast<size_t>(max)){
-                temp2[0] = -2 * weights[j] * direction[0];
-                temp2[1] = -2 * weights[j] * direction[1];
-              } else {
-                temp2[0] = 0.;
-                temp2[1] = 0.;
-              }
-              temp3[j] = temp2;
-            }
-          } else {
-            for(size_t j = 0; j < weights.size(); ++j) {
-              temp2[0] = -2 * weights[j] * direction[0];
-              temp2[1] = -2 * weights[j] * direction[1];
-              temp3[j] = temp2;
-            }
-          }
-          gradsAtoms.push_back(temp3);
-          checker.push_back(1);
-          std::vector<std::array<double, 2>> newPairs(weights.size());
-          for(size_t j = 0; j < weights.size(); ++j) {
-            std::array<double, 2> pair{
-              birth_death_barycenter, birth_death_barycenter};
-            newPairs[j] = pair;
-          }
-          pairToAddGradList.push_back(newPairs);
-          infoToAdd.push_back(t2);
-
-        } else {
-          continue;
-        }
-      }
-      // this->printMsg("k = " + std::to_string(k));
-    } else {
-      // this->printMsg("==Here?==");
-      // this->printMsg(std::to_string(static_cast<int>(indexBarySad[Id2])));
-      const PersistencePair &t3 = Barycenter[indexBarySad[Id2]];
-      const double birth_barycenter = t3.birth.sfValue;
-      const double death_barycenter = t3.death.sfValue;
-      std::vector<double> direction(2);
-      if(Id1 < 0) {
-        const double birth_death_data
-          = birth_barycenter + (death_barycenter - birth_barycenter) / 2;
-        direction[0] = birth_death_data - birth_barycenter;
-        direction[1] = birth_death_data - death_barycenter;
-      } else {
-        const PersistencePair &t2 = newData[indexDataSad[Id1]];
-        const double birth_data = t2.birth.sfValue;
-        const double death_data = t2.death.sfValue;
-        // direction[0] = t2.birth.sfValue - t3.birth.sfValue;
-        // direction[1] = t2.death.sfValue - t3.death.sfValue;
-        direction[0] = birth_data - birth_barycenter;
-        direction[1] = death_data - death_barycenter;
-          // directions[Id2].push_back(direction);
-
-        // directions[Id2].push_back(direction);
-      }
-      directions[indexBarySad[Id2]] = std::move(direction);
-      checker[indexBarySad[Id2]] = 1;
-    }
-  }
 
   for(size_t i = 0; i < Barycenter.size(); ++i) {
     if(checker[i] == 0) {
@@ -2283,9 +2039,7 @@ void PersistenceDiagramDictEncoding::computeDirectionsGradAtoms(
   const std::vector<size_t> &indexDataCritType,
   std::vector<std::vector<std::array<double, 2>>> &pairToAddGradList,
   std::vector<std::vector<double>> &directions,
-  std::vector<std::array<double, 2>> &data_assigned,
   std::vector<int> &checker,
-  std::vector<int> &tracker2,
   std::vector<PersistencePair> &infoToAdd,
   const bool do_DimReduct) const{
 
