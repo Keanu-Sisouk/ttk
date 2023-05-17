@@ -2007,21 +2007,6 @@ void PersistenceDiagramDictEncoding::gettingBidderDiagrams(
   std::vector<ttk::DiagramType> inputDiagramsSad(nDiags);
   std::vector<ttk::DiagramType> inputDiagramsMax(nDiags);
 
-  // std::vector<BidderDiagram> bidderDiagramsMin{};
-  // std::vector<BidderDiagram> bidderDiagramsSad{};
-  // std::vector<BidderDiagram> bidderDiagramsMax{};
-
-  // std::vector<std::vector<size_t>> originIndexDatasMin(nDiags);
-  // std::vector<std::vector<size_t>> originIndexDatasSad(nDiags);
-  // std::vector<std::vector<size_t>> originIndexDatasMax(nDiags);
-
-  // std::vector<BidderDiagram> current_bidderDiagramsMin{};
-  // std::vector<BidderDiagram> current_bidderDiagramsSad{};
-  // std::vector<BidderDiagram> current_bidderDiagramsMax{};
-
-  // Store the persistence of the global min-max pair
-  // std::vector<double> maxDiagPersistence(nDiags);
-
   // Create diagrams for min, saddle and max persistence pairs
 #ifdef TTK_ENABLE_OPENMP
 #pragma omp parallel for num_threads(threadNumber_)
@@ -2197,8 +2182,6 @@ void PersistenceDiagramDictEncoding::controlAtomsSize2(
 
 }
 
-
-
 void PersistenceDiagramDictEncoding::computeDirectionsGradWeight(
   const std::vector<std::vector<ttk::MatchingType>> &matchingsAtoms,
   const ttk::DiagramType &Barycenter,
@@ -2288,6 +2271,113 @@ void PersistenceDiagramDictEncoding::computeDirectionsGradWeight(
     }
   }
 }
+
+
+void PersistenceDiagramDictEncoding::computeDirectionsGradAtoms(
+  std::vector<Matrix> &gradsAtoms,
+  const ttk::DiagramType &Barycenter,
+  const std::vector<double> &weights,
+  const ttk::DiagramType &newData,
+  const std::vector<ttk::MatchingType> &matchingsCritType,
+  const std::vector<size_t> &indexBaryCritType,
+  const std::vector<size_t> &indexDataCritType,
+  std::vector<std::vector<std::array<double, 2>>> &pairToAddGradList,
+  std::vector<std::vector<double>> &directions,
+  std::vector<std::array<double, 2>> &data_assigned,
+  std::vector<int> &checker,
+  std::vector<int> &tracker2,
+  std::vector<PersistencePair> &infoToAdd,
+  const bool do_DimReduct) const{
+
+
+  for(size_t i = 0; i < matchingsCritType.size(); ++i) {
+    const ttk::MatchingType &t = matchingsCritType[i];
+    // Id in newData
+    const SimplexId Id1 = std::get<0>(t);
+    // Id in barycenter
+    const SimplexId Id2 = std::get<1>(t);
+    // std::cout << Id1 << ""
+
+    int maxWeights = std::max_element(weights.begin(), weights.end()) - weights.begin();
+    int k = 0;
+    if(Id2 < 0) {
+      k += 1;
+      if(Id1 < 0) {
+        continue;
+      } else {
+        if(CreationFeatures_) {
+          const PersistencePair &t2 = newData[indexDataCritType[Id1]];
+          const double birth_data = t2.birth.sfValue;
+          const double death_data = t2.death.sfValue;
+          const double birth_death_barycenter
+            = birth_data + (death_data - birth_data) / 2.;
+          std::vector<double> direction(2);
+          direction[0] = birth_data - birth_death_barycenter;
+          direction[1] = death_data - birth_death_barycenter;
+          std::vector<std::vector<double>> temp3(weights.size());
+          std::vector<double> temp2(2);
+          if(CompressionMode_ && !do_DimReduct) {
+            for(size_t j = 0; j < weights.size(); ++j) {
+              if(j == static_cast<size_t>(maxWeights)){
+                temp2[0] = -2 * weights[j] * direction[0];
+                temp2[1] = -2 * weights[j] * direction[1];
+              } else {
+                temp2[0] = 0.;
+                temp2[1] = 0.;
+              }
+              temp3[j] = temp2;
+            }
+          } else {
+            for(size_t j = 0; j < weights.size(); ++j) {
+              temp2[0] = -2 * weights[j] * direction[0];
+              temp2[1] = -2 * weights[j] * direction[1];
+              temp3[j] = temp2;
+            }
+          }
+          gradsAtoms.push_back(temp3);
+          checker.push_back(1);
+          std::vector<std::array<double, 2>> newPairs(weights.size());
+          for(size_t j = 0; j < weights.size(); ++j) {
+            std::array<double, 2> pair{
+              birth_death_barycenter, birth_death_barycenter};
+            newPairs[j] = pair;
+          }
+          pairToAddGradList.push_back(newPairs);
+          infoToAdd.push_back(t2);
+
+        } else {
+          continue;
+        }
+      }
+      // this->printMsg("k = " + std::to_string(k));
+    } else {
+      const PersistencePair &t3 = Barycenter[indexBaryCritType[Id2]];
+      const double birth_barycenter = t3.birth.sfValue;
+      const double death_barycenter = t3.death.sfValue;
+      std::vector<double> direction(2);
+      if(Id1 < 0) {
+        const double birth_death_data
+          = birth_barycenter + (death_barycenter - birth_barycenter) / 2.;
+        direction[0] = birth_death_data - birth_barycenter;
+        direction[1] = birth_death_data - death_barycenter;
+
+      } else {
+        const PersistencePair &t2 = newData[indexDataCritType[Id1]];
+        const double birth_data = t2.birth.sfValue;
+        const double death_data = t2.death.sfValue;
+        // direction[0] = t2.birth.sfValue - t3.birth.sfValue;
+        // direction[1] = t2.death.sfValue - t3.death.sfValue;
+        direction[0] = birth_data - birth_barycenter;
+        direction[1] = death_data - death_barycenter;
+      }
+      directions[indexBaryCritType[Id2]] = std::move(direction);
+      checker[indexBaryCritType[Id2]] = 1;
+    }
+  }
+
+
+}
+
 
 
 void PersistenceDiagramDictEncoding::computeAllDistances(
