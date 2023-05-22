@@ -83,7 +83,7 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
   //}
 
   // number of diagrams per input block
-  std::array<size_t, 2> nInputs{0, 0};
+  // std::array<size_t, 2> nInputs{0, 0};
 
   // for(int i = 0; i < nBlocks; ++i) {
   //  blocks[i] = vtkMultiBlockDataSet::GetData(inputVector[0], i);
@@ -259,7 +259,7 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
   // const auto diagramsDistMat = this->execute(intermediateDiagrams,
   // dictDiagrams, vectorWeights,  nInputs);
   this->execute(intermediateDiagrams, intermediateAtoms, dictDiagrams,
-                vectorWeights, nInputs, seed, numAtom, loss_tab, timers,
+                vectorWeights, seed, numAtom, loss_tab, timers,
                 true_loss_tab, allLosses, this->Percent_);
   // zero-padd column name to keep Row Data columns ordered
   // this->printMsg("============WE ARE HERE 173 AFTER EXECUTE============");
