@@ -252,15 +252,15 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
     vectorWeights[i] = std::move(weights);
   }
 
-  std::vector<double> loss_tab;
-  std::vector<double> true_loss_tab;
+  std::vector<double> lossTab;
+  std::vector<double> trueLossTab;
   std::vector<double> timers;
   std::vector<std::vector<double>> allLosses(nDiags);
   // const auto diagramsDistMat = this->execute(intermediateDiagrams,
   // dictDiagrams, vectorWeights,  nInputs);
   this->execute(intermediateDiagrams, intermediateAtoms, dictDiagrams,
-                vectorWeights, seed, numAtom, loss_tab, timers,
-                true_loss_tab, allLosses, this->Percent_);
+                vectorWeights, seed, numAtom, lossTab, timers, trueLossTab,
+                allLosses, this->Percent_);
   // zero-padd column name to keep Row Data columns ordered
   // this->printMsg("============WE ARE HERE 173 AFTER EXECUTE============");
   output_weights->SetNumberOfRows(nDiags);
@@ -305,19 +305,19 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
   }
 
   vtkNew<vtkDoubleArray> colLoss{};
-  colLoss->SetNumberOfValues(loss_tab.size());
+  colLoss->SetNumberOfValues(lossTab.size());
   colLoss->SetName("Loss evolution");
-  for(size_t j = 0; j < loss_tab.size(); ++j) {
-    colLoss->SetValue(j, loss_tab[j]);
+  for(size_t j = 0; j < lossTab.size(); ++j) {
+    colLoss->SetValue(j, lossTab[j]);
   }
   colLoss->Modified();
   output_loss->AddColumn(colLoss);
 
   vtkNew<vtkDoubleArray> trueColLoss{};
-  trueColLoss->SetNumberOfValues(true_loss_tab.size());
+  trueColLoss->SetNumberOfValues(trueLossTab.size());
   trueColLoss->SetName("True loss evolution");
-  for(size_t j = 0; j < true_loss_tab.size(); ++j) {
-    trueColLoss->SetValue(j, true_loss_tab[j]);
+  for(size_t j = 0; j < trueLossTab.size(); ++j) {
+    trueColLoss->SetValue(j, trueLossTab[j]);
   }
   trueColLoss->Modified();
   true_output_loss->AddColumn(trueColLoss);

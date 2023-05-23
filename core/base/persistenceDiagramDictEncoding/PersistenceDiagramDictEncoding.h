@@ -39,31 +39,29 @@ namespace ttk {
                  std::vector<std::vector<double>> &vectorWeights,
                  const int seed,
                  const int numAtom,
-                 std::vector<double> &loss_tab,
+                 std::vector<double> &lossTab,
                  std::vector<double> &timers,
-                 std::vector<double> &true_loss_tab,
+                 std::vector<double> &trueLossTab,
                  std::vector<std::vector<double>> &allLosses,
                  double percent);
 
     void method(const std::vector<ttk::DiagramType> &intermediateDiagrams,
                 std::vector<ttk::DiagramType> &dictDiagrams,
                 std::vector<std::vector<double>> &vectorWeights,
-                const int seed,
                 const int numAtom,
-                std::vector<double> &loss_tab,
-                std::vector<double> &true_loss_tab,
+                std::vector<double> &lossTab,
+                std::vector<double> &trueLossTab,
                 std::vector<double> &timers,
                 std::vector<std::vector<double>> &allLosses,
                 std::vector<std::vector<double>> &histoVectorWeights,
                 std::vector<ttk::DiagramType> &histoDictDiagrams,
                 bool preWeightOpt,
-                double acc,
                 std::vector<BidderDiagram> &trueBidderDiagramMin,
                 std::vector<BidderDiagram> &trueBidderDiagramSad,
                 std::vector<BidderDiagram> &trueBidderDiagramMax,
                 Timer &tm_method,
                 double percent,
-                bool do_compression);
+                bool doCompression);
 
     enum class BACKEND {
       BORDER_INIT = 0,
@@ -137,7 +135,7 @@ namespace ttk {
       const std::vector<size_t> &indexDataMin,
       const std::vector<size_t> &indexDataMax,
       const std::vector<size_t> &indexDataSad,
-      const bool do_optimizeAtoms) const;
+      const bool doOptimizeAtoms) const;
 
     void computeGradientAtoms(
       std::vector<Matrix> &gradsAtoms,
@@ -156,9 +154,8 @@ namespace ttk {
       std::vector<int> &checker,
       std::vector<std::vector<std::array<double, 2>>> &pairToAddGradList,
       ttk::DiagramType &infoToAdd,
-      int nbDiags,
-      bool do_DimReduct) const;
-    
+      bool doDimReduct) const;
+
     void computeDirectionsGradWeight(
       const std::vector<std::vector<ttk::MatchingType>> &matchingsAtoms,
       const ttk::DiagramType &Barycenter,
@@ -170,7 +167,7 @@ namespace ttk {
       std::vector<std::array<double, 2>> &directions,
       std::vector<std::array<double, 2>> &data_assigned,
       std::vector<int> &tracker2,
-      const bool do_optimizeAtoms) const;
+      const bool doOptimizeAtoms) const;
 
     void computeDirectionsGradAtoms(
       std::vector<Matrix> &gradsAtoms,
@@ -184,8 +181,7 @@ namespace ttk {
       std::vector<std::vector<double>> &directions,
       std::vector<int> &checker,
       std::vector<PersistencePair> &infoToAdd,
-      const bool do_optimizeAtoms) const;
-
+      const bool doOptimizeAtoms) const;
 
     // A modifier
     void
