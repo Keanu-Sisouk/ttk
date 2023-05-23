@@ -1783,13 +1783,6 @@ void PersistenceDiagramDictEncoding::computeDirectionsGradWeight(
           std::array<double, 2> direction;
           direction[0] = birthData - birthDeathBarycenter;
           direction[1] = deathData - birthDeathBarycenter;
-          /* std::vector<std::vector<double>> temp3(weights.size()); */
-          /* std::vector<double> temp2(2); */
-          /* for(size_t j = 0; j < weights.size(); ++j) { */
-          /*   temp2[0] += -2 * weights[j] * direction[0]; */
-          /*   temp2[1] += -2 * weights[j] * direction[1]; */
-          /*   temp3[j] = temp2; */
-          /* } */
 
           std::vector<std::array<double, 2>> newPairs(matchingsAtoms.size());
           for(size_t j = 0; j < matchingsAtoms.size(); ++j) {
