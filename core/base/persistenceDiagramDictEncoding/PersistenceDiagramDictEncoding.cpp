@@ -267,7 +267,6 @@ void PersistenceDiagramDictEncoding::method(
       const ttk::CriticalType nt1 = t.birth.type;
       const ttk::CriticalType nt2 = t.death.type;
       const double pers = t.persistence();
-      // maxDiagPersistence[i] = std::max(pers, maxDiagPersistence[i]);
 
       if(pers > 0) {
         if(nt1 == CriticalType::Local_minimum
@@ -334,7 +333,6 @@ void PersistenceDiagramDictEncoding::method(
       break;
   }
 
-  // std::vector<std::vector<double>> distMat{};
 
   std::vector<ttk::DiagramType> barycentersList(nDiags);
   std::vector<std::vector<std::vector<ttk::MatchingType>>> allMatchingsAtoms(
@@ -668,9 +666,8 @@ void PersistenceDiagramDictEncoding::method(
                                matchingsMax, matchingsSad, indexBaryMin,
                                indexBaryMax, indexBarySad, indexDataMin,
                                indexDataMax, indexDataSad, doOptimizeAtoms);
-        int nb_points = Barycenter.size();
         gradActor.executeWeightsProjected(
-          hessianList, weights, gradWeights, epoch, nb_points, MaxEigenValue_);
+          hessianList, weights, gradWeights, MaxEigenValue_);
         }
 
         this->printMsg("Computed 1st opt for epoch " + std::to_string(epoch),
@@ -816,10 +813,9 @@ void PersistenceDiagramDictEncoding::method(
         const auto &matchingsAtoms = allMatchingsAtoms[i];
         const auto &Barycenter = barycentersList[i];
         const auto &checkerAtoms = checkerAtomsList[i];
-        int nb_points = barycentersList[i].size();
         gradActor.executeAtoms(
-          dictDiagrams, matchingsAtoms, Barycenter, gradsAtoms, nb_points,
-          checkerAtoms, epoch, projForDiag, featuresToAdd, projLocations,
+          dictDiagrams, matchingsAtoms, Barycenter, gradsAtoms,
+          checkerAtoms, projForDiag, featuresToAdd, projLocations,
           vectorForProjContrib, pairToAddGradList, infoToAdd);
       }
 

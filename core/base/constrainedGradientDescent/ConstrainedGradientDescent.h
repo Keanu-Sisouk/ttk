@@ -20,8 +20,6 @@ namespace ttk {
     void executeWeightsProjected(std::vector<Matrix> &hessianList,
                                  std::vector<double> &weights,
                                  const std::vector<double> &grad,
-                                 const int epoch,
-                                 const int nb_points,
                                  bool maxEigenValue);
 
     void executeAtoms(
@@ -29,9 +27,7 @@ namespace ttk {
       const std::vector<std::vector<ttk::MatchingType>> &matchings,
       const ttk::DiagramType &Barycenter,
       const std::vector<Matrix> &gradsLists,
-      const int nb_points,
       const std::vector<int> &checkerAtomsExt,
-      int epoch,
       std::vector<std::vector<int>> &projForDiag,
       ttk::DiagramType &featuresToAdd,
       std::vector<std::array<double, 2>> &projLocations,
@@ -53,8 +49,6 @@ namespace ttk {
     void gradientDescentWeights(std::vector<Matrix> &hessianList,
                                 std::vector<double> &weights,
                                 const std::vector<double> &grad,
-                                const int epoch,
-                                const int nb_points,
                                 bool maxEigenValue);
 
     void gradientDescentAtoms(
@@ -62,9 +56,7 @@ namespace ttk {
       const std::vector<std::vector<ttk::MatchingType>> &matchings,
       const ttk::DiagramType &Barycenter,
       const std::vector<Matrix> &gradsLists,
-      const int nb_points,
       const std::vector<int> &checkerAtomsExt,
-      int epoch,
       std::vector<std::vector<int>> &projForDiag,
       ttk::DiagramType &featuresToAdd,
       std::vector<std::array<double, 2>> &projLocations,
