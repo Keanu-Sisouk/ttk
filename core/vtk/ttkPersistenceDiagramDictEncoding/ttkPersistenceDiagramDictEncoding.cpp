@@ -28,7 +28,6 @@ int ttkPersistenceDiagramDictEncoding::FillInputPortInformation(
   int port, vtkInformation *info) {
   if(port == 0) {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet");
-    // info->Set(vtkAlgorithm::INPUT_IS_REPEATABLE(), 1);
     return 1;
   } else if(port == 1) {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet");
@@ -41,7 +40,6 @@ int ttkPersistenceDiagramDictEncoding::FillInputPortInformation(
 int ttkPersistenceDiagramDictEncoding::FillOutputPortInformation(
   int port, vtkInformation *info) {
   if(port == 0) {
-    /*info->Set(ttkAlgorithm::SAME_DATA_TYPE_AS_INPUT_PORT(), 0);*/
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkMultiBlockDataSet");
     return 1;
   } else if(port == 1) {
@@ -72,30 +70,6 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
   ttk::Memory m;
 
   // Get input data
-  // std::vector<vtkUnstructuredGrid *> inputDiagrams;
-
-  // auto nBlocks = inputVector[0]->GetNumberOfInformationObjects();
-  // std::vector<vtkMultiBlockDataSet *> blocks(nBlocks);
-
-  // if(nBlocks > 2) {
-  //  this->printWrn("Only dealing with the first two MultiBlockDataSets");
-  //  nBlocks = 2;
-  //}
-
-  // number of diagrams per input block
-  // std::array<size_t, 2> nInputs{0, 0};
-
-  // for(int i = 0; i < nBlocks; ++i) {
-  //  blocks[i] = vtkMultiBlockDataSet::GetData(inputVector[0], i);
-  //  if(blocks[i] != nullptr) {
-  //    nInputs[i] = blocks[i]->GetNumberOfBlocks();
-  //    for(size_t j = 0; j < nInputs[i]; ++j) {
-  //      inputDiagrams.emplace_back(
-  //        vtkUnstructuredGrid::SafeDownCast(blocks[i]->GetBlock(j)));
-  //    }
-  //  }
-  //}
-
   auto blocks = vtkMultiBlockDataSet::GetData(inputVector[0], 0);
   auto atomBlocks = vtkMultiBlockDataSet::GetData(inputVector[1], 0);
 
@@ -103,10 +77,6 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
   std::vector<vtkUnstructuredGrid *> inputDiagrams;
 
   std::vector<vtkUnstructuredGrid *> inputAtoms;
-
-  // Number of input diagrams
-  // int numInputs = 0;
-  // printf("Atom number %d", numAtom);
 
   int numInputAtoms = 0;
   if(atomBlocks != nullptr) {
@@ -125,9 +95,6 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
     inputDiagrams.resize(numInputs);
     for(int i = 0; i < numInputs; ++i) {
       inputDiagrams[i] = vtkUnstructuredGrid::SafeDownCast(blocks->GetBlock(i));
-      // if(this->GetMTime() < input[i]->GetMTime()) {
-      //  needUpdate_ = true;
-      //}
     }
   }
 
@@ -148,33 +115,27 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
   }
 
   // Set output
-  // auto diagramsDistTable = vtkTable::GetData(outputVector);
-
   auto output_dgm = vtkMultiBlockDataSet::GetData(outputVector, 0);
   auto output_weights = vtkTable::GetData(outputVector, 1);
   auto output_loss = vtkTable::GetData(outputVector, 2);
   auto output_allLosses = vtkTable::GetData(outputVector, 3);
   auto true_output_loss = vtkTable::GetData(outputVector, 4);
   auto output_timers = vtkTable::GetData(outputVector, 5);
-  // int numAtom = this->GetAtomNumber();
   output_dgm->SetNumberOfBlocks(numAtom);
 
   if(BackEnd == BACKEND::INPUT_ATOMS) {
-    std::cout << "KONICHIWA" << std::endl;
     for(int i = 0; i < numAtom; ++i) {
       vtkNew<vtkUnstructuredGrid> vtu;
       vtu->DeepCopy(inputAtoms[i]);
       output_dgm->SetBlock(i, vtu);
     }
   } else {
-    std::cout << "KOMBAWA" << std::endl;
     for(int i = 0; i < numAtom; ++i) {
       vtkNew<vtkUnstructuredGrid> vtu;
       vtu->DeepCopy(inputDiagrams[i]);
       output_dgm->SetBlock(i, vtu);
     }
   }
-  std::cout << "BOUYASHAKA" << std::endl;
 
   std::vector<ttk::DiagramType> intermediateDiagrams(nDiags);
   std::vector<ttk::DiagramType> intermediateAtoms(numInputAtoms);
@@ -187,17 +148,7 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
 
     double maxPers = this->getMaxPers(intermediateDiagrams[i]);
     double percentage = this->Percent_;
-    std::cout << "MAX PERS BEFORE FILTERING " << maxPers << std::endl;
-    // if (max_dimension < this->getMaxPers(intermediateDiagrams[i])){
-    // std::sort(intermediateDiagrams[i].begin(), intermediateDiagrams[i].end(),
-    //           [](ttk::DiagramTuple &t1, ttk::DiagramTuple &t2) {
-    //             return (std::get<10>(t1) - std::get<6>(t1))
-    //                   > (std::get<10>(t2) - std::get<6>(t2));
-    //           });
-    // max_dimension =
-    //}
-    // ttk::DiagramTuple &temp = intermediateDiagrams[i][0];
-    // double maxPers = std::get<10>(temp) - std::get<6>(temp);
+
     intermediateDiagrams[i].erase(
       std::remove_if(intermediateDiagrams[i].begin(),
                      intermediateDiagrams[i].end(),
@@ -207,9 +158,6 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
                      }),
       intermediateDiagrams[i].end());
 
-    auto &t = intermediateDiagrams[i][0];
-    std::cout << "MAX PERS BEFORE ORDERING "
-              << t.death.sfValue - t.birth.sfValue << std::endl;
     if(ret != 0) {
       this->printErr("Could not read Persistence Diagram");
       return 0;
@@ -226,28 +174,11 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
     }
   }
 
-  // double max_dimension_total = 0.0;
-  // for(int i = 0; i < 1; ++i) {
-  //   double max_dimension = getPersistenceDiagram(
-  //     intermediateDiagrams[i], inputDiagrams[i + nDiags - 1]);
-  //   if(max_dimension < 0.0) {
-  //     this->printErr("Could not read Persistence Diagram");
-  //     return 0;
-  //   }
-  //   if(max_dimension_total < max_dimension) {
-  //     max_dimension_total = max_dimension;
-  //   }
-  // }
-
   std::vector<ttk::DiagramType> dictDiagrams;
   const int seed = this->GetSeed_();
 
-  // this->printMsg("==============COUCHE TTK=======================");
-
   std::vector<std::vector<double>> vectorWeights(nDiags);
   for(size_t i = 0; i < vectorWeights.size(); ++i) {
-    // std::vector<double> weights{0.333, 0.333, 0.334};
-    // std::vector<double> weights{1. / 3., 1. / 3., 1. / 3.};
     std::vector<double> weights(numAtom, 1. / (numAtom * 1.));
     vectorWeights[i] = std::move(weights);
   }
@@ -256,13 +187,10 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
   std::vector<double> trueLossTab;
   std::vector<double> timers;
   std::vector<std::vector<double>> allLosses(nDiags);
-  // const auto diagramsDistMat = this->execute(intermediateDiagrams,
-  // dictDiagrams, vectorWeights,  nInputs);
   this->execute(intermediateDiagrams, intermediateAtoms, dictDiagrams,
                 vectorWeights, seed, numAtom, lossTab, timers, trueLossTab,
                 allLosses, this->Percent_);
   // zero-padd column name to keep Row Data columns ordered
-  // this->printMsg("============WE ARE HERE 173 AFTER EXECUTE============");
   output_weights->SetNumberOfRows(nDiags);
 
   const auto zeroPad
@@ -272,24 +200,17 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
         std::string zer(max.size() - cur.size(), '0');
         colName.append(zer).append(cur);
       };
-  // output_weights->SetNumberOfTuples(3);
-  // this->printMsg("============WE ARE HERE 184 AFTER EXECUTE============");
   for(int i = 0; i < numAtom; ++i) {
     std::string name{"Atom"};
     zeroPad(name, numAtom, i);
     // name
     vtkNew<vtkDoubleArray> col{};
-    // vtkDoubleArray *col=vtkDoubleArray::New();
-    // col->SetNumberOfComponents(1);
-    // col->SetNumberOfTuples(3);
     col->SetNumberOfValues(nDiags);
     col->SetName(name.c_str());
     for(int j = 0; j < nDiags; ++j) {
       col->SetValue(j, vectorWeights[j][i]);
     }
     col->Modified();
-    // col->Modified();
-    // printf("number of values %d", int(col->GetNumberOfValues()));
     output_weights->AddColumn(col);
   }
 
@@ -345,20 +266,13 @@ int ttkPersistenceDiagramDictEncoding::RequestData(
   colTimers->Modified();
   output_timers->AddColumn(colTimers);
 
-  // this->printMsg("============WE ARE HERE 204 AFTER EXECUTE============");
-
   vtkNew<vtkFloatArray> dummy{};
 
   for(int i = 0; i < numAtom; ++i) {
-    // vtkUnstructuredGrid temp =
-    // vtkUnstructuredGrid::SafeDownCast(output_dgm->GetBlock(i));
     vtkNew<vtkUnstructuredGrid> vtu;
     ttk::DiagramType &diagram = dictDiagrams[i];
     DiagramToVTU(vtu, diagram, dummy, *this, 3, false);
-    // this->printMsg("=====HERE?======");
     output_dgm->SetBlock(i, vtu);
-    // this->printMsg("=====HERE2?=====");
   }
-  // this->printMsg("========JUST BEFORE RETURN============");
   return 1;
 }

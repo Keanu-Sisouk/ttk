@@ -28,8 +28,6 @@ void PersistenceDiagramDictEncoding::execute(
   if(!ProgApproach_) {
 
     for(size_t i = 0; i < intermediateDiagrams.size(); ++i) {
-      std::cout << "SIZE OF DIAG " << i
-                << " IS: " << intermediateDiagrams[i].size() << std::endl;
       if(sortedForTest_) {
         auto &diag = intermediateDiagrams[i];
         std::sort(diag.begin(), diag.end(),
@@ -57,6 +55,7 @@ void PersistenceDiagramDictEncoding::execute(
     Timer tm_method{};
     Timer tm_init{};
     bool preWeightOpt = false;
+    this->printMsg("Regular approach:");
     initDictionary(dictDiagrams, intermediateDiagrams, intermediateAtoms,
                    numAtom, this->do_min_, this->do_sad_, this->do_max_, seed, percent);
     this->printMsg("Initialization computed ", 1, tm_init.getElapsedTime(),
@@ -96,9 +95,6 @@ void PersistenceDiagramDictEncoding::execute(
       percentages.push_back(static_cast<double>(value) / 100.);
     }
     percentages.push_back(static_cast<double>(percent) / 100.);
-    for(size_t k = 0; k < percentages.size(); ++k) {
-      std::cout << "PERCENT " << percentages[k] << std::endl;
-    }
     std::vector<std::vector<double>> histoVectorWeights(
       intermediateDiagrams.size());
     std::vector<ttk::DiagramType> histoDictDiagrams(numAtom);
@@ -108,13 +104,11 @@ void PersistenceDiagramDictEncoding::execute(
     for(size_t j = 0; j < 1; ++j) {
       double percentage = percentages[j];
       this->maxLag2_ = 0;
-
+      this->printMsg("First step multi-scale approach:");
       for(size_t i = 0; i < intermediateDiagrams.size(); ++i) {
         auto &diag = intermediateDiagrams[i];
         auto &t = diag[0];
         double maxPers = getMaxPers(diag);
-        std::cout << "MAX PERS" << maxPers << std::endl;
-        auto &diagTemp = dataTemp[i];
         dataTemp[i].push_back(t);
         for(size_t p = 1; p < diag.size(); ++p) {
           auto &t2 = diag[p];
@@ -124,9 +118,6 @@ void PersistenceDiagramDictEncoding::execute(
             continue;
           }
         }
-
-        std::cout << "SIZE OF DIAG " << i << " IS: " << diagTemp.size()
-                  << std::endl;
       }
 
       Timer tm_init{};
@@ -159,10 +150,14 @@ void PersistenceDiagramDictEncoding::execute(
       } else {
         this->maxLag2_ = 5;
       }
+      if(j < percentages.size() - 1) {
+        this->printMsg("New step multi-scale approach:");
+      } else {
+        this->printMsg("Final step multi-scale approach:");
+      }
 
       for(size_t i = 0; i < intermediateDiagrams.size(); ++i) {
         auto &diag = intermediateDiagrams[i];
-        auto &diagTemp = dataTemp[i];
         double maxPers = getMaxPers(diag);
         for(size_t p = 0; p < diag.size(); ++p) {
           auto &t2 = diag[p];
@@ -173,9 +168,6 @@ void PersistenceDiagramDictEncoding::execute(
             counter += 1;
           }
         }
-
-        std::cout << "SIZE OF DIAG " << i << " IS: " << diagTemp.size()
-                  << std::endl;
       }
       if(counter == 0) {
         continue;
@@ -231,16 +223,6 @@ void PersistenceDiagramDictEncoding::method(
   }
 
   const auto nDiags = intermediateDiagrams.size();
-
-  if(do_min_ && do_sad_ && do_max_) {
-    this->printMsg("Processing all critical pairs types");
-  } else if(do_min_) {
-    this->printMsg("Processing only MIN-SAD pairs");
-  } else if(do_sad_) {
-    this->printMsg("Processing only SAD-SAD pairs");
-  } else if(do_max_) {
-    this->printMsg("Processing only SAD-MAX pairs");
-  }
 
   // tracking the original indices
   std::vector<ttk::DiagramType> inputDiagramsMin(nDiags);
@@ -304,35 +286,6 @@ void PersistenceDiagramDictEncoding::method(
   if(this->do_max_) {
     setBidderDiagrams(nDiags, inputDiagramsMax, bidderDiagramsMax);
   }
-
-  switch(this->Constraint) {
-    case ConstraintType::FULL_DIAGRAMS:
-      this->printMsg("Using all diagram pairs");
-      break;
-    case ConstraintType::NUMBER_PAIRS:
-      this->printMsg("Using the " + std::to_string(this->MaxNumberOfPairs)
-                     + " most persistent pairs");
-      break;
-    case ConstraintType::ABSOLUTE_PERSISTENCE: {
-      std::stringstream pers{};
-      pers << std::fixed << std::setprecision(2) << this->MinPersistence_;
-      this->printMsg("Using diagram pairs above a persistence threshold of "
-                     + pers.str());
-    } break;
-    case ConstraintType::RELATIVE_PERSISTENCE_PER_DIAG:
-      this->printMsg(
-        "Using the "
-        + std::to_string(static_cast<int>(100 * (1 - this->MinPersistence_)))
-        + "% most persistent pairs of every diagram");
-      break;
-    case ConstraintType::RELATIVE_PERSISTENCE_GLOBAL:
-      this->printMsg(
-        "Using the "
-        + std::to_string(static_cast<int>(100 * (1 - this->MinPersistence_)))
-        + "% most persistent pairs of all diagrams");
-      break;
-  }
-
 
   std::vector<ttk::DiagramType> barycentersList(nDiags);
   std::vector<std::vector<std::vector<ttk::MatchingType>>> allMatchingsAtoms(
@@ -1146,14 +1099,15 @@ void PersistenceDiagramDictEncoding::computeGradientWeights(
   const bool doOptimizeAtoms) const {
 
   // initialization
-  std::vector<std::vector<std::array<double, 2>>> grad_list(Barycenter.size());
+  std::vector<std::vector<std::array<double, 2>>> gradBuffersList(
+    Barycenter.size());
   std::vector<std::vector<std::array<double, 2>>> pairToAddGradList;
-  for(size_t i = 0; i < grad_list.size(); ++i) {
-    grad_list[i].resize(matchingsAtoms.size());
+  for(size_t i = 0; i < gradBuffersList.size(); ++i) {
+    gradBuffersList[i].resize(matchingsAtoms.size());
   }
   // std::vector<ttk::MatchingType> matching;
   std::vector<std::array<double, 2>> directions(Barycenter.size());
-  std::vector<std::array<double, 2>> data_assigned(Barycenter.size());
+  std::vector<std::array<double, 2>> dataAssigned(Barycenter.size());
   // std::vector<double> gradient(dictDiagrams.size(), 0.);
   gradWeights.resize(dictDiagrams.size());
   for(size_t i = 0; i < dictDiagrams.size(); ++i) {
@@ -1176,12 +1130,12 @@ void PersistenceDiagramDictEncoding::computeGradientWeights(
       // Id in barycenter
       const SimplexId Id2 = std::get<1>(t);
       // if(Id2 < 0) {
-      if(Id2 < 0 || static_cast<int>(grad_list.size()) <= Id2
+      if(Id2 < 0 || static_cast<int>(gradBuffersList.size()) <= Id2
          || static_cast<int>(dictDiagrams[i].size()) <= Id1) {
         continue;
       } else if(Id1 < 0) {
         const PersistencePair &t3 = Barycenter[Id2];
-        auto &point = grad_list[Id2][i];
+        auto &point = gradBuffersList[Id2][i];
         const double birthBarycenter = t3.birth.sfValue;
         const double deathBarycenter = t3.death.sfValue;
         const double birth_death_atom
@@ -1192,7 +1146,7 @@ void PersistenceDiagramDictEncoding::computeGradientWeights(
         tracker[Id2] = 1;
       } else {
         const PersistencePair &t2 = dictDiagrams[i][Id1];
-        auto &point = grad_list[Id2][i];
+        auto &point = gradBuffersList[Id2][i];
         const double birth_atom = t2.birth.sfValue;
         const double death_atom = t2.death.sfValue;
         point[0] = birth_atom;
@@ -1205,22 +1159,22 @@ void PersistenceDiagramDictEncoding::computeGradientWeights(
 
   computeDirectionsGradWeight(matchingsAtoms, Barycenter, newData, matchingsMin,
                               indexBaryMin, indexDataMin, pairToAddGradList,
-                              directions, data_assigned, tracker2,
+                              directions, dataAssigned, tracker2,
                               doOptimizeAtoms);
 
   computeDirectionsGradWeight(matchingsAtoms, Barycenter, newData, matchingsMax,
                               indexBaryMax, indexDataMax, pairToAddGradList,
-                              directions, data_assigned, tracker2,
+                              directions, dataAssigned, tracker2,
                               doOptimizeAtoms);
 
   computeDirectionsGradWeight(matchingsAtoms, Barycenter, newData, matchingsSad,
                               indexBarySad, indexDataSad, pairToAddGradList,
-                              directions, data_assigned, tracker2,
+                              directions, dataAssigned, tracker2,
                               doOptimizeAtoms);
 
   std::vector<int> temp(pairToAddGradList.size(), 1);
-  grad_list.insert(
-    grad_list.end(), pairToAddGradList.begin(), pairToAddGradList.end());
+  gradBuffersList.insert(
+    gradBuffersList.end(), pairToAddGradList.begin(), pairToAddGradList.end());
   tracker2.insert(tracker2.end(), temp.begin(), temp.end());
   tracker.insert(tracker.end(), temp.begin(), temp.end());
   std::vector<int> temp2(matchingsAtoms.size());
@@ -1231,37 +1185,37 @@ void PersistenceDiagramDictEncoding::computeGradientWeights(
     checker.push_back(temp2);
   }
 
-  for(size_t i = 0; i < grad_list.size(); ++i) {
-    const auto &data_point = data_assigned[i];
+  for(size_t i = 0; i < gradBuffersList.size(); ++i) {
+    const auto &data_point = dataAssigned[i];
     for(size_t j = 0; j < checker[i].size(); ++j) {
-      auto &point = grad_list[i][checker[i][j]];
+      auto &point = gradBuffersList[i][checker[i][j]];
       point[0] -= data_point[0];
       point[1] -= data_point[1];
     }
   }
 
-  for(size_t i = 0; i < grad_list.size(); ++i) {
+  for(size_t i = 0; i < gradBuffersList.size(); ++i) {
     if(tracker[i] == 0 || tracker2[i] == 0) {
       continue;
     } else {
       for(size_t j = 0; j < checker[i].size(); ++j) {
-        const auto &point = grad_list[i][checker[i][j]];
+        const auto &point = gradBuffersList[i][checker[i][j]];
         const auto &direction = directions[i];
         gradWeights[checker[i][j]]
           += -2 * (point[0] * direction[0] + point[1] * direction[1]);
       }
     }
   }
-  hessianList.resize(grad_list.size());
-  for(size_t i = 0; i < grad_list.size(); ++i) {
+  hessianList.resize(gradBuffersList.size());
+  for(size_t i = 0; i < gradBuffersList.size(); ++i) {
     Matrix &hessian = hessianList[i];
     hessian.resize(checker[i].size());
     for(size_t j = 0; j < checker[i].size(); ++j) {
       auto &line = hessian[j];
       line.resize(checker[i].size());
-      const auto &point = grad_list[i][checker[i][j]];
+      const auto &point = gradBuffersList[i][checker[i][j]];
       for(size_t q = 0; q < checker[i].size(); ++q) {
-        const auto &point_temp = grad_list[i][checker[i][q]];
+        const auto &point_temp = gradBuffersList[i][checker[i][q]];
         line[q] = point[0] * point_temp[0] + point[1] * point_temp[1];
       }
     }
@@ -1752,7 +1706,7 @@ void PersistenceDiagramDictEncoding::computeDirectionsGradWeight(
   const std::vector<size_t> &indexDataCritType,
   std::vector<std::vector<std::array<double, 2>>> &pairToAddGradList,
   std::vector<std::array<double, 2>> &directions,
-  std::vector<std::array<double, 2>> &data_assigned,
+  std::vector<std::array<double, 2>> &dataAssigned,
   std::vector<int> &tracker2,
   const bool doOptimizeAtoms) const {
 
@@ -1787,7 +1741,7 @@ void PersistenceDiagramDictEncoding::computeDirectionsGradWeight(
             newPairs[j] = pair;
           }
           pairToAddGradList.push_back(newPairs);
-          data_assigned.push_back({birthData, deathData});
+          dataAssigned.push_back({birthData, deathData});
           directions.push_back(direction);
         } else {
           continue;
@@ -1803,7 +1757,7 @@ void PersistenceDiagramDictEncoding::computeDirectionsGradWeight(
           = birthBarycenter + (deathBarycenter - birthBarycenter) / 2.;
         direction[0] = birthDeathData - birthBarycenter;
         direction[1] = birthDeathData - deathBarycenter;
-        data_assigned[indexBaryCritType[Id2]] = {birthDeathData, birthDeathData};
+        dataAssigned[indexBaryCritType[Id2]] = {birthDeathData, birthDeathData};
 
       } else {
         const PersistencePair &t2 = newData[indexDataCritType[Id1]];
@@ -1813,7 +1767,7 @@ void PersistenceDiagramDictEncoding::computeDirectionsGradWeight(
         // direction[1] = t2.death.sfValue - t3.death.sfValue;
         direction[0] = birthData - birthBarycenter;
         direction[1] = deathData - deathBarycenter;
-        data_assigned[indexBaryCritType[Id2]] = {birthData, deathData};
+        dataAssigned[indexBaryCritType[Id2]] = {birthData, deathData};
         // directions[Id2].push_back(direction);
       }
       tracker2[indexBaryCritType[Id2]] = 1;

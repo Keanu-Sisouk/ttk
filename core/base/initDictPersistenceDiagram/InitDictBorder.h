@@ -1,8 +1,8 @@
 #pragma once
 
-//#include <PDClustering.h>
-//#include <PersistenceDiagramBarycenter.h>
-#include <PersistenceDiagramAuction.h>
+// #include <PDClustering.h>
+// #include <PersistenceDiagramBarycenter.h>
+//  #include <PersistenceDiagramAuction.h>
 #include <PersistenceDiagramDistanceMatrix.h>
 #include <PersistenceDiagramUtils.h>
 #include <Wrapper.h>
@@ -28,13 +28,6 @@ namespace ttk {
                  bool do_max_);
 
   protected:
-    void setBidderDiagrams(const size_t nInputs,
-                           std::vector<ttk::DiagramType> &inputDiagrams,
-                           std::vector<BidderDiagram> &bidder_diags) const;
-
-    double computeDistance(const BidderDiagram &D1,
-                           const BidderDiagram &D2) const;
-
     int getNextIndex(const Matrix &distMatrix,
                      const std::vector<int> &indices) const;
 
@@ -44,6 +37,5 @@ namespace ttk {
     double Lambda{0};
     size_t MaxNumberOfPairs{20};
     double MinPersistence{0.1};
-    // bool do_min_{true}, do_sad_{true}, do_max_{true};
   };
 } // namespace ttk

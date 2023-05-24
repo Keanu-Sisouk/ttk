@@ -8,5 +8,4 @@ ttk_add_base_library(initDictPersistenceDiagram
   DEPENDS
     common
     persistenceDiagramDistanceMatrix
-    persistenceDiagramAuction
 )
