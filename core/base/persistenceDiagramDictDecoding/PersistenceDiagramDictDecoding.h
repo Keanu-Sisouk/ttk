@@ -19,6 +19,8 @@
 // ttk common includes
 #include <Debug.h>
 #include <PersistenceDiagramUtils.h>
+#include <PersistenceDiagramClustering.h>
+#include <PersistenceDiagramDistanceMatrix.h>
 
 namespace ttk {
   using Matrice = std::vector<std::vector<double>>;
@@ -42,6 +44,18 @@ namespace ttk {
 
   protected:
     bool ProgBarycenter{false};
+
+    void computeAtomsCoordinates(
+      const std::vector<ttk::DiagramType> &atoms,
+      const std::vector<std::vector<double>> &vectorWeights,
+      std::vector<std::pair<double, double>> &coords,
+      std::vector<std::pair<double, double>> &true_coords,
+      const double spacing,
+      const double max_persistence,
+      const size_t nAtoms) const;
+
+
+    
   }; // PersistenceDiagramDictDecoding class
 
 } // namespace ttk
