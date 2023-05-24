@@ -17,7 +17,7 @@
 #include <vtkPointData.h>
 //#include <vtkTable.h>
 
-#include <PersistenceDiagramDistanceMatrix.h>
+
 #include <ttkPersistenceDiagramUtils.h>
 
 #include <ttkMacros.h>
@@ -224,20 +224,21 @@ void ttkPersistenceDiagramDictDecoding::outputDiagrams(
 
   vtkNew<vtkDoubleArray> dummy{};
 
-
+  computeAtomsCoordinates(atoms, weights, coords, true_coords,
+    spacing, max_persistence, nAtoms);
 
   if(nAtoms == 2) {
-    ttk::PersistenceDiagramDistanceMatrix MatrixCalculator;
-    std::array<size_t, 2> nInputs{nAtoms, 0};
-    MatrixCalculator.setDos(true, true, true);
-    MatrixCalculator.setThreadNumber(2);
-    const auto distMatrix = MatrixCalculator.execute(atoms, nInputs);
-    coords[0].first = 0.;
-    true_coords[0].first = 0.;
-    coords[0].second = 0.;
-    true_coords[0].first = 0.;
-    coords[1].first = spacing * distMatrix[0][1];
-    true_coords[1].first = distMatrix[0][1];
+    // ttk::PersistenceDiagramDistanceMatrix MatrixCalculator;
+    // std::array<size_t, 2> nInputs{nAtoms, 0};
+    // MatrixCalculator.setDos(true, true, true);
+    // MatrixCalculator.setThreadNumber(2);
+    // const auto distMatrix = MatrixCalculator.execute(atoms, nInputs);
+    // coords[0].first = 0.;
+    // true_coords[0].first = 0.;
+    // coords[0].second = 0.;
+    // true_coords[0].first = 0.;
+    // coords[1].first = spacing * distMatrix[0][1];
+    // true_coords[1].first = distMatrix[0][1];
 
     if(ShowAtoms) {
       for(size_t i = 0; i < nAtoms; ++i) {
@@ -251,30 +252,30 @@ void ttkPersistenceDiagramDictDecoding::outputDiagrams(
     }
 
   } else if(nAtoms == 3) {
-    ttk::PersistenceDiagramDistanceMatrix MatrixCalculator;
-    std::array<size_t, 2> nInputs{nAtoms, 0};
-    MatrixCalculator.setDos(true, true, true);
-    MatrixCalculator.setThreadNumber(3);
-    std::vector<std::vector<double>> distMatrix
-      = MatrixCalculator.execute(atoms, nInputs);
-    coords[0].first = 0.;
-    true_coords[0].first = 0.;
-    coords[0].second = 0.;
-    true_coords[0].second = 0.;
-    coords[1].first = spacing * distMatrix[0][1];
-    true_coords[1].first = distMatrix[0][1];
-    coords[1].second = 0.;
-    true_coords[0].second = 0.;
-    double distOpposed = distMatrix[2][1];
-    double firstDist = distMatrix[0][1];
-    double distAdja = distMatrix[0][2];
-    double alpha = std::acos(
-      (distOpposed * distOpposed - firstDist * firstDist - distAdja * distAdja)
-      / (-2. * firstDist * distAdja));
-    coords[2].first = spacing * distAdja * std::cos(alpha);
-    true_coords[2].first = distAdja * std::cos(alpha);
-    coords[2].second = spacing * distAdja * std::sin(alpha);
-    true_coords[2].second = distAdja * std::sin(alpha);
+    // ttk::PersistenceDiagramDistanceMatrix MatrixCalculator;
+    // std::array<size_t, 2> nInputs{nAtoms, 0};
+    // MatrixCalculator.setDos(true, true, true);
+    // MatrixCalculator.setThreadNumber(3);
+    // std::vector<std::vector<double>> distMatrix
+    //   = MatrixCalculator.execute(atoms, nInputs);
+    // coords[0].first = 0.;
+    // true_coords[0].first = 0.;
+    // coords[0].second = 0.;
+    // true_coords[0].second = 0.;
+    // coords[1].first = spacing * distMatrix[0][1];
+    // true_coords[1].first = distMatrix[0][1];
+    // coords[1].second = 0.;
+    // true_coords[0].second = 0.;
+    // double distOpposed = distMatrix[2][1];
+    // double firstDist = distMatrix[0][1];
+    // double distAdja = distMatrix[0][2];
+    // double alpha = std::acos(
+    //   (distOpposed * distOpposed - firstDist * firstDist - distAdja * distAdja)
+    //   / (-2. * firstDist * distAdja));
+    // coords[2].first = spacing * distAdja * std::cos(alpha);
+    // true_coords[2].first = distAdja * std::cos(alpha);
+    // coords[2].second = spacing * distAdja * std::sin(alpha);
+    // true_coords[2].second = distAdja * std::sin(alpha);
 
     if(ShowAtoms) {
       for(size_t i = 0; i < nAtoms; ++i) {
@@ -289,21 +290,27 @@ void ttkPersistenceDiagramDictDecoding::outputDiagrams(
 
   } else {
 
-    for(size_t i = 0; i < nAtoms; ++i) {
-      const auto angle
-        = 2.0 * M_PI * static_cast<double>(i) / static_cast<double>(nAtoms);
-      double X = spacing * max_persistence * std::cos(angle);
-      double Y = spacing * max_persistence * std::sin(angle);
-      coords[i].first = X;
-      coords[i].second = Y;
-      true_coords[i].first = max_persistence * std::cos(angle);
-      true_coords[i].second = max_persistence * std::sin(angle);
+    
+      // const auto angle
+      //   = 2.0 * M_PI * static_cast<double>(i) / static_cast<double>(nAtoms);
+      // double X = spacing * max_persistence * std::cos(angle);
+      // double Y = spacing * max_persistence * std::sin(angle);
+      // coords[i].first = X;
+      // coords[i].second = Y;
+      // true_coords[i].first = max_persistence * std::cos(angle);
+      // true_coords[i].second = max_persistence * std::sin(angle);
 
-      if(ShowAtoms) {
+    if(ShowAtoms) {
+      for(size_t i = 0; i < nAtoms; ++i) {
+        const auto angle
+          = 2.0 * M_PI * static_cast<double>(i) / static_cast<double>(nAtoms);
+        double X = spacing * max_persistence * std::cos(angle);
+        double Y = spacing * max_persistence * std::sin(angle);
         vtkNew<vtkUnstructuredGrid> vtu{};
         DiagramToVTU(vtu, atoms[i], dummy, *this, 3, false);
         TranslateDiagram(vtu, std::array<double, 3>{X, Y, 0.0});
         output->SetBlock(i, vtu);
+      
       }
     }
   }
