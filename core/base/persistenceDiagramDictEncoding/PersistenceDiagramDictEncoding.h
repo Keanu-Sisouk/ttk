@@ -71,6 +71,14 @@ namespace ttk {
       GREEDY_INIT = 4
     };
 
+    inline void setUseDimReduct(bool data) {
+      DimReductMode_ = data;
+    }
+
+    inline void setUseProgApproach(bool data) {
+      ProgApproach_ = data;
+    }
+
     inline void setWasserstein(const int data) {
       Wasserstein = data;
     }

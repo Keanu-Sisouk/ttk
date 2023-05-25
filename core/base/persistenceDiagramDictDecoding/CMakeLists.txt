@@ -8,4 +8,5 @@ ttk_add_base_library(persistenceDiagramDictDecoding
     persistenceDiagram
     persistenceDiagramClustering
     persistenceDiagramDistanceMatrix
+    persistenceDiagramDictEncoding
   )

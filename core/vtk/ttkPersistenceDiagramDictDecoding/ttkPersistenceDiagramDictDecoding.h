@@ -43,7 +43,7 @@ protected:
   void outputDiagrams(vtkMultiBlockDataSet *output,
                       vtkTable *output_coordinates,
                       const std::vector<ttk::DiagramType> &diags,
-                      const std::vector<ttk::DiagramType> &atoms,
+                      std::vector<ttk::DiagramType> &atoms,
                       vtkTable *weights_vtk,
                       const std::vector<std::vector<double>> &weights,
                       const double spacing,
