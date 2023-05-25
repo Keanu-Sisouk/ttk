@@ -23,16 +23,17 @@ void ttk::PersistenceDiagramDictDecoding::execute(
     "Computed barycenters", 1.0, tm.getElapsedTime(), this->threadNumber_);
 }
 
-
 void ttk::PersistenceDiagramDictDecoding::computeAtomsCoordinates(
   const std::vector<ttk::DiagramType> &atoms,
   const std::vector<std::vector<double>> &vectorWeights,
   std::vector<std::pair<double, double>> &coords,
   std::vector<std::pair<double, double>> &true_coords,
+  std::vector<double> &xVector,
+  std::vector<double> &yVector,
   const double spacing,
   const double max_persistence,
-  const size_t nAtoms) const{
-  
+  const size_t nAtoms) const {
+
   if(nAtoms == 2) {
     ttk::PersistenceDiagramDistanceMatrix MatrixCalculator;
     std::array<size_t, 2> nInputs{nAtoms, 0};
@@ -78,6 +79,25 @@ void ttk::PersistenceDiagramDictDecoding::computeAtomsCoordinates(
         = 2.0 * M_PI * static_cast<double>(i) / static_cast<double>(nAtoms);
       true_coords[i].first = max_persistence * std::cos(angle);
       true_coords[i].second = max_persistence * std::sin(angle);
+    }
+  }
+  size_t nDiags = vectorWeights.size();
+
+  for(int i = 0; i < 2; ++i) {
+    for(size_t j = 0; j < nDiags; ++j) {
+      double temp = 0;
+      for(size_t iAtom = 0; iAtom < nAtoms; ++iAtom) {
+        if(i == 0) {
+          temp += vectorWeights[j][iAtom] * true_coords[iAtom].first;
+        } else {
+          temp += vectorWeights[j][iAtom] * true_coords[iAtom].second;
+        }
+      }
+      if(i == 0) {
+        xVector[j] = temp;
+      } else {
+        yVector[j] = temp;
+      }
     }
   }
 }

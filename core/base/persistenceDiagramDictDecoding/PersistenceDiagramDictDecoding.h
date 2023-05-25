@@ -50,12 +50,12 @@ namespace ttk {
       const std::vector<std::vector<double>> &vectorWeights,
       std::vector<std::pair<double, double>> &coords,
       std::vector<std::pair<double, double>> &true_coords,
+      std::vector<double> &xVector,
+      std::vector<double> &yVector,
       const double spacing,
       const double max_persistence,
       const size_t nAtoms) const;
 
-
-    
   }; // PersistenceDiagramDictDecoding class
 
 } // namespace ttk
