@@ -1,3 +1,4 @@
+#include "DimensionReduction.h"
 #include "PersistenceDiagramUtils.h"
 #include <PersistenceDiagramDictDecoding.h>
 
@@ -95,7 +96,7 @@ void ttk::PersistenceDiagramDictDecoding::computeAtomsCoordinates(
     }
     ttk::PersistenceDiagramDictEncoding DictionaryEncoder;
     DictionaryEncoder.setUseDimReduct(true);
-    DictionaryEncoder.setUseProgApproach(false);
+    DictionaryEncoder.setUseProgApproach(true);
     DictionaryEncoder.execute(atoms, atoms, dictDiagrams, tempWeights, seed, m,
                               lossTab, timers, trueLossTab, allLosses, 0.);
 
@@ -140,6 +141,26 @@ void ttk::PersistenceDiagramDictDecoding::computeAtomsCoordinates(
         }
       }
     }
+
+    ttk::DimensionReduction DimProjector;
+    DimProjector.setIsInputDistanceMatrix(true);
+    // ttk::PersistenceDiagramDistanceMatrix MatrixCalculator;
+    // std::array<size_t, 2> nInputs{nAtoms, 0};
+    // MatrixCalculator.setDos(true, true, true);
+    // MatrixCalculator.setThreadNumber(3);
+    // std::vector<std::vector<double>> distMatrix
+    //   = MatrixCalculator.execute(atoms, nInputs);
+    int nRow = distMatrix.size();
+    std::vector<double> matrixForProjector;
+    for(int i ; i < nRow ; ++i){
+      for(int j ; j < nRow ; ++j){
+        matrixForProjector.push_back(distMatrix[j][i]);
+      }
+    }
+    std::vector<std::vector<double>> coordsAtom;
+    DimProjector.execute(coordsAtom, matrixForProjector, nRow, nRow);
+    std::cout << "SIZE OF OUTPUT DIMPROJECTOR: " << coordsAtom.size() << std::endl;
+
   }
   size_t nDiags = vectorWeights.size();
 

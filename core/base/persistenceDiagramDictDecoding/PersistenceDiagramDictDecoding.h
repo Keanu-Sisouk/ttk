@@ -23,6 +23,8 @@
 #include <PersistenceDiagramDistanceMatrix.h>
 #include <PersistenceDiagramUtils.h>
 
+#include <DimensionReduction.h>
+
 namespace ttk {
   using Matrice = std::vector<std::vector<double>>;
   using VectorMatchingTuple = std::vector<MatchingType>;
