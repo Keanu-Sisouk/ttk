@@ -75,75 +75,7 @@ void ttk::PersistenceDiagramDictDecoding::computeAtomsCoordinates(
     true_coords[2].second = distAdja * std::sin(alpha);
 
   } else {
-    // for(size_t i = 0; i < nAtoms; ++i) {
-    //   const auto angle
-    //     = 2.0 * M_PI * static_cast<double>(i) / static_cast<double>(nAtoms);
-    //   true_coords[i].first = max_persistence * std::cos(angle);
-    //   true_coords[i].second = max_persistence * std::sin(angle);
-    // }
-
-    // std::vector<ttk::DiagramType> dictDiagrams;
-    // std::vector<ttk::DiagramType> intermediateAtoms;
-    // std::vector<double> lossTab;
-    // std::vector<double> trueLossTab;
-    // std::vector<double> timers;
-    // std::vector<std::vector<double>> allLosses(nAtoms);
-    // const int seed = 0;
-    // const int m = 3;
-    // std::vector<std::vector<double>> tempWeights(nAtoms);
-    // for(size_t i = 0; i < tempWeights.size(); ++i) {
-    //   std::vector<double> weights(m, 1. / (m * 1.));
-    //   tempWeights[i] = std::move(weights);
-    // }
-    // ttk::PersistenceDiagramDictEncoding DictionaryEncoder;
-    // DictionaryEncoder.setUseDimReduct(false);
-    // DictionaryEncoder.setUseProgApproach(true);
-    // DictionaryEncoder.execute(atoms, atoms, dictDiagrams, tempWeights, seed,
-    // m,
-    //                           lossTab, timers, trueLossTab, allLosses, 0.);
-
-    // std::vector<std::pair<double, double>> tempCoords(3);
-    // std::vector<std::pair<double, double>> temp_true_coords(3);
-    // ttk::PersistenceDiagramDistanceMatrix MatrixCalculator;
-    // std::array<size_t, 2> nInputs{3, 0};
-    // MatrixCalculator.setDos(true, true, true);
-    // MatrixCalculator.setThreadNumber(3);
-    // std::vector<std::vector<double>> distMatrix
-    //   = MatrixCalculator.execute(dictDiagrams, nInputs);
-    // tempCoords[0].first = 0.;
-    // temp_true_coords[0].first = 0.;
-    // tempCoords[0].second = 0.;
-    // temp_true_coords[0].second = 0.;
-    // tempCoords[1].first = spacing * distMatrix[0][1];
-    // temp_true_coords[1].first = distMatrix[0][1];
-    // tempCoords[1].second = 0.;
-    // temp_true_coords[0].second = 0.;
-    // double distOpposed = distMatrix[2][1];
-    // double firstDist = distMatrix[0][1];
-    // double distAdja = distMatrix[0][2];
-    // double alpha = std::acos(
-    //   (distOpposed * distOpposed - firstDist * firstDist - distAdja *
-    //   distAdja) / (-2. * firstDist * distAdja));
-    // tempCoords[2].first = spacing * distAdja * std::cos(alpha);
-    // temp_true_coords[2].first = distAdja * std::cos(alpha);
-    // tempCoords[2].second = spacing * distAdja * std::sin(alpha);
-    // temp_true_coords[2].second = distAdja * std::sin(alpha);
-
-    // for(int i = 0; i < 2; ++i) {
-    //   for(size_t j = 0; j < nAtoms; ++j) {
-    //     double temp = 0.;
-    //     for(int iAtom = 0; iAtom < 3; ++iAtom) {
-    //       if(i == 0) {
-    //         temp += tempWeights[j][iAtom] * temp_true_coords[iAtom].first;
-    //         true_coords[j].first = temp;
-    //       } else {
-    //         temp += tempWeights[j][iAtom] * temp_true_coords[iAtom].second;
-    //         true_coords[j].second = temp;
-    //       }
-    //     }
-    //   }
-    // }
-
+    
     ttk::DimensionReduction DimProjector;
     DimProjector.setIsInputDistanceMatrix(true);
     ttk::PersistenceDiagramDistanceMatrix MatrixCalculator;
