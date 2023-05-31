@@ -47,6 +47,7 @@ void ttk::PersistenceDiagramDictDecoding::computeAtomsCoordinates(
     true_coords[0].first = 0.;
     coords[1].first = spacing * distMatrix[0][1];
     true_coords[1].first = distMatrix[0][1];
+    true_coords[1].second = 0.;
     
   } else if(nAtoms == 3) {
     ttk::PersistenceDiagramDistanceMatrix MatrixCalculator;
@@ -62,7 +63,7 @@ void ttk::PersistenceDiagramDictDecoding::computeAtomsCoordinates(
     coords[1].first = spacing * distMatrix[0][1];
     true_coords[1].first = distMatrix[0][1];
     coords[1].second = 0.;
-    true_coords[0].second = 0.;
+    true_coords[1].second = 0.;
     double distOpposed = distMatrix[2][1];
     double firstDist = distMatrix[0][1];
     double distAdja = distMatrix[0][2];
