@@ -41,11 +41,18 @@ namespace ttk {
       this->setDebugMsgPrefix("PersistenceDiagramDictDecoding");
     }
 
+    enum class BACKEND {
+      MDS = 0,
+      DICTIONARY = 1,
+    };
+
     void execute(std::vector<DiagramType> &dictDiagrams,
                  std::vector<std::vector<double>> &vectorWeights,
                  std::vector<DiagramType> &Barycenters) const;
 
   protected:
+
+    BACKEND Backend{BACKEND::MDS};
     bool ProgBarycenter{false};
 
     void computeAtomsCoordinates(
