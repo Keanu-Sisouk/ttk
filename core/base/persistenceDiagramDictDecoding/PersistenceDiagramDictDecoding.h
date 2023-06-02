@@ -51,10 +51,11 @@ namespace ttk {
     void computeAtomsCoordinates(
       std::vector<ttk::DiagramType> &atoms,
       const std::vector<std::vector<double>> &vectorWeights,
-      std::vector<std::pair<double, double>> &coords,
-      std::vector<std::pair<double, double>> &true_coords,
+      std::vector<std::array<double, 3>> &coords,
+      std::vector<std::array<double, 3>> &true_coords,
       std::vector<double> &xVector,
       std::vector<double> &yVector,
+      std::vector<double> &zVector,
       const double spacing,
       const double max_persistence,
       const size_t nAtoms) const;

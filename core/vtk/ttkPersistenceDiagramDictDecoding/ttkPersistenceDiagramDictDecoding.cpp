@@ -165,21 +165,22 @@ void ttkPersistenceDiagramDictDecoding::outputDiagrams(
   ttk::SimplexId n_existing_blocks = ShowAtoms ? nAtoms : 0;
 
   output->SetNumberOfBlocks(nDiags + n_existing_blocks);
-  std::vector<std::pair<double, double>> coords(nAtoms);
-  std::vector<std::pair<double, double>> true_coords(nAtoms);
+  std::vector<std::array<double, 3>> coords(nAtoms);
+  std::vector<std::array<double, 3>> true_coords(nAtoms);
   std::vector<double> xVector(nDiags);
   std::vector<double> yVector(nDiags);
+  std::vector<double> zVector(nDiags, 0.);
   vtkNew<vtkDoubleArray> dummy{};
 
   computeAtomsCoordinates(atoms, weights, coords, true_coords, xVector, yVector,
-                          spacing, max_persistence, nAtoms);
+                          zVector, spacing, max_persistence, nAtoms);
 
   if(nAtoms == 2) {
 
     if(ShowAtoms) {
       for(size_t i = 0; i < nAtoms; ++i) {
-        double X = coords[i].first;
-        double Y = coords[i].second;
+        double X = coords[i][0];
+        double Y = coords[i][1];
         vtkNew<vtkUnstructuredGrid> vtu{};
         DiagramToVTU(vtu, atoms[i], dummy, *this, 3, false);
         TranslateDiagram(vtu, std::array<double, 3>{X, Y, 0.0});
@@ -191,8 +192,8 @@ void ttkPersistenceDiagramDictDecoding::outputDiagrams(
 
     if(ShowAtoms) {
       for(size_t i = 0; i < nAtoms; ++i) {
-        double X = coords[i].first;
-        double Y = coords[i].second;
+        double X = coords[i][0];
+        double Y = coords[i][1];
         vtkNew<vtkUnstructuredGrid> vtu{};
         DiagramToVTU(vtu, atoms[i], dummy, *this, 3, false);
         TranslateDiagram(vtu, std::array<double, 3>{X, Y, 0.0});
@@ -228,8 +229,8 @@ void ttkPersistenceDiagramDictDecoding::outputDiagrams(
     double X = 0;
     double Y = 0;
     for(size_t iAtom = 0; iAtom < nAtoms; ++iAtom) {
-      X += weights[i][iAtom] * coords[iAtom].first;
-      Y += weights[i][iAtom] * coords[iAtom].second;
+      X += weights[i][iAtom] * coords[iAtom][0];
+      Y += weights[i][iAtom] * coords[iAtom][1];
     }
 
     TranslateDiagram(vtu, std::array<double, 3>{X, Y, 0.0});
@@ -289,9 +290,9 @@ void ttkPersistenceDiagramDictDecoding::outputDiagrams(
     std::cout << "number of values: " << row->GetNumberOfValues() << std::endl;
     for(int j = 0; j < output_coordinates->GetNumberOfColumns(); ++j) {
       if(strcmp(output_coordinates->GetColumnName(j), "X") == 0) {
-        row->SetValue(j, true_coords[i].first);
+        row->SetValue(j, true_coords[i][0]);
       } else if(strcmp(output_coordinates->GetColumnName(j), "Y") == 0) {
-        row->SetValue(j, true_coords[i].second);
+        row->SetValue(j, true_coords[i][1]);
       } else if(strcmp(output_coordinates->GetColumnName(j), "ClusterID")
                 == 0) {
         row->SetValue(j, -1);

@@ -27,10 +27,11 @@ void ttk::PersistenceDiagramDictDecoding::execute(
 void ttk::PersistenceDiagramDictDecoding::computeAtomsCoordinates(
   std::vector<ttk::DiagramType> &atoms,
   const std::vector<std::vector<double>> &vectorWeights,
-  std::vector<std::pair<double, double>> &coords,
-  std::vector<std::pair<double, double>> &true_coords,
+  std::vector<std::array<double, 3>> &coords,
+  std::vector<std::array<double, 3>> &true_coords,
   std::vector<double> &xVector,
   std::vector<double> &yVector,
+  std::vector<double> &zVector,
   const double spacing,
   const double max_persistence,
   const size_t nAtoms) const {
@@ -41,14 +42,14 @@ void ttk::PersistenceDiagramDictDecoding::computeAtomsCoordinates(
     MatrixCalculator.setDos(true, true, true);
     MatrixCalculator.setThreadNumber(2);
     const auto distMatrix = MatrixCalculator.execute(atoms, nInputs);
-    coords[0].first = 0.;
-    true_coords[0].first = 0.;
-    coords[0].second = 0.;
-    true_coords[0].first = 0.;
-    coords[1].first = spacing * distMatrix[0][1];
-    true_coords[1].first = distMatrix[0][1];
-    true_coords[1].second = 0.;
-    
+    coords[0][0] = 0.;
+    true_coords[0][0] = 0.;
+    coords[0][1] = 0.;
+    true_coords[0][0] = 0.;
+    coords[1][0] = spacing * distMatrix[0][1];
+    true_coords[1][0] = distMatrix[0][1];
+    true_coords[1][1] = 0.;
+
   } else if(nAtoms == 3) {
     ttk::PersistenceDiagramDistanceMatrix MatrixCalculator;
     std::array<size_t, 2> nInputs{nAtoms, 0};
@@ -56,24 +57,24 @@ void ttk::PersistenceDiagramDictDecoding::computeAtomsCoordinates(
     MatrixCalculator.setThreadNumber(3);
     std::vector<std::vector<double>> distMatrix
       = MatrixCalculator.execute(atoms, nInputs);
-    coords[0].first = 0.;
-    true_coords[0].first = 0.;
-    coords[0].second = 0.;
-    true_coords[0].second = 0.;
-    coords[1].first = spacing * distMatrix[0][1];
-    true_coords[1].first = distMatrix[0][1];
-    coords[1].second = 0.;
-    true_coords[1].second = 0.;
+    coords[0][0] = 0.;
+    true_coords[0][0] = 0.;
+    coords[0][1] = 0.;
+    true_coords[0][1] = 0.;
+    coords[1][0] = spacing * distMatrix[0][1];
+    true_coords[1][0] = distMatrix[0][1];
+    coords[1][1] = 0.;
+    true_coords[1][1] = 0.;
     double distOpposed = distMatrix[2][1];
     double firstDist = distMatrix[0][1];
     double distAdja = distMatrix[0][2];
     double alpha = std::acos(
       (distOpposed * distOpposed - firstDist * firstDist - distAdja * distAdja)
       / (-2. * firstDist * distAdja));
-    coords[2].first = spacing * distAdja * std::cos(alpha);
-    true_coords[2].first = distAdja * std::cos(alpha);
-    coords[2].second = spacing * distAdja * std::sin(alpha);
-    true_coords[2].second = distAdja * std::sin(alpha);
+    coords[2][0] = spacing * distAdja * std::cos(alpha);
+    true_coords[2][0] = distAdja * std::cos(alpha);
+    coords[2][1] = spacing * distAdja * std::sin(alpha);
+    true_coords[2][1] = distAdja * std::sin(alpha);
 
   } else if(nAtoms == 4){
     ttk::PersistenceDiagramDistanceMatrix MatrixCalculator;
@@ -82,28 +83,24 @@ void ttk::PersistenceDiagramDictDecoding::computeAtomsCoordinates(
     MatrixCalculator.setThreadNumber(3);
     std::vector<std::vector<double>> distMatrix
       = MatrixCalculator.execute(atoms, nInputs);
-    // coords[0].first = 0.;
-    // true_coords[0].first = 0.;
-    // coords[0].second = 0.;
-    // true_coords[0].second = 0.;
-    // coords[1].first = spacing * distMatrix[0][1];
-    // true_coords[1].first = distMatrix[0][1];
-    // coords[1].second = 0.;
-    // true_coords[0].second = 0.;
+    // coords[0][0] = 0.;
+    // true_coords[0][0] = 0.;
+    // coords[0][1] = 0.;
+    // true_coords[0][1] = 0.;
+    // coords[1][0] = spacing * distMatrix[0][1];
+    // true_coords[1][0] = distMatrix[0][1];
+    // coords[1][1] = 0.;
+    // true_coords[0][1] = 0.;
     // double distOpposed = distMatrix[2][1];
     // double firstDist = distMatrix[0][1];
     // double distAdja = distMatrix[0][2];
     // double alpha = std::acos(
-    //   (distOpposed * distOpposed - firstDist * firstDist - distAdja * distAdja)
-    //   / (-2. * firstDist * distAdja));
-    // coords[2].first = spacing * distAdja * std::cos(alpha);
-    // true_coords[2].first = distAdja * std::cos(alpha);
-    // coords[2].second = spacing * distAdja * std::sin(alpha);
-    // true_coords[2].second = distAdja * std::sin(alpha);
-
-
-
-
+    //   (distOpposed * distOpposed - firstDist * firstDist - distAdja *
+    //   distAdja) / (-2. * firstDist * distAdja));
+    // coords[2][0] = spacing * distAdja * std::cos(alpha);
+    // true_coords[2][0] = distAdja * std::cos(alpha);
+    // coords[2][1] = spacing * distAdja * std::sin(alpha);
+    // true_coords[2][1] = distAdja * std::sin(alpha);
 
     ttk::DimensionReduction DimProjector;
     DimProjector.setIsInputDistanceMatrix(true);
@@ -126,9 +123,9 @@ void ttk::PersistenceDiagramDictDecoding::computeAtomsCoordinates(
     for(size_t i = 0; i < 2; ++i) {
       for(size_t j = 0; j < nAtoms; ++j) {
         if(i == 0) {
-          true_coords[j].first = coordsAtom[0][j];
+          true_coords[j][0] = coordsAtom[0][j];
         } else {
-          true_coords[j].second = coordsAtom[1][j];
+          true_coords[j][1] = coordsAtom[1][j];
         }
       }
     }
@@ -163,39 +160,38 @@ void ttk::PersistenceDiagramDictDecoding::computeAtomsCoordinates(
     // MatrixCalculator.setThreadNumber(3);
     // std::vector<std::vector<double>> distMatrix
     //   = MatrixCalculator.execute(dictDiagrams, nInputs);
-    // tempCoords[0].first = 0.;
-    // temp_true_coords[0].first = 0.;
-    // tempCoords[0].second = 0.;
-    // temp_true_coords[0].second = 0.;
-    // tempCoords[1].first = spacing * distMatrix[0][1];
-    // temp_true_coords[1].first = distMatrix[0][1];
-    // tempCoords[1].second = 0.;
-    // temp_true_coords[0].second = 0.;
+    // tempCoords[0][0] = 0.;
+    // temp_true_coords[0][0] = 0.;
+    // tempCoords[0][1] = 0.;
+    // temp_true_coords[0][1] = 0.;
+    // tempCoords[1][0] = spacing * distMatrix[0][1];
+    // temp_true_coords[1][0] = distMatrix[0][1];
+    // tempCoords[1][1] = 0.;
+    // temp_true_coords[0][1] = 0.;
     // double distOpposed = distMatrix[2][1];
     // double firstDist = distMatrix[0][1];
     // double distAdja = distMatrix[0][2];
     // double alpha = std::acos(
     //   (distOpposed * distOpposed - firstDist * firstDist - distAdja *
     //   distAdja) / (-2. * firstDist * distAdja));
-    // tempCoords[2].first = spacing * distAdja * std::cos(alpha);
-    // temp_true_coords[2].first = distAdja * std::cos(alpha);
-    // tempCoords[2].second = spacing * distAdja * std::sin(alpha);
-    // temp_true_coords[2].second = distAdja * std::sin(alpha);  
+    // tempCoords[2][0] = spacing * distAdja * std::cos(alpha);
+    // temp_true_coords[2][0] = distAdja * std::cos(alpha);
+    // tempCoords[2][1] = spacing * distAdja * std::sin(alpha);
+    // temp_true_coords[2][1] = distAdja * std::sin(alpha);
     // for(int i = 0; i < 2; ++i) {
     //   for(size_t j = 0; j < nAtoms; ++j) {
     //     double temp = 0.;
     //     for(int iAtom = 0; iAtom < 3; ++iAtom) {
     //       if(i == 0) {
-    //         temp += tempWeights[j][iAtom] * temp_true_coords[iAtom].first;
-    //         true_coords[j].first = temp;
+    //         temp += tempWeights[j][iAtom] * temp_true_coords[iAtom][0];
+    //         true_coords[j][0] = temp;
     //       } else {
-    //         temp += tempWeights[j][iAtom] * temp_true_coords[iAtom].second;
-    //         true_coords[j].second = temp;
+    //         temp += tempWeights[j][iAtom] * temp_true_coords[iAtom][1];
+    //         true_coords[j][1] = temp;
     //       }
     //     }
     //   }
     // }
-
 
     ttk::DimensionReduction DimProjector;
     DimProjector.setIsInputDistanceMatrix(true);
@@ -218,9 +214,9 @@ void ttk::PersistenceDiagramDictDecoding::computeAtomsCoordinates(
     for(size_t i = 0; i < 2; ++i) {
       for(size_t j = 0; j < nAtoms; ++j) {
         if(i == 0) {
-          true_coords[j].first = coordsAtom[0][j];
+          true_coords[j][0] = coordsAtom[0][j];
         } else {
-          true_coords[j].second = coordsAtom[1][j];
+          true_coords[j][1] = coordsAtom[1][j];
         }
       }
     }
@@ -232,9 +228,9 @@ void ttk::PersistenceDiagramDictDecoding::computeAtomsCoordinates(
       double temp = 0.;
       for(size_t iAtom = 0; iAtom < nAtoms; ++iAtom) {
         if(i == 0) {
-          temp += vectorWeights[j][iAtom] * true_coords[iAtom].first;
+          temp += vectorWeights[j][iAtom] * true_coords[iAtom][0];
         } else {
-          temp += vectorWeights[j][iAtom] * true_coords[iAtom].second;
+          temp += vectorWeights[j][iAtom] * true_coords[iAtom][1];
         }
       }
       if(i == 0) {
