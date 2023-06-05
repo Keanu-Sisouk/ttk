@@ -94,13 +94,13 @@ void ttk::PersistenceDiagramDictDecoding::computeAtomsCoordinates(
         coords[1][0] = spacing * distMatrix[0][1];
         true_coords[1][0] = distMatrix[0][1];
         coords[1][1] = 0.;
-        true_coords[0][1] = 0.;
+        true_coords[1][1] = 0.;
         double distOpposed = distMatrix[2][1];
         double firstDist = distMatrix[0][1];
         double distAdja = distMatrix[0][2];
-        double alpha = std::acos((distOpposed * distOpposed
-                                  - firstDist * firstDist - distAdja * distAdja)
-                                 / (-2. * firstDist * distAdja));
+        double alpha = std::acos(
+          (distOpposed * distOpposed - firstDist * firstDist - distAdja * distAdja)
+          / (-2. * firstDist * distAdja));
         coords[2][0] = spacing * distAdja * std::cos(alpha);
         true_coords[2][0] = distAdja * std::cos(alpha);
         coords[2][1] = spacing * distAdja * std::sin(alpha);
