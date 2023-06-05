@@ -297,6 +297,8 @@ void ttkPersistenceDiagramDictDecoding::outputDiagrams(
         row->SetValue(j, true_coords[i][0]);
       } else if(strcmp(output_coordinates->GetColumnName(j), "Y") == 0) {
         row->SetValue(j, true_coords[i][1]);
+      } else if(strcmp(output_coordinates->GetColumnName(j), "Z") == 0) {
+        row->SetValue(j, true_coords[i][2]);
       } else if(strcmp(output_coordinates->GetColumnName(j), "ClusterID")
                 == 0) {
         row->SetValue(j, -1);
