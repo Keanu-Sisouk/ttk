@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ttkMacros.h"
 #include <vtkInformation.h>
 #include <vtkInformationVector.h>
 #include <vtkMultiBlockDataSet.h>
@@ -31,6 +32,9 @@ public:
 
   vtkGetMacro(ProgBarycenter, int);
   vtkSetMacro(ProgBarycenter, int);
+
+  ttkSetEnumMacro(ProjMet, BACKEND);
+  vtkGetEnumMacro(ProjMet, BACKEND);
 
 protected:
   ttkPersistenceDiagramDictDecoding();

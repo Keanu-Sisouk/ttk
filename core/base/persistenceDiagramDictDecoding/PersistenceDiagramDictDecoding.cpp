@@ -1,6 +1,8 @@
 #include "DimensionReduction.h"
 #include "PersistenceDiagramUtils.h"
 #include <PersistenceDiagramDictDecoding.h>
+#include <cmath>
+#include <math.h>
 
 void ttk::PersistenceDiagramDictDecoding::execute(
   std::vector<ttk::DiagramType> &dictDiagrams,
@@ -77,63 +79,84 @@ void ttk::PersistenceDiagramDictDecoding::computeAtomsCoordinates(
     true_coords[2][1] = distAdja * std::sin(alpha);
 
   } else if(nAtoms == 4){
-    ttk::PersistenceDiagramDistanceMatrix MatrixCalculator;
-    std::array<size_t, 2> nInputs{nAtoms, 0};
-    MatrixCalculator.setDos(true, true, true);
-    MatrixCalculator.setThreadNumber(3);
-    std::vector<std::vector<double>> distMatrix
-      = MatrixCalculator.execute(atoms, nInputs);
-    // coords[0][0] = 0.;
-    // true_coords[0][0] = 0.;
-    // coords[0][1] = 0.;
-    // true_coords[0][1] = 0.;
-    // coords[1][0] = spacing * distMatrix[0][1];
-    // true_coords[1][0] = distMatrix[0][1];
-    // coords[1][1] = 0.;
-    // true_coords[0][1] = 0.;
-    // double distOpposed = distMatrix[2][1];
-    // double firstDist = distMatrix[0][1];
-    // double distAdja = distMatrix[0][2];
-    // double alpha = std::acos(
-    //   (distOpposed * distOpposed - firstDist * firstDist - distAdja *
-    //   distAdja) / (-2. * firstDist * distAdja));
-    // coords[2][0] = spacing * distAdja * std::cos(alpha);
-    // true_coords[2][0] = distAdja * std::cos(alpha);
-    // coords[2][1] = spacing * distAdja * std::sin(alpha);
-    // true_coords[2][1] = distAdja * std::sin(alpha);
+    switch(this->ProjMet) {
+      case BACKEND::DICTIONARY: {
+        ttk::PersistenceDiagramDistanceMatrix MatrixCalculator;
+        std::array<size_t, 2> nInputs{nAtoms, 0};
+        MatrixCalculator.setDos(true, true, true);
+        MatrixCalculator.setThreadNumber(3);
+        std::vector<std::vector<double>> distMatrix
+          = MatrixCalculator.execute(atoms, nInputs);
+        coords[0][0] = 0.;
+        true_coords[0][0] = 0.;
+        coords[0][1] = 0.;
+        true_coords[0][1] = 0.;
+        coords[1][0] = spacing * distMatrix[0][1];
+        true_coords[1][0] = distMatrix[0][1];
+        coords[1][1] = 0.;
+        true_coords[0][1] = 0.;
+        double distOpposed = distMatrix[2][1];
+        double firstDist = distMatrix[0][1];
+        double distAdja = distMatrix[0][2];
+        double alpha = std::acos((distOpposed * distOpposed
+                                  - firstDist * firstDist - distAdja * distAdja)
+                                 / (-2. * firstDist * distAdja));
+        coords[2][0] = spacing * distAdja * std::cos(alpha);
+        true_coords[2][0] = distAdja * std::cos(alpha);
+        coords[2][1] = spacing * distAdja * std::sin(alpha);
+        true_coords[2][1] = distAdja * std::sin(alpha);
+        double firstHeight = distMatrix[3][0];
+        double secondHeight = distMatrix[3][1];
+        double thirdHeight = distMatrix[3][2];
+        true_coords[3][0] = (pow(firstHeight, 2) - pow(secondHeight, 2)
+                             + pow(true_coords[1][0], 2))
+                            / (2 * true_coords[1][0]);
+        true_coords[3][1]
+          = (pow(firstHeight, 2) - pow(thirdHeight, 2)
+             + pow(true_coords[2][0], 2) + pow(true_coords[2][1], 2)
+             - 2 * true_coords[3][0] * true_coords[2][0])
+            / (2 * true_coords[2][1]);
+        true_coords[3][2]
+          = std::sqrt(pow(firstHeight, 2) - pow(true_coords[3][0], 2)
+                      - pow(true_coords[3][1], 2));
 
-    ttk::DimensionReduction DimProjector;
-    DimProjector.setIsInputDistanceMatrix(true);
-    // ttk::PersistenceDiagramDistanceMatrix MatrixCalculator;
-    // std::array<size_t, 2> nInputs{nAtoms, 0};
-    MatrixCalculator.setDos(true, true, true);
-    MatrixCalculator.setThreadNumber(3);
-    // std::vector<std::vector<double>> distMatrix
-      // = MatrixCalculator.execute(atoms, nInputs);
-    int nRow = distMatrix.size();
-    std::vector<double> matrixForProjector;
-    for(int i = 0; i < nRow; ++i) {
-      for(int j = 0; j < nRow; ++j) {
-        matrixForProjector.push_back(distMatrix[j][i]);
+        break;
       }
-    }
-    std::vector<std::vector<double>> coordsAtom;
-    DimProjector.execute(coordsAtom, matrixForProjector, nRow, nRow);
 
-    for(size_t i = 0; i < 2; ++i) {
-      for(size_t j = 0; j < nAtoms; ++j) {
-        if(i == 0) {
-          true_coords[j][0] = coordsAtom[0][j];
-        } else {
-          true_coords[j][1] = coordsAtom[1][j];
+      case BACKEND::MDS: {
+        ttk::DimensionReduction DimProjector;
+        DimProjector.setIsInputDistanceMatrix(true);
+        ttk::PersistenceDiagramDistanceMatrix MatrixCalculator;
+        std::array<size_t, 2> nInputs{nAtoms, 0};
+        MatrixCalculator.setDos(true, true, true);
+        MatrixCalculator.setThreadNumber(4);
+        std::vector<std::vector<double>> distMatrix
+          = MatrixCalculator.execute(atoms, nInputs);
+        int nRow = distMatrix.size();
+        std::vector<double> matrixForProjector;
+        for(int i = 0; i < nRow; ++i) {
+          for(int j = 0; j < nRow; ++j) {
+            matrixForProjector.push_back(distMatrix[j][i]);
+          }
         }
+        std::vector<std::vector<double>> coordsAtom;
+        DimProjector.execute(coordsAtom, matrixForProjector, nRow, nRow);
+
+        for(size_t i = 0; i < 2; ++i) {
+          for(size_t j = 0; j < nAtoms; ++j) {
+            if(i == 0) {
+              true_coords[j][0] = coordsAtom[0][j];
+            } else {
+              true_coords[j][1] = coordsAtom[1][j];
+            }
+          }
+        }
+
+        break;
       }
     }
-  
-  
-  
   } else {
-    switch(this->Backend){
+    switch(this->ProjMet) {
       case BACKEND::DICTIONARY: {
     
         std::vector<ttk::DiagramType> dictDiagrams;
@@ -195,6 +218,8 @@ void ttk::PersistenceDiagramDictDecoding::computeAtomsCoordinates(
             }
           }
         }
+
+        break;
       }
 
       case BACKEND::MDS: {
@@ -225,25 +250,31 @@ void ttk::PersistenceDiagramDictDecoding::computeAtomsCoordinates(
             }
           }
         }
+
+        break;
       }
     }
   }
   size_t nDiags = vectorWeights.size();
 
-  for(int i = 0; i < 2; ++i) {
+  for(int i = 0; i < 3; ++i) {
     for(size_t j = 0; j < nDiags; ++j) {
       double temp = 0.;
       for(size_t iAtom = 0; iAtom < nAtoms; ++iAtom) {
         if(i == 0) {
           temp += vectorWeights[j][iAtom] * true_coords[iAtom][0];
-        } else {
+        } else if(i == 1) {
           temp += vectorWeights[j][iAtom] * true_coords[iAtom][1];
+        } else {
+          temp += vectorWeights[j][iAtom] * true_coords[iAtom][2];
         }
       }
       if(i == 0) {
         xVector[j] = temp;
-      } else {
+      } else if(i == 1) {
         yVector[j] = temp;
+      } else {
+        zVector[j] = temp;
       }
     }
   }

@@ -64,6 +64,24 @@
 
       <!-- Create a UI group that contains all input parameter widgets (here only one) -->
       <!-- OUTPUT PARAMETER WIDGETS -->
+
+      <IntVectorProperty
+         name="ProjMet"
+         label="Projection Method"
+         command="SetProjMet"
+         number_of_elements="1"
+        default_values="0"
+        panel_visibility="advanced" >
+    <EnumerationDomain name="enum">
+         <Entry value="0" text="Multi-Dimensional Scaling"/>
+         <Entry value="1" text="Dictionary of Persistence Diagrams"/>
+       </EnumerationDomain>
+       <Documentation>
+           Backend for the computation of the 2D projection when the size of the dictionary is greater than 4.
+       </Documentation>
+     </IntVectorProperty>
+
+
       <DoubleVectorProperty
         name="Spacing"
         label="Spacing"

@@ -237,22 +237,26 @@ void ttkPersistenceDiagramDictDecoding::outputDiagrams(
     output->SetBlock(i + n_existing_blocks, vtu);
   }
 
-  for(size_t i = 0; i < 2; ++i) {
+  for(size_t i = 0; i < 3; ++i) {
     vtkNew<vtkDoubleArray> col{};
     col->SetNumberOfValues(nDiags);
     std::string name;
 
     if(i == 0) {
       name = "X";
-    } else {
+    } else if(i == 1) {
       name = "Y";
+    } else {
+      name = "Z";
     }
     col->SetName(name.c_str());
     for(size_t j = 0; j < nDiags; ++j) {
       if(i == 0) {
         col->SetValue(j, xVector[j]);
-      } else {
+      } else if(i == 1) {
         col->SetValue(j, yVector[j]);
+      } else {
+        col->SetValue(j, zVector[j]);
       }
     }
     col->Modified();

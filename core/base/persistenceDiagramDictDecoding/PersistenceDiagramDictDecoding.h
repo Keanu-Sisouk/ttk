@@ -37,22 +37,18 @@ namespace ttk {
   class PersistenceDiagramDictDecoding : virtual public Debug {
 
   public:
+    enum class BACKEND { MDS = 0, DICTIONARY = 1 };
+
     PersistenceDiagramDictDecoding() {
       this->setDebugMsgPrefix("PersistenceDiagramDictDecoding");
     }
-
-    enum class BACKEND {
-      MDS = 0,
-      DICTIONARY = 1,
-    };
 
     void execute(std::vector<DiagramType> &dictDiagrams,
                  std::vector<std::vector<double>> &vectorWeights,
                  std::vector<DiagramType> &Barycenters) const;
 
   protected:
-
-    BACKEND Backend{BACKEND::MDS};
+    BACKEND ProjMet{BACKEND::MDS};
     bool ProgBarycenter{false};
 
     void computeAtomsCoordinates(
