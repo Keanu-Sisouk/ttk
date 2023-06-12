@@ -51,7 +51,7 @@ protected:
                       vtkTable *weights_vtk,
                       const std::vector<std::vector<double>> &weights,
                       const double spacing,
-                      const double max_persistence) const;
+                      const double maxPersistence) const;
 
   double getMaxPersistence(const ttk::DiagramType &diagram) const;
 

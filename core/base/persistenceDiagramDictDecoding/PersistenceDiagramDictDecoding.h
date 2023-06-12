@@ -55,12 +55,12 @@ namespace ttk {
       std::vector<ttk::DiagramType> &atoms,
       const std::vector<std::vector<double>> &vectorWeights,
       std::vector<std::array<double, 3>> &coords,
-      std::vector<std::array<double, 3>> &true_coords,
+      std::vector<std::array<double, 3>> &trueCoords,
       std::vector<double> &xVector,
       std::vector<double> &yVector,
       std::vector<double> &zVector,
       const double spacing,
-      const double max_persistence,
+      const double maxPersistence,
       const size_t nAtoms) const;
 
   }; // PersistenceDiagramDictDecoding class
