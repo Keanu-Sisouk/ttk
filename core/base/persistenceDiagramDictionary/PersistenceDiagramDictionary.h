@@ -1,16 +1,15 @@
 /// \ingroup base
 /// \class ttk::PersistenceDiagramDictionary
-/// \author Jules Vidal <jules.vidal@lip6.fr>
+/// \author Keanu Sisouk <keanu.sisouk@lip6.fr>
 /// \author Pierre Guillou <pierre.guillou@lip6.fr>
-/// \date March 2020
+/// \date Mai 2023
 ///
 /// \b Related \b publication \n
-/// "Progressive Wasserstein Barycenters of Persistence Diagrams" \n
-/// Jules Vidal, Joseph Budin and Julien Tierny \n
-/// Proc. of IEEE VIS 2019.\n
-/// IEEE Transactions on Visualization and Computer Graphics, 2019.
+/// "Wasserstein Dictionaries of Persistence Diagrams" \n
+/// Keanu Sisouk, Julie Delon and Julien Tierny \n
+/// IEEE Transactions on Visualization and Computer Graphics, 2023.
 ///
-/// \sa PersistenceDiagramClustering
+/// \sa PersistenceDiagramDictionary
 
 #pragma once
 

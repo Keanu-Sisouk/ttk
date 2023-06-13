@@ -291,7 +291,6 @@ void ttkPersistenceDiagramDictionaryDecoding::outputDiagrams(
   for(size_t i = 0; i < nAtoms; ++i) {
     vtkNew<vtkVariantArray> row{};
     row->SetNumberOfValues(output_coordinates->GetNumberOfColumns());
-    std::cout << "number of values: " << row->GetNumberOfValues() << std::endl;
     for(int j = 0; j < output_coordinates->GetNumberOfColumns(); ++j) {
       if(strcmp(output_coordinates->GetColumnName(j), "X") == 0) {
         row->SetValue(j, trueCoords[i][0]);

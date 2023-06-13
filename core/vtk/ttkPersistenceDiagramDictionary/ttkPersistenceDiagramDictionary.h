@@ -1,17 +1,17 @@
-/// \ingroup base
+/// \ingroup vtk
 /// \class ttkPersistenceDiagramDictionary
-/// \author Jules Vidal <jules.vidal@lip6.fr>
+/// \author Keanu Sisouk <keanu.sisouk@lip6.fr>
 /// \author Pierre Guillou <pierre.guillou@lip6.fr>
-/// \date March 2020
+/// \date Mai 2023
 ///
-/// \brief TTK processing package for the computation of Wasserstein barycenters
-/// and K-Means clusterings of a set of persistence diagrams.
+/// \brief TTK processing package for the computation of a Dictionary
+/// of Persistence Diagrams and barycentric weights to approximate
+/// an ensemble of Persistence Diagrams.
 ///
 /// \b Related \b publication \n
-/// "Progressive Wasserstein Barycenters of Persistence Diagrams" \n
-/// Jules Vidal, Joseph Budin and Julien Tierny \n
-/// Proc. of IEEE VIS 2019.\n
-/// IEEE Transactions on Visualization and Computer Graphics, 2019.
+/// "Wasserstein Dictionaries of Persistence Diagrams" \n
+/// Keanu Sisouk, Julie Delon and Julien Tierny \n
+/// IEEE Transactions on Visualization and Computer Graphics, 2023.
 ///
 /// \sa PersistenceDiagramDictionary
 

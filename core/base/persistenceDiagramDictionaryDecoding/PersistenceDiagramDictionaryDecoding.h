@@ -1,19 +1,19 @@
 /// \ingroup base
 /// \class ttk::PersistenceDiagramDictionaryDecoding
-/// \author Your Name Here <Your Email Address Here>
-/// \date The Date Here.
+/// \author Keanu Sisouk <keanu.sisouk@lip6.fr>
+/// \author Pierre Guillou <pierre.guillou@lip6.fr>
+/// \date Mai 2023
 ///
-/// This module defines the %PersistenceDiagramDictionaryDecoding class that computes
-/// for each vertex of a triangulation the average scalar value of itself and
-/// its direct neighbors.
+/// \brief TTK processing package for the computation of a Dictionary
+/// of Persistence Diagrams and barycentric weights to approximate
+/// an ensemble of Persistence Diagrams.
 ///
-/// \b Related \b publication: \n
-/// 'PersistenceDiagramDictionaryDecoding'
-/// Jonas Lukasczyk and Julien Tierny.
-/// TTK Publications.
-/// 2021.
+/// \b Related \b publication \n
+/// "Wasserstein Dictionaries of Persistence Diagrams" \n
+/// Keanu Sisouk, Julie Delon and Julien Tierny \n
+/// IEEE Transactions on Visualization and Computer Graphics, 2023.
 ///
-
+/// \sa PersistenceDiagramDictionary
 #pragma once
 
 // ttk common includes

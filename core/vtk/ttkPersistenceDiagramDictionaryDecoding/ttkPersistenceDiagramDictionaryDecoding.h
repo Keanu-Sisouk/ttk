@@ -1,3 +1,20 @@
+/// \ingroup vtk
+/// \class ttkPersistenceDiagramDictionaryDecoding
+/// \author Keanu Sisouk <keanu.sisouk@lip6.fr>
+/// \author Pierre Guillou <pierre.guillou@lip6.fr>
+/// \date Mai 2023
+///
+/// \brief TTK processing package for the computation of a Dictionary
+/// of Persistence Diagrams and barycentric weights to approximate
+/// an ensemble of Persistence Diagrams.
+///
+/// \b Related \b publication \n
+/// "Wasserstein Dictionaries of Persistence Diagrams" \n
+/// Keanu Sisouk, Julie Delon and Julien Tierny \n
+/// IEEE Transactions on Visualization and Computer Graphics, 2023.
+///
+/// \sa PersistenceDiagramDictionaryDecoding
+
 #pragma once
 
 #include "ttkMacros.h"
