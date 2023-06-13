@@ -1,10 +1,10 @@
 #include "DimensionReduction.h"
 #include "PersistenceDiagramUtils.h"
-#include <PersistenceDiagramDictDecoding.h>
+#include <PersistenceDiagramDictionaryDecoding.h>
 #include <cmath>
 #include <math.h>
 
-void ttk::PersistenceDiagramDictDecoding::execute(
+void ttk::PersistenceDiagramDictionaryDecoding::execute(
   std::vector<ttk::DiagramType> &dictDiagrams,
   std::vector<std::vector<double>> &vectorWeights,
   std::vector<ttk::DiagramType> &Barycenters) const {
@@ -26,7 +26,7 @@ void ttk::PersistenceDiagramDictDecoding::execute(
     "Computed barycenters", 1.0, tm.getElapsedTime(), this->threadNumber_);
 }
 
-void ttk::PersistenceDiagramDictDecoding::computeAtomsCoordinates(
+void ttk::PersistenceDiagramDictionaryDecoding::computeAtomsCoordinates(
   std::vector<ttk::DiagramType> &atoms,
   const std::vector<std::vector<double>> &vectorWeights,
   std::vector<std::array<double, 3>> &coords,

@@ -1,4 +1,4 @@
-#include <ttkPersistenceDiagramDictDecoding.h>
+#include <ttkPersistenceDiagramDictionaryDecoding.h>
 
 #include <vtkInformation.h>
 
@@ -20,14 +20,14 @@
 #include <ttkMacros.h>
 #include <ttkUtils.h>
 
-vtkStandardNewMacro(ttkPersistenceDiagramDictDecoding);
+vtkStandardNewMacro(ttkPersistenceDiagramDictionaryDecoding);
 
-ttkPersistenceDiagramDictDecoding::ttkPersistenceDiagramDictDecoding() {
+ttkPersistenceDiagramDictionaryDecoding::ttkPersistenceDiagramDictionaryDecoding() {
   this->SetNumberOfInputPorts(2);
   this->SetNumberOfOutputPorts(2);
 }
 
-int ttkPersistenceDiagramDictDecoding::FillInputPortInformation(
+int ttkPersistenceDiagramDictionaryDecoding::FillInputPortInformation(
   int port, vtkInformation *info) {
   if(port == 0) {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet");
@@ -40,7 +40,7 @@ int ttkPersistenceDiagramDictDecoding::FillInputPortInformation(
   }
 }
 
-int ttkPersistenceDiagramDictDecoding::FillOutputPortInformation(
+int ttkPersistenceDiagramDictionaryDecoding::FillOutputPortInformation(
   int port, vtkInformation *info) {
   if(port == 0) {
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkMultiBlockDataSet");
@@ -53,7 +53,7 @@ int ttkPersistenceDiagramDictDecoding::FillOutputPortInformation(
   }
 }
 
-int ttkPersistenceDiagramDictDecoding::RequestData(
+int ttkPersistenceDiagramDictionaryDecoding::RequestData(
   vtkInformation * /*request*/,
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector) {
@@ -149,7 +149,7 @@ int ttkPersistenceDiagramDictDecoding::RequestData(
   return 1;
 }
 
-void ttkPersistenceDiagramDictDecoding::outputDiagrams(
+void ttkPersistenceDiagramDictionaryDecoding::outputDiagrams(
   vtkMultiBlockDataSet *output,
   vtkTable *output_coordinates,
   const std::vector<ttk::DiagramType> &diags,
@@ -311,7 +311,7 @@ void ttkPersistenceDiagramDictDecoding::outputDiagrams(
   }
 }
 
-double ttkPersistenceDiagramDictDecoding::getMaxPersistence(
+double ttkPersistenceDiagramDictionaryDecoding::getMaxPersistence(
   const ttk::DiagramType &diagram) const {
 
   double maxPersistence{0};

@@ -1,8 +1,8 @@
-ttk_add_base_library(persistenceDiagramDictDecoding
+ttk_add_base_library(persistenceDiagramDictionaryDecoding
   SOURCES
-    PersistenceDiagramDictDecoding.cpp
+    PersistenceDiagramDictionaryDecoding.cpp
   HEADERS
-    PersistenceDiagramDictDecoding.h
+    PersistenceDiagramDictionaryDecoding.h
   DEPENDS
     common
     persistenceDiagram

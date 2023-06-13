@@ -7,22 +7,22 @@
 #include <vtkTable.h>
 #include <vtkUnstructuredGrid.h>
 // VTK Module
-#include <ttkPersistenceDiagramDictDecodingModule.h>
+#include <ttkPersistenceDiagramDictionaryDecodingModule.h>
 
 // VTK Includes
 #include <ttkAlgorithm.h>
 
 // TTK Base Includes
-#include <PersistenceDiagramDictDecoding.h>
+#include <PersistenceDiagramDictionaryDecoding.h>
 
-class TTKPERSISTENCEDIAGRAMDICTDECODING_EXPORT ttkPersistenceDiagramDictDecoding
+class TTKPERSISTENCEDIAGRAMDICTIONARYDECODING_EXPORT ttkPersistenceDiagramDictionaryDecoding
   : public ttkAlgorithm,
-    protected ttk::PersistenceDiagramDictDecoding {
+    protected ttk::PersistenceDiagramDictionaryDecoding {
 
 private:
 public:
-  static ttkPersistenceDiagramDictDecoding *New();
-  vtkTypeMacro(ttkPersistenceDiagramDictDecoding, ttkAlgorithm);
+  static ttkPersistenceDiagramDictionaryDecoding *New();
+  vtkTypeMacro(ttkPersistenceDiagramDictionaryDecoding, ttkAlgorithm);
 
   vtkGetMacro(Spacing, double);
   vtkSetMacro(Spacing, double);
@@ -37,8 +37,8 @@ public:
   vtkGetEnumMacro(ProjMet, BACKEND);
 
 protected:
-  ttkPersistenceDiagramDictDecoding();
-  ~ttkPersistenceDiagramDictDecoding() override = default;
+  ttkPersistenceDiagramDictionaryDecoding();
+  ~ttkPersistenceDiagramDictionaryDecoding() override = default;
 
   int FillInputPortInformation(int port, vtkInformation *info) override;
 

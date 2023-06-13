@@ -1,14 +1,14 @@
 /// \ingroup base
-/// \class ttk::PersistenceDiagramDictDecoding
+/// \class ttk::PersistenceDiagramDictionaryDecoding
 /// \author Your Name Here <Your Email Address Here>
 /// \date The Date Here.
 ///
-/// This module defines the %PersistenceDiagramDictDecoding class that computes
+/// This module defines the %PersistenceDiagramDictionaryDecoding class that computes
 /// for each vertex of a triangulation the average scalar value of itself and
 /// its direct neighbors.
 ///
 /// \b Related \b publication: \n
-/// 'PersistenceDiagramDictDecoding'
+/// 'PersistenceDiagramDictionaryDecoding'
 /// Jonas Lukasczyk and Julien Tierny.
 /// TTK Publications.
 /// 2021.
@@ -30,17 +30,17 @@ namespace ttk {
   using VectorMatchingTuple = std::vector<MatchingType>;
 
   /**
-   * The PersistenceDiagramDictDecoding class provides methods to compute for
+   * The PersistenceDiagramDictionaryDecoding class provides methods to compute for
    * each vertex of a triangulation the average scalar value of itself and its
    * direct neighbors.
    */
-  class PersistenceDiagramDictDecoding : virtual public Debug {
+  class PersistenceDiagramDictionaryDecoding : virtual public Debug {
 
   public:
     enum class BACKEND { MDS = 0, DICTIONARY = 1 };
 
-    PersistenceDiagramDictDecoding() {
-      this->setDebugMsgPrefix("PersistenceDiagramDictDecoding");
+    PersistenceDiagramDictionaryDecoding() {
+      this->setDebugMsgPrefix("PersistenceDiagramDictionaryDecoding");
     }
 
     void execute(std::vector<DiagramType> &dictDiagrams,
@@ -63,6 +63,6 @@ namespace ttk {
       const double maxPersistence,
       const size_t nAtoms) const;
 
-  }; // PersistenceDiagramDictDecoding class
+  }; // PersistenceDiagramDictionaryDecoding class
 
 } // namespace ttk
