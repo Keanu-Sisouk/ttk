@@ -1,9 +1,9 @@
 <ServerManagerConfiguration>
   <ProxyGroup name="filters">
     <SourceProxy
-        name="ttkPersistenceDiagramDictEncoding"
-        class="ttkPersistenceDiagramDictEncoding"
-        label="TTK PersistenceDiagramDictEncoding">
+        name="ttkPersistenceDiagramDictionary"
+        class="ttkPersistenceDiagramDictionary"
+        label="TTK PersistenceDiagramDictionary">
       <Documentation
           long_help="Encodes new persistence diagrams by a dictionary and a vector of number."
           shorthelp="Persistence Diagrams Dictionary Encoding."

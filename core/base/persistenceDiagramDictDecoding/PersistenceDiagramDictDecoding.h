@@ -19,7 +19,7 @@
 // ttk common includes
 #include <Debug.h>
 #include <PersistenceDiagramClustering.h>
-#include <PersistenceDiagramDictEncoding.h>
+#include <PersistenceDiagramDictionary.h>
 #include <PersistenceDiagramDistanceMatrix.h>
 #include <PersistenceDiagramUtils.h>
 

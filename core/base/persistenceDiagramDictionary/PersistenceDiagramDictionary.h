@@ -1,5 +1,5 @@
 /// \ingroup base
-/// \class ttk::PersistenceDiagramDictEncoding
+/// \class ttk::PersistenceDiagramDictionary
 /// \author Jules Vidal <jules.vidal@lip6.fr>
 /// \author Pierre Guillou <pierre.guillou@lip6.fr>
 /// \date March 2020
@@ -26,11 +26,11 @@
 #include <Wrapper.h>
 
 namespace ttk {
-  class PersistenceDiagramDictEncoding : virtual public Debug {
+  class PersistenceDiagramDictionary : virtual public Debug {
 
   public:
-    PersistenceDiagramDictEncoding() {
-      this->setDebugMsgPrefix("PersistenceDiagramDictEncoding");
+    PersistenceDiagramDictionary() {
+      this->setDebugMsgPrefix("PersistenceDiagramDictionary");
     }
 
     void execute(std::vector<ttk::DiagramType> &intermediateDiagrams,

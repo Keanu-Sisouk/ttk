@@ -1,5 +1,5 @@
 /// \ingroup base
-/// \class ttkPersistenceDiagramDictEncoding
+/// \class ttkPersistenceDiagramDictionary
 /// \author Jules Vidal <jules.vidal@lip6.fr>
 /// \author Pierre Guillou <pierre.guillou@lip6.fr>
 /// \date March 2020
@@ -13,7 +13,7 @@
 /// Proc. of IEEE VIS 2019.\n
 /// IEEE Transactions on Visualization and Computer Graphics, 2019.
 ///
-/// \sa PersistenceDiagramDictEncoding
+/// \sa PersistenceDiagramDictionary
 
 #pragma once
 
@@ -24,17 +24,17 @@
 #include <vtkUnstructuredGrid.h>
 
 // VTK Module
-#include <ttkPersistenceDiagramDictEncodingModule.h>
+#include <ttkPersistenceDiagramDictionaryModule.h>
 
 // ttk code includes
 
-#include <PersistenceDiagramDictEncoding.h>
+#include <PersistenceDiagramDictionary.h>
 #include <ttkAlgorithm.h>
 #include <ttkMacros.h>
 
-class TTKPERSISTENCEDIAGRAMDICTENCODING_EXPORT ttkPersistenceDiagramDictEncoding
+class TTKPERSISTENCEDIAGRAMDICTIONARY_EXPORT ttkPersistenceDiagramDictionary
   : public ttkAlgorithm,
-    protected ttk::PersistenceDiagramDictEncoding {
+    protected ttk::PersistenceDiagramDictionary {
 
 private:
   int AtomNumber_{3};
@@ -44,9 +44,9 @@ private:
 public:
   // enum class BACKEND{BORDER_INIT = 0 , RANDOM_INIT = 1 , FIRST_DIAGS = 2};
 
-  static ttkPersistenceDiagramDictEncoding *New();
+  static ttkPersistenceDiagramDictionary *New();
 
-  vtkTypeMacro(ttkPersistenceDiagramDictEncoding, ttkAlgorithm);
+  vtkTypeMacro(ttkPersistenceDiagramDictionary, ttkAlgorithm);
 
   void SetWassersteinMetric(const std::string &data) {
     Wasserstein = (data == "inf") ? -1 : stoi(data);
@@ -184,8 +184,8 @@ public:
   vtkGetMacro(MinPersistence_, double);
 
 protected:
-  ttkPersistenceDiagramDictEncoding();
-  ~ttkPersistenceDiagramDictEncoding() override = default;
+  ttkPersistenceDiagramDictionary();
+  ~ttkPersistenceDiagramDictionary() override = default;
 
   // BACKEND BackEnd{BACKEND::BORDER_INIT};
   int FillInputPortInformation(int port, vtkInformation *info) override;

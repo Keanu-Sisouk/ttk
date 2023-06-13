@@ -6,13 +6,13 @@
 #include <Eigen/Eigenvalues>
 #endif
 
-#include <PersistenceDiagramDictEncoding.h>
+#include <PersistenceDiagramDictionary.h>
 
 
 
 using namespace ttk;
 
-void PersistenceDiagramDictEncoding::execute(
+void PersistenceDiagramDictionary::execute(
   std::vector<ttk::DiagramType> &intermediateDiagrams,
   const std::vector<ttk::DiagramType> &intermediateAtoms,
   std::vector<ttk::DiagramType> &dictDiagrams,
@@ -184,7 +184,7 @@ void PersistenceDiagramDictEncoding::execute(
   }
 }
 
-void PersistenceDiagramDictEncoding::method(
+void PersistenceDiagramDictionary::method(
   const std::vector<ttk::DiagramType> &intermediateDiagrams,
   std::vector<ttk::DiagramType> &dictDiagrams,
   std::vector<std::vector<double>> &vectorWeights,
@@ -1032,7 +1032,7 @@ void PersistenceDiagramDictEncoding::method(
   this->printMsg("Complete", 1.0, tm.getElapsedTime(), this->threadNumber_);
 }
 
-double PersistenceDiagramDictEncoding::distVect(
+double PersistenceDiagramDictionary::distVect(
   const std::vector<double> &vec1, const std::vector<double> &vec2) const {
 
   double dist = 0.;
@@ -1042,7 +1042,7 @@ double PersistenceDiagramDictEncoding::distVect(
   return std::sqrt(dist);
 }
 
-double PersistenceDiagramDictEncoding::getMostPersistent(
+double PersistenceDiagramDictionary::getMostPersistent(
   const std::vector<BidderDiagram> &bidder_diags) const {
 
   double max_persistence = 0;
@@ -1059,7 +1059,7 @@ double PersistenceDiagramDictEncoding::getMostPersistent(
   return max_persistence;
 }
 
-double PersistenceDiagramDictEncoding::computeDistance(
+double PersistenceDiagramDictionary::computeDistance(
   const BidderDiagram &D1,
   const BidderDiagram &D2,
   std::vector<ttk::MatchingType> &matching) const {
@@ -1080,7 +1080,7 @@ double PersistenceDiagramDictEncoding::computeDistance(
   return loss;
 }
 
-void PersistenceDiagramDictEncoding::computeGradientWeights(
+void PersistenceDiagramDictionary::computeGradientWeights(
   std::vector<double> &gradWeights,
   std::vector<Matrix> &hessianList,
   const std::vector<ttk::DiagramType> &dictDiagrams,
@@ -1222,7 +1222,7 @@ void PersistenceDiagramDictEncoding::computeGradientWeights(
   }
 }
 
-void PersistenceDiagramDictEncoding::computeGradientAtoms(
+void PersistenceDiagramDictionary::computeGradientAtoms(
   std::vector<Matrix> &gradsAtoms,
   const std::vector<double> &weights,
   const ttk::DiagramType &Barycenter,
@@ -1282,7 +1282,7 @@ void PersistenceDiagramDictEncoding::computeGradientAtoms(
   }
 }
 
-void PersistenceDiagramDictEncoding::setBidderDiagrams(
+void PersistenceDiagramDictionary::setBidderDiagrams(
   const size_t nInputs,
   std::vector<ttk::DiagramType> &inputDiagrams,
   std::vector<BidderDiagram> &bidder_diags) const {
@@ -1310,7 +1310,7 @@ void PersistenceDiagramDictEncoding::setBidderDiagrams(
   }
 }
 
-void PersistenceDiagramDictEncoding::enrichCurrentBidderDiagrams(
+void PersistenceDiagramDictionary::enrichCurrentBidderDiagrams(
   const std::vector<BidderDiagram> &bidder_diags,
   std::vector<BidderDiagram> &current_bidder_diags,
   const std::vector<double> &maxDiagPersistence) const {
@@ -1410,7 +1410,7 @@ void PersistenceDiagramDictEncoding::enrichCurrentBidderDiagrams(
   }
 }
 
-int PersistenceDiagramDictEncoding::initDictionary(
+int PersistenceDiagramDictionary::initDictionary(
   std::vector<ttk::DiagramType> &dictDiagrams,
   const std::vector<ttk::DiagramType> &datas,
   const std::vector<ttk::DiagramType> &inputAtoms,
@@ -1518,7 +1518,7 @@ int PersistenceDiagramDictEncoding::initDictionary(
   return 0;
 }
 
-void PersistenceDiagramDictEncoding::gettingBidderDiagrams(
+void PersistenceDiagramDictionary::gettingBidderDiagrams(
   const std::vector<ttk::DiagramType> &intermediateDiagrams,
   std::vector<BidderDiagram> &bidderDiagramsMin,
   std::vector<BidderDiagram> &bidderDiagramsSad,
@@ -1576,7 +1576,7 @@ void PersistenceDiagramDictEncoding::gettingBidderDiagrams(
   }
 }
 
-double PersistenceDiagramDictEncoding::getMaxPers(const ttk::DiagramType &data) {
+double PersistenceDiagramDictionary::getMaxPers(const ttk::DiagramType &data) {
   double maxPers = 0.;
   for(size_t j = 0; j < data.size(); ++j) {
     auto &t = data[j];
@@ -1589,7 +1589,7 @@ double PersistenceDiagramDictEncoding::getMaxPers(const ttk::DiagramType &data) 
   return maxPers;
 }
 
-void PersistenceDiagramDictEncoding::controlAtomsSize(
+void PersistenceDiagramDictionary::controlAtomsSize(
   const std::vector<ttk::DiagramType> &intermediateDiagrams,
   std::vector<ttk::DiagramType> &dictDiagrams) const{
 
@@ -1649,7 +1649,7 @@ void PersistenceDiagramDictEncoding::controlAtomsSize(
   }
 }
 
-void PersistenceDiagramDictEncoding::controlAtomsSize2(
+void PersistenceDiagramDictionary::controlAtomsSize2(
   const std::vector<ttk::DiagramType> &intermediateDiagrams,
   std::vector<ttk::DiagramType> &dictDiagrams) const{
   size_t m = dictDiagrams.size();
@@ -1697,7 +1697,7 @@ void PersistenceDiagramDictEncoding::controlAtomsSize2(
 
 }
 
-void PersistenceDiagramDictEncoding::computeDirectionsGradWeight(
+void PersistenceDiagramDictionary::computeDirectionsGradWeight(
   const std::vector<std::vector<ttk::MatchingType>> &matchingsAtoms,
   const ttk::DiagramType &Barycenter,
   const ttk::DiagramType &newData,
@@ -1775,7 +1775,7 @@ void PersistenceDiagramDictEncoding::computeDirectionsGradWeight(
   }
 }
 
-void PersistenceDiagramDictEncoding::computeDirectionsGradAtoms(
+void PersistenceDiagramDictionary::computeDirectionsGradAtoms(
   std::vector<Matrix> &gradsAtoms,
   const ttk::DiagramType &Barycenter,
   const std::vector<double> &weights,
@@ -1872,7 +1872,7 @@ void PersistenceDiagramDictEncoding::computeDirectionsGradAtoms(
   }
 }
 
-void PersistenceDiagramDictEncoding::computeAllDistances(
+void PersistenceDiagramDictionary::computeAllDistances(
   std::vector<ttk::DiagramType> &barycentersList,
   const size_t nDiags,
   std::vector<ttk::DiagramType> &barycentersListMin,

@@ -1,5 +1,5 @@
 #include <ttkMacros.h>
-#include <ttkPersistenceDiagramDictEncoding.h>
+#include <ttkPersistenceDiagramDictionary.h>
 #include <ttkPersistenceDiagramUtils.h>
 #include <ttkUtils.h>
 
@@ -17,14 +17,14 @@
 #include <vtkPointData.h>
 #include <vtkTable.h>
 
-vtkStandardNewMacro(ttkPersistenceDiagramDictEncoding);
+vtkStandardNewMacro(ttkPersistenceDiagramDictionary);
 
-ttkPersistenceDiagramDictEncoding::ttkPersistenceDiagramDictEncoding() {
+ttkPersistenceDiagramDictionary::ttkPersistenceDiagramDictionary() {
   SetNumberOfInputPorts(2);
   SetNumberOfOutputPorts(6);
 }
 
-int ttkPersistenceDiagramDictEncoding::FillInputPortInformation(
+int ttkPersistenceDiagramDictionary::FillInputPortInformation(
   int port, vtkInformation *info) {
   if(port == 0) {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet");
@@ -37,7 +37,7 @@ int ttkPersistenceDiagramDictEncoding::FillInputPortInformation(
   return 0;
 }
 
-int ttkPersistenceDiagramDictEncoding::FillOutputPortInformation(
+int ttkPersistenceDiagramDictionary::FillOutputPortInformation(
   int port, vtkInformation *info) {
   if(port == 0) {
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkMultiBlockDataSet");
@@ -63,7 +63,7 @@ int ttkPersistenceDiagramDictEncoding::FillOutputPortInformation(
 }
 
 // to adapt if your wrapper does not inherit from vtkDataSetAlgorithm
-int ttkPersistenceDiagramDictEncoding::RequestData(
+int ttkPersistenceDiagramDictionary::RequestData(
   vtkInformation * /*request*/,
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector) {

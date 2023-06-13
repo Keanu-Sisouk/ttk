@@ -172,7 +172,7 @@ void ttk::PersistenceDiagramDictDecoding::computeAtomsCoordinates(
           std::vector<double> weights(m, 1. / (m * 1.));
           tempWeights[i] = std::move(weights);
         }
-        ttk::PersistenceDiagramDictEncoding DictionaryEncoder;
+        ttk::PersistenceDiagramDictionary DictionaryEncoder;
         DictionaryEncoder.setUseDimReduct(false);
         DictionaryEncoder.setUseProgApproach(true);
         DictionaryEncoder.execute(atoms, atoms, dictDiagrams, tempWeights, seed,
