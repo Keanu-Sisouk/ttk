@@ -60,7 +60,6 @@ namespace ttk {
       std::vector<double> &yVector,
       std::vector<double> &zVector,
       const double spacing,
-      const double maxPersistence,
       const size_t nAtoms) const;
 
   }; // PersistenceDiagramDictionaryDecoding class

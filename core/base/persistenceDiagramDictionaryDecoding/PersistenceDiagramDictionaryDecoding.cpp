@@ -35,7 +35,6 @@ void ttk::PersistenceDiagramDictionaryDecoding::computeAtomsCoordinates(
   std::vector<double> &yVector,
   std::vector<double> &zVector,
   const double spacing,
-  const double maxPersistence,
   const size_t nAtoms) const {
 
   if(nAtoms == 2) {

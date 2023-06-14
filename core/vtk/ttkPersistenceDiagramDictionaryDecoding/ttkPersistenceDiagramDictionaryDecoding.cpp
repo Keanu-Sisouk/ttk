@@ -173,7 +173,7 @@ void ttkPersistenceDiagramDictionaryDecoding::outputDiagrams(
   vtkNew<vtkDoubleArray> dummy{};
 
   computeAtomsCoordinates(atoms, weights, coords, trueCoords, xVector, yVector,
-                          zVector, spacing, maxPersistence, nAtoms);
+                          zVector, spacing, nAtoms);
 
   if(nAtoms == 2) {
 

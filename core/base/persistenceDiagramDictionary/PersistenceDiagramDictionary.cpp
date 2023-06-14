@@ -26,7 +26,7 @@ void PersistenceDiagramDictionary::execute(
   double percent) {
 
   if(!ProgApproach_) {
-
+    // Regular approach
     for(size_t i = 0; i < intermediateDiagrams.size(); ++i) {
       if(sortedForTest_) {
         auto &diag = intermediateDiagrams[i];
@@ -70,7 +70,7 @@ void PersistenceDiagramDictionary::execute(
            trueBidderDiagramSad, trueBidderDiagramMax, tm_method, percent,
            doCompression);
   } else {
-
+    // Multi scale approach
     bool doCompression = false;
     for(size_t i = 0; i < intermediateDiagrams.size(); ++i) {
       auto &diag = intermediateDiagrams[i];
@@ -401,6 +401,7 @@ void PersistenceDiagramDictionary::method(
 
     if(preWeightOpt && OptimizeAtoms_) {
       if(epoch < 10) {
+        // Pre optimization of barycentric weights
         doOptimizeAtoms = false;
       } else {
         doOptimizeAtoms = true;
@@ -1002,7 +1003,6 @@ void PersistenceDiagramDictionary::method(
       // ATOM OPTIMIZATION
     }
     epoch += 1;
-    // this->printMsg("=====================================================");
     barycentersList.clear();
     barycentersList.resize(nDiags);
     allMatchingsAtoms.clear();
@@ -1105,10 +1105,8 @@ void PersistenceDiagramDictionary::computeGradientWeights(
   for(size_t i = 0; i < gradBuffersList.size(); ++i) {
     gradBuffersList[i].resize(matchingsAtoms.size());
   }
-  // std::vector<ttk::MatchingType> matching;
   std::vector<std::array<double, 2>> directions(Barycenter.size());
   std::vector<std::array<double, 2>> dataAssigned(Barycenter.size());
-  // std::vector<double> gradient(dictDiagrams.size(), 0.);
   gradWeights.resize(dictDiagrams.size());
   for(size_t i = 0; i < dictDiagrams.size(); ++i) {
     gradWeights[i] = 0.;
@@ -1157,16 +1155,19 @@ void PersistenceDiagramDictionary::computeGradientWeights(
     }
   }
 
+  // Compute directions for min diagram
   computeDirectionsGradWeight(matchingsAtoms, Barycenter, newData, matchingsMin,
                               indexBaryMin, indexDataMin, pairToAddGradList,
                               directions, dataAssigned, tracker2,
                               doOptimizeAtoms);
 
+  // Compute directions for max diagram
   computeDirectionsGradWeight(matchingsAtoms, Barycenter, newData, matchingsMax,
                               indexBaryMax, indexDataMax, pairToAddGradList,
                               directions, dataAssigned, tracker2,
                               doOptimizeAtoms);
 
+  // Compute directions for sad diagram
   computeDirectionsGradWeight(matchingsAtoms, Barycenter, newData, matchingsSad,
                               indexBarySad, indexDataSad, pairToAddGradList,
                               directions, dataAssigned, tracker2,
@@ -1252,16 +1253,19 @@ void PersistenceDiagramDictionary::computeGradientAtoms(
   }
   std::vector<std::vector<double>> directions(Barycenter.size());
 
+  // Compute directions for min diagram
   computeDirectionsGradAtoms(gradsAtoms, Barycenter, weights, newData,
                              matchingsMin, indexBaryMin, indexDataMin,
                              pairToAddGradList, directions, checker, infoToAdd,
                              doDimReduct);
 
+  // Compute directions for max diagram
   computeDirectionsGradAtoms(gradsAtoms, Barycenter, weights, newData,
                              matchingsMax, indexBaryMax, indexDataMax,
                              pairToAddGradList, directions, checker, infoToAdd,
                              doDimReduct);
 
+  // Compute directions for sad diagram
   computeDirectionsGradAtoms(gradsAtoms, Barycenter, weights, newData,
                              matchingsSad, indexBarySad, indexDataSad,
                              pairToAddGradList, directions, checker, infoToAdd,
@@ -1647,54 +1651,6 @@ void PersistenceDiagramDictionary::controlAtomsSize(
         atom.end());
     }
   }
-}
-
-void PersistenceDiagramDictionary::controlAtomsSize2(
-  const std::vector<ttk::DiagramType> &intermediateDiagrams,
-  std::vector<ttk::DiagramType> &dictDiagrams) const{
-  size_t m = dictDiagrams.size();
-  int globalSize = 0;
-
-  for(size_t j = 0; j < intermediateDiagrams.size() ; ++j){
-    auto &data = intermediateDiagrams[j];
-    globalSize += static_cast<int>(data.size());
-  }
-
-  int dictSize = 0;
-
-  for(size_t j = 0; j < m ; ++j){
-    auto &atom = dictDiagrams[j];
-    dictSize += static_cast<int>(atom.size());
-  }
-
-  if(static_cast<double>(dictSize) > (1./this->CompressionFactor)*static_cast<double>(globalSize)){
-    double factor = (1./this->CompressionFactor)*static_cast<double>(globalSize)/static_cast<double>(dictSize);
-    std::vector<double> tempDictPersistencePairs;
-    for(size_t j = 0; j < m ; ++j){
-      auto &atom = dictDiagrams[j];
-      for(size_t p = 0; p < atom.size(); ++p){
-        auto &t = atom[p];
-        tempDictPersistencePairs.emplace_back(t.persistence());
-      }
-    }
-
-    std::sort(tempDictPersistencePairs.begin(), tempDictPersistencePairs.end(), std::greater<double>());
-    int index = static_cast<int>(floor(factor*static_cast<double>(tempDictPersistencePairs.size())));
-    double persThreshold = tempDictPersistencePairs[index];
-
-    for(size_t j = 0; j < m ; ++j){
-      auto &atom = dictDiagrams[j];
-      atom.erase(
-        std::remove_if(atom.begin(),
-                      atom.end(),
-                      [persThreshold](ttk::PersistencePair &t) {
-                        return (t.death.sfValue - t.birth.sfValue)
-                                < persThreshold;
-                      }),
-        atom.end());
-    }
-  }
-
 }
 
 void PersistenceDiagramDictionary::computeDirectionsGradWeight(
