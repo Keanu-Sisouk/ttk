@@ -100,18 +100,18 @@ int ttkPersistenceDiagramDictionaryDecoding::RequestData(
         colName.append(zer).append(cur);
       };
 
-  std::vector<vtkDataArray *> input_weights;
+  std::vector<vtkDataArray *> inputWeights;
   int numWeights = weightsVTK->GetNumberOfRows();
   for(int i = 0; i < weightsVTK->GetNumberOfColumns(); ++i) {
     std::cout << weightsVTK->GetColumnName(i) << "\n";
   }
 
   if(weightsVTK != nullptr) {
-    input_weights.resize(nDiags);
+    inputWeights.resize(nDiags);
     for(size_t i = 0; i < nDiags; ++i) {
       std::string name{"Atom"};
       zeroPad(name, nDiags, i);
-      input_weights[i] = vtkDataArray::SafeDownCast(
+      inputWeights[i] = vtkDataArray::SafeDownCast(
         weightsVTK->GetColumnByName(name.c_str()));
     }
   }
@@ -120,7 +120,7 @@ int ttkPersistenceDiagramDictionaryDecoding::RequestData(
   for(int i = 0; i < numWeights; ++i) {
     std::vector<double> &t1 = vectorWeights[i];
     for(size_t j = 0; j < nDiags; ++j) {
-      double weight = input_weights[j]->GetTuple1(i);
+      double weight = inputWeights[j]->GetTuple1(i);
       t1.push_back(weight);
     }
   }
