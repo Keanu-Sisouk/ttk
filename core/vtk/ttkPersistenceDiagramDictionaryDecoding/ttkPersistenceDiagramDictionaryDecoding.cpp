@@ -112,7 +112,8 @@ int ttkPersistenceDiagramDictionaryDecoding::RequestData(
       std::string name{"Atom"};
       zeroPad(name, nDiags, i);
       const auto colName = name.c_str();
-      inputWeights[i] = vtkDataArray::SafeDownCast(weightsVTK->GetColumnByName(colName));
+      inputWeights[i] = vtkDataArray::SafeDownCast(
+        weightsVTK->GetColumnByName(colName));
     }
   }
 
