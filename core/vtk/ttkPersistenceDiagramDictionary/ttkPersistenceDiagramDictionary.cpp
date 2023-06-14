@@ -115,25 +115,25 @@ int ttkPersistenceDiagramDictionary::RequestData(
   }
 
   // Set output
-  auto output_dgm = vtkMultiBlockDataSet::GetData(outputVector, 0);
-  auto output_weights = vtkTable::GetData(outputVector, 1);
-  auto output_loss = vtkTable::GetData(outputVector, 2);
-  auto output_allLosses = vtkTable::GetData(outputVector, 3);
-  auto true_output_loss = vtkTable::GetData(outputVector, 4);
-  auto output_timers = vtkTable::GetData(outputVector, 5);
-  output_dgm->SetNumberOfBlocks(numAtom);
+  auto outputDgm = vtkMultiBlockDataSet::GetData(outputVector, 0);
+  auto outputWeights = vtkTable::GetData(outputVector, 1);
+  auto outputLoss = vtkTable::GetData(outputVector, 2);
+  auto outputAllLosses = vtkTable::GetData(outputVector, 3);
+  auto trueOutputLoss = vtkTable::GetData(outputVector, 4);
+  auto outputTimers = vtkTable::GetData(outputVector, 5);
+  outputDgm->SetNumberOfBlocks(numAtom);
 
   if(BackEnd == BACKEND::INPUT_ATOMS) {
     for(int i = 0; i < numAtom; ++i) {
       vtkNew<vtkUnstructuredGrid> vtu;
       vtu->DeepCopy(inputAtoms[i]);
-      output_dgm->SetBlock(i, vtu);
+      outputDgm->SetBlock(i, vtu);
     }
   } else {
     for(int i = 0; i < numAtom; ++i) {
       vtkNew<vtkUnstructuredGrid> vtu;
       vtu->DeepCopy(inputDiagrams[i]);
-      output_dgm->SetBlock(i, vtu);
+      outputDgm->SetBlock(i, vtu);
     }
   }
 
@@ -191,7 +191,7 @@ int ttkPersistenceDiagramDictionary::RequestData(
                 vectorWeights, seed, numAtom, lossTab, timers, trueLossTab,
                 allLosses, this->Percent_);
   // zero-padd column name to keep Row Data columns ordered
-  output_weights->SetNumberOfRows(nDiags);
+  outputWeights->SetNumberOfRows(nDiags);
 
   const auto zeroPad
     = [](std::string &colName, const size_t numberCols, const size_t colIdx) {
@@ -211,7 +211,7 @@ int ttkPersistenceDiagramDictionary::RequestData(
       col->SetValue(j, vectorWeights[j][i]);
     }
     col->Modified();
-    output_weights->AddColumn(col);
+    outputWeights->AddColumn(col);
   }
 
   vtkNew<vtkFieldData> fd{};
@@ -222,7 +222,7 @@ int ttkPersistenceDiagramDictionary::RequestData(
   }
 
   for(int i = 0; i < fd->GetNumberOfArrays(); ++i) {
-    output_weights->AddColumn(fd->GetAbstractArray(i));
+    outputWeights->AddColumn(fd->GetAbstractArray(i));
   }
 
   vtkNew<vtkDoubleArray> colLoss{};
@@ -232,7 +232,7 @@ int ttkPersistenceDiagramDictionary::RequestData(
     colLoss->SetValue(j, lossTab[j]);
   }
   colLoss->Modified();
-  output_loss->AddColumn(colLoss);
+  outputLoss->AddColumn(colLoss);
 
   vtkNew<vtkDoubleArray> trueColLoss{};
   trueColLoss->SetNumberOfValues(trueLossTab.size());
@@ -241,7 +241,7 @@ int ttkPersistenceDiagramDictionary::RequestData(
     trueColLoss->SetValue(j, trueLossTab[j]);
   }
   trueColLoss->Modified();
-  true_output_loss->AddColumn(trueColLoss);
+  trueOutputLoss->AddColumn(trueColLoss);
 
   for(int i = 0; i < nDiags; ++i) {
     std::vector<double> &loss = allLosses[i];
@@ -254,7 +254,7 @@ int ttkPersistenceDiagramDictionary::RequestData(
       col->SetValue(j, loss[j]);
     }
     col->Modified();
-    output_allLosses->AddColumn(col);
+    outputAllLosses->AddColumn(col);
   }
 
   vtkNew<vtkDoubleArray> colTimers{};
@@ -264,7 +264,7 @@ int ttkPersistenceDiagramDictionary::RequestData(
     colTimers->SetValue(j, timers[j]);
   }
   colTimers->Modified();
-  output_timers->AddColumn(colTimers);
+  outputTimers->AddColumn(colTimers);
 
   vtkNew<vtkFloatArray> dummy{};
 
@@ -272,7 +272,7 @@ int ttkPersistenceDiagramDictionary::RequestData(
     vtkNew<vtkUnstructuredGrid> vtu;
     ttk::DiagramType &diagram = dictDiagrams[i];
     DiagramToVTU(vtu, diagram, dummy, *this, 3, false);
-    output_dgm->SetBlock(i, vtu);
+    outputDgm->SetBlock(i, vtu);
   }
   return 1;
 }

@@ -61,7 +61,7 @@ int ttkPersistenceDiagramDictionaryDecoding::RequestData(
   vtkInformationVector *outputVector) {
 
   auto blocks = vtkMultiBlockDataSet::GetData(inputVector[0]);
-  auto weights_vtk = vtkTable::GetData(inputVector[1]);
+  auto weightsVTK = vtkTable::GetData(inputVector[1]);
 
   std::vector<vtkUnstructuredGrid *> inputDiagrams;
 
@@ -101,18 +101,18 @@ int ttkPersistenceDiagramDictionaryDecoding::RequestData(
       };
 
   std::vector<vtkDataArray *> inputWeights;
-  int numWeights = weights_vtk->GetNumberOfRows();
-  for(int i = 0; i < weights_vtk->GetNumberOfColumns(); ++i) {
-    std::cout << weights_vtk->GetColumnName(i) << "\n";
+  int numWeights = weightsVTK->GetNumberOfRows();
+  for(int i = 0; i < weightsVTK->GetNumberOfColumns(); ++i) {
+    std::cout << weightsVTK->GetColumnName(i) << "\n";
   }
 
-  if(weights_vtk != nullptr) {
+  if(weightsVTK != nullptr) {
     inputWeights.resize(nDiags);
     for(size_t i = 0; i < nDiags; ++i) {
       std::string name{"Atom"};
       zeroPad(name, nDiags, i);
       inputWeights[i] = vtkDataArray::SafeDownCast(
-        weights_vtk->GetColumnByName(name.c_str()));
+        weightsVTK->GetColumnByName(name.c_str()));
     }
   }
 
@@ -130,13 +130,13 @@ int ttkPersistenceDiagramDictionaryDecoding::RequestData(
     this->execute(dictDiagrams, vectorWeights, Barycenters);
   }
 
-  auto output_dgm = vtkMultiBlockDataSet::GetData(outputVector, 0);
-  auto output_coordinates = vtkTable::GetData(outputVector, 1);
-  output_dgm->SetNumberOfBlocks(numWeights);
-  output_coordinates->SetNumberOfRows(numWeights);
+  auto outputDgm = vtkMultiBlockDataSet::GetData(outputVector, 0);
+  auto outputCoordinates = vtkTable::GetData(outputVector, 1);
+  outputDgm->SetNumberOfBlocks(numWeights);
+  outputCoordinates->SetNumberOfRows(numWeights);
 
-  outputDiagrams(output_dgm, output_coordinates, Barycenters, dictDiagrams,
-                 weights_vtk, vectorWeights, Spacing, 1);
+  outputDiagrams(outputDgm, outputCoordinates, Barycenters, dictDiagrams,
+                 weightsVTK, vectorWeights, Spacing, 1);
 
   // Get input object from input vector
   // Note: has to be a vtkDataSet as required by FillInputPortInformation
@@ -153,10 +153,10 @@ int ttkPersistenceDiagramDictionaryDecoding::RequestData(
 
 void ttkPersistenceDiagramDictionaryDecoding::outputDiagrams(
   vtkMultiBlockDataSet *output,
-  vtkTable *output_coordinates,
+  vtkTable *outputCoordinates,
   const std::vector<ttk::DiagramType> &diags,
   std::vector<ttk::DiagramType> &atoms,
-  vtkTable *weights_vtk,
+  vtkTable *weightsVTK,
   const std::vector<std::vector<double>> &weights,
   const double spacing,
   const double maxPersistence) const {
@@ -261,7 +261,7 @@ void ttkPersistenceDiagramDictionaryDecoding::outputDiagrams(
       }
     }
     col->Modified();
-    output_coordinates->AddColumn(col);
+    outputCoordinates->AddColumn(col);
   }
 
   const auto zeroPad
@@ -273,7 +273,7 @@ void ttkPersistenceDiagramDictionaryDecoding::outputDiagrams(
       };
 
   vtkNew<vtkTable> temp;
-  temp->DeepCopy(weights_vtk);
+  temp->DeepCopy(weightsVTK);
   for(int i = 0; i < temp->GetNumberOfColumns(); ++i) {
     int test = 0;
     const auto array = temp->GetColumn(i);
@@ -288,20 +288,20 @@ void ttkPersistenceDiagramDictionaryDecoding::outputDiagrams(
     if(test > 0) {
       continue;
     }
-    output_coordinates->AddColumn(array);
+    outputCoordinates->AddColumn(array);
   }
 
   for(size_t i = 0; i < nAtoms; ++i) {
     vtkNew<vtkVariantArray> row{};
-    row->SetNumberOfValues(output_coordinates->GetNumberOfColumns());
-    for(int j = 0; j < output_coordinates->GetNumberOfColumns(); ++j) {
-      if(strcmp(output_coordinates->GetColumnName(j), "X") == 0) {
+    row->SetNumberOfValues(outputCoordinates->GetNumberOfColumns());
+    for(int j = 0; j < outputCoordinates->GetNumberOfColumns(); ++j) {
+      if(strcmp(outputCoordinates->GetColumnName(j), "X") == 0) {
         row->SetValue(j, trueCoords[i][0]);
-      } else if(strcmp(output_coordinates->GetColumnName(j), "Y") == 0) {
+      } else if(strcmp(outputCoordinates->GetColumnName(j), "Y") == 0) {
         row->SetValue(j, trueCoords[i][1]);
-      } else if(strcmp(output_coordinates->GetColumnName(j), "Z") == 0) {
+      } else if(strcmp(outputCoordinates->GetColumnName(j), "Z") == 0) {
         row->SetValue(j, trueCoords[i][2]);
-      } else if(strcmp(output_coordinates->GetColumnName(j), "ClusterID")
+      } else if(strcmp(outputCoordinates->GetColumnName(j), "ClusterID")
                 == 0) {
         row->SetValue(j, -1);
       } else {
@@ -309,7 +309,7 @@ void ttkPersistenceDiagramDictionaryDecoding::outputDiagrams(
       }
     }
     row->Modified();
-    output_coordinates->InsertNextRow(row);
+    outputCoordinates->InsertNextRow(row);
   }
 }
 
