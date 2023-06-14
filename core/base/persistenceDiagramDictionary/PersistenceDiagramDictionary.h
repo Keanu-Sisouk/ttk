@@ -120,8 +120,8 @@ namespace ttk {
     double distVect(const std::vector<double> &vec1,
                     const std::vector<double> &vec2) const;
 
-    double getMostPersistent(
-      const std::vector<BidderDiagram> &bidder_diags) const;
+    double
+      getMostPersistent(const std::vector<BidderDiagram> &bidder_diags) const;
     double computeDistance(const BidderDiagram &D1,
                            const BidderDiagram &D2,
                            std::vector<ttk::MatchingType> &matching) const;
@@ -191,10 +191,9 @@ namespace ttk {
       const bool doOptimizeAtoms) const;
 
     // A modifier
-    void
-      setBidderDiagrams(const size_t nInputs,
-                        std::vector<ttk::DiagramType> &inputDiagrams,
-                        std::vector<BidderDiagram> &bidder_diags) const;
+    void setBidderDiagrams(const size_t nInputs,
+                           std::vector<ttk::DiagramType> &inputDiagrams,
+                           std::vector<BidderDiagram> &bidder_diags) const;
 
     // A modifier
     void enrichCurrentBidderDiagrams(
@@ -245,8 +244,7 @@ namespace ttk {
 
     void controlAtomsSize(
       const std::vector<ttk::DiagramType> &intermediateDiagrams,
-      std::vector<ttk::DiagramType> &dictDiagrams
-    ) const;
+      std::vector<ttk::DiagramType> &dictDiagrams) const;
 
     double getMaxPers(const ttk::DiagramType &data);
 

@@ -1,5 +1,6 @@
 #include <ttkPersistenceDiagramDictionaryDecoding.h>
 
+#include <vtkAbstractArray.h>
 #include <vtkInformation.h>
 
 #include <vtkCellData.h>
@@ -22,7 +23,8 @@
 
 vtkStandardNewMacro(ttkPersistenceDiagramDictionaryDecoding);
 
-ttkPersistenceDiagramDictionaryDecoding::ttkPersistenceDiagramDictionaryDecoding() {
+ttkPersistenceDiagramDictionaryDecoding::
+  ttkPersistenceDiagramDictionaryDecoding() {
   this->SetNumberOfInputPorts(2);
   this->SetNumberOfOutputPorts(2);
 }
@@ -213,7 +215,6 @@ void ttkPersistenceDiagramDictionaryDecoding::outputDiagrams(
         DiagramToVTU(vtu, atoms[i], dummy, *this, 3, false);
         TranslateDiagram(vtu, std::array<double, 3>{X, Y, 0.0});
         output->SetBlock(i, vtu);
-      
       }
     }
   }
@@ -271,14 +272,16 @@ void ttkPersistenceDiagramDictionaryDecoding::outputDiagrams(
         colName.append(zer).append(cur);
       };
 
-  for(int i = 0; i < weights_vtk->GetNumberOfColumns(); ++i) {
+  vtkNew<vtkTable> temp;
+  temp->DeepCopy(weights_vtk);
+  for(int i = 0; i < temp->GetNumberOfColumns(); ++i) {
     int test = 0;
-    const auto array = weights_vtk->GetColumn(i);
+    const auto array = temp->GetColumn(i);
 
     for(size_t j = 0; j < nDiags; ++j) {
       std::string name{"Atom"};
       zeroPad(name, nDiags, j);
-      if(strcmp(name.c_str(), weights_vtk->GetColumnName(i)) == 0) {
+      if(strcmp(name.c_str(), temp->GetColumnName(i)) == 0) {
         test += 1;
       }
     }

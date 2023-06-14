@@ -8,8 +8,6 @@
 
 #include <PersistenceDiagramDictionary.h>
 
-
-
 using namespace ttk;
 
 void PersistenceDiagramDictionary::execute(
@@ -43,9 +41,12 @@ void PersistenceDiagramDictionary::execute(
       doCompression = true;
     }
 
-    std::vector<BidderDiagram> trueBidderDiagramMin(intermediateDiagrams.size());
-    std::vector<BidderDiagram> trueBidderDiagramSad(intermediateDiagrams.size());
-    std::vector<BidderDiagram> trueBidderDiagramMax(intermediateDiagrams.size());
+    std::vector<BidderDiagram> trueBidderDiagramMin(
+      intermediateDiagrams.size());
+    std::vector<BidderDiagram> trueBidderDiagramSad(
+      intermediateDiagrams.size());
+    std::vector<BidderDiagram> trueBidderDiagramMax(
+      intermediateDiagrams.size());
 
     std::vector<std::vector<double>> histoVectorWeights(
       intermediateDiagrams.size());
@@ -57,11 +58,12 @@ void PersistenceDiagramDictionary::execute(
     bool preWeightOpt = false;
     this->printMsg("Regular approach:");
     initDictionary(dictDiagrams, intermediateDiagrams, intermediateAtoms,
-                   numAtom, this->do_min_, this->do_sad_, this->do_max_, seed, percent);
+                   numAtom, this->do_min_, this->do_sad_, this->do_max_, seed,
+                   percent);
     this->printMsg("Initialization computed ", 1, tm_init.getElapsedTime(),
                    threadNumber_, debug::LineMode::NEW);
-    if(true){
-    // if(CompressionMode && !CreationFeatures){
+    if(true) {
+      // if(CompressionMode && !CreationFeatures){
       controlAtomsSize(intermediateDiagrams, dictDiagrams);
     }
     method(intermediateDiagrams, dictDiagrams, vectorWeights, numAtom, lossTab,
@@ -122,7 +124,8 @@ void PersistenceDiagramDictionary::execute(
 
       Timer tm_init{};
       initDictionary(dictDiagrams, dataTemp, intermediateAtoms, numAtom,
-                     this->do_min_, this->do_sad_, this->do_max_, seed, percent);
+                     this->do_min_, this->do_sad_, this->do_max_, seed,
+                     percent);
       this->printMsg("Initialization computed ", 1, tm_init.getElapsedTime(),
                      threadNumber_, debug::LineMode::NEW);
 
@@ -351,7 +354,7 @@ void PersistenceDiagramDictionary::method(
       epoch / static_cast<double>(maxEpoch), tm_it.getElapsedTime(),
       threadNumber_, debug::LineMode::NEW, debug::Priority::DETAIL);
     tm_part += static_cast<double>(tm_it.getElapsedTime());
-   
+
     //   "====================BARYCENTER FINISHED======================");
 
     // tracking the original indices
@@ -367,13 +370,14 @@ void PersistenceDiagramDictionary::method(
     std::vector<std::vector<size_t>> originIndexBarysSad(nDiags);
     std::vector<std::vector<size_t>> originIndexBarysMax(nDiags);
 
-    computeAllDistances(barycentersList, nDiags, barycentersListMin, barycentersListSad, barycentersListMax,
-      bidderBarycentersListMin, bidderBarycentersListSad, bidderBarycentersListMax,
-      originIndexBarysMin, originIndexBarysSad, originIndexBarysMax,
-      bidderDiagramsMin, bidderDiagramsMax, bidderDiagramsSad,
-      matchingsDatasMin, matchingsDatasMax, matchingsDatasSad, trueBidderDiagramMin,
-      trueBidderDiagramSad, trueBidderDiagramMax, allLossesAtEpoch,
-      trueAllLossesAtEpoch, true);
+    computeAllDistances(
+      barycentersList, nDiags, barycentersListMin, barycentersListSad,
+      barycentersListMax, bidderBarycentersListMin, bidderBarycentersListSad,
+      bidderBarycentersListMax, originIndexBarysMin, originIndexBarysSad,
+      originIndexBarysMax, bidderDiagramsMin, bidderDiagramsMax,
+      bidderDiagramsSad, matchingsDatasMin, matchingsDatasMax,
+      matchingsDatasSad, trueBidderDiagramMin, trueBidderDiagramSad,
+      trueBidderDiagramMax, allLossesAtEpoch, trueAllLossesAtEpoch, true);
 
     for(size_t p = 0; p < nDiags; ++p) {
       loss += allLossesAtEpoch[p];
@@ -432,7 +436,6 @@ void PersistenceDiagramDictionary::method(
         bufferCheckUnderDiag[p] = boolUnderDiag;
         bufferCheckDiag[p] = boolDiag;
         bufferCheckAboveGlobal[p] = boolAboveGlobal;
-
       }
       for(size_t p = 0; p < nDiags; ++p) {
         const auto weights = vectorWeights[p];
@@ -500,9 +503,9 @@ void PersistenceDiagramDictionary::method(
       lag3 += 1;
       lag2 = 0;
 
-
       if(lag3 > 2) {
-        this->printMsg("Loss increasing too much, reducing step and recompute Barycenters and matchings");
+        this->printMsg("Loss increasing too much, reducing step and recompute "
+                       "Barycenters and matchings");
         for(size_t p = 0; p < dictDiagrams.size(); ++p) {
           const auto atom = histoDictDiagrams[p];
           dictDiagrams[p] = atom;
@@ -520,15 +523,13 @@ void PersistenceDiagramDictionary::method(
           checkAboveGlobal[p] = bufferBoolAboveGlobal;
         }
 
-
         for(size_t p = 0; p < nDiags; ++p) {
           const auto weights = histoVectorWeights[p];
           vectorWeights[p] = weights;
         }
         gradActor.reduceStep();
-        step = step/2.;
+        step = step / 2.;
         lag3 = 0;
-
 
         barycentersList.clear();
         barycentersList.resize(nDiags);
@@ -563,11 +564,10 @@ void PersistenceDiagramDictionary::method(
         matchingsDatasSad.resize(nDiags);
         matchingsDatasMax.resize(nDiags);
 
-
 #ifdef TTK_ENABLE_OPENMP
 #pragma omp parallel for num_threads(threadNumber_)
 #endif // TTK_ENABLE_OPENMP
-      //////////////////////////////WEIGHTS///////////////////////////////////
+       //////////////////////////////WEIGHTS///////////////////////////////////
         for(size_t i = 0; i < nDiags; ++i) {
           auto &barycenter = barycentersList[i];
           std::vector<double> &weight = vectorWeights[i];
@@ -577,13 +577,15 @@ void PersistenceDiagramDictionary::method(
                                     *this, ProgBarycenter_);
         }
 
-        computeAllDistances(barycentersList, nDiags, barycentersListMin, barycentersListSad, barycentersListMax,
-        bidderBarycentersListMin, bidderBarycentersListSad, bidderBarycentersListMax,
-        originIndexBarysMin, originIndexBarysSad, originIndexBarysMax,
-        bidderDiagramsMin, bidderDiagramsMax, bidderDiagramsSad,
-        matchingsDatasMin, matchingsDatasMax, matchingsDatasSad, trueBidderDiagramMin,
-        trueBidderDiagramSad, trueBidderDiagramMax, allLossesAtEpoch,
-        trueAllLossesAtEpoch, false);
+        computeAllDistances(
+          barycentersList, nDiags, barycentersListMin, barycentersListSad,
+          barycentersListMax, bidderBarycentersListMin,
+          bidderBarycentersListSad, bidderBarycentersListMax,
+          originIndexBarysMin, originIndexBarysSad, originIndexBarysMax,
+          bidderDiagramsMin, bidderDiagramsMax, bidderDiagramsSad,
+          matchingsDatasMin, matchingsDatasMax, matchingsDatasSad,
+          trueBidderDiagramMin, trueBidderDiagramSad, trueBidderDiagramMax,
+          allLossesAtEpoch, trueAllLossesAtEpoch, false);
       }
     }
 
@@ -622,12 +624,12 @@ void PersistenceDiagramDictionary::method(
                                indexDataMax, indexDataSad, doOptimizeAtoms);
         gradActor.executeWeightsProjected(
           hessianList, weights, gradWeights, MaxEigenValue_);
-        }
+      }
 
-        this->printMsg("Computed 1st opt for epoch " + std::to_string(epoch),
-                       epoch / static_cast<double>(maxEpoch),
-                       tm_opt1.getElapsedTime(), threadNumber_,
-                       debug::LineMode::NEW, debug::Priority::DETAIL);
+      this->printMsg("Computed 1st opt for epoch " + std::to_string(epoch),
+                     epoch / static_cast<double>(maxEpoch),
+                     tm_opt1.getElapsedTime(), threadNumber_,
+                     debug::LineMode::NEW, debug::Priority::DETAIL);
     }
 
     for(size_t p = 0; p < nDiags; ++p) {
@@ -686,13 +688,14 @@ void PersistenceDiagramDictionary::method(
       matchingsDatasSad.resize(nDiags);
       matchingsDatasMax.resize(nDiags);
 
-      computeAllDistances(barycentersList, nDiags, barycentersListMin, barycentersListSad, barycentersListMax,
-        bidderBarycentersListMin, bidderBarycentersListSad, bidderBarycentersListMax,
-        originIndexBarysMin, originIndexBarysSad, originIndexBarysMax,
-        bidderDiagramsMin, bidderDiagramsMax, bidderDiagramsSad,
-        matchingsDatasMin, matchingsDatasMax, matchingsDatasSad, trueBidderDiagramMin,
-        trueBidderDiagramSad, trueBidderDiagramMax, allLossesAtEpoch,
-        trueAllLossesAtEpoch, false);
+      computeAllDistances(
+        barycentersList, nDiags, barycentersListMin, barycentersListSad,
+        barycentersListMax, bidderBarycentersListMin, bidderBarycentersListSad,
+        bidderBarycentersListMax, originIndexBarysMin, originIndexBarysSad,
+        originIndexBarysMax, bidderDiagramsMin, bidderDiagramsMax,
+        bidderDiagramsSad, matchingsDatasMin, matchingsDatasMax,
+        matchingsDatasSad, trueBidderDiagramMin, trueBidderDiagramSad,
+        trueBidderDiagramMax, allLossesAtEpoch, trueAllLossesAtEpoch, false);
 
       std::vector<std::vector<std::vector<std::array<double, 2>>>>
         allPairToAddToGradList(nDiags);
@@ -768,9 +771,9 @@ void PersistenceDiagramDictionary::method(
         const auto &Barycenter = barycentersList[i];
         const auto &checkerAtoms = checkerAtomsList[i];
         gradActor.executeAtoms(
-          dictDiagrams, matchingsAtoms, Barycenter, gradsAtoms,
-          checkerAtoms, projForDiag, featuresToAdd, projLocations,
-          vectorForProjContrib, pairToAddGradList, infoToAdd);
+          dictDiagrams, matchingsAtoms, Barycenter, gradsAtoms, checkerAtoms,
+          projForDiag, featuresToAdd, projLocations, vectorForProjContrib,
+          pairToAddGradList, infoToAdd);
       }
 
       if(CreationFeatures_) {
@@ -802,7 +805,7 @@ void PersistenceDiagramDictionary::method(
               if(pair[0] < minBirth[atomIndex]) {
                 continue;
               }
-              if(pair[1] - pair[0] < 1e-7){
+              if(pair[1] - pair[0] < 1e-7) {
                 continue;
               }
 
@@ -821,7 +824,7 @@ void PersistenceDiagramDictionary::method(
                   auto &projLocStocked = allTrueProj[atomIndex][n];
                   double distance
                     = sqrt(pow((pair[0] - projLocStocked[0]), 2)
-                          + pow((pair[1] - projLocStocked[1]), 2));
+                           + pow((pair[1] - projLocStocked[1]), 2));
                   if(proj == projStocked && distance < 1e-3) {
                     ralph = false;
                     index = n;
@@ -842,10 +845,9 @@ void PersistenceDiagramDictionary::method(
                 if(pair[0] < minBirth[atomIndex]) {
                   continue;
                 }
-                if(pair[1] - pair[0] < 1e-7 ){
+                if(pair[1] - pair[0] < 1e-7) {
                   continue;
                 }
-
 
                 PersistencePair newPair{CriticalVertex{0, c1, pair[0], {}},
                                         CriticalVertex{0, c2, pair[1], {}},
@@ -882,7 +884,8 @@ void PersistenceDiagramDictionary::method(
               for(size_t j = 0; j < histoEpochAtom.size(); ++j) {
                 auto &t = atom[initSize + j];
                 histoEpochAtom[j] += 1;
-                histoBoolAtom[j] = t.death.sfValue - t.birth.sfValue < 0.1*(percent/100.)*maxiDeath[i];
+                histoBoolAtom[j] = t.death.sfValue - t.birth.sfValue
+                                   < 0.1 * (percent / 100.) * maxiDeath[i];
                 boolDiag[j] = t.death.sfValue - t.birth.sfValue < 1e-6;
                 boolUnderDiag[j] = t.death.sfValue < t.birth.sfValue;
                 boolAboveGlobal[j] = t.birth.sfValue > maxiDeath[i];
@@ -902,7 +905,8 @@ void PersistenceDiagramDictionary::method(
               auto &t = trueFeaturesToAdd[j];
               atom.push_back(t);
               histoEpochAtom.push_back(0);
-              histoBoolAtom.push_back(t.death.sfValue - t.birth.sfValue < 0.1*(percent/100.)*maxiDeath[i]);
+              histoBoolAtom.push_back(t.death.sfValue - t.birth.sfValue
+                                      < 0.1 * (percent / 100.) * maxiDeath[i]);
               boolDiag.push_back(t.death.sfValue - t.birth.sfValue < 1e-6);
               boolUnderDiag.push_back(t.death.sfValue < t.birth.sfValue);
               boolAboveGlobal.push_back(t.birth.sfValue > maxiDeath[i]);
@@ -919,7 +923,7 @@ void PersistenceDiagramDictionary::method(
             auto &boolAboveGlobal = checkAboveGlobal[i];
             for(size_t j = 0; j < histoEpochAtom.size(); ++j) {
               if(boolUnderDiag[j] || boolDiag[j] || boolAboveGlobal[j]
-                || (histoEpochAtom[j] > 5 && histoBoolAtom[j])) {
+                 || (histoEpochAtom[j] > 5 && histoBoolAtom[j])) {
                 // if(boolUnderDiag[j] || (histoEpochAtom[j] > 2 &&
                 // histoBoolAtom[j])){
                 indicesAtomToDelete.push_back(j);
@@ -942,7 +946,7 @@ void PersistenceDiagramDictionary::method(
                   j >= 0; j--) {
                 atom.erase(atom.begin() + initSize + indicesAtomToDelete[j]);
                 histoEpochAtom.erase(histoEpochAtom.begin()
-                                    + indicesAtomToDelete[j]);
+                                     + indicesAtomToDelete[j]);
                 histoBoolAtom.erase(histoBoolAtom.begin()
                                     + indicesAtomToDelete[j]);
                 boolUnderDiag.erase(boolUnderDiag.begin()
@@ -968,8 +972,8 @@ void PersistenceDiagramDictionary::method(
         }
       } else {
         if(doCompression) {
-          if(epoch > -1){
-              controlAtomsSize(intermediateDiagrams, dictDiagrams);
+          if(epoch > -1) {
+            controlAtomsSize(intermediateDiagrams, dictDiagrams);
           }
         }
       }
@@ -991,8 +995,6 @@ void PersistenceDiagramDictionary::method(
           if(t.birth.sfValue < globalPair.birth.sfValue) {
             t.birth.sfValue = globalPair.birth.sfValue;
           }
-
-
         }
       }
       this->printMsg("Computed 2nd opt for epoch " + std::to_string(epoch),
@@ -1359,8 +1361,7 @@ void PersistenceDiagramDictionary::enrichCurrentBidderDiagrams(
   // of points to append
   size_t maxDiagramSize = 0;
   for(const auto &diag : current_bidder_diags) {
-    maxDiagramSize
-      = std::max(static_cast<size_t>(diag.size()), maxDiagramSize);
+    maxDiagramSize = std::max(static_cast<size_t>(diag.size()), maxDiagramSize);
   }
   size_t maxPointsToAdd = std::max(
     this->MaxNumberOfPairs, this->MaxNumberOfPairs + maxDiagramSize / 10);
@@ -1387,8 +1388,7 @@ void PersistenceDiagramDictionary::enrichCurrentBidderDiagrams(
     std::sort(idx[i].begin(), idx[i].end(), cmp);
     const auto size = candidates_to_be_added[i].size();
     if(size >= maxPointsToAdd) {
-      double lastPersistenceAdded
-        = persistences[idx[i][maxPointsToAdd - 1]];
+      double lastPersistenceAdded = persistences[idx[i][maxPointsToAdd - 1]];
       if(lastPersistenceAdded > local_min_persistence) {
         local_min_persistence = lastPersistenceAdded;
       }
@@ -1595,32 +1595,35 @@ double PersistenceDiagramDictionary::getMaxPers(const ttk::DiagramType &data) {
 
 void PersistenceDiagramDictionary::controlAtomsSize(
   const std::vector<ttk::DiagramType> &intermediateDiagrams,
-  std::vector<ttk::DiagramType> &dictDiagrams) const{
+  std::vector<ttk::DiagramType> &dictDiagrams) const {
 
   size_t m = dictDiagrams.size();
   int globalSize = 0;
 
-  for(size_t j = 0; j < intermediateDiagrams.size() ; ++j){
+  for(size_t j = 0; j < intermediateDiagrams.size(); ++j) {
     auto &data = intermediateDiagrams[j];
     globalSize += static_cast<int>(data.size());
   }
 
   int dictSize = 0;
 
-  for(size_t j = 0; j < m ; ++j){
+  for(size_t j = 0; j < m; ++j) {
     auto &atom = dictDiagrams[j];
     dictSize += static_cast<int>(atom.size());
   }
 
-  if(static_cast<double>(dictSize) > (1./this->CompressionFactor)*static_cast<double>(globalSize)){
-    double factor = (1./this->CompressionFactor)*(static_cast<double>(globalSize)/static_cast<double>(dictSize));
+  if(static_cast<double>(dictSize)
+     > (1. / this->CompressionFactor) * static_cast<double>(globalSize)) {
+    double factor
+      = (1. / this->CompressionFactor)
+        * (static_cast<double>(globalSize) / static_cast<double>(dictSize));
     std::vector<std::vector<double>> tempDictPersistencePairs(m);
 
-    for(size_t j = 0; j < m ; ++j){
+    for(size_t j = 0; j < m; ++j) {
       auto &temp = tempDictPersistencePairs[j];
       auto &atom = dictDiagrams[j];
       temp.resize(atom.size());
-      for(size_t p = 0; p < atom.size(); ++p){
+      for(size_t p = 0; p < atom.size(); ++p) {
         auto &t = atom[p];
         temp[p] = t.persistence();
       }
@@ -1632,23 +1635,22 @@ void PersistenceDiagramDictionary::controlAtomsSize(
     }
 
     std::vector<double> persThresholds(m);
-    for(size_t j = 0; j < m ; ++j){
+    for(size_t j = 0; j < m; ++j) {
       auto &temp = tempDictPersistencePairs[j];
-      int index = static_cast<int>(floor(factor*static_cast<double>(temp.size())));
+      int index
+        = static_cast<int>(floor(factor * static_cast<double>(temp.size())));
       persThresholds[j] = temp[index];
     }
 
-    for(size_t j = 0; j < m ; ++j){
+    for(size_t j = 0; j < m; ++j) {
       double persThreshold = persThresholds[j];
       auto &atom = dictDiagrams[j];
-      atom.erase(
-        std::remove_if(atom.begin(),
-                      atom.end(),
-                      [persThreshold](ttk::PersistencePair &t) {
-                        return (t.death.sfValue - t.birth.sfValue)
-                                < persThreshold;
-                      }),
-        atom.end());
+      atom.erase(std::remove_if(atom.begin(), atom.end(),
+                                [persThreshold](ttk::PersistencePair &t) {
+                                  return (t.death.sfValue - t.birth.sfValue)
+                                         < persThreshold;
+                                }),
+                 atom.end());
     }
   }
 }
@@ -1751,10 +1753,9 @@ void PersistenceDiagramDictionary::computeDirectionsGradAtoms(
     const SimplexId Id1 = std::get<0>(t);
     // Id in barycenter
     const SimplexId Id2 = std::get<1>(t);
-    int maxWeights = std::max_element(weights.begin(), weights.end()) - weights.begin();
-    int k = 0;
+    int maxWeights
+      = std::max_element(weights.begin(), weights.end()) - weights.begin();
     if(Id2 < 0) {
-      k += 1;
       if(Id1 < 0) {
         continue;
       } else {
@@ -1771,7 +1772,7 @@ void PersistenceDiagramDictionary::computeDirectionsGradAtoms(
           std::vector<double> temp2(2);
           if(CompressionMode_ && !doDimReduct) {
             for(size_t j = 0; j < weights.size(); ++j) {
-              if(j == static_cast<size_t>(maxWeights)){
+              if(j == static_cast<size_t>(maxWeights)) {
                 temp2[0] = -2 * weights[j] * direction[0];
                 temp2[1] = -2 * weights[j] * direction[1];
               } else {
@@ -1851,135 +1852,133 @@ void PersistenceDiagramDictionary::computeAllDistances(
   std::vector<BidderDiagram> &trueBidderDiagramMax,
   std::vector<double> &allLossesAtEpoch,
   std::vector<double> &trueAllLossesAtEpoch,
-  bool firstDistComputation) const{
-    // setting BidderDiagram barycentersList
+  bool firstDistComputation) const {
+  // setting BidderDiagram barycentersList
 #ifdef TTK_ENABLE_OPENMP
 #pragma omp parallel for num_threads(threadNumber_)
 #endif // TTK_ENABLE_OPENMP
-    for(size_t i = 0; i < nDiags; i++) {
-      const auto &barycenter = barycentersList[i];
+  for(size_t i = 0; i < nDiags; i++) {
+    const auto &barycenter = barycentersList[i];
 
-      for(size_t j = 0; j < barycenter.size(); ++j) {
-        const ttk::PersistencePair &t = barycenter[j];
-        const ttk::CriticalType nt1 = t.birth.type;
-        const ttk::CriticalType nt2 = t.death.type;
-        const double pers = t.persistence();
-        // maxDiagPersistence[i] = std::max(pers, maxDiagPersistence[i]);
+    for(size_t j = 0; j < barycenter.size(); ++j) {
+      const ttk::PersistencePair &t = barycenter[j];
+      const ttk::CriticalType nt1 = t.birth.type;
+      const ttk::CriticalType nt2 = t.death.type;
+      const double pers = t.persistence();
+      // maxDiagPersistence[i] = std::max(pers, maxDiagPersistence[i]);
 
-        if(pers > 0) {
+      if(pers > 0) {
+        if(nt1 == CriticalType::Local_minimum
+           && nt2 == CriticalType::Local_maximum) {
+          barycentersListMin[i].emplace_back(t);
+          originIndexBarysMin[i].push_back(j);
+        } else {
+          if(nt1 == CriticalType::Local_maximum
+             || nt2 == CriticalType::Local_maximum) {
+            barycentersListMax[i].emplace_back(t);
+            originIndexBarysMax[i].push_back(j);
+          }
           if(nt1 == CriticalType::Local_minimum
-             && nt2 == CriticalType::Local_maximum) {
+             || nt2 == CriticalType::Local_minimum) {
             barycentersListMin[i].emplace_back(t);
             originIndexBarysMin[i].push_back(j);
-          } else {
-            if(nt1 == CriticalType::Local_maximum
-               || nt2 == CriticalType::Local_maximum) {
-              barycentersListMax[i].emplace_back(t);
-              originIndexBarysMax[i].push_back(j);
-            }
-            if(nt1 == CriticalType::Local_minimum
-               || nt2 == CriticalType::Local_minimum) {
-              barycentersListMin[i].emplace_back(t);
-              originIndexBarysMin[i].push_back(j);
-            }
-            if((nt1 == CriticalType::Saddle1 && nt2 == CriticalType::Saddle2)
-               || (nt1 == CriticalType::Saddle2
-                   && nt2 == CriticalType::Saddle1)) {
-              barycentersListSad[i].emplace_back(t);
-              originIndexBarysSad[i].push_back(j);
-            }
+          }
+          if((nt1 == CriticalType::Saddle1 && nt2 == CriticalType::Saddle2)
+             || (nt1 == CriticalType::Saddle2
+                 && nt2 == CriticalType::Saddle1)) {
+            barycentersListSad[i].emplace_back(t);
+            originIndexBarysSad[i].push_back(j);
           }
         }
       }
     }
-    if(this->do_min_) {
-      setBidderDiagrams(nDiags, barycentersListMin, bidderBarycentersListMin);
-    }
-    if(this->do_sad_) {
-      setBidderDiagrams(nDiags, barycentersListSad, bidderBarycentersListSad);
-    }
-    if(this->do_max_) {
-      setBidderDiagrams(nDiags, barycentersListMax, bidderBarycentersListMax);
-    }
+  }
+  if(this->do_min_) {
+    setBidderDiagrams(nDiags, barycentersListMin, bidderBarycentersListMin);
+  }
+  if(this->do_sad_) {
+    setBidderDiagrams(nDiags, barycentersListSad, bidderBarycentersListSad);
+  }
+  if(this->do_max_) {
+    setBidderDiagrams(nDiags, barycentersListMax, bidderBarycentersListMax);
+  }
 
-
-    // Compute distance and matchings
+  // Compute distance and matchings
 #ifdef TTK_ENABLE_OPENMP
 #pragma omp parallel for num_threads(threadNumber_)
 #endif // TTK_ENABLE_OPENMP
-    for(size_t i = 0; i < nDiags; ++i) {
-      std::vector<ttk::MatchingType> matchingMin;
-      std::vector<ttk::MatchingType> matchingSad;
-      std::vector<ttk::MatchingType> matchingMax;
+  for(size_t i = 0; i < nDiags; ++i) {
+    std::vector<ttk::MatchingType> matchingMin;
+    std::vector<ttk::MatchingType> matchingSad;
+    std::vector<ttk::MatchingType> matchingMax;
 
-      std::vector<ttk::MatchingType> matchingMinTemp;
-      std::vector<ttk::MatchingType> matchingSadTemp;
-      std::vector<ttk::MatchingType> matchingMaxTemp;
+    std::vector<ttk::MatchingType> matchingMinTemp;
+    std::vector<ttk::MatchingType> matchingSadTemp;
+    std::vector<ttk::MatchingType> matchingMaxTemp;
 
-      if(this->do_min_) {
-        auto &barycentermin = bidderBarycentersListMin[i];
-        auto &datamin = bidderDiagramsMin[i];
-        auto &truedatamin = trueBidderDiagramMin[i];
-        size_t sizeMin = truedatamin.size();
+    if(this->do_min_) {
+      auto &barycentermin = bidderBarycentersListMin[i];
+      auto &datamin = bidderDiagramsMin[i];
+      auto &truedatamin = trueBidderDiagramMin[i];
+      size_t sizeMin = truedatamin.size();
 
-        //#ifdef TTK_ENABLE_OPENMP
-        //#pragma omp atomic update
-        //#endif // TTK_ENABLE_OPENMP
-        if(firstDistComputation){
-          allLossesAtEpoch[i]
-            += computeDistance(datamin, barycentermin, matchingMin);
+      // #ifdef TTK_ENABLE_OPENMP
+      // #pragma omp atomic update
+      // #endif // TTK_ENABLE_OPENMP
+      if(firstDistComputation) {
+        allLossesAtEpoch[i]
+          += computeDistance(datamin, barycentermin, matchingMin);
 
-          if((ProgApproach_) && (sizeMin != 0)) {
-            trueAllLossesAtEpoch[i]
-              += computeDistance(truedatamin, barycentermin, matchingMinTemp);
-          }
-        } else {
-          computeDistance(datamin, barycentermin, matchingMin);
+        if((ProgApproach_) && (sizeMin != 0)) {
+          trueAllLossesAtEpoch[i]
+            += computeDistance(truedatamin, barycentermin, matchingMinTemp);
         }
+      } else {
+        computeDistance(datamin, barycentermin, matchingMin);
       }
-      if(this->do_max_) {
-        auto &barycentermax = bidderBarycentersListMax[i];
-        auto &datamax = bidderDiagramsMax[i];
-        auto &truedatamax = trueBidderDiagramMax[i];
-        size_t sizeMax = truedatamax.size();
-        //#ifdef TTK_ENABLE_OPENMP
-        //#pragma omp atomic update
-        //#endif // TTK_ENABLE_OPENMP
-        if(firstDistComputation){
-          allLossesAtEpoch[i]
-            += computeDistance(datamax, barycentermax, matchingMax);
-
-          if((ProgApproach_) && (sizeMax != 0)) {
-            trueAllLossesAtEpoch[i]
-              += computeDistance(truedatamax, barycentermax, matchingMaxTemp);
-          }
-        } else {
-          computeDistance(datamax, barycentermax, matchingMax);
-        }
-      }
-      if(this->do_sad_) {
-        auto &barycentersListad = bidderBarycentersListSad[i];
-        auto &datasad = bidderDiagramsSad[i];
-        auto &truedatasad = trueBidderDiagramSad[i];
-        size_t sizeSad = truedatasad.size();
-        //#ifdef TTK_ENABLE_OPENMP
-        //#pragma omp atomic update
-        //#endif // TTK_ENABLE_OPENMP
-        if(firstDistComputation){
-          allLossesAtEpoch[i]
-            += computeDistance(datasad, barycentersListad, matchingSad);
-
-          if((ProgApproach_) && (sizeSad != 0)) {
-            trueAllLossesAtEpoch[i]
-              += computeDistance(truedatasad, barycentersListad, matchingSadTemp);
-          }
-        } else {
-          computeDistance(datasad, barycentersListad, matchingSad);
-        }
-      }
-      matchingsDatasMin[i] = std::move(matchingMin);
-      matchingsDatasSad[i] = std::move(matchingSad);
-      matchingsDatasMax[i] = std::move(matchingMax);
     }
+    if(this->do_max_) {
+      auto &barycentermax = bidderBarycentersListMax[i];
+      auto &datamax = bidderDiagramsMax[i];
+      auto &truedatamax = trueBidderDiagramMax[i];
+      size_t sizeMax = truedatamax.size();
+      // #ifdef TTK_ENABLE_OPENMP
+      // #pragma omp atomic update
+      // #endif // TTK_ENABLE_OPENMP
+      if(firstDistComputation) {
+        allLossesAtEpoch[i]
+          += computeDistance(datamax, barycentermax, matchingMax);
 
+        if((ProgApproach_) && (sizeMax != 0)) {
+          trueAllLossesAtEpoch[i]
+            += computeDistance(truedatamax, barycentermax, matchingMaxTemp);
+        }
+      } else {
+        computeDistance(datamax, barycentermax, matchingMax);
+      }
+    }
+    if(this->do_sad_) {
+      auto &barycentersListad = bidderBarycentersListSad[i];
+      auto &datasad = bidderDiagramsSad[i];
+      auto &truedatasad = trueBidderDiagramSad[i];
+      size_t sizeSad = truedatasad.size();
+      // #ifdef TTK_ENABLE_OPENMP
+      // #pragma omp atomic update
+      // #endif // TTK_ENABLE_OPENMP
+      if(firstDistComputation) {
+        allLossesAtEpoch[i]
+          += computeDistance(datasad, barycentersListad, matchingSad);
+
+        if((ProgApproach_) && (sizeSad != 0)) {
+          trueAllLossesAtEpoch[i]
+            += computeDistance(truedatasad, barycentersListad, matchingSadTemp);
+        }
+      } else {
+        computeDistance(datasad, barycentersListad, matchingSad);
+      }
+    }
+    matchingsDatasMin[i] = std::move(matchingMin);
+    matchingsDatasSad[i] = std::move(matchingSad);
+    matchingsDatasMax[i] = std::move(matchingMax);
   }
+}

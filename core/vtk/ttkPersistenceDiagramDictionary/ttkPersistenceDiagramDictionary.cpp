@@ -260,8 +260,8 @@ int ttkPersistenceDiagramDictionary::RequestData(
   vtkNew<vtkDoubleArray> colTimers{};
   colTimers->SetNumberOfValues(timers.size());
   colTimers->SetName("Timers");
-  for(size_t j = 0; j < timers.size() ; ++j){
-    colTimers->SetValue(j , timers[j]);
+  for(size_t j = 0; j < timers.size(); ++j) {
+    colTimers->SetValue(j, timers[j]);
   }
   colTimers->Modified();
   output_timers->AddColumn(colTimers);

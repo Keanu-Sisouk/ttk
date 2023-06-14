@@ -64,9 +64,6 @@ namespace ttk {
       std::vector<std::vector<std::array<double, 2>>> &pairToAddGradList,
       ttk::DiagramType &infoToAdd);
 
-
-    
-
     double stepAtom;
   };
 

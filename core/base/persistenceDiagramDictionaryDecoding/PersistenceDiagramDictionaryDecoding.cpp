@@ -2,7 +2,6 @@
 #include "PersistenceDiagramUtils.h"
 #include <PersistenceDiagramDictionaryDecoding.h>
 #include <cmath>
-#include <math.h>
 
 void ttk::PersistenceDiagramDictionaryDecoding::execute(
   std::vector<ttk::DiagramType> &dictDiagrams,
@@ -77,7 +76,7 @@ void ttk::PersistenceDiagramDictionaryDecoding::computeAtomsCoordinates(
     coords[2][1] = spacing * distAdja * std::sin(alpha);
     trueCoords[2][1] = distAdja * std::sin(alpha);
 
-  } else if(nAtoms == 4){
+  } else if(nAtoms == 4) {
     switch(this->ProjMet) {
       case BACKEND::DICTIONARY: {
         ttk::PersistenceDiagramDistanceMatrix MatrixCalculator;
@@ -97,9 +96,9 @@ void ttk::PersistenceDiagramDictionaryDecoding::computeAtomsCoordinates(
         double distOpposed = distMatrix[2][1];
         double firstDist = distMatrix[0][1];
         double distAdja = distMatrix[0][2];
-        double alpha = std::acos(
-          (distOpposed * distOpposed - firstDist * firstDist - distAdja * distAdja)
-          / (-2. * firstDist * distAdja));
+        double alpha = std::acos((distOpposed * distOpposed
+                                  - firstDist * firstDist - distAdja * distAdja)
+                                 / (-2. * firstDist * distAdja));
         coords[2][0] = spacing * distAdja * std::cos(alpha);
         trueCoords[2][0] = distAdja * std::cos(alpha);
         coords[2][1] = spacing * distAdja * std::sin(alpha);
@@ -157,7 +156,7 @@ void ttk::PersistenceDiagramDictionaryDecoding::computeAtomsCoordinates(
   } else {
     switch(this->ProjMet) {
       case BACKEND::DICTIONARY: {
-    
+
         std::vector<ttk::DiagramType> dictDiagrams;
         std::vector<ttk::DiagramType> intermediateAtoms;
         std::vector<double> lossTab;
@@ -175,8 +174,8 @@ void ttk::PersistenceDiagramDictionaryDecoding::computeAtomsCoordinates(
         DictionaryEncoder.setUseDimReduct(false);
         DictionaryEncoder.setUseProgApproach(true);
         DictionaryEncoder.execute(atoms, atoms, dictDiagrams, tempWeights, seed,
-        m,
-                                  lossTab, timers, trueLossTab, allLosses, 0.);
+                                  m, lossTab, timers, trueLossTab, allLosses,
+                                  0.);
         std::vector<std::array<double, 3>> tempCoords(3);
         std::vector<std::array<double, 3>> tempTrueCoords(3);
         ttk::PersistenceDiagramDistanceMatrix MatrixCalculator;
@@ -196,9 +195,9 @@ void ttk::PersistenceDiagramDictionaryDecoding::computeAtomsCoordinates(
         double distOpposed = distMatrix[2][1];
         double firstDist = distMatrix[0][1];
         double distAdja = distMatrix[0][2];
-        double alpha = std::acos(
-          (distOpposed * distOpposed - firstDist * firstDist - distAdja *
-          distAdja) / (-2. * firstDist * distAdja));
+        double alpha = std::acos((distOpposed * distOpposed
+                                  - firstDist * firstDist - distAdja * distAdja)
+                                 / (-2. * firstDist * distAdja));
         tempCoords[2][0] = spacing * distAdja * std::cos(alpha);
         tempTrueCoords[2][0] = distAdja * std::cos(alpha);
         tempCoords[2][1] = spacing * distAdja * std::sin(alpha);

@@ -14,8 +14,7 @@ void ConstrainedGradientDescent::executeWeightsProjected(
   std::vector<double> &weights,
   const std::vector<double> &grad,
   bool maxEigenValue) {
-  gradientDescentWeights(
-    hessianList, weights, grad, maxEigenValue);
+  gradientDescentWeights(hessianList, weights, grad, maxEigenValue);
   projectionOnSimplex(weights);
 }
 
@@ -32,9 +31,9 @@ void ConstrainedGradientDescent::executeAtoms(
   std::vector<std::vector<std::array<double, 2>>> &pairToAddGradList,
   ttk::DiagramType &infoToAdd) {
   gradientDescentAtoms(DictDiagrams, matchings, Barycenter, gradsLists,
-                        checkerAtomsExt, projForDiag,
-                       featuresToAdd, projLocations, vectorForProjContrib,
-                       pairToAddGradList, infoToAdd);
+                       checkerAtomsExt, projForDiag, featuresToAdd,
+                       projLocations, vectorForProjContrib, pairToAddGradList,
+                       infoToAdd);
 }
 
 // simple projection on simplex, aka where a vector has positive elements and
@@ -104,7 +103,7 @@ void ConstrainedGradientDescent::gradientDescentWeights(
     }
   }
 
-  if(L > 0){
+  if(L > 0) {
     stepWeight = 1. / L;
   } else {
     stepWeight = 0;
@@ -142,7 +141,8 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
     miniBirth[i] = t.birth.sfValue;
   }
 
-  std::vector<std::vector<std::array<double, 2>>> gradBuffersList(Barycenter.size());
+  std::vector<std::vector<std::array<double, 2>>> gradBuffersList(
+    Barycenter.size());
   std::vector<std::vector<double>> projectionsBuffer(Barycenter.size());
 
   for(size_t i = 0; i < Barycenter.size(); ++i) {
@@ -350,7 +350,6 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
             } else {
               t1.death.sfValue = t2[1];
             }
-
           }
         }
       }
@@ -358,10 +357,10 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
   }
 }
 
-void ConstrainedGradientDescent::setStep(double factEquiv){
+void ConstrainedGradientDescent::setStep(double factEquiv) {
   this->stepAtom = 1. / (2. * 2. * factEquiv);
 }
 
-void ConstrainedGradientDescent::reduceStep(){
-  this->stepAtom = this->stepAtom/2.;
+void ConstrainedGradientDescent::reduceStep() {
+  this->stepAtom = this->stepAtom / 2.;
 }

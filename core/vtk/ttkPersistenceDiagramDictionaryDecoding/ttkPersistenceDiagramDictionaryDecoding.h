@@ -32,7 +32,8 @@
 // TTK Base Includes
 #include <PersistenceDiagramDictionaryDecoding.h>
 
-class TTKPERSISTENCEDIAGRAMDICTIONARYDECODING_EXPORT ttkPersistenceDiagramDictionaryDecoding
+class TTKPERSISTENCEDIAGRAMDICTIONARYDECODING_EXPORT
+  ttkPersistenceDiagramDictionaryDecoding
   : public ttkAlgorithm,
     protected ttk::PersistenceDiagramDictionaryDecoding {
 
