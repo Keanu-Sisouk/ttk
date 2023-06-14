@@ -137,10 +137,6 @@ void PersistenceDiagramDictionary::execute(
     }
 
     std::vector<int> sizeCheck(intermediateDiagrams.size(), 0);
-    int sum = 0;
-    for(size_t i = 0; i < intermediateDiagrams.size(); ++i) {
-      sum += sizeCheck[i];
-    }
     int counter = 0;
     for(size_t j = 1; j < percentages.size(); ++j) {
       if(j == percentages.size() - static_cast<size_t>(1) && CompressionMode_) {
@@ -207,7 +203,6 @@ void PersistenceDiagramDictionary::method(
   bool doCompression) {
 
   Timer tm{};
-  double tm_part = 0.;
 
   bool doOptimizeAtoms = false;
   bool doOptimizeWeights = false;
@@ -353,7 +348,6 @@ void PersistenceDiagramDictionary::method(
       "Computed 1st Barycenters for epoch " + std::to_string(epoch),
       epoch / static_cast<double>(maxEpoch), tm_it.getElapsedTime(),
       threadNumber_, debug::LineMode::NEW, debug::Priority::DETAIL);
-    tm_part += static_cast<double>(tm_it.getElapsedTime());
 
     //   "====================BARYCENTER FINISHED======================");
 
@@ -658,7 +652,6 @@ void PersistenceDiagramDictionary::method(
         "Computed 2nd Barycenters for epoch " + std::to_string(epoch),
         epoch / static_cast<double>(maxEpoch), tm_it2.getElapsedTime(),
         threadNumber_, debug::LineMode::NEW, debug::Priority::DETAIL);
-      tm_part += static_cast<double>(tm_it2.getElapsedTime());
 
       barycentersListMin.clear();
       barycentersListSad.clear();
@@ -871,7 +864,6 @@ void PersistenceDiagramDictionary::method(
         }
 
         if(!doCompression) {
-          // if (CreationFeatures){
           for(int i = 0; i < numAtom; ++i) {
             auto &atom = dictDiagrams[i];
             auto &histoEpochAtom = histoAllEpochLife[i];
@@ -924,8 +916,6 @@ void PersistenceDiagramDictionary::method(
             for(size_t j = 0; j < histoEpochAtom.size(); ++j) {
               if(boolUnderDiag[j] || boolDiag[j] || boolAboveGlobal[j]
                  || (histoEpochAtom[j] > 5 && histoBoolAtom[j])) {
-                // if(boolUnderDiag[j] || (histoEpochAtom[j] > 2 &&
-                // histoBoolAtom[j])){
                 indicesAtomToDelete.push_back(j);
               }
             }
@@ -1669,7 +1659,7 @@ void PersistenceDiagramDictionary::computeDirectionsGradWeight(
   const bool doOptimizeAtoms) const {
 
   size_t m = matchingsCritType.size();
-  int k = 0;
+  // int k = 0;
   for(size_t i = 0; i < m; ++i) {
     const ttk::MatchingType &t = matchingsCritType[i];
     // Id in newData
@@ -1677,7 +1667,6 @@ void PersistenceDiagramDictionary::computeDirectionsGradWeight(
     // Id in barycenter
     const SimplexId Id2 = std::get<1>(t);
     if(Id2 < 0) {
-      k += 1;
 
       if(Id1 < 0) {
         continue;
@@ -1721,12 +1710,9 @@ void PersistenceDiagramDictionary::computeDirectionsGradWeight(
         const PersistencePair &t2 = newData[indexDataCritType[Id1]];
         const double birthData = t2.birth.sfValue;
         const double deathData = t2.death.sfValue;
-        // direction[0] = t2.birth.sfValue - t3.birth.sfValue;
-        // direction[1] = t2.death.sfValue - t3.death.sfValue;
         direction[0] = birthData - birthBarycenter;
         direction[1] = deathData - deathBarycenter;
         dataAssigned[indexBaryCritType[Id2]] = {birthData, deathData};
-        // directions[Id2].push_back(direction);
       }
       tracker2[indexBaryCritType[Id2]] = 1;
     }
