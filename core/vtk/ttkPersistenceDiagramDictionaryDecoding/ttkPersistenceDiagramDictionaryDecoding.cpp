@@ -111,8 +111,7 @@ int ttkPersistenceDiagramDictionaryDecoding::RequestData(
     for(size_t i = 0; i < nDiags; ++i) {
       std::string name{"Atom"};
       zeroPad(name, nDiags, i);
-      inputWeights[i] = vtkDataArray::SafeDownCast(
-        weightsVTK->GetColumnByName(name.c_str()));
+      inputWeights[i] = vtkDataArray::SafeDownCast(weightsVTK->GetColumnByName(name.c_str()));
     }
   }
 
@@ -301,8 +300,7 @@ void ttkPersistenceDiagramDictionaryDecoding::outputDiagrams(
         row->SetValue(j, trueCoords[i][1]);
       } else if(strcmp(outputCoordinates->GetColumnName(j), "Z") == 0) {
         row->SetValue(j, trueCoords[i][2]);
-      } else if(strcmp(outputCoordinates->GetColumnName(j), "ClusterID")
-                == 0) {
+      } else if(strcmp(outputCoordinates->GetColumnName(j), "ClusterID") == 0) {
         row->SetValue(j, -1);
       } else {
         continue;
