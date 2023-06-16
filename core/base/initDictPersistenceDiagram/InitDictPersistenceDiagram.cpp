@@ -2,12 +2,13 @@
 
 using namespace ttk;
 
-void InitDictPersistenceDiagram::execute(std::vector<ttk::DiagramType> &DictDiagrams,
-                                const std::vector<ttk::DiagramType> &datas,
-                                const int nbAtoms,
-                                bool do_min_,
-                                bool do_sad_,
-                                bool do_max_) {
+void InitDictPersistenceDiagram::execute(
+  std::vector<ttk::DiagramType> &DictDiagrams,
+  const std::vector<ttk::DiagramType> &datas,
+  const int nbAtoms,
+  bool do_min_,
+  bool do_sad_,
+  bool do_max_) {
 
   const size_t nDiags = datas.size();
 
@@ -49,8 +50,10 @@ void InitDictPersistenceDiagram::execute(std::vector<ttk::DiagramType> &DictDiag
   }
 }
 
-int InitDictPersistenceDiagram::getNextIndex(const Matrix &distMatrix,
-                                    const std::vector<int> &indices) const {
+int InitDictPersistenceDiagram::getNextIndex(
+  const Matrix &distMatrix,
+  const std::vector<int> &indices) const {
+    
   std::vector<double> allSumCumul(distMatrix.size(), 0.);
   for(size_t k = 0; k < indices.size(); ++k) {
     const auto &line = distMatrix[indices[k]];
