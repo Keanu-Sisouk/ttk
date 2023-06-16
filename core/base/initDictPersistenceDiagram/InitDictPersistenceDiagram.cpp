@@ -51,9 +51,7 @@ void InitDictPersistenceDiagram::execute(
 }
 
 int InitDictPersistenceDiagram::getNextIndex(
-  const Matrix &distMatrix,
-  const std::vector<int> &indices) const {
-    
+  const Matrix &distMatrix, const std::vector<int> &indices) const {
   std::vector<double> allSumCumul(distMatrix.size(), 0.);
   for(size_t k = 0; k < indices.size(); ++k) {
     const auto &line = distMatrix[indices[k]];
