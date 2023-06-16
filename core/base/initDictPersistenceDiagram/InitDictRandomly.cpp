@@ -1,6 +1,7 @@
 #include <InitDictRandomly.h>
 #include <Shuffle.h>
 
+#include <numeric>
 #include <random>
 
 using namespace ttk;

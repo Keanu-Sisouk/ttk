@@ -13,10 +13,10 @@
 namespace ttk {
   using Matrix = std::vector<std::vector<double>>;
 
-  class InitFarBorderDict : public Debug {
+  class InitDictPersistenceDiagram : public Debug {
 
   public:
-    InitFarBorderDict() {
+    InitDictPersistenceDiagram() {
       this->setDebugMsgPrefix("InitFarBorderDict");
     };
 

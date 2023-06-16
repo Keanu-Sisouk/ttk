@@ -18,7 +18,7 @@
 #include <limits>
 
 #include <ConstrainedGradientDescent.h>
-#include <InitDictBorder.h>
+#include <InitDictPersistenceDiagram.h>
 #include <InitDictRandomly.h>
 #include <PersistenceDiagramAuction.h>
 #include <PersistenceDiagramClustering.h>

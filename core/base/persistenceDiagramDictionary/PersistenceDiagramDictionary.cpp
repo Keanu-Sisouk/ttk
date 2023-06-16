@@ -1437,7 +1437,7 @@ int PersistenceDiagramDictionary::initDictionary(
     }
 
     case BACKEND::BORDER_INIT: {
-      ttk::InitFarBorderDict initializer;
+      ttk::InitDictPersistenceDiagram initializer;
       initializer.setThreadNumber(this->threadNumber_);
       initializer.execute(dictDiagrams, datas, nbAtom, do_min, do_sad, do_max);
       break;

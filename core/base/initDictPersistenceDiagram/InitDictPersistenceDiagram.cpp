@@ -1,8 +1,8 @@
-#include <InitDictBorder.h>
+#include <InitDictPersistenceDiagram.h>
 
 using namespace ttk;
 
-void InitFarBorderDict::execute(std::vector<ttk::DiagramType> &DictDiagrams,
+void InitDictPersistenceDiagram::execute(std::vector<ttk::DiagramType> &DictDiagrams,
                                 const std::vector<ttk::DiagramType> &datas,
                                 const int nbAtoms,
                                 bool do_min_,
@@ -49,7 +49,7 @@ void InitFarBorderDict::execute(std::vector<ttk::DiagramType> &DictDiagrams,
   }
 }
 
-int InitFarBorderDict::getNextIndex(const Matrix &distMatrix,
+int InitDictPersistenceDiagram::getNextIndex(const Matrix &distMatrix,
                                     const std::vector<int> &indices) const {
   std::vector<double> allSumCumul(distMatrix.size(), 0.);
   for(size_t k = 0; k < indices.size(); ++k) {
