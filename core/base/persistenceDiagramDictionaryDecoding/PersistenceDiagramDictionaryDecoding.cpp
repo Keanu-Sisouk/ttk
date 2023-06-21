@@ -124,6 +124,7 @@ void ttk::PersistenceDiagramDictionaryDecoding::computeAtomsCoordinates(
       case BACKEND::MDS: {
         ttk::DimensionReduction DimProjector;
         DimProjector.setIsInputDistanceMatrix(true);
+        DimProjector.setInputNumberOfComponents(3);
         ttk::PersistenceDiagramDistanceMatrix MatrixCalculator;
         std::array<size_t, 2> nInputs{nAtoms, 0};
         MatrixCalculator.setDos(true, true, true);
@@ -140,12 +141,14 @@ void ttk::PersistenceDiagramDictionaryDecoding::computeAtomsCoordinates(
         std::vector<std::vector<double>> coordsAtom;
         DimProjector.execute(coordsAtom, matrixForProjector, nRow, nRow);
 
-        for(size_t i = 0; i < 2; ++i) {
+        for(size_t i = 0; i < 3; ++i) {
           for(size_t j = 0; j < nAtoms; ++j) {
             if(i == 0) {
               trueCoords[j][0] = coordsAtom[0][j];
-            } else {
+            } else if (i == 1) {
               trueCoords[j][1] = coordsAtom[1][j];
+            } else {
+              trueCoords[j][2] = coordsAtom[2][j];
             }
           }
         }
