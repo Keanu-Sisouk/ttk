@@ -1285,10 +1285,6 @@ void PersistenceDiagramDictionary::setBidderDiagrams(
 
   bidder_diags.resize(nInputs);
 
-#ifdef TTK_ENABLE_OPENMP
-#pragma omp parallel for num_threads(threadNumber_)
-#endif // TTK_ENABLE_OPENMP
-
   for(size_t i = 0; i < nInputs; i++) {
     auto &diag = inputDiagrams[i];
     auto &bidders = bidder_diags[i];
@@ -1804,8 +1800,7 @@ void PersistenceDiagramDictionary::computeDirectionsGradAtoms(
         const PersistencePair &t2 = newData[indexDataCritType[Id1]];
         const double birthData = t2.birth.sfValue;
         const double deathData = t2.death.sfValue;
-        // direction[0] = t2.birth.sfValue - t3.birth.sfValue;
-        // direction[1] = t2.death.sfValue - t3.death.sfValue;
+
         direction[0] = birthData - birthBarycenter;
         direction[1] = deathData - deathBarycenter;
       }
@@ -1908,9 +1903,6 @@ void PersistenceDiagramDictionary::computeAllDistances(
       auto &truedatamin = trueBidderDiagramMin[i];
       size_t sizeMin = truedatamin.size();
 
-      // #ifdef TTK_ENABLE_OPENMP
-      // #pragma omp atomic update
-      // #endif // TTK_ENABLE_OPENMP
       if(firstDistComputation) {
         allLossesAtEpoch[i]
           += computeDistance(datamin, barycentermin, matchingMin);
@@ -1928,9 +1920,7 @@ void PersistenceDiagramDictionary::computeAllDistances(
       auto &datamax = bidderDiagramsMax[i];
       auto &truedatamax = trueBidderDiagramMax[i];
       size_t sizeMax = truedatamax.size();
-      // #ifdef TTK_ENABLE_OPENMP
-      // #pragma omp atomic update
-      // #endif // TTK_ENABLE_OPENMP
+
       if(firstDistComputation) {
         allLossesAtEpoch[i]
           += computeDistance(datamax, barycentermax, matchingMax);
@@ -1948,9 +1938,7 @@ void PersistenceDiagramDictionary::computeAllDistances(
       auto &datasad = bidderDiagramsSad[i];
       auto &truedatasad = trueBidderDiagramSad[i];
       size_t sizeSad = truedatasad.size();
-      // #ifdef TTK_ENABLE_OPENMP
-      // #pragma omp atomic update
-      // #endif // TTK_ENABLE_OPENMP
+
       if(firstDistComputation) {
         allLossesAtEpoch[i]
           += computeDistance(datasad, barycentersListad, matchingSad);

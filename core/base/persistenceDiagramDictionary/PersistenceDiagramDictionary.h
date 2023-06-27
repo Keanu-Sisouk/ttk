@@ -256,7 +256,7 @@ namespace ttk {
     // the persistence paired lambda = 1 : extremum (min if pair min-sad, max if
     // pair sad-max) lambda = 0 : saddle (bad stability) lambda = 1/2 : middle
     // of the 2 critical points of the pair
-    double Lambda;
+    double Lambda{1.0};
     size_t MaxNumberOfPairs{20};
     double MinPersistence_{0.1};
 

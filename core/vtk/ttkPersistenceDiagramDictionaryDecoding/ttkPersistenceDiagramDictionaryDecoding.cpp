@@ -60,8 +60,8 @@ int ttkPersistenceDiagramDictionaryDecoding::RequestData(
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector) {
 
-  auto blocks = vtkMultiBlockDataSet::GetData(inputVector[0]);
-  auto weightsVTK = vtkTable::GetData(inputVector[1]);
+  const auto blocks = vtkMultiBlockDataSet::GetData(inputVector[0]);
+  const auto weightsVTK = vtkTable::GetData(inputVector[1]);
 
   std::vector<vtkUnstructuredGrid *> inputDiagrams;
 
@@ -77,8 +77,10 @@ int ttkPersistenceDiagramDictionaryDecoding::RequestData(
 
   std::vector<ttk::DiagramType> dictDiagrams(nDiags);
   for(size_t i = 0; i < nDiags; ++i) {
+    vtkNew<vtkUnstructuredGrid> vtu;
+    vtu->DeepCopy(inputDiagrams[i]);
     auto &atom = dictDiagrams[i];
-    const auto ret = VTUToDiagram(atom, inputDiagrams[i], *this);
+    const auto ret = VTUToDiagram(atom, vtu, *this);
     if(ret != 0) {
       this->printWrn("Could not read Persistence Diagram");
     }
@@ -100,10 +102,12 @@ int ttkPersistenceDiagramDictionaryDecoding::RequestData(
         colName.append(zer).append(cur);
       };
 
+  vtkNew<vtkTable> temp;
+  temp->DeepCopy(weightsVTK);
   std::vector<vtkDataArray *> inputWeights;
-  int numWeights = weightsVTK->GetNumberOfRows();
-  for(int i = 0; i < weightsVTK->GetNumberOfColumns(); ++i) {
-    std::cout << weightsVTK->GetColumnName(i) << "\n";
+  int numWeights = temp->GetNumberOfRows();
+  for(int i = 0; i < temp->GetNumberOfColumns(); ++i) {
+    std::cout << temp->GetColumnName(i) << "\n";
   }
 
   if(weightsVTK != nullptr) {
@@ -112,7 +116,7 @@ int ttkPersistenceDiagramDictionaryDecoding::RequestData(
       std::string name{"Atom"};
       zeroPad(name, nDiags, i);
       inputWeights[i]
-        = vtkDataArray::SafeDownCast(weightsVTK->GetColumnByName(name.c_str()));
+        = vtkDataArray::SafeDownCast(temp->GetColumnByName(name.c_str()));
     }
   }
 
