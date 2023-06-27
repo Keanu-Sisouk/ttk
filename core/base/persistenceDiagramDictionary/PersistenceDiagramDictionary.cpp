@@ -1800,7 +1800,6 @@ void PersistenceDiagramDictionary::computeDirectionsGradAtoms(
         const PersistencePair &t2 = newData[indexDataCritType[Id1]];
         const double birthData = t2.birth.sfValue;
         const double deathData = t2.death.sfValue;
-
         direction[0] = birthData - birthBarycenter;
         direction[1] = deathData - deathBarycenter;
       }
