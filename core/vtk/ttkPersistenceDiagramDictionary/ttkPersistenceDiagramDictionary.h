@@ -157,10 +157,6 @@ public:
     return -1;
   }
 
-  void SetConstraint(const int arg_) {
-    this->setConstraint(arg_);
-    this->Modified();
-  }
   int GetConstraint() {
     switch(this->Constraint) {
       case ConstraintType::FULL_DIAGRAMS:

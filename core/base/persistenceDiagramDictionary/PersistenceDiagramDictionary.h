@@ -101,19 +101,6 @@ namespace ttk {
     inline void setMinPersistence_(const double data) {
       MinPersistence_ = data;
     }
-    inline void setConstraint(const int data) {
-      if(data == 0) {
-        this->Constraint = ConstraintType::FULL_DIAGRAMS;
-      } else if(data == 1) {
-        this->Constraint = ConstraintType::NUMBER_PAIRS;
-      } else if(data == 2) {
-        this->Constraint = ConstraintType::ABSOLUTE_PERSISTENCE;
-      } else if(data == 3) {
-        this->Constraint = ConstraintType::RELATIVE_PERSISTENCE_PER_DIAG;
-      } else if(data == 4) {
-        this->Constraint = ConstraintType::RELATIVE_PERSISTENCE_GLOBAL;
-      }
-    }
 
   protected:
     BACKEND BackEnd{BACKEND::BORDER_INIT};
