@@ -163,8 +163,6 @@ void ttk::PersistenceDiagramDictionaryDecoding::computeAtomsCoordinates(
         std::vector<ttk::DiagramType> dictDiagrams;
         std::vector<ttk::DiagramType> intermediateAtoms;
         std::vector<double> lossTab;
-        std::vector<double> trueLossTab;
-        std::vector<double> timers;
         std::vector<std::vector<double>> allLosses(nAtoms);
         const int seed = 0;
         const int m = 3;
@@ -177,8 +175,7 @@ void ttk::PersistenceDiagramDictionaryDecoding::computeAtomsCoordinates(
         DictionaryEncoder.setUseDimReduct(false);
         DictionaryEncoder.setUseProgApproach(true);
         DictionaryEncoder.execute(atoms, atoms, dictDiagrams, tempWeights, seed,
-                                  m, lossTab, timers, trueLossTab, allLosses,
-                                  0.);
+                                  m, lossTab, allLosses, 0.);
         std::vector<std::array<double, 3>> tempCoords(3);
         std::vector<std::array<double, 3>> tempTrueCoords(3);
         ttk::PersistenceDiagramDistanceMatrix MatrixCalculator;

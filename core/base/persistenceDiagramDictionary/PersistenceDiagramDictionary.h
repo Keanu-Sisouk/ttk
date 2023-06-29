@@ -39,8 +39,6 @@ namespace ttk {
                  const int seed,
                  const int numAtom,
                  std::vector<double> &lossTab,
-                 std::vector<double> &timers,
-                 std::vector<double> &trueLossTab,
                  std::vector<std::vector<double>> &allLosses,
                  double percent);
 
@@ -49,16 +47,10 @@ namespace ttk {
                 std::vector<std::vector<double>> &vectorWeights,
                 const int numAtom,
                 std::vector<double> &lossTab,
-                std::vector<double> &trueLossTab,
-                std::vector<double> &timers,
                 std::vector<std::vector<double>> &allLosses,
                 std::vector<std::vector<double>> &histoVectorWeights,
                 std::vector<ttk::DiagramType> &histoDictDiagrams,
                 bool preWeightOpt,
-                std::vector<BidderDiagram> &trueBidderDiagramMin,
-                std::vector<BidderDiagram> &trueBidderDiagramSad,
-                std::vector<BidderDiagram> &trueBidderDiagramMax,
-                Timer &tm_method,
                 double percent,
                 bool doCompression);
 
@@ -78,26 +70,12 @@ namespace ttk {
       ProgApproach_ = data;
     }
 
-    inline void setWasserstein(const int data) {
-      Wasserstein = data;
-    }
     inline void setDos(const bool min, const bool sad, const bool max) {
       do_min_ = min;
       do_sad_ = sad;
       do_max_ = max;
     }
-    inline void setAlpha(const double alpha) {
-      Alpha = alpha;
-    }
-    inline void setLambda(const double lambda) {
-      Lambda = lambda;
-    }
-    inline void setDeltaLim(const double deltaLim) {
-      DeltaLim = deltaLim;
-    }
-    inline void setMaxNumberOfPairs(const size_t data) {
-      MaxNumberOfPairs = data;
-    }
+
     inline void setMinPersistence_(const double data) {
       MinPersistence_ = data;
     }
@@ -222,11 +200,7 @@ namespace ttk {
       std::vector<std::vector<ttk::MatchingType>> &matchingsDatasMin,
       std::vector<std::vector<ttk::MatchingType>> &matchingsDatasMax,
       std::vector<std::vector<ttk::MatchingType>> &matchingsDatasSad,
-      std::vector<BidderDiagram> &trueBidderDiagramMin,
-      std::vector<BidderDiagram> &trueBidderDiagramSad,
-      std::vector<BidderDiagram> &trueBidderDiagramMax,
       std::vector<double> &allLossesAtEpoch,
-      std::vector<double> &trueAllLossesAtEpoch,
       bool firstDistComputation) const;
 
     void controlAtomsSize(
