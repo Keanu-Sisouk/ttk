@@ -3,6 +3,7 @@
 #include <ttkPersistenceDiagramUtils.h>
 #include <ttkUtils.h>
 
+#include <vtkAlgorithm.h>
 #include <vtkCellData.h>
 #include <vtkCharArray.h>
 #include <vtkDataArray.h>
@@ -21,7 +22,7 @@ vtkStandardNewMacro(ttkPersistenceDiagramDictionary);
 
 ttkPersistenceDiagramDictionary::ttkPersistenceDiagramDictionary() {
   SetNumberOfInputPorts(2);
-  SetNumberOfOutputPorts(6);
+  SetNumberOfOutputPorts(2);
 }
 
 int ttkPersistenceDiagramDictionary::FillInputPortInformation(
@@ -43,18 +44,6 @@ int ttkPersistenceDiagramDictionary::FillOutputPortInformation(
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkMultiBlockDataSet");
     return 1;
   } else if(port == 1) {
-    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkTable");
-    return 1;
-  } else if(port == 2) {
-    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkTable");
-    return 1;
-  } else if(port == 3) {
-    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkTable");
-    return 1;
-  } else if(port == 4) {
-    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkTable");
-    return 1;
-  } else if(port == 5) {
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkTable");
     return 1;
   } else {
@@ -117,10 +106,7 @@ int ttkPersistenceDiagramDictionary::RequestData(
   // Set output
   auto outputDgm = vtkMultiBlockDataSet::GetData(outputVector, 0);
   auto outputWeights = vtkTable::GetData(outputVector, 1);
-  auto outputLoss = vtkTable::GetData(outputVector, 2);
-  auto outputAllLosses = vtkTable::GetData(outputVector, 3);
-  auto trueOutputLoss = vtkTable::GetData(outputVector, 4);
-  auto outputTimers = vtkTable::GetData(outputVector, 5);
+
   outputDgm->SetNumberOfBlocks(numAtom);
 
   if(BackEnd == BACKEND::INPUT_ATOMS) {
@@ -224,47 +210,6 @@ int ttkPersistenceDiagramDictionary::RequestData(
   for(int i = 0; i < fd->GetNumberOfArrays(); ++i) {
     outputWeights->AddColumn(fd->GetAbstractArray(i));
   }
-
-  vtkNew<vtkDoubleArray> colLoss{};
-  colLoss->SetNumberOfValues(lossTab.size());
-  colLoss->SetName("Loss evolution");
-  for(size_t j = 0; j < lossTab.size(); ++j) {
-    colLoss->SetValue(j, lossTab[j]);
-  }
-  colLoss->Modified();
-  outputLoss->AddColumn(colLoss);
-
-  vtkNew<vtkDoubleArray> trueColLoss{};
-  trueColLoss->SetNumberOfValues(trueLossTab.size());
-  trueColLoss->SetName("True loss evolution");
-  for(size_t j = 0; j < trueLossTab.size(); ++j) {
-    trueColLoss->SetValue(j, trueLossTab[j]);
-  }
-  trueColLoss->Modified();
-  trueOutputLoss->AddColumn(trueColLoss);
-
-  for(int i = 0; i < nDiags; ++i) {
-    std::vector<double> &loss = allLosses[i];
-    std::string name{"Loss squared"};
-    zeroPad(name, nDiags, i);
-    vtkNew<vtkDoubleArray> col{};
-    col->SetNumberOfValues(loss.size());
-    col->SetName(name.c_str());
-    for(size_t j = 0; j < loss.size(); ++j) {
-      col->SetValue(j, loss[j]);
-    }
-    col->Modified();
-    outputAllLosses->AddColumn(col);
-  }
-
-  vtkNew<vtkDoubleArray> colTimers{};
-  colTimers->SetNumberOfValues(timers.size());
-  colTimers->SetName("Timers");
-  for(size_t j = 0; j < timers.size(); ++j) {
-    colTimers->SetValue(j, timers[j]);
-  }
-  colTimers->Modified();
-  outputTimers->AddColumn(colTimers);
 
   vtkNew<vtkFloatArray> dummy{};
 

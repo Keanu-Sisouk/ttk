@@ -146,7 +146,7 @@ void PersistenceDiagramDictionary::execute(
              doCompression);
     }
 
-    std::vector<int> sizeCheck(intermediateDiagrams.size(), 0);
+    // std::vector<int> sizeCheck(intermediateDiagrams.size(), 0);
     int counter = 0;
     for(size_t j = 1; j < percentages.size(); ++j) {
       if(j == percentages.size() - static_cast<size_t>(1) && CompressionMode_) {
@@ -245,55 +245,10 @@ void PersistenceDiagramDictionary::method(
   std::vector<std::vector<size_t>> originIndexDatasSad(nDiags);
   std::vector<std::vector<size_t>> originIndexDatasMax(nDiags);
 
-  // Create diagrams for min, saddle and max persistence pairs
-#ifdef TTK_ENABLE_OPENMP
-#pragma omp parallel for num_threads(threadNumber_)
-#endif // TTK_ENABLE_OPENMP
-  for(size_t i = 0; i < nDiags; i++) {
-    const ttk::DiagramType &CTDiagram = intermediateDiagrams[i];
-
-    for(size_t j = 0; j < CTDiagram.size(); ++j) {
-      const ttk::PersistencePair &t = CTDiagram[j];
-      const ttk::CriticalType nt1 = t.birth.type;
-      const ttk::CriticalType nt2 = t.death.type;
-      const double pers = t.persistence();
-
-      if(pers > 0) {
-        if(nt1 == CriticalType::Local_minimum
-           && nt2 == CriticalType::Local_maximum) {
-          inputDiagramsMin[i].emplace_back(t);
-          originIndexDatasMin[i].push_back(j);
-        } else {
-          if(nt1 == CriticalType::Local_maximum
-             || nt2 == CriticalType::Local_maximum) {
-            inputDiagramsMax[i].emplace_back(t);
-            originIndexDatasMax[i].push_back(j);
-          }
-          if(nt1 == CriticalType::Local_minimum
-             || nt2 == CriticalType::Local_minimum) {
-            inputDiagramsMin[i].emplace_back(t);
-            originIndexDatasMin[i].push_back(j);
-          }
-          if((nt1 == CriticalType::Saddle1 && nt2 == CriticalType::Saddle2)
-             || (nt1 == CriticalType::Saddle2
-                 && nt2 == CriticalType::Saddle1)) {
-            inputDiagramsSad[i].emplace_back(t);
-            originIndexDatasSad[i].push_back(j);
-          }
-        }
-      }
-    }
-  }
-
-  if(this->do_min_) {
-    setBidderDiagrams(nDiags, inputDiagramsMin, bidderDiagramsMin);
-  }
-  if(this->do_sad_) {
-    setBidderDiagrams(nDiags, inputDiagramsSad, bidderDiagramsSad);
-  }
-  if(this->do_max_) {
-    setBidderDiagrams(nDiags, inputDiagramsMax, bidderDiagramsMax);
-  }
+  gettingBidderDiagrams(
+    intermediateDiagrams, inputDiagramsMin, inputDiagramsSad, inputDiagramsMax,
+    bidderDiagramsMin, bidderDiagramsSad, bidderDiagramsMax,
+    originIndexDatasMin, originIndexDatasSad, originIndexDatasMax, true);
 
   std::vector<ttk::DiagramType> barycentersList(nDiags);
   std::vector<std::vector<std::vector<ttk::MatchingType>>> allMatchingsAtoms(
@@ -1437,10 +1392,6 @@ void PersistenceDiagramDictionary::gettingBidderDiagrams(
   bool insertOriginIndexMode) const {
 
   size_t nDiags = intermediateDiagrams.size();
-
-  // std::vector<ttk::DiagramType> inputDiagramsMin(nDiags);
-  // std::vector<ttk::DiagramType> inputDiagramsSad(nDiags);
-  // std::vector<ttk::DiagramType> inputDiagramsMax(nDiags);
 
   // Create diagrams for min, saddle and max persistence pairs
 #ifdef TTK_ENABLE_OPENMP
