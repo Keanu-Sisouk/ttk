@@ -87,8 +87,18 @@ void PersistenceDiagramDictionary::execute(
     std::vector<BidderDiagram> trueBidderDiagramSad{};
     std::vector<BidderDiagram> trueBidderDiagramMax{};
 
-    gettingBidderDiagrams(intermediateDiagrams, trueBidderDiagramMin,
-                          trueBidderDiagramSad, trueBidderDiagramMax);
+    std::vector<ttk::DiagramType> tempDiagramMin(intermediateDiagrams.size());
+    std::vector<ttk::DiagramType> tempDiagramSad(intermediateDiagrams.size());
+    std::vector<ttk::DiagramType> tempDiagramMax(intermediateDiagrams.size());
+
+    std::vector<std::vector<size_t>> temp1;
+    std::vector<std::vector<size_t>> temp2;
+    std::vector<std::vector<size_t>> temp3;
+
+    gettingBidderDiagrams(intermediateDiagrams, tempDiagramMin, tempDiagramSad,
+                          tempDiagramMax, trueBidderDiagramMin,
+                          trueBidderDiagramSad, trueBidderDiagramMax, temp1,
+                          temp2, temp3, false);
 
     int start = 20;
     double stop = percent;
@@ -1415,15 +1425,22 @@ int PersistenceDiagramDictionary::initDictionary(
 
 void PersistenceDiagramDictionary::gettingBidderDiagrams(
   const std::vector<ttk::DiagramType> &intermediateDiagrams,
+  std::vector<ttk::DiagramType> &inputDiagramsMin,
+  std::vector<ttk::DiagramType> &inputDiagramsSad,
+  std::vector<ttk::DiagramType> &inputDiagramsMax,
   std::vector<BidderDiagram> &bidderDiagramsMin,
   std::vector<BidderDiagram> &bidderDiagramsSad,
-  std::vector<BidderDiagram> &bidderDiagramsMax) {
+  std::vector<BidderDiagram> &bidderDiagramsMax,
+  std::vector<std::vector<size_t>> &originIndexMin,
+  std::vector<std::vector<size_t>> &originIndexSad,
+  std::vector<std::vector<size_t>> &originIndexMax,
+  bool insertOriginIndexMode) const {
 
   size_t nDiags = intermediateDiagrams.size();
 
-  std::vector<ttk::DiagramType> inputDiagramsMin(nDiags);
-  std::vector<ttk::DiagramType> inputDiagramsSad(nDiags);
-  std::vector<ttk::DiagramType> inputDiagramsMax(nDiags);
+  // std::vector<ttk::DiagramType> inputDiagramsMin(nDiags);
+  // std::vector<ttk::DiagramType> inputDiagramsSad(nDiags);
+  // std::vector<ttk::DiagramType> inputDiagramsMax(nDiags);
 
   // Create diagrams for min, saddle and max persistence pairs
 #ifdef TTK_ENABLE_OPENMP
@@ -1441,19 +1458,31 @@ void PersistenceDiagramDictionary::gettingBidderDiagrams(
         if(nt1 == CriticalType::Local_minimum
            && nt2 == CriticalType::Local_maximum) {
           inputDiagramsMin[i].emplace_back(t);
+          if(insertOriginIndexMode) {
+            originIndexMin[i].push_back(j);
+          }
         } else {
           if(nt1 == CriticalType::Local_maximum
              || nt2 == CriticalType::Local_maximum) {
             inputDiagramsMax[i].emplace_back(t);
+            if(insertOriginIndexMode) {
+              originIndexMax[i].push_back(j);
+            }
           }
           if(nt1 == CriticalType::Local_minimum
              || nt2 == CriticalType::Local_minimum) {
             inputDiagramsMin[i].emplace_back(t);
+            if(insertOriginIndexMode) {
+              originIndexMin[i].push_back(j);
+            }
           }
           if((nt1 == CriticalType::Saddle1 && nt2 == CriticalType::Saddle2)
              || (nt1 == CriticalType::Saddle2
                  && nt2 == CriticalType::Saddle1)) {
             inputDiagramsSad[i].emplace_back(t);
+            if(insertOriginIndexMode) {
+              originIndexSad[i].push_back(j);
+            }
           }
         }
       }
@@ -1738,55 +1767,12 @@ void PersistenceDiagramDictionary::computeAllDistances(
   std::vector<double> &allLossesAtEpoch,
   std::vector<double> &trueAllLossesAtEpoch,
   bool firstDistComputation) const {
-  // setting BidderDiagram barycentersList
-#ifdef TTK_ENABLE_OPENMP
-#pragma omp parallel for num_threads(threadNumber_)
-#endif // TTK_ENABLE_OPENMP
-  for(size_t i = 0; i < nDiags; i++) {
-    const auto &barycenter = barycentersList[i];
 
-    for(size_t j = 0; j < barycenter.size(); ++j) {
-      const ttk::PersistencePair &t = barycenter[j];
-      const ttk::CriticalType nt1 = t.birth.type;
-      const ttk::CriticalType nt2 = t.death.type;
-      const double pers = t.persistence();
-      // maxDiagPersistence[i] = std::max(pers, maxDiagPersistence[i]);
-
-      if(pers > 0) {
-        if(nt1 == CriticalType::Local_minimum
-           && nt2 == CriticalType::Local_maximum) {
-          barycentersListMin[i].emplace_back(t);
-          originIndexBarysMin[i].push_back(j);
-        } else {
-          if(nt1 == CriticalType::Local_maximum
-             || nt2 == CriticalType::Local_maximum) {
-            barycentersListMax[i].emplace_back(t);
-            originIndexBarysMax[i].push_back(j);
-          }
-          if(nt1 == CriticalType::Local_minimum
-             || nt2 == CriticalType::Local_minimum) {
-            barycentersListMin[i].emplace_back(t);
-            originIndexBarysMin[i].push_back(j);
-          }
-          if((nt1 == CriticalType::Saddle1 && nt2 == CriticalType::Saddle2)
-             || (nt1 == CriticalType::Saddle2
-                 && nt2 == CriticalType::Saddle1)) {
-            barycentersListSad[i].emplace_back(t);
-            originIndexBarysSad[i].push_back(j);
-          }
-        }
-      }
-    }
-  }
-  if(this->do_min_) {
-    setBidderDiagrams(nDiags, barycentersListMin, bidderBarycentersListMin);
-  }
-  if(this->do_sad_) {
-    setBidderDiagrams(nDiags, barycentersListSad, bidderBarycentersListSad);
-  }
-  if(this->do_max_) {
-    setBidderDiagrams(nDiags, barycentersListMax, bidderBarycentersListMax);
-  }
+  gettingBidderDiagrams(barycentersList, barycentersListMin, barycentersListSad,
+                        barycentersListMax, bidderBarycentersListMin,
+                        bidderBarycentersListSad, bidderBarycentersListMax,
+                        originIndexBarysMin, originIndexBarysSad,
+                        originIndexBarysMax, true);
 
   // Compute distance and matchings
 #ifdef TTK_ENABLE_OPENMP

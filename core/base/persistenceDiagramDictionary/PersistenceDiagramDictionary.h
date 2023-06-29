@@ -193,9 +193,16 @@ namespace ttk {
 
     void gettingBidderDiagrams(
       const std::vector<ttk::DiagramType> &intermediateDiagrams,
+      std::vector<ttk::DiagramType> &inputDiagramsMin,
+      std::vector<ttk::DiagramType> &inputDiagramsSad,
+      std::vector<ttk::DiagramType> &inputDiagramsMax,
       std::vector<BidderDiagram> &bidderDiagramsMin,
       std::vector<BidderDiagram> &bidderDiagramsSad,
-      std::vector<BidderDiagram> &bidderDiagramsMax);
+      std::vector<BidderDiagram> &bidderDiagramsMax,
+      std::vector<std::vector<size_t>> &originIndexMin,
+      std::vector<std::vector<size_t>> &originIndexSad,
+      std::vector<std::vector<size_t>> &originIndexMax,
+      bool insertOriginIndexMode) const;
 
     void computeAllDistances(
       std::vector<ttk::DiagramType> &barycentersList,
@@ -260,14 +267,5 @@ namespace ttk {
 
     bool CompressionMode_{false};
     bool DimReductMode_{false};
-
-    enum class ConstraintType {
-      FULL_DIAGRAMS,
-      NUMBER_PAIRS,
-      ABSOLUTE_PERSISTENCE,
-      RELATIVE_PERSISTENCE_PER_DIAG,
-      RELATIVE_PERSISTENCE_GLOBAL,
-    };
-    ConstraintType Constraint{ConstraintType::RELATIVE_PERSISTENCE_GLOBAL};
   };
 } // namespace ttk
