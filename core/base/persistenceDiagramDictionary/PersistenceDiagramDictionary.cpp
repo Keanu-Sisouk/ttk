@@ -1285,6 +1285,9 @@ void PersistenceDiagramDictionary::setBidderDiagrams(
 
   bidder_diags.resize(nInputs);
 
+#ifdef TTK_ENABLE_OPENMP
+#pragma omp parallel for num_threads(threadNumber_)
+#endif // TTK_ENABLE_OPENMP
   for(size_t i = 0; i < nInputs; i++) {
     auto &diag = inputDiagrams[i];
     auto &bidders = bidder_diags[i];
@@ -1297,104 +1300,6 @@ void PersistenceDiagramDictionary::setBidderDiagrams(
       if(b.isDiagonal() || b.x_ == b.y_) {
         this->printMsg("Diagonal point in diagram " + std::to_string(i) + "!",
                        ttk::debug::Priority::DETAIL);
-      }
-    }
-  }
-}
-
-void PersistenceDiagramDictionary::enrichCurrentBidderDiagrams(
-  const std::vector<BidderDiagram> &bidder_diags,
-  std::vector<BidderDiagram> &current_bidder_diags,
-  const std::vector<double> &maxDiagPersistence) const {
-
-  current_bidder_diags.resize(bidder_diags.size());
-  const auto nInputs = current_bidder_diags.size();
-  const auto maxPersistence
-    = *std::max_element(maxDiagPersistence.begin(), maxDiagPersistence.end());
-
-  if(this->Constraint == ConstraintType::ABSOLUTE_PERSISTENCE
-     || this->Constraint == ConstraintType::RELATIVE_PERSISTENCE_PER_DIAG
-     || this->Constraint == ConstraintType::RELATIVE_PERSISTENCE_GLOBAL) {
-    for(size_t i = 0; i < nInputs; ++i) {
-      for(size_t j = 0; j < bidder_diags[i].size(); ++j) {
-        auto b = bidder_diags[i].at(j);
-
-        if( // filter out pairs below absolute persistence threshold
-          (this->Constraint == ConstraintType::ABSOLUTE_PERSISTENCE
-           && b.getPersistence() > this->MinPersistence_)
-          || // filter out pairs below persistence threshold relative to
-          // the most persistent pair *of each diagrams*
-          (this->Constraint == ConstraintType::RELATIVE_PERSISTENCE_PER_DIAG
-           && b.getPersistence()
-                > this->MinPersistence_ * maxDiagPersistence[i])
-          || // filter out pairs below persistence threshold relative to the
-             // most persistence pair *in all diagrams*
-          (this->Constraint == ConstraintType::RELATIVE_PERSISTENCE_GLOBAL
-           && b.getPersistence() > this->MinPersistence_ * maxPersistence)) {
-          b.id_ = current_bidder_diags[i].size();
-          b.setPositionInAuction(current_bidder_diags[i].size());
-          current_bidder_diags[i].emplace_back(b);
-        }
-      }
-    }
-    return;
-  }
-
-  const double prev_min_persistence = 2.0 * getMostPersistent(bidder_diags);
-  double new_min_persistence = 0.0;
-
-  // 1. Get size of the largest current diagram, deduce the maximal number
-  // of points to append
-  size_t maxDiagramSize = 0;
-  for(const auto &diag : current_bidder_diags) {
-    maxDiagramSize = std::max(static_cast<size_t>(diag.size()), maxDiagramSize);
-  }
-  size_t maxPointsToAdd = std::max(
-    this->MaxNumberOfPairs, this->MaxNumberOfPairs + maxDiagramSize / 10);
-  // 2. Get which points can be added, deduce the new minimal persistence
-  std::vector<std::vector<int>> candidates_to_be_added(nInputs);
-  std::vector<std::vector<size_t>> idx(nInputs);
-
-  for(size_t i = 0; i < nInputs; i++) {
-    double local_min_persistence = std::numeric_limits<double>::min();
-    std::vector<double> persistences;
-    for(size_t j = 0; j < bidder_diags[i].size(); j++) {
-      Bidder b = bidder_diags[i].at(j);
-      double persistence = b.getPersistence();
-      if(persistence >= 0.0 && persistence <= prev_min_persistence) {
-        candidates_to_be_added[i].emplace_back(j);
-        idx[i].emplace_back(idx[i].size());
-        persistences.emplace_back(persistence);
-      }
-    }
-    const auto cmp = [&persistences](const size_t a, const size_t b) {
-      return ((persistences[a] > persistences[b])
-              || ((persistences[a] == persistences[b]) && (a > b)));
-    };
-    std::sort(idx[i].begin(), idx[i].end(), cmp);
-    const auto size = candidates_to_be_added[i].size();
-    if(size >= maxPointsToAdd) {
-      double lastPersistenceAdded = persistences[idx[i][maxPointsToAdd - 1]];
-      if(lastPersistenceAdded > local_min_persistence) {
-        local_min_persistence = lastPersistenceAdded;
-      }
-    }
-    if(i == 0) {
-      new_min_persistence = local_min_persistence;
-    } else {
-      if(local_min_persistence < new_min_persistence) {
-        new_min_persistence = local_min_persistence;
-      }
-    }
-    // 3. Add the points to the current diagrams
-    const auto s = candidates_to_be_added[i].size();
-    for(size_t j = 0; j < std::min(maxPointsToAdd, s); j++) {
-      Bidder b = bidder_diags[i].at(candidates_to_be_added[i][idx[i][j]]);
-      const double persistence = b.getPersistence();
-      if(persistence >= new_min_persistence) {
-        b.id_ = current_bidder_diags[i].size();
-        b.setPositionInAuction(current_bidder_diags[i].size());
-        current_bidder_diags[i].emplace_back(b);
       }
     }
   }

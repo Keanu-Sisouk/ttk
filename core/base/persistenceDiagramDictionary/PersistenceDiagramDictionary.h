@@ -190,16 +190,9 @@ namespace ttk {
       std::vector<PersistencePair> &infoToAdd,
       const bool doOptimizeAtoms) const;
 
-    // A modifier
     void setBidderDiagrams(const size_t nInputs,
                            std::vector<ttk::DiagramType> &inputDiagrams,
                            std::vector<BidderDiagram> &bidder_diags) const;
-
-    // A modifier
-    void enrichCurrentBidderDiagrams(
-      const std::vector<BidderDiagram> &bidder_diags,
-      std::vector<BidderDiagram> &current_bidder_diags,
-      const std::vector<double> &maxDiagPersistence) const;
 
     int initDictionary(std::vector<ttk::DiagramType> &dictDiagrams,
                        const std::vector<ttk::DiagramType> &datas,
