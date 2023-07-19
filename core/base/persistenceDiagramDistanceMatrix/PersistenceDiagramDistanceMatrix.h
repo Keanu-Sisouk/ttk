@@ -23,6 +23,7 @@
 
 #include <Debug.h>
 #include <PersistenceDiagramAuction.h>
+#include <PersistenceDiagramSlicedWasserstein.h>
 #include <PersistenceDiagramUtils.h>
 
 namespace ttk {
@@ -94,6 +95,11 @@ namespace ttk {
       std::vector<BidderDiagram> &current_bidder_diags,
       const std::vector<double> &maxDiagPersistence) const;
 
+    void setCurrentDiagrams(
+      const std::vector<DiagramType> &inputDiagrams,
+      std::vector<DiagramType> &currentInputDiagrams,
+      const std::vector<double> &maxDiagPersistence) const;
+
     int Wasserstein{2};
     double Alpha{1.0};
     double DeltaLim{0.01};
@@ -120,5 +126,7 @@ namespace ttk {
       WASSERSTEIN,
       SLICEDWASSERSTEIN,
     };
+
+    DistanceType Distance{DistanceType::WASSERSTEIN};
   };
 } // namespace ttk

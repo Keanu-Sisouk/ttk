@@ -41,9 +41,6 @@ namespace ttk {
   protected:
 
 
-
-
-
     void projectionOnThetaLine(const ttk::DiagramType &diag,
                                const std::vector<std::array<double, 2>> &proj,
                                std::vector<std::array<double, 2>> &projOnTheta,

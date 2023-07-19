@@ -17,7 +17,7 @@ double PersistenceDiagramSlicedWasserstein::execute(
     std::vector<double> thetaList(sampleNumber);
     for(int i = 0; i < sampleNumber ; ++i){
         const double theta = static_cast<double>(i) * 
-            M_PI/ static_cast<double>(sampleNumber);
+            M_PI / static_cast<double>(sampleNumber);
         thetaList[i] = theta;
     }
 
@@ -37,7 +37,7 @@ double PersistenceDiagramSlicedWasserstein::execute(
         projectionOnThetaLine(diag2, proj2, projOnTheta2, theta);
 
         double distOneLine = 0.;
-        
+
         for(size_t k = 0; k < projOnTheta1.size(); ++k){
             auto &p1 = projOnTheta1[k];
             auto &p2 = projOnTheta2[k];

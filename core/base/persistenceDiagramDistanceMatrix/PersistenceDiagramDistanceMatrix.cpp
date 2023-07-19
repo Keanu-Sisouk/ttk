@@ -1,3 +1,4 @@
+#include "PersistenceDiagramUtils.h"
 #include <algorithm>
 #include <limits>
 
@@ -69,65 +70,94 @@ std::vector<std::vector<double>> PersistenceDiagramDistanceMatrix::execute(
     }
   }
 
-  if(this->do_min_) {
-    setBidderDiagrams(nDiags, inputDiagramsMin, bidder_diagrams_min);
-  }
-  if(this->do_sad_) {
-    setBidderDiagrams(nDiags, inputDiagramsSad, bidder_diagrams_sad);
-  }
-  if(this->do_max_) {
-    setBidderDiagrams(nDiags, inputDiagramsMax, bidder_diagrams_max);
-  }
-
-  switch(this->Constraint) {
-    case ConstraintType::FULL_DIAGRAMS:
-      this->printMsg("Using all diagram pairs");
-      break;
-    case ConstraintType::NUMBER_PAIRS:
-      this->printMsg("Using the " + std::to_string(this->MaxNumberOfPairs)
-                     + " most persistent pairs");
-      break;
-    case ConstraintType::ABSOLUTE_PERSISTENCE: {
-      std::stringstream pers{};
-      pers << std::fixed << std::setprecision(2) << this->MinPersistence;
-      this->printMsg("Using diagram pairs above a persistence threshold of "
-                     + pers.str());
-    } break;
-    case ConstraintType::RELATIVE_PERSISTENCE_PER_DIAG:
-      this->printMsg(
-        "Using the "
-        + std::to_string(static_cast<int>(100 * (1 - this->MinPersistence)))
-        + "% most persistent pairs of every diagram");
-      break;
-    case ConstraintType::RELATIVE_PERSISTENCE_GLOBAL:
-      this->printMsg(
-        "Using the "
-        + std::to_string(static_cast<int>(100 * (1 - this->MinPersistence)))
-        + "% most persistent pairs of all diagrams");
-      break;
-  }
-
   std::vector<std::vector<double>> distMat{};
-  if(this->Constraint == ConstraintType::FULL_DIAGRAMS) {
-    getDiagramsDistMat(nInputs, distMat, bidder_diagrams_min,
-                       bidder_diagrams_sad, bidder_diagrams_max);
-  } else {
-    if(this->do_min_) {
-      enrichCurrentBidderDiagrams(
-        bidder_diagrams_min, current_bidder_diagrams_min, maxDiagPersistence);
-    }
-    if(this->do_sad_) {
-      enrichCurrentBidderDiagrams(
-        bidder_diagrams_sad, current_bidder_diagrams_sad, maxDiagPersistence);
-    }
-    if(this->do_max_) {
-      enrichCurrentBidderDiagrams(
-        bidder_diagrams_max, current_bidder_diagrams_max, maxDiagPersistence);
-    }
-    getDiagramsDistMat(nInputs, distMat, current_bidder_diagrams_min,
-                       current_bidder_diagrams_sad,
-                       current_bidder_diagrams_max);
+
+  switch(this->Distance){
+    case DistanceType::SLICEDWASSERSTEIN: {
+      std::vector<DiagramType> currentInputDiagramsMin(nDiags);
+      std::vector<DiagramType> currentInputDiagramsSad(nDiags);
+      std::vector<DiagramType> currentInputDiagramsMax(nDiags);
+
+      if(this->do_min_) {
+        setCurrentDiagrams(
+          inputDiagramsMin, currentInputDiagramsMin, maxDiagPersistence);
+      }
+      if(this->do_sad_) {
+        setCurrentDiagrams(
+          inputDiagramsSad, currentInputDiagramsSad, maxDiagPersistence);
+      }
+      if(this->do_max_) {
+        setCurrentDiagrams(
+          inputDiagramsMax, currentInputDiagramsMax, maxDiagPersistence);
+      }
+
+
+      
+
+
+    } break;
+    case DistanceType::WASSERSTEIN: {
+      if(this->do_min_) {
+        setBidderDiagrams(nDiags, inputDiagramsMin, bidder_diagrams_min);
+      }
+      if(this->do_sad_) {
+        setBidderDiagrams(nDiags, inputDiagramsSad, bidder_diagrams_sad);
+      }
+      if(this->do_max_) {
+        setBidderDiagrams(nDiags, inputDiagramsMax, bidder_diagrams_max);
+      }
+
+      switch(this->Constraint) {
+        case ConstraintType::FULL_DIAGRAMS:
+          this->printMsg("Using all diagram pairs");
+          break;
+        case ConstraintType::NUMBER_PAIRS:
+          this->printMsg("Using the " + std::to_string(this->MaxNumberOfPairs)
+                        + " most persistent pairs");
+          break;
+        case ConstraintType::ABSOLUTE_PERSISTENCE: {
+          std::stringstream pers{};
+          pers << std::fixed << std::setprecision(2) << this->MinPersistence;
+          this->printMsg("Using diagram pairs above a persistence threshold of "
+                        + pers.str());
+        } break;
+        case ConstraintType::RELATIVE_PERSISTENCE_PER_DIAG:
+          this->printMsg(
+            "Using the "
+            + std::to_string(static_cast<int>(100 * (1 - this->MinPersistence)))
+            + "% most persistent pairs of every diagram");
+          break;
+        case ConstraintType::RELATIVE_PERSISTENCE_GLOBAL:
+          this->printMsg(
+            "Using the "
+            + std::to_string(static_cast<int>(100 * (1 - this->MinPersistence)))
+            + "% most persistent pairs of all diagrams");
+          break;
+      }
+
+      if(this->Constraint == ConstraintType::FULL_DIAGRAMS) {
+        getDiagramsDistMat(nInputs, distMat, bidder_diagrams_min,
+                          bidder_diagrams_sad, bidder_diagrams_max);
+      } else {
+        if(this->do_min_) {
+          enrichCurrentBidderDiagrams(
+            bidder_diagrams_min, current_bidder_diagrams_min, maxDiagPersistence);
+        }
+        if(this->do_sad_) {
+          enrichCurrentBidderDiagrams(
+            bidder_diagrams_sad, current_bidder_diagrams_sad, maxDiagPersistence);
+        }
+        if(this->do_max_) {
+          enrichCurrentBidderDiagrams(
+            bidder_diagrams_max, current_bidder_diagrams_max, maxDiagPersistence);
+        }
+        getDiagramsDistMat(nInputs, distMat, current_bidder_diagrams_min,
+                          current_bidder_diagrams_sad,
+                          current_bidder_diagrams_max);
+      }
+    } break;
   }
+
 
   this->printMsg("Complete", 1.0, tm.getElapsedTime(), this->threadNumber_);
 
@@ -353,4 +383,41 @@ void PersistenceDiagramDistanceMatrix::enrichCurrentBidderDiagrams(
       }
     }
   }
+}
+
+
+
+void PersistenceDiagramDistanceMatrix::setCurrentDiagrams(
+  const std::vector<DiagramType> &inputDiagrams,
+  std::vector<DiagramType> &currentInputDiagrams,
+  const std::vector<double> &maxDiagPersistence) const {
+
+    const auto maxPersistence
+      = *std::max_element(maxDiagPersistence.begin(), maxDiagPersistence.end());
+
+    if(this->Constraint == ConstraintType::ABSOLUTE_PERSISTENCE
+      || this->Constraint == ConstraintType::RELATIVE_PERSISTENCE_PER_DIAG
+      || this->Constraint == ConstraintType::RELATIVE_PERSISTENCE_GLOBAL) {
+      for(size_t i = 0; i < inputDiagrams.size(); ++i) {
+        auto &diag = inputDiagrams[i];
+        for(size_t j = 0; j < diag.size(); ++j) {
+          
+          auto &b = diag[j];
+          if( // filter out pairs below absolute persistence threshold
+            (this->Constraint == ConstraintType::ABSOLUTE_PERSISTENCE
+            && b.persistence() > this->MinPersistence)
+            || // filter out pairs below persistence threshold relative to
+            // the most persistent pair *of each diagrams*
+            (this->Constraint == ConstraintType::RELATIVE_PERSISTENCE_PER_DIAG
+            && b.persistence() > this->MinPersistence * maxDiagPersistence[i])
+            || // filter out pairs below persistence threshold relative to the
+              // most persistence pair *in all diagrams*
+            (this->Constraint == ConstraintType::RELATIVE_PERSISTENCE_GLOBAL
+            && b.persistence() > this->MinPersistence * maxPersistence)) {
+            currentInputDiagrams[i].emplace_back(b);
+          }
+        }
+      }
+      return;
+    }    
 }
