@@ -1,0 +1,9 @@
+ttk_add_base_library(persistenceDiagramSlicedWasserstein
+  SOURCES
+    PersistenceDiagramSlicedWasserstein.cpp
+  HEADERS
+    PersistenceDiagramSlicedWasserstein.h
+  DEPENDS
+    common
+    persistenceDiagramAuction
+  )

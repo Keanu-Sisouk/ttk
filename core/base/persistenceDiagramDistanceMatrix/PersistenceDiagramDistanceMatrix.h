@@ -115,5 +115,10 @@ namespace ttk {
       RELATIVE_PERSISTENCE_GLOBAL,
     };
     ConstraintType Constraint{ConstraintType::RELATIVE_PERSISTENCE_GLOBAL};
+
+    enum class DistanceType {
+      WASSERSTEIN,
+      SLICEDWASSERSTEIN,
+    };
   };
 } // namespace ttk
