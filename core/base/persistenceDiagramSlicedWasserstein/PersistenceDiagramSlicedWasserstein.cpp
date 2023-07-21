@@ -15,10 +15,10 @@ double PersistenceDiagramSlicedWasserstein::execute(
     double dist = 0.;
 
     std::vector<double> thetaList(sampleNumber);
-    for(int i = 0; i < sampleNumber ; ++i){
-        const double theta = static_cast<double>(i) * 
+    for(int p = 0; p < sampleNumber ; ++p){
+        const double theta = static_cast<double>(p) * 
             M_PI / static_cast<double>(sampleNumber);
-        thetaList[i] = theta;
+        thetaList[p] = theta;
     }
 
     std::vector<std::array<double, 2>> proj1;
@@ -27,9 +27,9 @@ double PersistenceDiagramSlicedWasserstein::execute(
     augmentDiagram(diag1, proj2);
     augmentDiagram(diag2, proj1);
 
-    for(size_t j = 0; j < thetaList.size(); ++j){
+    for(size_t p = 0; p < thetaList.size(); ++p){
 
-        double theta = thetaList[j];
+        const double theta = thetaList[p];
         std::vector<std::array<double, 2>> projOnTheta1;
         std::vector<std::array<double, 2>> projOnTheta2;
 
@@ -41,13 +41,12 @@ double PersistenceDiagramSlicedWasserstein::execute(
         for(size_t k = 0; k < projOnTheta1.size(); ++k){
             auto &p1 = projOnTheta1[k];
             auto &p2 = projOnTheta2[k];
-            double diffX = p1[0] - p2[0];
-            double diffY = p1[1] - p2[1];
+            const double diffX = p1[0] - p2[0];
+            const double diffY = p1[1] - p2[1];
             distOneLine += diffX*diffX + diffY*diffY;
         }
 
         dist += distOneLine / static_cast<double>(sampleNumber);
-
     }
 
     return dist;
@@ -81,8 +80,10 @@ void PersistenceDiagramSlicedWasserstein::projectionOnThetaLine(
 
     std::sort(projOnTheta.begin(), projOnTheta.end(), 
         [](std::array<double, 2> p1, std::array<double, 2> p2) 
-        { return sqrt(p1[0]*p1[0]+p1[1]*p1[1]) < sqrt(p2[0]*p2[0]+ p2[1]*p2[0]);});
-    
+        { 
+            return (p1[0] < p2[0]);
+        });
+
 }
 
 void PersistenceDiagramSlicedWasserstein::augmentDiagram(

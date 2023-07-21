@@ -45,6 +45,23 @@
       </InputProperty>
 
       <IntVectorProperty
+         name="Distance"
+         label="Distance Type"
+         command="SetDistance"
+         number_of_elements="1"
+        default_values="0"
+        panel_visibility="advanced" >
+    <EnumerationDomain name="enum">
+         <Entry value="0" text="Wasserstein"/>
+         <Entry value="1" text="Sliced Wasserstein"/>
+       </EnumerationDomain>
+       <Documentation>
+           Specify the distance to be used.
+       </Documentation>
+     </IntVectorProperty>
+
+
+      <IntVectorProperty
           name="Critical pairs"
           label="Critical pairs used"
           command="SetPairType"

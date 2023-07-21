@@ -73,9 +73,7 @@ void ConstrainedGradientDescent::gradientDescentWeights(
   int n = weights.size();
   double stepWeight;
   double L = 0.;
-#ifndef TTK_ENABLE_EIGEN
-  maxEigenValue = false;
-#endif // TTK_ENABLE_EIGEN
+
   if(maxEigenValue) {
 #ifdef TTK_ENABLE_EIGEN
     for(size_t i = 0; i < hessianList.size(); ++i) {
@@ -113,10 +111,6 @@ void ConstrainedGradientDescent::gradientDescentWeights(
     weights[i] = weights[i] - stepWeight * grad[i];
   }
 }
-
-// TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
-// METTRE TIMER POUR VOIR QUOI PARALELLISER
-// TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
 
 void ConstrainedGradientDescent::gradientDescentAtoms(
   std::vector<ttk::DiagramType> &DictDiagrams,
@@ -234,9 +228,7 @@ void ConstrainedGradientDescent::gradientDescentAtoms(
     tracker.push_back(1);
   }
 
-  // #ifdef TTK_ENABLE_OPENMP
-  // #pragma omp parallel for num_threads(threadNumber_)
-  // #endif // TTK_ENABLE_OPENMP
+
   for(size_t i = 0; i < gradBuffersList.size(); ++i) {
     if(tracker[i] == 0 || checkerAtomsExt[i] == 0) {
 

@@ -23,6 +23,7 @@
 #pragma once
 
 // VTK includes
+#include "ttkMacros.h"
 #include <vtkInformation.h>
 #include <vtkInformationVector.h>
 
@@ -32,6 +33,7 @@
 // ttk code includes
 #include <PersistenceDiagramDistanceMatrix.h>
 #include <ttkAlgorithm.h>
+#include <vtkSetGet.h>
 
 class TTKPERSISTENCEDIAGRAMDISTANCEMATRIX_EXPORT
   ttkPersistenceDiagramDistanceMatrix
@@ -125,6 +127,9 @@ public:
 
   vtkSetMacro(MinPersistence, double);
   vtkGetMacro(MinPersistence, double);
+
+  ttkSetEnumMacro(Distance, DistanceType);
+  vtkGetEnumMacro(Distance, DistanceType);
 
 protected:
   ttkPersistenceDiagramDistanceMatrix();
