@@ -1,0 +1,9 @@
+NAME
+  ttkPersistenceDiagramDistanceBound
+SOURCES
+  ttkPersistenceDiagramDistanceBound.cpp
+HEADERS
+  ttkPersistenceDiagramDistanceBound.h
+DEPENDS
+  persistenceDiagramDistanceBound
+  ttkAlgorithm
