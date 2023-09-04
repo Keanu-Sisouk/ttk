@@ -9,6 +9,6 @@ ttk_add_base_library(persistenceDiagramDistanceBound
     )
 
 if(TTK_ENABLE_EIGEN)
-  target_compile_definitions(constrainedGradientDescent PRIVATE TTK_ENABLE_EIGEN)
-  target_link_libraries(constrainedGradientDescent PRIVATE Eigen3::Eigen)
+  target_compile_definitions(persistenceDiagramDistanceBound PUBLIC TTK_ENABLE_EIGEN)
+  target_link_libraries(persistenceDiagramDistanceBound PUBLIC Eigen3::Eigen)
 endif()

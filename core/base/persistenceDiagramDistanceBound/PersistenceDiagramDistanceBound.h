@@ -30,6 +30,7 @@
 #endif // TTK_ENABLE_EIGEN
 
 
+
 namespace ttk {
 
   class PersistenceDiagramDistanceBound : virtual public Debug {
@@ -76,7 +77,7 @@ namespace ttk {
   protected:
     double result{};
     bool printRes{true};
-    double kDim = 2.0;
+    double kDim = 2.;
     int wassersteinParam = 2;
   };
 } // namespace ttk
@@ -101,7 +102,7 @@ double ttk::PersistenceDiagramDistanceBound::execute(const dataType *const input
   status = computeLinf(inputData1, inputData2, vertexNumber);
 
   double lips1 = computeLipsCst(triangulation, inputData1);
-  double lips2 = computeLipsCst(triangulation, inputData1);
+  double lips2 = computeLipsCst(triangulation, inputData2);
 
   unsigned int dim = triangulation->getNumberOfVertices();
   float p0[3], p1[3];
@@ -109,8 +110,9 @@ double ttk::PersistenceDiagramDistanceBound::execute(const dataType *const input
   triangulation->getVertexPoint(static_cast<int>(dim) - 1, p1[0], p1[1], p1[2]);
 
   float wide = p1[0] - p0[0];
-  float height = p1[1] - p1[1];
+  float height = p1[1] - p0[1];
   double lebesgueMeasure = wide*height;
+
 
   if(lips1 > lips2){
     bound = pow((1. / M_PI) * lebesgueMeasure * pow(lips1, kDim), 1./static_cast<double>(wassersteinParam))
@@ -156,6 +158,7 @@ int ttk::PersistenceDiagramDistanceBound::computeLinf(const dataType *const inpu
   return 0;
 }
 
+
 template <class dataType>
 double ttk::PersistenceDiagramDistanceBound::computeLipsCst(
   const AbstractTriangulation *triangulation,
@@ -167,6 +170,7 @@ double ttk::PersistenceDiagramDistanceBound::computeLipsCst(
   std::vector<double> allNorm(dim);
 
 #ifdef TTK_ENABLE_EIGEN
+
 #ifdef TTK_ENABLE_OPENMP
 #pragma omp parallel for schedule(dynamic) num_threads(this->threadNumber_)
 #endif
@@ -174,6 +178,7 @@ double ttk::PersistenceDiagramDistanceBound::computeLipsCst(
 
     double iter;
     auto neighborNum = triangulation->getVertexNeighborNumber(i);
+
     float p0[3];
     triangulation->getVertexPoint(i, p0[0], p0[1], p0[2]);
     Eigen::MatrixXf V(neighborNum, 2);
@@ -185,12 +190,12 @@ double ttk::PersistenceDiagramDistanceBound::computeLipsCst(
       SimplexId neighborId;
       triangulation->getVertexNeighbor(i, j, neighborId);
       float p1[3];
-      triangulation->getVertexPoint(neighbordId, p1[0], p1[1], p1[2]);
+      triangulation->getVertexPoint(neighborId, p1[0], p1[1], p1[2]);
       float value2 =  static_cast<float>(input[neighborId]);
 
       V(j,0) = (float)p1[0] - (float)p0[0];
       V(j,1) = (float)p1[1] - (float)p0[1];
-      f(j) = value2 - value1;
+      f(j) = value2 - value;
     }
 
     Eigen::VectorXf grad = V.colPivHouseholderQr().solve(f);
@@ -198,10 +203,9 @@ double ttk::PersistenceDiagramDistanceBound::computeLipsCst(
 
     allNorm[i] = iter;
   }
+
   lips = *std::max_element(allNorm.begin(), allNorm.end());
 #endif //TTK_ENABLE_EIGEN
-
   return lips;
-  }
-
+}
 

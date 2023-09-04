@@ -1,0 +1,4 @@
+NAME
+ ttkPersistenceDiagramDistanceBoundMatrix
+DEPENDS
+ ttkAlgorithm
