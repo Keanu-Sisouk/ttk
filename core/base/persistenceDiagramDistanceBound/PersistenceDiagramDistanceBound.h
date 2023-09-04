@@ -111,14 +111,15 @@ double ttk::PersistenceDiagramDistanceBound::execute(const dataType *const input
 
   float wide = p1[0] - p0[0];
   float height = p1[1] - p0[1];
+
   double lebesgueMeasure = wide*height;
 
 
   if(lips1 > lips2){
-    bound = pow((1. / M_PI) * lebesgueMeasure * pow(lips1, kDim), 1./static_cast<double>(wassersteinParam))
+    bound = pow((2. / M_PI) * lebesgueMeasure * pow(lips1, kDim), 1./static_cast<double>(wassersteinParam))
         *pow(result, 1. - kDim/static_cast<double>(wassersteinParam));
   } else {
-    bound = pow((1. / M_PI) * lebesgueMeasure * pow(lips2, kDim), 1./static_cast<double>(wassersteinParam))
+    bound = pow((2. / M_PI) * lebesgueMeasure * pow(lips2, kDim), 1./static_cast<double>(wassersteinParam))
         *pow(result, 1. - kDim/static_cast<double>(wassersteinParam));
   }
   if(this->printRes) {
