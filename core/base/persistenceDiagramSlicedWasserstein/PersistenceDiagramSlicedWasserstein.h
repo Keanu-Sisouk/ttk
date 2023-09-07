@@ -49,5 +49,16 @@ namespace ttk {
     void augmentDiagram(const ttk::DiagramType &diag,
                         std::vector<std::array<double, 2>> &proj);
 
+    void slicedTransport(std::vector<ttk::MatchingType> &matchings,
+                        const ttk::DiagramType &diag1,
+                        const ttk::DiagramType &diag2,
+                        int sampleNumber);
+
+    void projectionOnThetaLine(const std::vector<std::array<double,2>> &limitMeasure,
+                              std::vector<std::array<double, 2>> &projOnTheta,
+                              double theta);
+
+    int EPOCH_MAX = 50;
+
   };
 } // namespace ttk

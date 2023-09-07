@@ -61,6 +61,12 @@ namespace ttk {
     double computeLipsCst(const AbstractTriangulation *triangulation,
                           const dataType *const input);
 
+
+    template <class dataType>
+    int computeLp(const dataType *const input1,
+                  const dataType *const input2,
+                  const AbstractTriangulation *triangulation);
+
     inline double getResult() {
       return result;
     }
@@ -99,29 +105,31 @@ double ttk::PersistenceDiagramDistanceBound::execute(const dataType *const input
   }
 #endif
 
-  status = computeLinf(inputData1, inputData2, vertexNumber);
+  status = computeLp(inputData1, inputData2, triangulation);
+  bound = pow(result, 1./wassersteinParam);
+  // status = computeLinf(inputData1, inputData2, vertexNumber);
 
-  double lips1 = computeLipsCst(triangulation, inputData1);
-  double lips2 = computeLipsCst(triangulation, inputData2);
+  // double lips1 = computeLipsCst(triangulation, inputData1);
+  // double lips2 = computeLipsCst(triangulation, inputData2);
 
-  unsigned int dim = triangulation->getNumberOfVertices();
-  float p0[3], p1[3];
-  triangulation->getVertexPoint(0, p0[0], p0[1], p0[2]);
-  triangulation->getVertexPoint(static_cast<int>(dim) - 1, p1[0], p1[1], p1[2]);
+  // unsigned int dim = triangulation->getNumberOfVertices();
+  // float p0[3], p1[3];
+  // triangulation->getVertexPoint(0, p0[0], p0[1], p0[2]);
+  // triangulation->getVertexPoint(static_cast<int>(dim) - 1, p1[0], p1[1], p1[2]);
 
-  float wide = p1[0] - p0[0];
-  float height = p1[1] - p0[1];
+  // float wide = p1[0] - p0[0];
+  // float height = p1[1] - p0[1];
 
-  double lebesgueMeasure = wide*height;
+  // double lebesgueMeasure = wide*height;
 
 
-  if(lips1 > lips2){
-    bound = pow((2. / M_PI) * lebesgueMeasure * pow(lips1, kDim), 1./static_cast<double>(wassersteinParam))
-        *pow(result, 1. - kDim/static_cast<double>(wassersteinParam));
-  } else {
-    bound = pow((2. / M_PI) * lebesgueMeasure * pow(lips2, kDim), 1./static_cast<double>(wassersteinParam))
-        *pow(result, 1. - kDim/static_cast<double>(wassersteinParam));
-  }
+  // if(lips1 > lips2){
+  //   bound = pow((2. / M_PI) * lebesgueMeasure * pow(lips1, kDim), 1./static_cast<double>(wassersteinParam))
+  //       *pow(result, 1. - kDim/static_cast<double>(wassersteinParam));
+  // } else {
+  //   bound = pow((2. / M_PI) * lebesgueMeasure * pow(lips2, kDim), 1./static_cast<double>(wassersteinParam))
+  //       *pow(result, 1. - kDim/static_cast<double>(wassersteinParam));
+  // }
   if(this->printRes) {
 
     this->printMsg("Stability bound: " + std::to_string(bound));
@@ -210,3 +218,42 @@ double ttk::PersistenceDiagramDistanceBound::computeLipsCst(
   return lips;
 }
 
+template <class dataType>
+int ttk::PersistenceDiagramDistanceBound::computeLp(const dataType *const input1,
+                                const dataType *const input2,
+                                const AbstractTriangulation *triangulation) {
+
+unsigned int dim = triangulation->getNumberOfCells();
+
+dataType Lp_norm = 0;
+
+#ifdef TTK_ENABLE_OPENMP
+#pragma omp parallel for schedule(dynamic) num_threads(this->threadNumber_)
+#endif
+  for(unsigned int i = 1; i < dim; ++i) {
+    dataType temp1 = 0;
+    dataType temp2 = 0;
+    std::vector<SimplexId> verticesId{3};
+
+    for(int j = 0; j < 3 ; ++j){
+      triangulation->getTriangleVertex(i, j , verticesId[j]);
+    }
+
+    dataType iter1;
+    dataType iter2;
+    for(int j = 0; j < 3; ++j){
+      iter1 = input1[verticesId[j]];
+      iter2 = input2[verticesId[j]];
+      if(temp1 < iter1){
+        temp1 = iter1;
+      }
+      if(temp2 < iter2){
+        temp2 = iter2;
+      }
+    }
+    Lp_norm += pow(static_cast<double>(abs_diff<dataType>(temp1, temp2)), wassersteinParam);
+  }
+
+  result = (double)Lp_norm;
+  return 0;
+}

@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <array>
 #include <limits>
+#include <numeric>
 
 #include <PersistenceDiagramSlicedWasserstein.h>
 
@@ -98,4 +99,122 @@ void PersistenceDiagramSlicedWasserstein::augmentDiagram(
         const std::array<double, 2> temp{pointProjected,pointProjected};
         proj.emplace_back(temp);
     }
+}
+
+void PersistenceDiagramSlicedWasserstein::slicedTransport(
+    std::vector<ttk::MatchingType> &matchings,
+    const DiagramType &diag1,
+    const DiagramType &diag2,
+    int sampleNumber) {
+
+    const double gradStep = 0.5;
+
+    std::vector<double> thetaList(sampleNumber);
+    for(int p = 0; p < sampleNumber ; ++p){
+        const double theta = static_cast<double>(p) * 
+            M_PI / static_cast<double>(sampleNumber);
+        thetaList[p] = theta;
+    }
+
+    std::vector<std::array<double, 2>> proj1;
+    std::vector<std::array<double, 2>> proj2;
+
+    augmentDiagram(diag1, proj2);
+    augmentDiagram(diag2, proj1);
+
+    std::vector<std::array<double, 2>> limitMeasure;
+    limitMeasure.resize(diag1.size() + proj1.size());
+
+    for(size_t i = 0; i < diag1.size(); ++i){
+        const auto &pair = diag1[i];
+        const double birth = pair.birth.sfValue;
+        const double death = pair.death.sfValue;
+
+        auto &t = limitMeasure[i];
+        t[0] = birth;
+        t[1] = death;
+    }
+
+    for(size_t i = 0; i < proj2.size(); ++i){
+        const auto &pair = proj2[i];
+
+        auto &t = limitMeasure[diag1.size()+i];
+        t[0] = pair[0];
+        t[1] = pair[1]; 
+
+    }
+
+
+    int epoch = 0;
+
+    while(epoch < EPOCH_MAX){
+        std::vector<std::array<double, 2>> dummy;
+        dummy.resize(limitMeasure.size());
+        for(size_t i = 0; i < limitMeasure.size(); ++i){
+            auto &t = dummy[i];
+            t[0] = 0.;
+            t[1] = 0.;
+        }
+
+        for(size_t p = 0; p < thetaList.size(); ++p){
+
+            const double theta = thetaList[p];
+            std::vector<std::array<double, 2>> projOnTheta1;
+            std::vector<std::array<double, 2>> projOnTheta2;
+
+            projectionOnThetaLine(limitMeasure ,projOnTheta1, theta);
+            projectionOnThetaLine(diag2, proj2, projOnTheta2, theta);
+
+
+            std::vector<int> measureProjIndices(limitMeasure.size());
+            std::iota(measureProjIndices.begin(), measureProjIndices.end(), 0);
+
+            std::sort(measureProjIndices.begin(), measureProjIndices.end(), 
+            [&](int i , int j){
+                return (projOnTheta1[i][0] < projOnTheta1[j][0]);
+            });
+
+
+            for(size_t k = 0; k < projOnTheta1.size(); ++k){
+                auto &p1 = projOnTheta1[measureProjIndices[k]];
+                auto &p2 = projOnTheta2[k];
+                const double diffX = p1[0] - p2[0];
+                const double diffY = p1[1] - p2[1];
+                auto &p3 = dummy[measureProjIndices[k]];
+                p3[0]+=diffX;
+                p3[1]+=diffY;
+            }
+        }
+
+        for(size_t i = 0; i < limitMeasure.size(); ++i){
+            auto &p1 = limitMeasure[i];
+            const auto &p2 = dummy[i];
+            p1[0] -= gradStep*p2[0];
+            p1[1] -= gradStep*p2[1];
+        }
+        epoch +=1;
+    }
+    
+    
+}
+
+
+void PersistenceDiagramSlicedWasserstein::projectionOnThetaLine(
+    const std::vector<std::array<double, 2>> &limitMeasure,
+    std::vector<std::array<double, 2>> &projOnTheta,
+    double theta){
+
+    std::array<double, 2> vecUnit{cos(theta), sin(theta)};
+
+
+    for(size_t j = 0; j < limitMeasure.size(); ++j){
+        auto &pair = limitMeasure[j];
+        double birth = pair[0];
+        double death = pair[1];
+        std::array<double, 2> temp{(birth*vecUnit[0] + death*vecUnit[1])*vecUnit[0], 
+                (birth*vecUnit[0] + death*vecUnit[1])*vecUnit[1]};
+        projOnTheta.emplace_back(temp);
+    }
+
+
 }
