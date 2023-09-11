@@ -4,6 +4,11 @@
 #include <limits>
 #include <numeric>
 
+#ifdef TTK_ENABLE_EIGEN
+#include <Eigen/Dense>
+#include <Eigen/Eigenvalues>
+#endif // TTK_ENABLE_EIGEN
+
 #include <PersistenceDiagramSlicedWasserstein.h>
 
 using namespace ttk;
@@ -50,6 +55,10 @@ double PersistenceDiagramSlicedWasserstein::execute(
         dist += distOneLine / static_cast<double>(sampleNumber);
     }
 
+    std::vector<ttk::MatchingType> matchings;
+    slicedTransport(matchings, diag1, diag2, sampleNumber);
+
+
     return dist;
 }
 
@@ -85,6 +94,7 @@ void PersistenceDiagramSlicedWasserstein::projectionOnThetaLine(
             return (p1[0] < p2[0]);
         });
 
+
 }
 
 void PersistenceDiagramSlicedWasserstein::augmentDiagram(
@@ -107,7 +117,7 @@ void PersistenceDiagramSlicedWasserstein::slicedTransport(
     const DiagramType &diag2,
     int sampleNumber) {
 
-    const double gradStep = 0.5;
+    const double gradStep = 2.;
 
     std::vector<double> thetaList(sampleNumber);
     for(int p = 0; p < sampleNumber ; ++p){
@@ -146,15 +156,27 @@ void PersistenceDiagramSlicedWasserstein::slicedTransport(
 
 
     int epoch = 0;
+    double gradNorm = 10.;
 
-    while(epoch < EPOCH_MAX){
-        std::vector<std::array<double, 2>> dummy;
-        dummy.resize(limitMeasure.size());
-        for(size_t i = 0; i < limitMeasure.size(); ++i){
-            auto &t = dummy[i];
-            t[0] = 0.;
-            t[1] = 0.;
+
+#ifdef TTK_ENABLE_EIGEN
+    while(epoch < EPOCH_MAX && gradNorm > 1e-3 ){
+        // std::vector<std::array<double, 2>> dummy;
+        // dummy.resize(limitMeasure.size());
+        // for(size_t i = 0; i < limitMeasure.size(); ++i){
+        //     auto &t = dummy[i];
+        //     t[0] = 0.;
+        //     t[1] = 0.;
+        // }
+
+        int m = limitMeasure.size();
+        Eigen::MatrixXd dummy(m, 2);
+        for(int j = 0; j < m; ++j) {
+            for(int k = 0; k < 2; ++k) {
+                dummy(j, k) = 0.;
+            }
         }
+
 
         for(size_t p = 0; p < thetaList.size(); ++p){
 
@@ -180,20 +202,38 @@ void PersistenceDiagramSlicedWasserstein::slicedTransport(
                 auto &p2 = projOnTheta2[k];
                 const double diffX = p1[0] - p2[0];
                 const double diffY = p1[1] - p2[1];
-                auto &p3 = dummy[measureProjIndices[k]];
-                p3[0]+=diffX;
-                p3[1]+=diffY;
+                // auto &p3 = dummy[measureProjIndices[k]];
+                // p3[0]+=diffX;
+                // p3[1]+=diffY;
+                dummy(measureProjIndices[k],0) += diffX;
+                dummy(measureProjIndices[k],1) += diffY;
+
             }
         }
 
+        // for(size_t i = 0; i < limitMeasure.size(); ++i){
+        //     auto &p1 = limitMeasure[i];
+        //     const auto &p2 = dummy[i];
+        //     p1[0] -= gradStep*p2[0];
+        //     p1[1] -= gradStep*p2[1];
+        // }
+
         for(size_t i = 0; i < limitMeasure.size(); ++i){
             auto &p1 = limitMeasure[i];
-            const auto &p2 = dummy[i];
-            p1[0] -= gradStep*p2[0];
-            p1[1] -= gradStep*p2[1];
+            const auto &p2_1 = dummy(i,0);
+            const auto &p2_2 = dummy(i,1);
+
+            p1[0] -= gradStep*p2_1;
+            p1[1] -= gradStep*p2_2;
         }
         epoch +=1;
+        gradNorm = dummy.norm();
     }
+
+
+    getMatchings(matchings, diag1, diag2, proj1, limitMeasure);
+
+#endif
     
     
 }
@@ -216,5 +256,76 @@ void PersistenceDiagramSlicedWasserstein::projectionOnThetaLine(
         projOnTheta.emplace_back(temp);
     }
 
+}
 
+void PersistenceDiagramSlicedWasserstein::getMatchings(
+    std::vector<MatchingType> &matchings,
+    const ttk::DiagramType &diag1,
+    const ttk::DiagramType &diag2,
+    const std::vector<std::array<double, 2>> &proj,
+    const std::vector<std::array<double, 2>> &limitMeasure){
+
+    matchings.resize(limitMeasure.size());
+    std::vector<int> checker(diag2.size(), 0);
+
+    for(size_t i = 0 ; i < diag1.size() ; ++i){
+        auto p = diag1[i];
+        const double birth = p.birth.sfValue;
+        const double death = p.death.sfValue;
+        auto &pLimit = limitMeasure[i];
+        auto &matching = matchings[i];
+        if(abs(pLimit[0] - pLimit[1]) < 1e-4){
+            std::get<0>(matching) = i;
+            std::get<1>(matching) = -1;
+            std::get<2>(matching) = pow(birth - pLimit[0], 2) + pow(death - pLimit[0],2);
+        } else {
+            for(size_t j = 0; j < diag2.size(); ++j){
+                auto &pTrue = diag2[j];
+                const double birth_limit = pTrue.birth.sfValue;
+                const double death_limit = pTrue.birth.sfValue;
+
+                if((pow(birth_limit - pLimit[0], 2) + pow(death_limit - pLimit[1],2) < 1e-2) && (checker[j] != 1)){
+                    
+                    std::get<0>(matching) = i;
+                    std::get<1>(matching) = j;
+                    std::get<2>(matching) = pow(birth - birth_limit, 2) + pow(death - death_limit,2);
+                    checker[j] = 1;
+                }
+            }
+        }
+    }
+
+
+    for(size_t i = 0; i < proj.size() ; ++i){
+        auto p = proj[i];
+        const double birth = p[0];
+        const double death = p[1];
+        auto &pLimit = limitMeasure[diag1.size() + i];
+        auto &matching = matchings[diag1.size() + i];
+        if(abs(pLimit[0] - pLimit[1]) < 1e-4){
+            std::get<0>(matching) = -1;
+            std::get<1>(matching) = -1;
+            std::get<2>(matching) = 0.;            
+        } else {
+            for(size_t j = 0; j < diag2.size(); ++j){
+                auto &pTrue = diag2[j];
+                const double birth_limit = pTrue.birth.sfValue;
+                const double death_limit = pTrue.birth.sfValue;
+
+                if((pow(birth_limit - pLimit[0], 2) + pow(death_limit - pLimit[1],2) < 1e-2) && (checker[j] != 1)){
+                    
+                    std::get<0>(matching) = -1;
+                    std::get<1>(matching) = j;
+                    std::get<2>(matching) = pow(birth - birth_limit, 2) + pow(death - death_limit,2);
+                    checker[j] = 1;
+                }
+            }           
+        }
+    }
+
+    int test = 1;
+    for(size_t j = 0; j < checker.size(); ++j){
+        test *= checker[j];
+    }
+    std::cout << " IF ALL CHECKED: " << test << std::endl;
 }

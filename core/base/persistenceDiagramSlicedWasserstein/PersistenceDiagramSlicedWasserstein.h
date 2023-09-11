@@ -58,6 +58,12 @@ namespace ttk {
                               std::vector<std::array<double, 2>> &projOnTheta,
                               double theta);
 
+    void getMatchings(std::vector<MatchingType> &matchings,
+                      const ttk::DiagramType &diag1,
+                      const ttk::DiagramType &diag2,
+                      const std::vector<std::array<double, 2>> &proj,
+                      const std::vector<std::array<double, 2>> &limitMeasure);
+
     int EPOCH_MAX = 50;
 
   };
