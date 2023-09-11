@@ -64,7 +64,7 @@ namespace ttk {
                       const std::vector<std::array<double, 2>> &proj,
                       const std::vector<std::array<double, 2>> &limitMeasure);
 
-    int EPOCH_MAX = 50;
+    int EPOCH_MAX = 300;
 
   };
 } // namespace ttk
