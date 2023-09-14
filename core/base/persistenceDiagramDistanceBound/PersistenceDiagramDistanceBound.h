@@ -230,18 +230,21 @@ dataType Lp_norm = 0;
 #ifdef TTK_ENABLE_OPENMP
 #pragma omp parallel for schedule(dynamic) num_threads(this->threadNumber_)
 #endif
-  for(unsigned int i = 1; i < dim; ++i) {
+  for(unsigned int i = 0; i < dim; ++i) {
     dataType temp1 = 0;
     dataType temp2 = 0;
-    std::vector<SimplexId> verticesId{3};
+    int vertNumber = triangulation->getCellVertexNumber(i);
 
-    for(int j = 0; j < 3 ; ++j){
+    std::vector<SimplexId> verticesId(vertNumber);
+
+
+    for(int j = 0; j < vertNumber ; ++j){
       triangulation->getTriangleVertex(i, j , verticesId[j]);
     }
 
     dataType iter1;
     dataType iter2;
-    for(int j = 0; j < 3; ++j){
+    for(int j = 0; j < vertNumber; ++j){
       iter1 = input1[verticesId[j]];
       iter2 = input2[verticesId[j]];
       if(temp1 < iter1){
@@ -254,7 +257,7 @@ dataType Lp_norm = 0;
     Lp_norm += pow(static_cast<double>(abs_diff<dataType>(temp1, temp2)), wassersteinParam);
   }
 
-  Lp_norm = pow(Lp_norm , 1./wassersteinParam);
+  // Lp_norm = pow(Lp_norm , 1./wassersteinParam);
   result = (double)Lp_norm;
   return 0;
 }

@@ -55,8 +55,8 @@ double PersistenceDiagramSlicedWasserstein::execute(
         dist += distOneLine / static_cast<double>(sampleNumber);
     }
 
-    std::vector<ttk::MatchingType> matchings;
-    slicedTransport(matchings, diag1, diag2, sampleNumber);
+    // std::vector<ttk::MatchingType> matchings;
+    // slicedTransport(matchings, diag1, diag2, sampleNumber);
 
 
     return dist;
@@ -160,7 +160,7 @@ void PersistenceDiagramSlicedWasserstein::slicedTransport(
 
 
 #ifdef TTK_ENABLE_EIGEN
-    while(epoch < EPOCH_MAX && gradNorm > 1e-3 ){
+    while(epoch < EPOCH_MAX && gradNorm > 1e-5 ){
 
         int m = limitMeasure.size();
         Eigen::MatrixXd dummy(m, 2);
@@ -259,7 +259,7 @@ void PersistenceDiagramSlicedWasserstein::getMatchings(
         const double death = p.death.sfValue;
         auto &pLimit = limitMeasure[i];
         auto &matching = matchings[i];
-        if(abs(pLimit[0] - pLimit[1]) < 1e-3){
+        if(abs(pLimit[0] - pLimit[1]) < 1e-1){
             std::get<0>(matching) = i;
             std::get<1>(matching) = -1;
             std::get<2>(matching) = pow(birth - pLimit[0], 2) + pow(death - pLimit[0],2);
@@ -287,7 +287,7 @@ void PersistenceDiagramSlicedWasserstein::getMatchings(
         const double death = p[1];
         auto &pLimit = limitMeasure[diag1.size() + i];
         auto &matching = matchings[diag1.size() + i];
-        if(abs(pLimit[0] - pLimit[1]) < 1e-3){
+        if(abs(pLimit[0] - pLimit[1]) < 1e-1){
             std::get<0>(matching) = -1;
             std::get<1>(matching) = -1;
             std::get<2>(matching) = 0.;            
@@ -311,6 +311,7 @@ void PersistenceDiagramSlicedWasserstein::getMatchings(
     int test = 0;
     for(size_t j = 0; j < checker.size(); ++j){
         if(checker[j] == 0){
+            std::cout << "WHICH INDEX: " << j << std::endl;
             test += 1;
         }
     }

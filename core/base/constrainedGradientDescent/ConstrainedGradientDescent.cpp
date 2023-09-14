@@ -90,7 +90,6 @@ void ConstrainedGradientDescent::gradientDescentWeights(
       Eigen::VectorXcd eigvals = es.eigenvalues();
       L += eigvals.lpNorm<Eigen::Infinity>();
     }
-    std::cout << "HELLO!!!!!!!!!!!!!!!!!" << std::endl;
 #endif // TTK_ENABLE_EIGEN
   } else {
     for(size_t i = 0; i < hessianList.size(); ++i) {
