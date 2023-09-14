@@ -160,7 +160,7 @@ void PersistenceDiagramSlicedWasserstein::slicedTransport(
 
 
 #ifdef TTK_ENABLE_EIGEN
-    while(epoch < EPOCH_MAX && gradNorm > 1e-2 ){
+    while(epoch < EPOCH_MAX && gradNorm > 1e-3 ){
 
         int m = limitMeasure.size();
         Eigen::MatrixXd dummy(m, 2);
@@ -259,7 +259,7 @@ void PersistenceDiagramSlicedWasserstein::getMatchings(
         const double death = p.death.sfValue;
         auto &pLimit = limitMeasure[i];
         auto &matching = matchings[i];
-        if(abs(pLimit[0] - pLimit[1]) < 1e-2){
+        if(abs(pLimit[0] - pLimit[1]) < 1e-3){
             std::get<0>(matching) = i;
             std::get<1>(matching) = -1;
             std::get<2>(matching) = pow(birth - pLimit[0], 2) + pow(death - pLimit[0],2);
@@ -287,7 +287,7 @@ void PersistenceDiagramSlicedWasserstein::getMatchings(
         const double death = p[1];
         auto &pLimit = limitMeasure[diag1.size() + i];
         auto &matching = matchings[diag1.size() + i];
-        if(abs(pLimit[0] - pLimit[1]) < 1e-2){
+        if(abs(pLimit[0] - pLimit[1]) < 1e-3){
             std::get<0>(matching) = -1;
             std::get<1>(matching) = -1;
             std::get<2>(matching) = 0.;            
@@ -314,5 +314,5 @@ void PersistenceDiagramSlicedWasserstein::getMatchings(
             test += 1;
         }
     }
-    std::cout << " IF ALL CHECKED: " << test << std::endl;
+    std::cout << "IF ALL CHECKED: " << test << std::endl;
 }

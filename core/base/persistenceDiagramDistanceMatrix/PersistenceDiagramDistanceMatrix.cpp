@@ -111,7 +111,7 @@ std::vector<std::vector<double>> PersistenceDiagramDistanceMatrix::execute(
         }
 
         const auto getDist = [&](const size_t a, const size_t b) -> double {
-          double distance{};
+          double distance = 0.;
           if(this->do_min_) {
             auto &dimin = currentInputDiagramsMin[a];
             auto &djmin = currentInputDiagramsMin[b];
@@ -127,7 +127,7 @@ std::vector<std::vector<double>> PersistenceDiagramDistanceMatrix::execute(
             auto &djmax = currentInputDiagramsMax[b];
             distance += sliceComputer.execute(dimax, djmax, 51);
           }
-          return Geometry::pow(distance, 1.0 / 2.0);
+          return Geometry::pow(distance, 1.0 / 2);
         };
 
         if(nInputs[1] == 0) {

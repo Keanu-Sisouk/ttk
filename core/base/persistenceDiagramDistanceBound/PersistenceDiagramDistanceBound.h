@@ -254,6 +254,7 @@ dataType Lp_norm = 0;
     Lp_norm += pow(static_cast<double>(abs_diff<dataType>(temp1, temp2)), wassersteinParam);
   }
 
+  Lp_norm = pow(Lp_norm , 1./wassersteinParam);
   result = (double)Lp_norm;
   return 0;
 }
