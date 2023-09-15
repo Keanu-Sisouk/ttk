@@ -454,29 +454,39 @@ void PersistenceDiagramDistanceMatrix::setCurrentDiagrams(
     const auto maxPersistence
       = *std::max_element(maxDiagPersistence.begin(), maxDiagPersistence.end());
 
-    if(this->Constraint == ConstraintType::ABSOLUTE_PERSISTENCE
-      || this->Constraint == ConstraintType::RELATIVE_PERSISTENCE_PER_DIAG
-      || this->Constraint == ConstraintType::RELATIVE_PERSISTENCE_GLOBAL) {
+    if(this->Constraint == ConstraintType::FULL_DIAGRAMS) {
       for(size_t i = 0; i < inputDiagrams.size(); ++i) {
         auto &diag = inputDiagrams[i];
         for(size_t j = 0; j < diag.size(); ++j) {
-          
           auto &b = diag[j];
-          if( // filter out pairs below absolute persistence threshold
-            (this->Constraint == ConstraintType::ABSOLUTE_PERSISTENCE
-            && b.persistence() > this->MinPersistence)
-            || // filter out pairs below persistence threshold relative to
-            // the most persistent pair *of each diagrams*
-            (this->Constraint == ConstraintType::RELATIVE_PERSISTENCE_PER_DIAG
-            && b.persistence() > this->MinPersistence * maxDiagPersistence[i])
-            || // filter out pairs below persistence threshold relative to the
-              // most persistence pair *in all diagrams*
-            (this->Constraint == ConstraintType::RELATIVE_PERSISTENCE_GLOBAL
-            && b.persistence() > this->MinPersistence * maxPersistence)) {
-            currentInputDiagrams[i].emplace_back(b);
-          }
+          currentInputDiagrams[i].emplace_back(b);
         }
       }
-      return;
-    }    
+    } else {
+      if(this->Constraint == ConstraintType::ABSOLUTE_PERSISTENCE
+        || this->Constraint == ConstraintType::RELATIVE_PERSISTENCE_PER_DIAG
+        || this->Constraint == ConstraintType::RELATIVE_PERSISTENCE_GLOBAL) {
+        for(size_t i = 0; i < inputDiagrams.size(); ++i) {
+          auto &diag = inputDiagrams[i];
+          for(size_t j = 0; j < diag.size(); ++j) {
+            
+            auto &b = diag[j];
+            if( // filter out pairs below absolute persistence threshold
+              (this->Constraint == ConstraintType::ABSOLUTE_PERSISTENCE
+              && b.persistence() > this->MinPersistence)
+              || // filter out pairs below persistence threshold relative to
+              // the most persistent pair *of each diagrams*
+              (this->Constraint == ConstraintType::RELATIVE_PERSISTENCE_PER_DIAG
+              && b.persistence() > this->MinPersistence * maxDiagPersistence[i])
+              || // filter out pairs below persistence threshold relative to the
+                // most persistence pair *in all diagrams*
+              (this->Constraint == ConstraintType::RELATIVE_PERSISTENCE_GLOBAL
+              && b.persistence() > this->MinPersistence * maxPersistence)) {
+              currentInputDiagrams[i].emplace_back(b);
+            }
+          }
+        }
+        return;
+      }   
+    } 
 }
