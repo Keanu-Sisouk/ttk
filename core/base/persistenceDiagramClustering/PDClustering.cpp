@@ -34,7 +34,7 @@ std::vector<int> ttk::PDClustering::execute(
     }
   }
   int matchings_only = false;
-  Timer tm;
+  Timer const tm;
   {
     // PARTICULARITIES FOR THE CASE OF ONE UNIQUE CLUSTER
     if(k_ <= 1) {
@@ -285,7 +285,7 @@ std::vector<int> ttk::PDClustering::execute(
 
         precision_criterion_
           = precision_min_ && precision_sad_ && precision_max_;
-        bool precision_criterion_reached = precision_criterion_;
+        bool const precision_criterion_reached = precision_criterion_;
 
         this->printMsg("Iteration " + std::to_string(n_iterations_)
                          + " epsilon " + std::to_string(epsilon_[0]) + " "
@@ -375,7 +375,7 @@ std::vector<int> ttk::PDClustering::execute(
     resetDosToOriginalValues();
 
     // display results
-    std::vector<std::vector<std::string>> rows{
+    std::vector<std::vector<std::string>> const rows{
       {" Min-saddle cost", std::to_string(cost_min_)},
       {" Saddle-saddle cost", std::to_string(cost_sad_)},
       {" Saddle-max cost", std::to_string(cost_max_)},
@@ -419,14 +419,14 @@ std::vector<int> ttk::PDClustering::execute(
     // if NumberOfClusters > 1, the global pair was duplicated
     // and needs to be removed from the min-saddle problem
     // It is the first pair.
-    int removeFirstPairMin
+    int const removeFirstPairMin
       = (k_ > 1 and original_dos[0] and original_dos[2]) ? 1 : 0;
     int addedFirstPairMax = 0;
     int addedFirstPairMin = removeFirstPairMin;
 
     // min-max Pair
     if(removeFirstPairMin or (!do_min_ and do_max_)) {
-      Good &g = centroids_max_[c].at(0);
+      Good const &g = centroids_max_[c].at(0);
       const auto &critCoords = g.GetCriticalCoordinates();
       final_centroids[c].emplace_back(PersistencePair{
         CriticalVertex{0, CriticalType::Local_minimum, g.x_, critCoords},
@@ -434,7 +434,7 @@ std::vector<int> ttk::PDClustering::execute(
         false});
       addedFirstPairMax = 1;
     } else if(do_min_) {
-      Good &g = centroids_min_[c].at(0);
+      Good const &g = centroids_min_[c].at(0);
       const auto &critCoords = g.GetCriticalCoordinates();
       final_centroids[c].emplace_back(PersistencePair{
         CriticalVertex{0, CriticalType::Local_minimum, g.x_, critCoords},
@@ -445,7 +445,7 @@ std::vector<int> ttk::PDClustering::execute(
 
     if(do_min_) {
       for(size_t i = addedFirstPairMin; i < centroids_min_[c].size(); ++i) {
-        Good &g = centroids_min_[c].at(i);
+        Good const &g = centroids_min_[c].at(i);
         const auto &critCoords = g.GetCriticalCoordinates();
         final_centroids[c].emplace_back(PersistencePair{
           CriticalVertex{0, CriticalType::Local_minimum, g.x_, critCoords},
@@ -459,7 +459,7 @@ std::vector<int> ttk::PDClustering::execute(
 
     if(do_sad_) {
       for(size_t i = 0; i < centroids_saddle_[c].size(); ++i) {
-        Good &g = centroids_saddle_[c].at(i);
+        Good const &g = centroids_saddle_[c].at(i);
         const auto &critCoords = g.GetCriticalCoordinates();
         final_centroids[c].emplace_back(PersistencePair{
           CriticalVertex{0, CriticalType::Saddle1, g.x_, critCoords},
@@ -473,7 +473,7 @@ std::vector<int> ttk::PDClustering::execute(
 
     if(do_max_) {
       for(size_t i = addedFirstPairMax; i < centroids_max_[c].size(); ++i) {
-        Good &g = centroids_max_[c].at(i);
+        Good const &g = centroids_max_[c].at(i);
         const auto &critCoords = g.GetCriticalCoordinates();
         ttk::CriticalType saddle_type;
         if(do_sad_)
@@ -508,13 +508,13 @@ void ttk::PDClustering::correctMatchings(
     &previous_matchings) {
   for(int c = 0; c < k_; c++) {
     for(size_t i = 0; i < clustering_[c].size(); i++) {
-      int diagram_id = clustering_[c][i];
+      int const diagram_id = clustering_[c][i];
       if(original_dos[0]) {
         // 1. Invert the current_bidder_ids_ vector
         std::vector<int> new_to_old_id(
           current_bidder_diagrams_min_[diagram_id].size(), -1);
         for(size_t j = 0; j < current_bidder_ids_min_[diagram_id].size(); j++) {
-          int new_id = current_bidder_ids_min_[diagram_id][j];
+          int const new_id = current_bidder_ids_min_[diagram_id][j];
           if(new_id >= 0) {
             new_to_old_id[new_id] = j;
           }
@@ -523,7 +523,7 @@ void ttk::PDClustering::correctMatchings(
         std::vector<MatchingType> matchings_diagram_i;
         for(size_t j = 0; j < previous_matchings[c][0][i].size(); j++) {
           MatchingType m = previous_matchings[c][0][i][j];
-          int new_id = std::get<0>(m);
+          int const new_id = std::get<0>(m);
           if(new_id >= 0 && std::get<1>(m) >= 0) {
             std::get<0>(m) = new_to_old_id[new_id];
             matchings_diagram_i.emplace_back(m);
@@ -541,7 +541,7 @@ void ttk::PDClustering::correctMatchings(
         std::vector<int> new_to_old_id(
           current_bidder_diagrams_saddle_[diagram_id].size());
         for(size_t j = 0; j < current_bidder_ids_sad_[diagram_id].size(); j++) {
-          int new_id = current_bidder_ids_sad_[diagram_id][j];
+          int const new_id = current_bidder_ids_sad_[diagram_id][j];
           if(new_id >= 0) {
             new_to_old_id[new_id] = j;
           }
@@ -551,9 +551,9 @@ void ttk::PDClustering::correctMatchings(
         std::vector<MatchingType> matchings_diagram_i;
         for(size_t j = 0; j < previous_matchings[c][1][i].size(); j++) {
           MatchingType m = previous_matchings[c][1][i][j];
-          int new_id = std::get<0>(m);
+          int const new_id = std::get<0>(m);
           if(new_id >= 0 && std::get<1>(m) >= 0) {
-            int old_id = new_to_old_id[new_id];
+            int const old_id = new_to_old_id[new_id];
             if(old_id > 0) {
               std::get<0>(m) = old_id;
               matchings_diagram_i.emplace_back(m);
@@ -578,7 +578,7 @@ void ttk::PDClustering::correctMatchings(
         std::vector<int> new_to_old_id(
           current_bidder_diagrams_max_[diagram_id].size());
         for(size_t j = 0; j < current_bidder_ids_max_[diagram_id].size(); j++) {
-          int new_id = current_bidder_ids_max_[diagram_id][j];
+          int const new_id = current_bidder_ids_max_[diagram_id][j];
           if(new_id >= 0) {
             new_to_old_id[new_id] = j;
           }
@@ -592,7 +592,7 @@ void ttk::PDClustering::correctMatchings(
           // std::cout<<"processing matching "<<std::get<0>(m)<<"
           // "<<std::get<1>(m)<<" "<<std::get<2>(m)<<" "<<std::endl;
           if(new_id >= 0 && std::get<1>(m) >= 0) {
-            int old_id = new_to_old_id[new_id];
+            int const old_id = new_to_old_id[new_id];
             if(old_id > 0) {
               std::get<0>(m) = old_id;
               matchings_diagram_i.emplace_back(m);
@@ -645,8 +645,8 @@ double ttk::PDClustering::getMostPersistent(int type) {
   if(do_min_ && (type == -1 || type == 0)) {
     for(size_t i = 0; i < bidder_diagrams_min_.size(); ++i) {
       for(size_t j = 0; j < bidder_diagrams_min_[i].size(); ++j) {
-        Bidder b = bidder_diagrams_min_[i].at(j);
-        double persistence = b.getPersistence();
+        Bidder const b = bidder_diagrams_min_[i].at(j);
+        double const persistence = b.getPersistence();
         if(persistence > max_persistence) {
           max_persistence = persistence;
         }
@@ -657,8 +657,8 @@ double ttk::PDClustering::getMostPersistent(int type) {
   if(do_sad_ && (type == -1 || type == 1)) {
     for(size_t i = 0; i < bidder_diagrams_saddle_.size(); ++i) {
       for(size_t j = 0; j < bidder_diagrams_saddle_[i].size(); ++j) {
-        Bidder b = bidder_diagrams_saddle_[i].at(j);
-        double persistence = b.getPersistence();
+        Bidder const b = bidder_diagrams_saddle_[i].at(j);
+        double const persistence = b.getPersistence();
         if(persistence > max_persistence) {
           max_persistence = persistence;
         }
@@ -669,8 +669,8 @@ double ttk::PDClustering::getMostPersistent(int type) {
   if(do_max_ && (type == -1 || type == 2)) {
     for(size_t i = 0; i < bidder_diagrams_max_.size(); ++i) {
       for(size_t j = 0; j < bidder_diagrams_max_[i].size(); ++j) {
-        Bidder b = bidder_diagrams_max_[i].at(j);
-        double persistence = b.getPersistence();
+        Bidder const b = bidder_diagrams_max_[i].at(j);
+        double const persistence = b.getPersistence();
         if(persistence > max_persistence) {
           max_persistence = persistence;
         }
@@ -688,8 +688,8 @@ double ttk::PDClustering::getLessPersistent(int type) {
   if(do_min_ && (type == -1 || type == 0)) {
     for(size_t i = 0; i < bidder_diagrams_min_.size(); ++i) {
       for(size_t j = 0; j < bidder_diagrams_min_[i].size(); ++j) {
-        Bidder b = bidder_diagrams_min_[i].at(j);
-        double persistence = b.getPersistence();
+        Bidder const b = bidder_diagrams_min_[i].at(j);
+        double const persistence = b.getPersistence();
         if(persistence < min_persistence) {
           min_persistence = persistence;
         }
@@ -700,8 +700,8 @@ double ttk::PDClustering::getLessPersistent(int type) {
   if(do_sad_ && (type == -1 || type == 1)) {
     for(size_t i = 0; i < bidder_diagrams_saddle_.size(); ++i) {
       for(size_t j = 0; j < bidder_diagrams_saddle_[i].size(); ++j) {
-        Bidder b = bidder_diagrams_saddle_[i].at(j);
-        double persistence = b.getPersistence();
+        Bidder const b = bidder_diagrams_saddle_[i].at(j);
+        double const persistence = b.getPersistence();
         if(persistence < min_persistence) {
           min_persistence = persistence;
         }
@@ -712,8 +712,8 @@ double ttk::PDClustering::getLessPersistent(int type) {
   if(do_max_ && (type == -1 || type == 2)) {
     for(size_t i = 0; i < bidder_diagrams_max_.size(); ++i) {
       for(size_t j = 0; j < bidder_diagrams_max_[i].size(); ++j) {
-        Bidder b = bidder_diagrams_max_[i].at(j);
-        double persistence = b.getPersistence();
+        Bidder const b = bidder_diagrams_max_[i].at(j);
+        double const persistence = b.getPersistence();
         if(persistence < min_persistence) {
           min_persistence = persistence;
         }
@@ -730,8 +730,8 @@ std::vector<std::vector<double>> ttk::PDClustering::getMinPrices() {
     for(int i = 0; i < numberOfInputs_; ++i) {
       min_prices[0].emplace_back(std::numeric_limits<double>::max());
       for(size_t j = 0; j < centroids_with_price_min_[i].size(); ++j) {
-        Good g = centroids_with_price_min_[i].at(j);
-        double price = g.getPrice();
+        Good const g = centroids_with_price_min_[i].at(j);
+        double const price = g.getPrice();
         if(price < min_prices[0][i]) {
           min_prices[0][i] = price;
         }
@@ -743,8 +743,8 @@ std::vector<std::vector<double>> ttk::PDClustering::getMinPrices() {
     for(int i = 0; i < numberOfInputs_; ++i) {
       min_prices[1].emplace_back(std::numeric_limits<double>::max());
       for(size_t j = 0; j < centroids_with_price_saddle_[i].size(); ++j) {
-        Good g = centroids_with_price_saddle_[i].at(j);
-        double price = g.getPrice();
+        Good const g = centroids_with_price_saddle_[i].at(j);
+        double const price = g.getPrice();
         if(price < min_prices[1][i]) {
           min_prices[1][i] = price;
         }
@@ -756,8 +756,8 @@ std::vector<std::vector<double>> ttk::PDClustering::getMinPrices() {
     for(int i = 0; i < numberOfInputs_; ++i) {
       min_prices[2].emplace_back(std::numeric_limits<double>::max());
       for(size_t j = 0; j < centroids_with_price_max_[i].size(); ++j) {
-        Good g = centroids_with_price_max_[i].at(j);
-        double price = g.getPrice();
+        Good const g = centroids_with_price_max_[i].at(j);
+        double const price = g.getPrice();
         if(price < min_prices[2][i]) {
           min_prices[2][i] = price;
         }
@@ -774,8 +774,8 @@ std::vector<std::vector<double>> ttk::PDClustering::getMinDiagonalPrices() {
     for(int i = 0; i < numberOfInputs_; ++i) {
       min_prices[0].emplace_back(std::numeric_limits<double>::max());
       for(size_t j = 0; j < current_bidder_diagrams_min_[i].size(); ++j) {
-        Bidder b = current_bidder_diagrams_min_[i].at(j);
-        double price = b.diagonal_price_;
+        Bidder const b = current_bidder_diagrams_min_[i].at(j);
+        double const price = b.diagonal_price_;
         if(price < min_prices[0][i]) {
           min_prices[0][i] = price;
         }
@@ -790,8 +790,8 @@ std::vector<std::vector<double>> ttk::PDClustering::getMinDiagonalPrices() {
     for(int i = 0; i < numberOfInputs_; ++i) {
       min_prices[1].emplace_back(std::numeric_limits<double>::max());
       for(size_t j = 0; j < current_bidder_diagrams_saddle_[i].size(); ++j) {
-        Bidder b = current_bidder_diagrams_saddle_[i].at(j);
-        double price = b.diagonal_price_;
+        Bidder const b = current_bidder_diagrams_saddle_[i].at(j);
+        double const price = b.diagonal_price_;
         if(price < min_prices[1][i]) {
           min_prices[1][i] = price;
         }
@@ -806,8 +806,8 @@ std::vector<std::vector<double>> ttk::PDClustering::getMinDiagonalPrices() {
     for(int i = 0; i < numberOfInputs_; ++i) {
       min_prices[2].emplace_back(std::numeric_limits<double>::max());
       for(size_t j = 0; j < current_bidder_diagrams_max_[i].size(); ++j) {
-        Bidder b = current_bidder_diagrams_max_[i].at(j);
-        double price = b.diagonal_price_;
+        Bidder const b = current_bidder_diagrams_max_[i].at(j);
+        double const price = b.diagonal_price_;
         if(price < min_prices[2][i]) {
           min_prices[2][i] = price;
         }
@@ -823,7 +823,7 @@ std::vector<std::vector<double>> ttk::PDClustering::getMinDiagonalPrices() {
 double ttk::PDClustering::computeDistance(const BidderDiagram &D1,
                                           const BidderDiagram &D2,
                                           const double delta_lim) {
-  GoodDiagram D2_bis = diagramToCentroid(D2);
+  GoodDiagram const D2_bis = diagramToCentroid(D2);
   return computeDistance(D1, D2_bis, delta_lim);
 }
 
@@ -835,7 +835,7 @@ double ttk::PDClustering::computeDistance(const BidderDiagram &D1,
   PersistenceDiagramAuction auction(
     wasserstein_, geometrical_factor_, lambda_, delta_lim, use_kdtree_);
   auction.BuildAuctionDiagrams(D1, D2_bis);
-  double cost = auction.run(matchings);
+  double const cost = auction.run(matchings);
   return cost;
 }
 
@@ -845,9 +845,9 @@ double ttk::PDClustering::computeDistance(BidderDiagram *const D1,
   std::vector<MatchingType> matchings;
   PersistenceDiagramAuction auction(
     wasserstein_, geometrical_factor_, lambda_, delta_lim, use_kdtree_);
-  int size1 = D1->size();
+  int const size1 = D1->size();
   auction.BuildAuctionDiagrams(*D1, *D2);
-  double cost = auction.run(matchings);
+  double const cost = auction.run(matchings);
   // Diagonal Points were added in the original diagram. The following line
   // removes them.
   D1->resize(size1);
@@ -857,7 +857,7 @@ double ttk::PDClustering::computeDistance(BidderDiagram *const D1,
 double ttk::PDClustering::computeDistance(const GoodDiagram &D1,
                                           const GoodDiagram &D2,
                                           const double delta_lim) {
-  BidderDiagram D1_bis = centroidToDiagram(D1);
+  BidderDiagram const D1_bis = centroidToDiagram(D1);
   return computeDistance(D1_bis, D2, delta_lim);
 }
 
@@ -927,17 +927,17 @@ void ttk::PDClustering::initializeCentroids() {
 
   for(int c = 0; c < k_; c++) {
     if(do_min_) {
-      GoodDiagram centroid_min
+      GoodDiagram const centroid_min
         = diagramToCentroid(current_bidder_diagrams_min_[idx[c]]);
       centroids_min_.emplace_back(centroid_min);
     }
     if(do_sad_) {
-      GoodDiagram centroid_sad
+      GoodDiagram const centroid_sad
         = diagramToCentroid(current_bidder_diagrams_saddle_[idx[c]]);
       centroids_saddle_.emplace_back(centroid_sad);
     }
     if(do_max_) {
-      GoodDiagram centroid_max
+      GoodDiagram const centroid_max
         = diagramToCentroid(current_bidder_diagrams_max_[idx[c]]);
       centroids_max_.emplace_back(centroid_max);
     }
@@ -946,21 +946,21 @@ void ttk::PDClustering::initializeCentroids() {
 
 void ttk::PDClustering::initializeCentroidsKMeanspp() {
   std::vector<int> indexes_clusters;
-  int random_idx = deterministic_ ? 0 : rand() % numberOfInputs_;
+  int const random_idx = deterministic_ ? 0 : rand() % numberOfInputs_;
   indexes_clusters.emplace_back(random_idx);
 
   if(do_min_) {
-    GoodDiagram centroid_min
+    GoodDiagram const centroid_min
       = diagramToCentroid(current_bidder_diagrams_min_[random_idx]);
     centroids_min_.emplace_back(centroid_min);
   }
   if(do_sad_) {
-    GoodDiagram centroid_sad
+    GoodDiagram const centroid_sad
       = diagramToCentroid(current_bidder_diagrams_saddle_[random_idx]);
     centroids_saddle_.emplace_back(centroid_sad);
   }
   if(do_max_) {
-    GoodDiagram centroid_max
+    GoodDiagram const centroid_max
       = diagramToCentroid(current_bidder_diagrams_max_[random_idx]);
     centroids_max_.emplace_back(centroid_max);
   }
@@ -988,19 +988,19 @@ void ttk::PDClustering::initializeCentroidsKMeanspp() {
 
           double distance = 0;
           if(do_min_) {
-            GoodDiagram centroid_min
+            GoodDiagram const centroid_min
               = centroidWithZeroPrices(centroids_min_[j]);
             distance += computeDistance(
               current_bidder_diagrams_min_[i], centroid_min, 0.01);
           }
           if(do_sad_) {
-            GoodDiagram centroid_saddle
+            GoodDiagram const centroid_saddle
               = centroidWithZeroPrices(centroids_saddle_[j]);
             distance += computeDistance(
               current_bidder_diagrams_saddle_[i], centroid_saddle, 0.01);
           }
           if(do_max_) {
-            GoodDiagram centroid_max
+            GoodDiagram const centroid_max
               = centroidWithZeroPrices(centroids_max_[j]);
             distance += computeDistance(
               current_bidder_diagrams_max_[i], centroid_max, 0.01);
@@ -1031,17 +1031,17 @@ void ttk::PDClustering::initializeCentroidsKMeanspp() {
 
     indexes_clusters.emplace_back(candidate_centroid);
     if(do_min_) {
-      GoodDiagram centroid_min
+      GoodDiagram const centroid_min
         = diagramToCentroid(current_bidder_diagrams_min_[candidate_centroid]);
       centroids_min_.emplace_back(centroid_min);
     }
     if(do_sad_) {
-      GoodDiagram centroid_sad = diagramToCentroid(
+      GoodDiagram const centroid_sad = diagramToCentroid(
         current_bidder_diagrams_saddle_[candidate_centroid]);
       centroids_saddle_.emplace_back(centroid_sad);
     }
     if(do_max_) {
-      GoodDiagram centroid_max
+      GoodDiagram const centroid_max
         = diagramToCentroid(current_bidder_diagrams_max_[candidate_centroid]);
       centroids_max_.emplace_back(centroid_max);
     }
@@ -1152,25 +1152,27 @@ void ttk::PDClustering::computeDistanceToCentroid() {
   distanceToCentroid_.resize(numberOfInputs_);
 
   for(int i = 0; i < numberOfInputs_; ++i) {
-    double delta_lim{0.01};
+    double const delta_lim{0.01};
     double distance{};
     auto c = inv_clustering_[i];
     if(original_dos[0]) {
-      GoodDiagram centroid_min = centroidWithZeroPrices(centroids_min_[c]);
-      BidderDiagram bidder_diag
+      GoodDiagram const centroid_min
+        = centroidWithZeroPrices(centroids_min_[c]);
+      BidderDiagram const bidder_diag
         = diagramWithZeroPrices(current_bidder_diagrams_min_[i]);
       distance += computeDistance(bidder_diag, centroid_min, delta_lim);
     }
     if(original_dos[1]) {
-      GoodDiagram centroid_saddle
+      GoodDiagram const centroid_saddle
         = centroidWithZeroPrices(centroids_saddle_[c]);
-      BidderDiagram bidder_diag
+      BidderDiagram const bidder_diag
         = diagramWithZeroPrices(current_bidder_diagrams_saddle_[i]);
       distance += computeDistance(bidder_diag, centroid_saddle, delta_lim);
     }
     if(original_dos[2]) {
-      GoodDiagram centroid_max = centroidWithZeroPrices(centroids_max_[c]);
-      BidderDiagram bidder_diag
+      GoodDiagram const centroid_max
+        = centroidWithZeroPrices(centroids_max_[c]);
+      BidderDiagram const bidder_diag
         = diagramWithZeroPrices(current_bidder_diagrams_max_[i]);
       distance += computeDistance(bidder_diag, centroid_max, delta_lim);
     }
@@ -1256,7 +1258,7 @@ void ttk::PDClustering::invertClusters() {
   // Fill in the clusters
   for(int c = 0; c < k_; ++c) {
     for(size_t j = 0; j < clustering_[c].size(); ++j) {
-      int idx = clustering_[c][j];
+      int const idx = clustering_[c][j];
       inv_clustering_[idx] = c;
     }
   }
@@ -1284,9 +1286,9 @@ void ttk::PDClustering::acceleratedUpdateClusters() {
   // self.old_clusters = copy.copy(self.clusters)
   invertClusters();
   initializeEmptyClusters();
-  bool do_min = original_dos[0];
-  bool do_sad = original_dos[1];
-  bool do_max = original_dos[2];
+  bool const do_min = original_dos[0];
+  bool const do_sad = original_dos[1];
+  bool const do_max = original_dos[2];
 
   for(int i = 0; i < numberOfInputs_; ++i) {
     // Step 3 find potential changes of clusters
@@ -1422,7 +1424,7 @@ void ttk::PDClustering::acceleratedUpdateClusters() {
         if(inv_clustering_[idx] < k_ && inv_clustering_[idx] >= 0
            && clustering_[inv_clustering_[idx]].size() > 1) {
           idx_acceptable = true;
-          int cluster_removal = inv_clustering_[idx];
+          int const cluster_removal = inv_clustering_[idx];
           // Removing the index to remove
           clustering_[cluster_removal].erase(
             std::remove(clustering_[cluster_removal].begin(),
@@ -1443,7 +1445,7 @@ void ttk::PDClustering::acceleratedUpdateClusters() {
                 idx = clustering_[cluster_max][0];
               }
             }
-            int cluster_removal = inv_clustering_[idx];
+            int const cluster_removal = inv_clustering_[idx];
             clustering_[cluster_removal].erase(
               std::remove(clustering_[cluster_removal].begin(),
                           clustering_[cluster_removal].end(), idx),
@@ -1498,9 +1500,9 @@ std::vector<double> ttk::PDClustering::updateCentroidsPosition(
   bool precision_sad = true;
   bool precision_max = true;
   cost_ = 0;
-  double sq_dist_min = cost_min_;
-  double sq_dist_sad = cost_sad_;
-  double sq_dist_max = cost_max_;
+  double const sq_dist_min = cost_min_;
+  double const sq_dist_sad = cost_sad_;
+  double const sq_dist_max = cost_max_;
   if(do_min_) {
     cost_min_ = 0;
   }
@@ -1516,14 +1518,14 @@ std::vector<double> ttk::PDClustering::updateCentroidsPosition(
       std::vector<GoodDiagram> centroids_with_price_min,
         centroids_with_price_sad, centroids_with_price_max;
       int count = 0;
-      for(int idx : clustering_[c]) {
+      for(int const idx : clustering_[c]) {
         // Timer time_first_thing;
         // Find the position of diagrams[idx] in old cluster c
-        std::vector<int>::iterator i = std::find(
+        std::vector<int>::iterator const i = std::find(
           old_clustering_[c].begin(), old_clustering_[c].end(), idx);
-        int pos = (i == old_clustering_[c].end())
-                    ? -1
-                    : std::distance(old_clustering_[c].begin(), i);
+        int const pos = (i == old_clustering_[c].end())
+                          ? -1
+                          : std::distance(old_clustering_[c].begin(), i);
         if(pos >= 0) {
           // Diagram was already linked to this centroid before
           if(do_min_) {
@@ -1633,10 +1635,10 @@ std::vector<double> ttk::PDClustering::updateCentroidsPosition(
       if(do_min_) {
         std::vector<std::vector<MatchingType>> all_matchings;
         std::vector<int> sizes;
-        Timer time_preprocess_bary;
+        Timer const time_preprocess_bary;
         std::vector<BidderDiagram> diagrams_c_min;
         if(barycenter_inputs_reset_flag) {
-          for(int idx : clustering_[c]) {
+          for(int const idx : clustering_[c]) {
             diagrams_c_min.emplace_back(current_bidder_diagrams_min_[idx]);
           }
           sizes.resize(diagrams_c_min.size());
@@ -1690,7 +1692,7 @@ std::vector<double> ttk::PDClustering::updateCentroidsPosition(
         precision_min
           = barycenter_computer_min_[c].isPrecisionObjectiveMet(deltaLim_, 0);
         cost_min_ += total_cost;
-        Timer time_update;
+        Timer const time_update;
         if(!only_matchings) {
           max_shift_c_min
             = barycenter_computer_min_[c].updateBarycenter(all_matchings);
@@ -1706,13 +1708,13 @@ std::vector<double> ttk::PDClustering::updateCentroidsPosition(
         centroids_with_price_min
           = barycenter_computer_min_[c].getCurrentBarycenter();
         int i = 0;
-        for(int idx : clustering_[c]) {
+        for(int const idx : clustering_[c]) {
           current_bidder_diagrams_min_[idx] = diagrams_c_min[i];
           centroids_with_price_min_[idx] = centroids_with_price_min[i];
           i++;
         }
 
-        GoodDiagram old_centroid = centroids_min_[c];
+        GoodDiagram const old_centroid = centroids_min_[c];
         centroids_min_[c] = centroidWithZeroPrices(
           centroids_with_price_min_[clustering_[c][0]]);
 
@@ -1729,7 +1731,7 @@ std::vector<double> ttk::PDClustering::updateCentroidsPosition(
 
         std::vector<BidderDiagram> diagrams_c_min;
         if(barycenter_inputs_reset_flag) {
-          for(int idx : clustering_[c]) {
+          for(int const idx : clustering_[c]) {
             diagrams_c_min.emplace_back(current_bidder_diagrams_saddle_[idx]);
           }
           sizes.resize(diagrams_c_min.size());
@@ -1798,12 +1800,12 @@ std::vector<double> ttk::PDClustering::updateCentroidsPosition(
         centroids_with_price_sad
           = barycenter_computer_sad_[c].getCurrentBarycenter();
         int i = 0;
-        for(int idx : clustering_[c]) {
+        for(int const idx : clustering_[c]) {
           current_bidder_diagrams_saddle_[idx] = diagrams_c_min[i];
           centroids_with_price_saddle_[idx] = centroids_with_price_sad[i];
           i++;
         }
-        GoodDiagram old_centroid = centroids_saddle_[c];
+        GoodDiagram const old_centroid = centroids_saddle_[c];
         centroids_saddle_[c] = centroidWithZeroPrices(
           centroids_with_price_saddle_[clustering_[c][0]]);
         if(use_accelerated_)
@@ -1813,12 +1815,12 @@ std::vector<double> ttk::PDClustering::updateCentroidsPosition(
 
       if(do_max_) {
         std::vector<std::vector<MatchingType>> all_matchings;
-        Timer time_preprocess_bary;
+        Timer const time_preprocess_bary;
         total_cost = 0;
         std::vector<int> sizes;
         std::vector<BidderDiagram> diagrams_c_min;
         if(barycenter_inputs_reset_flag) {
-          for(int idx : clustering_[c]) {
+          for(int const idx : clustering_[c]) {
             diagrams_c_min.emplace_back(current_bidder_diagrams_max_[idx]);
           }
           sizes.resize(diagrams_c_min.size());
@@ -1872,7 +1874,7 @@ std::vector<double> ttk::PDClustering::updateCentroidsPosition(
           = barycenter_computer_max_[c].isPrecisionObjectiveMet(deltaLim_, 0);
 
         cost_max_ += total_cost;
-        Timer time_update;
+        Timer const time_update;
         if(!only_matchings) {
           max_shift_c_max
             = barycenter_computer_max_[c].updateBarycenter(all_matchings);
@@ -1887,12 +1889,12 @@ std::vector<double> ttk::PDClustering::updateCentroidsPosition(
         centroids_with_price_max
           = barycenter_computer_max_[c].getCurrentBarycenter();
         int i = 0;
-        for(int idx : clustering_[c]) {
+        for(int const idx : clustering_[c]) {
           current_bidder_diagrams_max_[idx] = diagrams_c_min[i];
           centroids_with_price_max_[idx] = centroids_with_price_max[i];
           i++;
         }
-        GoodDiagram old_centroid = centroids_max_[c];
+        GoodDiagram const old_centroid = centroids_max_[c];
         centroids_max_[c] = centroidWithZeroPrices(
           centroids_with_price_max_[clustering_[c][0]]);
         if(use_accelerated_) {
@@ -1917,7 +1919,7 @@ std::vector<double> ttk::PDClustering::updateCentroidsPosition(
             l_[i][c] = 0;
           }
         }
-        for(int idx : clustering_[c]) {
+        for(int const idx : clustering_[c]) {
           // Step 6, update the upper bound on the distance to the centroid
           // thanks to the triangle inequality
           u_[idx] = Geometry::pow(
@@ -1957,8 +1959,8 @@ void ttk::PDClustering::setBidderDiagrams() {
         }
       }
       bidder_diagrams_min_.emplace_back(bidders);
-      current_bidder_diagrams_min_.emplace_back(BidderDiagram());
-      centroids_with_price_min_.emplace_back(GoodDiagram());
+      current_bidder_diagrams_min_.emplace_back();
+      centroids_with_price_min_.emplace_back();
       std::vector<int> ids(bidders.size());
       for(size_t j = 0; j < ids.size(); j++) {
         ids[j] = -1;
@@ -1981,8 +1983,8 @@ void ttk::PDClustering::setBidderDiagrams() {
         }
       }
       bidder_diagrams_saddle_.emplace_back(bidders);
-      current_bidder_diagrams_saddle_.emplace_back(BidderDiagram());
-      centroids_with_price_saddle_.emplace_back(GoodDiagram());
+      current_bidder_diagrams_saddle_.emplace_back();
+      centroids_with_price_saddle_.emplace_back();
       std::vector<int> ids(bidders.size());
       for(size_t j = 0; j < ids.size(); j++) {
         ids[j] = -1;
@@ -2005,8 +2007,8 @@ void ttk::PDClustering::setBidderDiagrams() {
         }
       }
       bidder_diagrams_max_.emplace_back(bidders);
-      current_bidder_diagrams_max_.emplace_back(BidderDiagram());
-      centroids_with_price_max_.emplace_back(GoodDiagram());
+      current_bidder_diagrams_max_.emplace_back();
+      centroids_with_price_max_.emplace_back();
       std::vector<int> ids(bidders.size());
       for(size_t j = 0; j < ids.size(); j++) {
         ids[j] = -1;
@@ -2064,13 +2066,13 @@ std::vector<double> ttk::PDClustering::enrichCurrentBidderDiagrams(
       }
     }
   }
-  int max_points_to_add_min
+  int const max_points_to_add_min
     = std::max(min_points_to_add[0],
                min_points_to_add[0] + (int)(max_diagram_size_min / 10));
-  int max_points_to_add_sad
+  int const max_points_to_add_sad
     = std::max(min_points_to_add[1],
                min_points_to_add[1] + (int)(max_diagram_size_sad / 10));
-  int max_points_to_add_max
+  int const max_points_to_add_max
     = std::max(min_points_to_add[2],
                min_points_to_add[2] + (int)(max_diagram_size_max / 10));
 
@@ -2221,7 +2223,7 @@ std::vector<double> ttk::PDClustering::enrichCurrentBidderDiagrams(
   if(do_min_) {
     int compteur_for_adding_points = 0;
     for(int i = 0; i < numberOfInputs_; i++) {
-      int size = candidates_to_be_added_min[i].size();
+      int const size = candidates_to_be_added_min[i].size();
       for(int j = 0; j < std::min(max_points_to_add_min, size); j++) {
         Bidder b = bidder_diagrams_min_[i].at(
           candidates_to_be_added_min[i][idx_min[i][j]]);
@@ -2254,7 +2256,7 @@ std::vector<double> ttk::PDClustering::enrichCurrentBidderDiagrams(
               wasserstein_);
             r_[i] = true;
           }
-          int to_be_added_to_barycenter
+          int const to_be_added_to_barycenter
             = deterministic_ ? compteur_for_adding_points % numberOfInputs_
                              : rand() % numberOfInputs_;
           if(to_be_added_to_barycenter == 0 && add_points_to_barycenter) {
@@ -2281,7 +2283,7 @@ std::vector<double> ttk::PDClustering::enrichCurrentBidderDiagrams(
   if(do_sad_) {
     int compteur_for_adding_points = 0;
     for(int i = 0; i < numberOfInputs_; i++) {
-      int size = candidates_to_be_added_sad[i].size();
+      int const size = candidates_to_be_added_sad[i].size();
       for(int j = 0; j < std::min(max_points_to_add_sad, size); j++) {
         Bidder b = bidder_diagrams_saddle_[i].at(
           candidates_to_be_added_sad[i][idx_sad[i][j]]);
@@ -2314,7 +2316,7 @@ std::vector<double> ttk::PDClustering::enrichCurrentBidderDiagrams(
               wasserstein_);
             r_[i] = true;
           }
-          int to_be_added_to_barycenter
+          int const to_be_added_to_barycenter
             = deterministic_ ? compteur_for_adding_points % numberOfInputs_
                              : rand() % numberOfInputs_;
           if(to_be_added_to_barycenter == 0 && add_points_to_barycenter) {
@@ -2337,7 +2339,7 @@ std::vector<double> ttk::PDClustering::enrichCurrentBidderDiagrams(
   if(do_max_) {
     int compteur_for_adding_points = 0;
     for(int i = 0; i < numberOfInputs_; i++) {
-      int size = candidates_to_be_added_max[i].size();
+      int const size = candidates_to_be_added_max[i].size();
       for(int j = 0; j < std::min(max_points_to_add_max, size); j++) {
         Bidder b = bidder_diagrams_max_[i].at(
           candidates_to_be_added_max[i][idx_max[i][j]]);
@@ -2370,7 +2372,7 @@ std::vector<double> ttk::PDClustering::enrichCurrentBidderDiagrams(
               wasserstein_);
             r_[i] = true;
           }
-          int to_be_added_to_barycenter
+          int const to_be_added_to_barycenter
             = deterministic_ ? compteur_for_adding_points % numberOfInputs_
                              : rand() % numberOfInputs_;
           if(to_be_added_to_barycenter == 0 && add_points_to_barycenter) {
@@ -2405,7 +2407,7 @@ void ttk::PDClustering::initializeBarycenterComputers(
     barycenter_computer_min_.resize(k_);
     for(int c = 0; c < k_; c++) {
       std::vector<BidderDiagram> diagrams_c;
-      for(int idx : clustering_[c]) {
+      for(int const idx : clustering_[c]) {
         diagrams_c.emplace_back(current_bidder_diagrams_min_[idx]);
       }
       barycenter_computer_min_[c] = {};
@@ -2434,7 +2436,7 @@ void ttk::PDClustering::initializeBarycenterComputers(
     barycenter_computer_sad_.resize(k_);
     for(int c = 0; c < k_; c++) {
       std::vector<BidderDiagram> diagrams_c;
-      for(int idx : clustering_[c]) {
+      for(int const idx : clustering_[c]) {
         diagrams_c.emplace_back(current_bidder_diagrams_saddle_[idx]);
       }
       barycenter_computer_sad_[c] = {};
@@ -2471,7 +2473,7 @@ void ttk::PDClustering::initializeBarycenterComputers(
     barycenter_computer_max_.resize(k_);
     for(int c = 0; c < k_; c++) {
       std::vector<BidderDiagram> diagrams_c;
-      for(int idx : clustering_[c]) {
+      for(int const idx : clustering_[c]) {
         diagrams_c.emplace_back(current_bidder_diagrams_max_[idx]);
       }
       barycenter_computer_max_[c] = {};
@@ -2522,7 +2524,7 @@ void ttk::PDClustering::printDistancesToFile() {
   }
 
   for(int c = 0; c < k_; c++) {
-    for(int i : clustering_[c]) {
+    for(int const i : clustering_[c]) {
       approx_file << (u_[i] + l_[i][c]) / 2 << " ";
     }
     approx_file << "\n";
@@ -2537,7 +2539,7 @@ void ttk::PDClustering::printRealDistancesToFile() {
   std::ofstream file("a_real_mat.txt");
   if(file.is_open()) {
     for(int c = 0; c < k_; c++) {
-      for(int i : clustering_[c]) {
+      for(int const i : clustering_[c]) {
         file << distanceToCentroid_[i] << " ";
       }
       file << "\n";
@@ -2557,7 +2559,7 @@ void ttk::PDClustering::printPricesToFile(int iteration) {
       file << "\ncentroid " << i << std::endl;
 
       for(size_t j = 0; j < centroids_with_price_max_[i].size(); j++) {
-        Good g = centroids_with_price_max_[i].at(j);
+        Good const g = centroids_with_price_max_[i].at(j);
         file << g.getPrice() << " ";
       }
     }
@@ -2574,7 +2576,7 @@ double ttk::PDClustering::computeRealCost() {
     for(int c = 0; c < k_; c++) {
       double real_cost_cluster = 0;
       for(int i = 0; i < numberOfInputs_; i++) {
-        GoodDiagram current_barycenter
+        GoodDiagram const current_barycenter
           = centroidWithZeroPrices(centroids_min_[c]);
         sq_distance
           = computeDistance(bidder_diagrams_min_[i], current_barycenter, 0.01);
@@ -2587,7 +2589,7 @@ double ttk::PDClustering::computeRealCost() {
     for(int c = 0; c < k_; c++) {
       double real_cost_cluster = 0;
       for(int i = 0; i < numberOfInputs_; i++) {
-        GoodDiagram current_barycenter
+        GoodDiagram const current_barycenter
           = centroidWithZeroPrices(centroids_saddle_[c]);
         sq_distance = computeDistance(
           bidder_diagrams_saddle_[i], current_barycenter, 0.01);
@@ -2600,7 +2602,7 @@ double ttk::PDClustering::computeRealCost() {
     for(int c = 0; c < k_; c++) {
       double real_cost_cluster = 0;
       for(int i = 0; i < numberOfInputs_; i++) {
-        GoodDiagram current_barycenter
+        GoodDiagram const current_barycenter
           = centroidWithZeroPrices(centroids_max_[c]);
         sq_distance
           = computeDistance(bidder_diagrams_max_[i], current_barycenter, 0.01);
@@ -2654,7 +2656,7 @@ void ttk::PDClustering::computeBarycenterForTwo(
   std::vector<int> new_to_old_id(current_diagram1.size());
   // 1. Invert the current_bidder_ids_ vector
   for(size_t j = 0; j < ids1.size(); j++) {
-    int new_id = ids1[j];
+    int const new_id = ids1[j];
     if(new_id >= 0) {
       new_to_old_id[new_id] = j;
     }
@@ -2665,17 +2667,17 @@ void ttk::PDClustering::computeBarycenterForTwo(
 
   for(size_t i = 0; i < matchings1.size(); i++) {
     MatchingType &t = matchings1[i];
-    int bidderId = std::get<0>(t);
-    int goodId = std::get<1>(t);
+    int const bidderId = std::get<0>(t);
+    int const goodId = std::get<1>(t);
 
     if(bidderId >= 0) {
-      Bidder b = diagram1.at(new_to_old_id[bidderId]);
-      double bx = b.x_;
-      double by = b.y_;
+      Bidder const b = diagram1.at(new_to_old_id[bidderId]);
+      double const bx = b.x_;
+      double const by = b.y_;
       if(goodId >= 0) {
-        Good g = barycenter.at(goodId);
-        double gx = g.x_;
-        double gy = g.y_;
+        Good const g = barycenter.at(goodId);
+        double const gx = g.x_;
+        double const gy = g.y_;
         barycenter.at(goodId).x_ = (bx + gx) / 2;
         barycenter.at(goodId).y_ = (by + gy) / 2;
         // divide by 4 in order to display the cost of the half matching
@@ -2687,11 +2689,12 @@ void ttk::PDClustering::computeBarycenterForTwo(
         double gy = (bx + by) / 2;
         gx = (gx + bx) / 2;
         gy = (gy + by) / 2;
-        double cost = Geometry::pow((gx - bx), wasserstein_)
-                      + Geometry::pow((gy - by), wasserstein_);
-        MatchingType t2 = std::make_tuple(bidderId, barycenter.size(), cost);
-        MatchingType t3 = std::make_tuple(-1, barycenter.size(), cost);
-        Good g = Good(gx, gy, false, barycenter.size());
+        double const cost = Geometry::pow((gx - bx), wasserstein_)
+                            + Geometry::pow((gy - by), wasserstein_);
+        MatchingType const t2
+          = std::make_tuple(bidderId, barycenter.size(), cost);
+        MatchingType const t3 = std::make_tuple(-1, barycenter.size(), cost);
+        Good const g = Good(gx, gy, false, barycenter.size());
         // g.SetCriticalCoordinates(b.coords_[0], b.coords_[1], b.coords_[2]);
         barycenter.emplace_back(g);
         matching_to_add.emplace_back(t2);
@@ -2699,9 +2702,9 @@ void ttk::PDClustering::computeBarycenterForTwo(
       }
     } else {
       if(goodId >= 0) {
-        Good g = barycenter.at(goodId);
-        double gx = (g.x_ + g.y_) / 2;
-        double gy = (g.x_ + g.y_) / 2;
+        Good const g = barycenter.at(goodId);
+        double const gx = (g.x_ + g.y_) / 2;
+        double const gy = (g.x_ + g.y_) / 2;
         barycenter.at(goodId).x_ = (gx + g.x_) / 2;
         barycenter.at(goodId).y_ = (gy + g.y_) / 2;
         std::get<2>(t) /= 4;
@@ -2721,7 +2724,7 @@ void ttk::PDClustering::computeBarycenterForTwo(
   std::vector<int> new_to_old_id2(current_diagram0.size());
   // 1. Invert the current_bidder_ids_ vector
   for(size_t j = 0; j < ids0.size(); j++) {
-    int new_id = ids0[j];
+    int const new_id = ids0[j];
     if(new_id >= 0) {
       new_to_old_id2[new_id] = j;
     }
@@ -2729,18 +2732,18 @@ void ttk::PDClustering::computeBarycenterForTwo(
 
   for(size_t i = 0; i < matchings0.size(); i++) {
     MatchingType &t = matchings0[i];
-    int bidderId = std::get<0>(t);
-    int goodId = std::get<1>(t);
+    int const bidderId = std::get<0>(t);
+    int const goodId = std::get<1>(t);
 
     if(bidderId >= 0 and goodId >= 0) {
-      Bidder b = diagram0.at(new_to_old_id2[bidderId]);
-      double bx = b.x_;
-      double by = b.y_;
-      Good g = barycenter.at(goodId);
-      double gx = g.x_;
-      double gy = g.y_;
-      double cost = Geometry::pow((gx - bx), wasserstein_)
-                    + Geometry::pow((gy - by), wasserstein_);
+      Bidder const b = diagram0.at(new_to_old_id2[bidderId]);
+      double const bx = b.x_;
+      double const by = b.y_;
+      Good const g = barycenter.at(goodId);
+      double const gx = g.x_;
+      double const gy = g.y_;
+      double const cost = Geometry::pow((gx - bx), wasserstein_)
+                          + Geometry::pow((gy - by), wasserstein_);
       std::get<2>(t) = cost;
     }
   }

@@ -84,10 +84,10 @@ std::vector<int> ttk::PersistenceDiagramClustering::execute(
     for(size_t j = 0; j < CTDiagram.size(); ++j) {
       auto &t = CTDiagram[j];
 
-      ttk::CriticalType nt1 = t.birth.type;
-      ttk::CriticalType nt2 = t.death.type;
+      ttk::CriticalType const nt1 = t.birth.type;
+      ttk::CriticalType const nt2 = t.death.type;
 
-      double dt = t.persistence();
+      double const dt = t.persistence();
       // if (abs<double>(dt) < zeroThresh) continue;
       if(dt > 0) {
         if(nt1 == ttk::CriticalType::Local_minimum
@@ -188,7 +188,7 @@ std::vector<int> ttk::PersistenceDiagramClustering::execute(
   std::vector<int> idxInCluster(numberOfInputs_);
 
   for(int j = 0; j < numberOfInputs_; ++j) {
-    size_t c = inv_clustering[j];
+    size_t const c = inv_clustering[j];
     if(c + 1 > cluster_size.size()) {
       cluster_size.resize(c + 1);
       cluster_size[c] = 1;
@@ -212,7 +212,7 @@ std::vector<int> ttk::PersistenceDiagramClustering::execute(
     }
   }
   for(int i = 0; i < numberOfInputs_; i++) {
-    size_t c = inv_clustering[i];
+    size_t const c = inv_clustering[i];
 
     if(do_min) {
       for(size_t j = 0;
@@ -220,7 +220,7 @@ std::vector<int> ttk::PersistenceDiagramClustering::execute(
           j++) {
         MatchingType t
           = all_matchings_per_type_and_cluster[c][0][idxInCluster[i]][j];
-        int bidder_id = std::get<0>(t);
+        int const bidder_id = std::get<0>(t);
         if(bidder_id < (int)data_min[i].size()) {
           if(bidder_id < 0) { // matching with a diagonal point
             std::get<0>(t) = -1;
@@ -242,7 +242,7 @@ std::vector<int> ttk::PersistenceDiagramClustering::execute(
           j++) {
         MatchingType t
           = all_matchings_per_type_and_cluster[c][1][idxInCluster[i]][j];
-        int bidder_id = std::get<0>(t);
+        int const bidder_id = std::get<0>(t);
         if(bidder_id < (int)data_sad[i].size()) {
           if(bidder_id < 0) { // matching with a diagonal point
             std::get<0>(t) = -1;
@@ -265,7 +265,7 @@ std::vector<int> ttk::PersistenceDiagramClustering::execute(
           j++) {
         MatchingType t
           = all_matchings_per_type_and_cluster[c][2][idxInCluster[i]][j];
-        int bidder_id = std::get<0>(t);
+        int const bidder_id = std::get<0>(t);
         if(bidder_id < (int)data_max[i].size()) {
           if(bidder_id < 0) { // matching with a diagonal point
             std::get<0>(t) = -1;
