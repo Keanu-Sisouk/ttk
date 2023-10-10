@@ -131,6 +131,9 @@ public:
   ttkSetEnumMacro(Distance, DistanceType);
   vtkGetEnumMacro(Distance, DistanceType);
 
+  vtkSetMacro(SampleNumber, int);
+  vtkGetMacro(SampleNumber, int);
+
 protected:
   ttkPersistenceDiagramDistanceMatrix();
   ~ttkPersistenceDiagramDistanceMatrix() override = default;

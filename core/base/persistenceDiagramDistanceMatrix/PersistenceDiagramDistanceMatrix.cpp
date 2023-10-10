@@ -115,17 +115,17 @@ std::vector<std::vector<double>> PersistenceDiagramDistanceMatrix::execute(
           if(this->do_min_) {
             auto &dimin = currentInputDiagramsMin[a];
             auto &djmin = currentInputDiagramsMin[b];
-            distance += sliceComputer.execute(dimin, djmin, 51);
+            distance += sliceComputer.execute(dimin, djmin, this->SampleNumber);
           }
           if(this->do_sad_) {
             auto &disad = currentInputDiagramsSad[a];
             auto &djsad = currentInputDiagramsSad[b];
-            distance += sliceComputer.execute(disad, djsad, 51);
+            distance += sliceComputer.execute(disad, djsad, this->SampleNumber);
           }
           if(this->do_max_) {
             auto &dimax = currentInputDiagramsMax[a];
             auto &djmax = currentInputDiagramsMax[b];
-            distance += sliceComputer.execute(dimax, djmax, 51);
+            distance += sliceComputer.execute(dimax, djmax, this->SampleNumber);
           }
           return Geometry::pow(distance, 1.0 / 2);
         };
