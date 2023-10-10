@@ -236,7 +236,7 @@
       </DoubleVectorProperty>
 
       <IntVectorProperty name = "SampleNumber" label = "Number of projections" command="SetSampleNumber" number_of_elements = "1" default_values="51" >
-      <IntRangeDomain name = "Range" min = "0" max = "1000" />
+      <IntRangeDomain name = "Range" min = "5" max = "3500" />
       </IntVectorProperty>
 
       ${DEBUG_WIDGETS}
