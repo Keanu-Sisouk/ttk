@@ -44,7 +44,8 @@ namespace ttk {
     void projectionOnThetaLine(const ttk::DiagramType &diag,
                                const std::vector<std::array<double, 2>> &proj,
                                std::vector<std::array<double, 2>> &projOnTheta,
-                               double theta);
+                               double theta,
+                               bool vertical);
     
     void augmentDiagram(const ttk::DiagramType &diag,
                         std::vector<std::array<double, 2>> &proj);
