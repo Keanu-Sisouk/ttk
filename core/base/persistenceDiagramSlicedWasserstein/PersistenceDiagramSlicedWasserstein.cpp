@@ -65,6 +65,10 @@ double PersistenceDiagramSlicedWasserstein::execute(
     double mean_sq = 0.;
     double tresh = 0.01;
 
+    double prev_mean = 0.;
+    double prev_sd = 0.;
+
+
     int total_number = 0;
     // bool vertical = false;
 
@@ -73,13 +77,13 @@ double PersistenceDiagramSlicedWasserstein::execute(
         int nb_sample = static_cast<int>(std::pow(2., static_cast<double>(n)));
 
         if(n==0){
-            for(int i = 0; i < nb_sample ; i = i + 2){
+            for(int i = 0; i < nb_sample ; i += 2){
                 double angle = static_cast<double>(i) * ortho_angle / static_cast<double>(nb_sample);
                 buffer_angle.emplace_back(angle);
                 buffer_angle.emplace_back(angle + ortho_angle);
             }
 
-            total_number += static_cast<int>(buffer_angle.size());
+            // total_number += static_cast<int>(buffer_angle.size());
             for(size_t t = 0; t < buffer_angle.size(); ++t){
                 const double theta = buffer_angle[t];
                 std::vector<std::array<double, 2>> projOnTheta1;
@@ -124,13 +128,19 @@ double PersistenceDiagramSlicedWasserstein::execute(
 
         } else {
             
-            for(int i = 1; i < nb_sample ; i = i + 2){
+            for(int i = 1; i < nb_sample ; i += 2){
                 double angle = static_cast<double>(i) * ortho_angle / static_cast<double>(nb_sample);
                 buffer_angle.emplace_back(angle);
                 buffer_angle.emplace_back(angle + ortho_angle);
             }
 
-            total_number += static_cast<int>(buffer_angle.size());
+            std::vector<double> temp_mean_array(buffer_angle.size(), 0.);
+            std::vector<double> temp_sd_array(buffer_angle.size(), 0.);
+
+#ifdef TTK_ENABLE_OPENMP
+#pragma omp parallel for num_threads(12)
+#endif // TTK_ENABLE_OPENMP
+            // total_number += static_cast<int>(buffer_angle.size());
             for(size_t t = 0; t < buffer_angle.size(); ++t){
                 const double theta = buffer_angle[t];
                 std::vector<std::array<double, 2>> projOnTheta1;
@@ -149,22 +159,39 @@ double PersistenceDiagramSlicedWasserstein::execute(
                     distOneLine += diffX*diffX + diffY*diffY;
                 }
 
-                mean += distOneLine;
-                mean_sq += std::pow(distOneLine, 2.);
-                
+                // mean += distOneLine;
+                // mean_sq += std::pow(distOneLine, 2.);
+
+                temp_mean_array[t] = distOneLine;
+                temp_sd_array[t] = std::pow(distOneLine, 2.);
             }
            
+            mean = std::accumulate(temp_mean_array.begin(), temp_mean_array.end(), 0.);
+            mean_sq = std::accumulate(temp_sd_array.begin(), temp_sd_array.end(), 0.);
         }
 
 
-        double number_temp = static_cast<double>(total_number);
-        double current_mean = mean/number_temp;
+        double number_temp = 2. *static_cast<double>(nb_sample);
+        double current_mean = mean/(number_temp);
  
-        double current_sd = std::pow((number_temp/static_cast<double>(total_number - 1 )) * (mean_sq/number_temp - std::pow(current_mean, 2.)), 0.5);
-        if( current_sd * 1.96 / std::pow(number_temp, 0.5) < tresh ){
+        double current_sd = std::pow((number_temp/(number_temp - 1.)) * (mean_sq/number_temp - std::pow(current_mean, 2.)), 0.5);
+
+        // std::cout << "CURRENT MEAN: " << current_mean << "\n";
+        // std::cout << "====================================" << "\n";
+
+        // std::cout << "CURRENT STANDARD DEVIATION: " << current_sd << "\n";
+        // std::cout << "====================================" << "\n";
+
+        if( current_sd * 1.96 / std::pow(number_temp, 0.5) < tresh ||  (abs(current_mean - prev_mean) < 0.1 && abs(current_sd - prev_sd) < 0.1)){
             dist = mean/number_temp;
             cond = true;
         }
+        // std::cout << "NUMBER SAMPLINGS: " << std::pow(2, n) << "\n";
+        // std::cout << "====================================" << "\n";
+      
+        prev_mean = current_mean;
+        prev_sd = current_sd;
+        n = n +1;
     }
 
     return dist;
