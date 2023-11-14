@@ -3,6 +3,7 @@
 #include <array>
 #include <limits>
 #include <numeric>
+#include <random>
 
 #ifdef TTK_ENABLE_EIGEN
 #include <Eigen/Dense>
@@ -68,7 +69,9 @@ double PersistenceDiagramSlicedWasserstein::execute(
     double prev_mean = 0.;
     double prev_sd = 0.;
 
-
+    std::random_device rd;  // Will be used to obtain a seed for the random number engine
+    std::mt19937 gen(rd()); // Standard mersenne_twister_engine seeded with rd()
+    std::uniform_real_distribution<> dis(0., ortho_angle);
     int total_number = 0;
     // bool vertical = false;
 
@@ -83,7 +86,8 @@ double PersistenceDiagramSlicedWasserstein::execute(
                 buffer_angle.emplace_back(angle + ortho_angle);
             }
 
-            // total_number += static_cast<int>(buffer_angle.size());
+
+            total_number += static_cast<int>(buffer_angle.size());
             for(size_t t = 0; t < buffer_angle.size(); ++t){
                 const double theta = buffer_angle[t];
                 std::vector<std::array<double, 2>> projOnTheta1;
@@ -127,18 +131,35 @@ double PersistenceDiagramSlicedWasserstein::execute(
             }
 
         } else {
+
+            // double angle = dis(gen);
+            // buffer_angle.emplace_back(angle);
+            // buffer_angle.emplace_back(angle + ortho_angle);            
             
-            for(int i = 1; i < nb_sample ; i += 2){
-                double angle = static_cast<double>(i) * ortho_angle / static_cast<double>(nb_sample);
-                buffer_angle.emplace_back(angle);
-                buffer_angle.emplace_back(angle + ortho_angle);
+            double angle=0, bk=(double)1/3;
+            int m = n;
+            while (m > 0) {
+                angle += (m % 3)*bk;
+                m /= 3;
+                bk /= 3;
             }
+            angle = ortho_angle*angle;
+            buffer_angle.emplace_back(angle);
+            // buffer_angle.emplace_back(angle + ortho_angle);
+
+            // for(int i = 1; i < nb_sample ; i += 2){
+            //     double angle = static_cast<double>(i) * ortho_angle / static_cast<double>(nb_sample);
+            //     buffer_angle.emplace_back(angle);
+            //     buffer_angle.emplace_back(angle + ortho_angle);
+            // }
+
+            total_number += static_cast<int>(buffer_angle.size());
 
             std::vector<double> temp_mean_array(buffer_angle.size(), 0.);
             std::vector<double> temp_sd_array(buffer_angle.size(), 0.);
 
 #ifdef TTK_ENABLE_OPENMP
-#pragma omp parallel for num_threads(12)
+#pragma omp parallel for num_threads(2)
 #endif // TTK_ENABLE_OPENMP
             // total_number += static_cast<int>(buffer_angle.size());
             for(size_t t = 0; t < buffer_angle.size(); ++t){
@@ -166,28 +187,35 @@ double PersistenceDiagramSlicedWasserstein::execute(
                 temp_sd_array[t] = std::pow(distOneLine, 2.);
             }
            
-            mean = std::accumulate(temp_mean_array.begin(), temp_mean_array.end(), 0.);
-            mean_sq = std::accumulate(temp_sd_array.begin(), temp_sd_array.end(), 0.);
+            mean +=  std::accumulate(temp_mean_array.begin(), temp_mean_array.end(), 0.);
+            mean_sq += std::accumulate(temp_sd_array.begin(), temp_sd_array.end(), 0.);
         }
 
 
-        double number_temp = 2. *static_cast<double>(nb_sample);
+        // double number_temp = 2. * static_cast<double>(nb_sample);
+        double number_temp = static_cast<double>(total_number);
         double current_mean = mean/(number_temp);
  
         double current_sd = std::pow((number_temp/(number_temp - 1.)) * (mean_sq/number_temp - std::pow(current_mean, 2.)), 0.5);
 
-        // std::cout << "CURRENT MEAN: " << current_mean << "\n";
-        // std::cout << "====================================" << "\n";
+        std::cout << "CURRENT MEAN: " << current_mean << "\n";
+        std::cout << "====================================" << "\n";
 
-        // std::cout << "CURRENT STANDARD DEVIATION: " << current_sd << "\n";
-        // std::cout << "====================================" << "\n";
+        std::cout << "CURRENT STANDARD DEVIATION: " << current_sd << "\n";
+        std::cout << "====================================" << "\n";
 
-        if( current_sd * 1.96 / std::pow(number_temp, 0.5) < tresh ||  (abs(current_mean - prev_mean) < 0.1 && abs(current_sd - prev_sd) < 0.1)){
+        if( current_sd * 1.96 / std::pow(number_temp, 1) < tresh){
             dist = mean/number_temp;
             cond = true;
         }
-        // std::cout << "NUMBER SAMPLINGS: " << std::pow(2, n) << "\n";
-        // std::cout << "====================================" << "\n";
+
+
+        // if( current_sd * 1.96 / std::pow(number_temp, 0.5) < tresh ||  (abs(current_mean - prev_mean) < 0.01 && abs(current_sd - prev_sd) < 0.01)){
+        //     dist = mean/number_temp;
+        //     cond = true;
+        // }
+        std::cout << "NUMBER SAMPLINGS: " << total_number << "\n";
+        std::cout << "====================================" << "\n";
       
         prev_mean = current_mean;
         prev_sd = current_sd;
