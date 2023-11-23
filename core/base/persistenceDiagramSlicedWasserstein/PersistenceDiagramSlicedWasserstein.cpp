@@ -136,12 +136,12 @@ double PersistenceDiagramSlicedWasserstein::execute(
             // buffer_angle.emplace_back(angle);
             // buffer_angle.emplace_back(angle + ortho_angle);            
             
-            double angle=0, bk=(double)1/3;
+            double angle=0, bk=(double)1/2;
             int m = n;
             while (m > 0) {
-                angle += (m % 3)*bk;
-                m /= 3;
-                bk /= 3;
+                angle += (m % 2)*bk;
+                m /= 2;
+                bk /= 2;
             }
             angle = ortho_angle*angle;
             buffer_angle.emplace_back(angle);
