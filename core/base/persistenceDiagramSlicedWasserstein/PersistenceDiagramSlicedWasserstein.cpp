@@ -1,3 +1,4 @@
+#include "Geometry.h"
 #include "PersistenceDiagramUtils.h"
 #include <algorithm>
 #include <array>
@@ -69,6 +70,8 @@ double PersistenceDiagramSlicedWasserstein::execute(
     double prev_mean = 0.;
     double prev_sd = 0.;
 
+    double tot_variation_f = 0.;
+
     std::random_device rd;  // Will be used to obtain a seed for the random number engine
     std::mt19937 gen(rd()); // Standard mersenne_twister_engine seeded with rd()
     std::uniform_real_distribution<> dis(0., ortho_angle);
@@ -78,6 +81,8 @@ double PersistenceDiagramSlicedWasserstein::execute(
     while (cond == false) {
         std::vector<double> buffer_angle;
         int nb_sample = static_cast<int>(std::pow(2., static_cast<double>(n)));
+
+
 
         if(false){
         // if(n==0){
@@ -94,9 +99,15 @@ double PersistenceDiagramSlicedWasserstein::execute(
                 std::vector<std::array<double, 2>> projOnTheta1;
                 std::vector<std::array<double, 2>> projOnTheta2;
 
+                std::vector<int> originIndices1;
+                std::vector<int> originIndices2;
+
+                std::vector<double> scalarProd1;
+                std::vector<double> scalarProd2;
+
                 if(t == 1){
-                    projectionOnThetaLine(diag1, proj1, projOnTheta1, theta, true);
-                    projectionOnThetaLine(diag2, proj2, projOnTheta2, theta, true);
+                    projectionOnThetaLine(diag1, proj1, projOnTheta1, originIndices1, scalarProd1,theta, true);
+                    projectionOnThetaLine(diag2, proj2, projOnTheta2, originIndices2, scalarProd2,theta, true);
 
                     double distOneLine = 0.;
 
@@ -111,8 +122,8 @@ double PersistenceDiagramSlicedWasserstein::execute(
                     mean += distOneLine;
                     mean_sq += std::pow(distOneLine, 2.);
                 } else {
-                    projectionOnThetaLine(diag1, proj1, projOnTheta1, theta, false);
-                    projectionOnThetaLine(diag2, proj2, projOnTheta2, theta, false);
+                    projectionOnThetaLine(diag1, proj1, projOnTheta1, originIndices1, scalarProd1, theta, false);
+                    projectionOnThetaLine(diag2, proj2, projOnTheta2, originIndices2, scalarProd2, theta, false);
 
                     double distOneLine = 0.;
 
@@ -145,7 +156,7 @@ double PersistenceDiagramSlicedWasserstein::execute(
                 bk /= 2;
             }
             angle = ortho_angle*angle;
-            // angle = M_PI * 0.25 + ortho_angle*angle;
+            // angle = M_PI * 0.25 * angle + ortho_angle;
             buffer_angle.emplace_back(angle);
             // buffer_angle.emplace_back(angle + ortho_angle);
 
@@ -159,6 +170,7 @@ double PersistenceDiagramSlicedWasserstein::execute(
 
             std::vector<double> temp_mean_array(buffer_angle.size(), 0.);
             std::vector<double> temp_sd_array(buffer_angle.size(), 0.);
+            std::vector<double> temp_vf_array(buffer_angle.size(), 0.);
 
 #ifdef TTK_ENABLE_OPENMP
 #pragma omp parallel for num_threads(2)
@@ -168,9 +180,14 @@ double PersistenceDiagramSlicedWasserstein::execute(
                 const double theta = buffer_angle[t];
                 std::vector<std::array<double, 2>> projOnTheta1;
                 std::vector<std::array<double, 2>> projOnTheta2;
+                std::vector<int> originIndices1;
+                std::vector<int> originIndices2;
+                std::vector<double> scalarProd1;
+                std::vector<double> scalarProd2;
 
-                projectionOnThetaLine(diag1, proj1, projOnTheta1, theta, false);
-                projectionOnThetaLine(diag2, proj2, projOnTheta2, theta, false);
+
+                projectionOnThetaLine(diag1, proj1, projOnTheta1, originIndices1, scalarProd1, theta, false);
+                projectionOnThetaLine(diag2, proj2, projOnTheta2, originIndices2, scalarProd2, theta, false);
 
                 double distOneLine = 0.;
 
@@ -182,23 +199,27 @@ double PersistenceDiagramSlicedWasserstein::execute(
                     distOneLine += diffX*diffX + diffY*diffY;
                 }
 
+                double vf = computeNormGradient(diag1, diag2, proj1, proj2, originIndices1, originIndices2, scalarProd1, scalarProd2, theta);
+
                 // mean += distOneLine;
                 // mean_sq += std::pow(distOneLine, 2.);
 
                 temp_mean_array[t] = distOneLine;
-                temp_sd_array[t] = std::pow(distOneLine, 2.);
+                // temp_sd_array[t] = std::pow(distOneLine, 2.);
+                temp_vf_array[t] = vf;
             }
            
             mean +=  std::accumulate(temp_mean_array.begin(), temp_mean_array.end(), 0.);
-            mean_sq += std::accumulate(temp_sd_array.begin(), temp_sd_array.end(), 0.);
+            // mean_sq += std::accumulate(temp_sd_array.begin(), temp_sd_array.end(), 0.);
+            tot_variation_f += std::accumulate(temp_vf_array.begin(), temp_vf_array.end(), 0.);
         }
 
 
         // double number_temp = 2. * static_cast<double>(nb_sample);
         double number_temp = static_cast<double>(total_number);
-        double current_mean = mean/(number_temp);
+        // double current_mean = mean/(number_temp);
  
-        double current_sd = std::pow((number_temp/(number_temp - 1.)) * (mean_sq/number_temp - std::pow(current_mean, 2.)), 0.5);
+        // double current_sd = std::pow((number_temp/(number_temp - 1.)) * (mean_sq/number_temp - std::pow(current_mean, 2.)), 0.5);
 
         // std::cout << "CURRENT MEAN: " << current_mean << "\n";
         // std::cout << "====================================" << "\n";
@@ -206,10 +227,11 @@ double PersistenceDiagramSlicedWasserstein::execute(
         // std::cout << "CURRENT STANDARD DEVIATION: " << current_sd << "\n";
         // std::cout << "====================================" << "\n";
 
-        if( current_sd * 1.96 / std::pow(number_temp, 1) < tresh){
-            dist = mean/number_temp;
-            cond = true;
-        }
+        // if( current_sd * 1.96 / std::pow(number_temp, 1) < tresh){
+        //     dist = mean/number_temp;
+        //     cond = true;
+        // }
+
 
 
         // if( current_sd * 1.96 / std::pow(number_temp, 0.5) < tresh ||  (abs(current_mean - prev_mean) < 0.01 && abs(current_sd - prev_sd) < 0.01)){
@@ -219,8 +241,18 @@ double PersistenceDiagramSlicedWasserstein::execute(
         // std::cout << "NUMBER SAMPLINGS: " << total_number << "\n";
         // std::cout << "====================================" << "\n";
       
-        prev_mean = current_mean;
-        prev_sd = current_sd;
+        if (tot_variation_f/(number_temp*number_temp) < tresh){
+            dist = mean/number_temp;
+            cond = true;
+        }
+
+
+        // std::cout << "TOTAL VARIATION: " << tot_variation_f/number_temp << "\n";
+        // std::cout << "====================================" << "\n";
+        // std::cout << "NUMBER SAMPLINGS: " << total_number << "\n";
+        // std::cout << "====================================" << "\n";
+        // prev_mean = current_mean;
+        // prev_sd = current_sd;
         n = n +1;
     }
 
@@ -231,6 +263,8 @@ void PersistenceDiagramSlicedWasserstein::projectionOnThetaLine(
   const DiagramType &diag,
   const std::vector<std::array<double, 2>> &proj,
   std::vector<std::array<double, 2>> &projOnTheta,
+  std::vector<int> &originIndices,
+  std::vector<double> &scalarProd,
   double theta,
   bool vertical){
 
@@ -240,28 +274,49 @@ void PersistenceDiagramSlicedWasserstein::projectionOnThetaLine(
         auto &pair = diag[j];
         double birth = pair.birth.sfValue;
         double death = pair.death.sfValue;
-        std::array<double, 2> temp{(birth*vecUnit[0] + death*vecUnit[1])*vecUnit[0], 
-                (birth*vecUnit[0] + death*vecUnit[1])*vecUnit[1]};
+        double scal = birth*vecUnit[0] + death*vecUnit[1];
+        std::array<double, 2> temp{scal*vecUnit[0], 
+                scal*vecUnit[1]};
         projOnTheta.emplace_back(temp);
+        scalarProd.emplace_back(scal);
     }
 
     for(size_t j = 0; j < proj.size(); ++j){
         auto &pair = proj[j];
         double birth = pair[0];
         double death = pair[1];
-        std::array<double, 2> temp{(birth*vecUnit[0] + death*vecUnit[1])*vecUnit[0], 
-                (birth*vecUnit[0] + death*vecUnit[1])*vecUnit[1]};
+        double scal = birth*vecUnit[0] + death*vecUnit[1];
+
+        std::array<double, 2> temp{scal*vecUnit[0], 
+                scal*vecUnit[1]};
         projOnTheta.emplace_back(temp);
+        scalarProd.emplace_back(scal);
     }   
 
 
+    originIndices.resize(projOnTheta.size());
+    std::iota(originIndices.begin(), originIndices.end(), 0);
+
     if(vertical != true){
+
+        std::sort(originIndices.begin(), originIndices.end(), 
+            [&](int i , int j){
+                return (projOnTheta[i][0] < projOnTheta[j][0]);
+            });
+
+
         std::sort(projOnTheta.begin(), projOnTheta.end(), 
             [](std::array<double, 2> p1, std::array<double, 2> p2) 
             { 
                 return (p1[0] < p2[0]);
             });
     } else {
+
+        std::sort(originIndices.begin(), originIndices.end(), 
+            [&](int i , int j){
+                return (projOnTheta[i][1] < projOnTheta[j][1]);
+            });
+
         std::sort(projOnTheta.begin(), projOnTheta.end(), 
             [](std::array<double, 2> p1, std::array<double, 2> p2) 
             { 
@@ -350,9 +405,10 @@ void PersistenceDiagramSlicedWasserstein::slicedTransport(
             const double theta = thetaList[p];
             std::vector<std::array<double, 2>> projOnTheta1;
             std::vector<std::array<double, 2>> projOnTheta2;
-
+            std::vector<int> originIndices;
+            std::vector<double> scalarProd1;
             projectionOnThetaLine(limitMeasure ,projOnTheta1, theta);
-            projectionOnThetaLine(diag2, proj2, projOnTheta2, theta, vertical);
+            projectionOnThetaLine(diag2, proj2, projOnTheta2, originIndices, scalarProd1,theta, vertical);
 
 
             std::vector<int> measureProjIndices(limitMeasure.size());
@@ -491,4 +547,66 @@ void PersistenceDiagramSlicedWasserstein::getMatchings(
         }
     }
     std::cout << "IF ALL CHECKED: " << test << std::endl;
+}
+
+
+double PersistenceDiagramSlicedWasserstein::computeNormGradient(
+    const ttk::DiagramType &diag1,
+    const ttk::DiagramType &diag2,
+    const std::vector<std::array<double, 2>> &proj1,
+    const std::vector<std::array<double, 2>> &proj2,
+    const std::vector<int> &originIndices1,
+    const std::vector<int> &originIndices2,
+    const std::vector<double> &scalarProd1,
+    const std::vector<double> &scalarProd2,
+    double theta){
+
+
+    std::array<double, 2> tempArray{0.,0.};
+    std::array<double, 2> vecUnit{cos(theta), sin(theta)};
+
+    double result = 0.;
+
+    int overallSize = originIndices1.size();
+    int size1 = diag1.size();
+    int size2 = diag2.size();
+
+
+    for(int i = 0; i < overallSize; ++i){
+        int index1 = originIndices1[i];
+        int index2 = originIndices2[i];
+
+        double scal1 = scalarProd1[index1];
+        double scal2 = scalarProd2[index2];
+
+        std::array<double, 2> temp1{0.,0.};
+        std::array<double, 2> temp2{0.,0.};
+
+        if(index1 < size1){
+            const auto &t = diag1[index1];
+            temp1[0] = t.birth.sfValue;
+            temp1[1] = t.birth.sfValue;
+        } else {
+            const auto &t = proj1[index1 - size1];
+            temp1[0] = t[0];
+            temp1[1] = t[1];
+        }
+
+        if(index2 < size2){
+            const auto &t = diag2[index2];
+            temp2[0] = t.birth.sfValue;
+            temp2[1] = t.birth.sfValue;
+        } else {
+            const auto &t = proj2[index2 - size2];
+            temp2[0] = t[0];
+            temp2[1] = t[1];
+        }
+
+        tempArray[0]+= 2*Geometry::pow(scal1 - scal2, 2)*vecUnit[0] + 2*(scal1 - scal2)*(temp1[0] - temp2[0]);
+        tempArray[1]+= 2*Geometry::pow(scal1 - scal2, 2)*vecUnit[1] + 2*(scal1 - scal2)*(temp1[1] - temp2[1]);
+    }
+
+    // result = Geometry::pow(Geometry::pow(tempArray[0],2) + Geometry::pow(tempArray[1],2), 1./2);
+    result = abs(-sin(theta)*tempArray[0] + cos(theta)*tempArray[1]);
+    return result;
 }

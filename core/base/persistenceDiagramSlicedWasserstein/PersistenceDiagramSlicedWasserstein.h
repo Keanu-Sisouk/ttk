@@ -44,6 +44,8 @@ namespace ttk {
     void projectionOnThetaLine(const ttk::DiagramType &diag,
                                const std::vector<std::array<double, 2>> &proj,
                                std::vector<std::array<double, 2>> &projOnTheta,
+                               std::vector<int> &originIndices,
+                               std::vector<double> &scalarProd,
                                double theta,
                                bool vertical);
     
@@ -64,6 +66,16 @@ namespace ttk {
                       const ttk::DiagramType &diag2,
                       const std::vector<std::array<double, 2>> &proj,
                       const std::vector<std::array<double, 2>> &limitMeasure);
+
+    double computeNormGradient(const ttk::DiagramType &diag1,
+                               const ttk::DiagramType &diag2,
+                               const std::vector<std::array<double, 2>> &proj1,
+                               const std::vector<std::array<double, 2>> &proj2,
+                               const std::vector<int> &originIndices1,
+                               const std::vector<int> &originIndices2,
+                               const std::vector<double> &scalarProd1,
+                               const std::vector<double> &scalarProd2,
+                               double theta);
 
     int EPOCH_MAX = 300;
 
