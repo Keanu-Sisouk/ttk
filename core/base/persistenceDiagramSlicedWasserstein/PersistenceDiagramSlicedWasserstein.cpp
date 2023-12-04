@@ -64,7 +64,7 @@ double PersistenceDiagramSlicedWasserstein::execute(
     double ortho_angle = M_PI * 0.5;
     double mean = 0.;
     double mean_sq = 0.;
-    double tresh = 0.01;
+    double tresh = 0.1;
 
     double prev_mean = 0.;
     double prev_sd = 0.;
@@ -79,7 +79,8 @@ double PersistenceDiagramSlicedWasserstein::execute(
         std::vector<double> buffer_angle;
         int nb_sample = static_cast<int>(std::pow(2., static_cast<double>(n)));
 
-        if(n==0){
+        if(false){
+        // if(n==0){
             for(int i = 0; i < nb_sample ; i += 2){
                 double angle = static_cast<double>(i) * ortho_angle / static_cast<double>(nb_sample);
                 buffer_angle.emplace_back(angle);
@@ -144,6 +145,7 @@ double PersistenceDiagramSlicedWasserstein::execute(
                 bk /= 2;
             }
             angle = ortho_angle*angle;
+            // angle = M_PI * 0.25 + ortho_angle*angle;
             buffer_angle.emplace_back(angle);
             // buffer_angle.emplace_back(angle + ortho_angle);
 
@@ -198,11 +200,11 @@ double PersistenceDiagramSlicedWasserstein::execute(
  
         double current_sd = std::pow((number_temp/(number_temp - 1.)) * (mean_sq/number_temp - std::pow(current_mean, 2.)), 0.5);
 
-        std::cout << "CURRENT MEAN: " << current_mean << "\n";
-        std::cout << "====================================" << "\n";
+        // std::cout << "CURRENT MEAN: " << current_mean << "\n";
+        // std::cout << "====================================" << "\n";
 
-        std::cout << "CURRENT STANDARD DEVIATION: " << current_sd << "\n";
-        std::cout << "====================================" << "\n";
+        // std::cout << "CURRENT STANDARD DEVIATION: " << current_sd << "\n";
+        // std::cout << "====================================" << "\n";
 
         if( current_sd * 1.96 / std::pow(number_temp, 1) < tresh){
             dist = mean/number_temp;
@@ -214,8 +216,8 @@ double PersistenceDiagramSlicedWasserstein::execute(
         //     dist = mean/number_temp;
         //     cond = true;
         // }
-        std::cout << "NUMBER SAMPLINGS: " << total_number << "\n";
-        std::cout << "====================================" << "\n";
+        // std::cout << "NUMBER SAMPLINGS: " << total_number << "\n";
+        // std::cout << "====================================" << "\n";
       
         prev_mean = current_mean;
         prev_sd = current_sd;
