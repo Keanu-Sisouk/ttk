@@ -77,6 +77,14 @@ std::vector<std::vector<double>> PersistenceDiagramDistanceMatrix::execute(
     case DistanceType::SLICEDWASSERSTEIN: {
 
       PersistenceDiagramSlicedWasserstein sliceComputer;
+      int nbThread = 1;
+      if(nDiags > 2){
+        sliceComputer.setNbPoints(1);
+        nbThread = this->threadNumber_;
+      } else {
+        sliceComputer.setNbPoints(this->threadNumber_);
+        nbThread = 1;
+      }
 
       std::vector<DiagramType> currentInputDiagramsMin(nDiags);
       std::vector<DiagramType> currentInputDiagramsSad(nDiags);
@@ -98,7 +106,7 @@ std::vector<std::vector<double>> PersistenceDiagramDistanceMatrix::execute(
       distMat.resize(nInputs[0]);
 
 #ifdef TTK_ENABLE_OPENMP
-#pragma omp parallel for schedule(dynamic) num_threads(this->threadNumber_)
+#pragma omp parallel for schedule(dynamic) num_threads(nbThread)
 #endif // TTK_ENABLE_OPENMP
       for(size_t i = 0; i < nInputs[0]; ++i) {
 

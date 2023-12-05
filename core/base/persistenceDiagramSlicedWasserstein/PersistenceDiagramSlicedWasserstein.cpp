@@ -65,24 +65,22 @@ double PersistenceDiagramSlicedWasserstein::execute(
     double ortho_angle = M_PI * 0.5;
     double mean = 0.;
     double mean_sq = 0.;
-    double tresh = 0.1;
+    double tresh = 0.5;
 
     double prev_mean = 0.;
     double prev_sd = 0.;
 
     double tot_variation_f = 0.;
 
-    std::random_device rd;  // Will be used to obtain a seed for the random number engine
-    std::mt19937 gen(rd()); // Standard mersenne_twister_engine seeded with rd()
-    std::uniform_real_distribution<> dis(0., ortho_angle);
+    // std::random_device rd;  // Will be used to obtain a seed for the random number engine
+    // std::mt19937 gen(rd()); // Standard mersenne_twister_engine seeded with rd()
+    // std::uniform_real_distribution<> dis(0., ortho_angle);
     int total_number = 0;
     // bool vertical = false;
 
     while (cond == false) {
-        std::vector<double> buffer_angle;
+        std::vector<double> buffer_angle(nbPoints);
         int nb_sample = static_cast<int>(std::pow(2., static_cast<double>(n)));
-
-
 
         if(false){
         // if(n==0){
@@ -143,22 +141,28 @@ double PersistenceDiagramSlicedWasserstein::execute(
             }
 
         } else {
-
+            // std::cout << "BUFFER ANGLE SIZE:" << buffer_angle.size() << std::endl;
             // double angle = dis(gen);
             // buffer_angle.emplace_back(angle);
-            // buffer_angle.emplace_back(angle + ortho_angle);            
-            
-            double angle=0, bk=(double)1/2;
-            int m = n;
-            while (m > 0) {
-                angle += (m % 2)*bk;
-                m /= 2;
-                bk /= 2;
+            // buffer_angle.emplace_back(angle + ortho_angle);    
+
+#ifdef TTK_ENABLE_OPENMP
+#pragma omp parallel for num_threads(nbPoints)
+#endif // TTK_ENABLE_OPENMP        
+            for(int i = 0; i < nbPoints; ++i){
+                double angle=0, bk=(double)1/2;
+                int m = n + i;
+                while (m > 0) {
+                    angle += (m % 2)*bk;
+                    m /= 2;
+                    bk /= 2;
+                }
+                angle = ortho_angle*angle;
+                // angle = M_PI * 0.25 + angle * ortho_angle;
+                // buffer_angle.emplace_back(angle);
+                // buffer_angle.emplace_back(angle + ortho_angle);
+                buffer_angle[i] = angle;
             }
-            angle = ortho_angle*angle;
-            // angle = M_PI * 0.25 * angle + ortho_angle;
-            buffer_angle.emplace_back(angle);
-            // buffer_angle.emplace_back(angle + ortho_angle);
 
             // for(int i = 1; i < nb_sample ; i += 2){
             //     double angle = static_cast<double>(i) * ortho_angle / static_cast<double>(nb_sample);
@@ -173,7 +177,7 @@ double PersistenceDiagramSlicedWasserstein::execute(
             std::vector<double> temp_vf_array(buffer_angle.size(), 0.);
 
 #ifdef TTK_ENABLE_OPENMP
-#pragma omp parallel for num_threads(2)
+#pragma omp parallel for num_threads(nbPoints)
 #endif // TTK_ENABLE_OPENMP
             // total_number += static_cast<int>(buffer_angle.size());
             for(size_t t = 0; t < buffer_angle.size(); ++t){
@@ -184,7 +188,6 @@ double PersistenceDiagramSlicedWasserstein::execute(
                 std::vector<int> originIndices2;
                 std::vector<double> scalarProd1;
                 std::vector<double> scalarProd2;
-
 
                 projectionOnThetaLine(diag1, proj1, projOnTheta1, originIndices1, scalarProd1, theta, false);
                 projectionOnThetaLine(diag2, proj2, projOnTheta2, originIndices2, scalarProd2, theta, false);
@@ -253,7 +256,7 @@ double PersistenceDiagramSlicedWasserstein::execute(
         // std::cout << "====================================" << "\n";
         // prev_mean = current_mean;
         // prev_sd = current_sd;
-        n = n +1;
+        n = n + nbPoints;
     }
 
     return dist;
@@ -605,6 +608,7 @@ double PersistenceDiagramSlicedWasserstein::computeNormGradient(
         tempArray[0]+= 2*Geometry::pow(scal1 - scal2, 2)*vecUnit[0] + 2*(scal1 - scal2)*(temp1[0] - temp2[0]);
         tempArray[1]+= 2*Geometry::pow(scal1 - scal2, 2)*vecUnit[1] + 2*(scal1 - scal2)*(temp1[1] - temp2[1]);
     }
+
 
     // result = Geometry::pow(Geometry::pow(tempArray[0],2) + Geometry::pow(tempArray[1],2), 1./2);
     result = abs(-sin(theta)*tempArray[0] + cos(theta)*tempArray[1]);

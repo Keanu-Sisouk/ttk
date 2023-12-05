@@ -38,6 +38,10 @@ namespace ttk {
                    int sampleNumber);
 
 
+    inline void setNbPoints(int data){
+      nbPoints = data;
+    }
+
   protected:
 
 
@@ -78,6 +82,8 @@ namespace ttk {
                                double theta);
 
     int EPOCH_MAX = 300;
+
+    int nbPoints = 1;
 
   };
 } // namespace ttk
