@@ -77,6 +77,13 @@ std::vector<std::vector<double>> PersistenceDiagramDistanceMatrix::execute(
     case DistanceType::SLICEDWASSERSTEIN: {
 
       PersistenceDiagramSlicedWasserstein sliceComputer;
+
+      if(QuasiMCForSliced){
+        sliceComputer.setUseQuasiMC(true);
+      } else {
+        sliceComputer.setUseQuasiMC(false);
+      }
+
       int nbThread = 1;
       if(nDiags > 2){
         sliceComputer.setNbPoints(1);

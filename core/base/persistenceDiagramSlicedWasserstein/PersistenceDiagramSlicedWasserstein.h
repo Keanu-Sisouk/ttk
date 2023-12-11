@@ -42,6 +42,10 @@ namespace ttk {
       nbPoints = data;
     }
 
+    inline void setUseQuasiMC(bool data){
+      useQuasiMC = data;
+    }
+
   protected:
 
 
@@ -81,9 +85,21 @@ namespace ttk {
                                const std::vector<double> &scalarProd2,
                                double theta);
 
+    double classicMonteCarlo(const ttk::DiagramType &diag1,
+                             const ttk::DiagramType &diag2,
+                             const std::vector<std::array<double, 2>> &proj1,
+                             const std::vector<std::array<double, 2>> &proj2);
+
+    double quasiMonteCarlo(const ttk::DiagramType &diag1,
+                           const ttk::DiagramType &diag2,
+                           const std::vector<std::array<double, 2>> &proj1,
+                           const std::vector<std::array<double, 2>> &proj2);
+
     int EPOCH_MAX = 300;
 
     int nbPoints = 1;
+
+    bool useQuasiMC = true;
 
   };
 } // namespace ttk

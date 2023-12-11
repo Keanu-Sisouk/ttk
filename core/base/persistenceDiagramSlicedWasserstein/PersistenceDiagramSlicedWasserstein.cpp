@@ -22,241 +22,172 @@ double PersistenceDiagramSlicedWasserstein::execute(
 
     double dist = 0.;
 
-    // std::vector<double> thetaList(sampleNumber);
-    // for(int p = 0; p < sampleNumber ; ++p){
-    //     const double theta = static_cast<double>(p) * 
-    //         M_PI / static_cast<double>(sampleNumber);
-    //     thetaList[p] = theta;
-    // }
-
     std::vector<std::array<double, 2>> proj1;
     std::vector<std::array<double, 2>> proj2;
 
     augmentDiagram(diag1, proj2);
     augmentDiagram(diag2, proj1);
 
-    // for(size_t p = 0; p < thetaList.size(); ++p){
+//     double mean = 0.;
 
-    //     const double theta = thetaList[p];
-    //     std::vector<std::array<double, 2>> projOnTheta1;
-    //     std::vector<std::array<double, 2>> projOnTheta2;
+//     bool cond = false;
+//     int n = 0;
+//     double ortho_angle = M_PI * 0.5;
+//     double mean_sq = 0.;
+//     double tresh = 0.05;
 
-    //     projectionOnThetaLine(diag1, proj1, projOnTheta1, theta);
-    //     projectionOnThetaLine(diag2, proj2, projOnTheta2, theta);
+//     double prev_mean = 0.;
+//     double prev_sd = 0.;
 
-    //     double distOneLine = 0.;
+//     double tot_variation_f = 0.;
 
-    //     for(size_t k = 0; k < projOnTheta1.size(); ++k){
-    //         auto &p1 = projOnTheta1[k];
-    //         auto &p2 = projOnTheta2[k];
-    //         const double diffX = p1[0] - p2[0];
-    //         const double diffY = p1[1] - p2[1];
-    //         distOneLine += diffX*diffX + diffY*diffY;
-    //     }
+//     std::random_device rd;  // Will be used to obtain a seed for the random number engine
+//     std::mt19937 gen(rd()); // Standard mersenne_twister_engine seeded with rd()
+//     std::uniform_real_distribution<> dis(0., ortho_angle);
+//     int total_number = 0;
+//     // bool vertical = false;
 
-    //     dist += distOneLine / static_cast<double>(sampleNumber);
-    // }
-
-    // std::vector<ttk::MatchingType> matchings;
-    // slicedTransport(matchings, diag1, diag2, sampleNumber);
-
-    bool cond = false;
-    int n = 0;
-    double ortho_angle = M_PI * 0.5;
-    double mean = 0.;
-    double mean_sq = 0.;
-    double tresh = 0.5;
-
-    double prev_mean = 0.;
-    double prev_sd = 0.;
-
-    double tot_variation_f = 0.;
-
-    // std::random_device rd;  // Will be used to obtain a seed for the random number engine
-    // std::mt19937 gen(rd()); // Standard mersenne_twister_engine seeded with rd()
-    // std::uniform_real_distribution<> dis(0., ortho_angle);
-    int total_number = 0;
-    // bool vertical = false;
-
-    while (cond == false) {
-        std::vector<double> buffer_angle(nbPoints);
-        int nb_sample = static_cast<int>(std::pow(2., static_cast<double>(n)));
-
-        if(false){
-        // if(n==0){
-            for(int i = 0; i < nb_sample ; i += 2){
-                double angle = static_cast<double>(i) * ortho_angle / static_cast<double>(nb_sample);
-                buffer_angle.emplace_back(angle);
-                buffer_angle.emplace_back(angle + ortho_angle);
-            }
+//     while (cond == false) {
+//         std::vector<double> buffer_angle(nbPoints);
+//         int nb_sample = static_cast<int>(std::pow(2., static_cast<double>(n)));
 
 
-            total_number += static_cast<int>(buffer_angle.size());
-            for(size_t t = 0; t < buffer_angle.size(); ++t){
-                const double theta = buffer_angle[t];
-                std::vector<std::array<double, 2>> projOnTheta1;
-                std::vector<std::array<double, 2>> projOnTheta2;
+//         // std::cout << "BUFFER ANGLE SIZE:" << buffer_angle.size() << std::endl;
+//         // double angle = dis(gen);
+//         // buffer_angle.emplace_back(angle);
+//         // buffer_angle.emplace_back(angle + ortho_angle);    
 
-                std::vector<int> originIndices1;
-                std::vector<int> originIndices2;
+// // #ifdef TTK_ENABLE_OPENMP
+// // #pragma omp parallel for num_threads(nbPoints)
+// // #endif // TTK_ENABLE_OPENMP   
+// //                 for(int i = 0; i < nbPoints; ++i){
+// //                     double angle = dis(gen);
+// //                     buffer_angle[i] = angle;
+// //                 }
 
-                std::vector<double> scalarProd1;
-                std::vector<double> scalarProd2;
+// #ifdef TTK_ENABLE_OPENMP
+// #pragma omp parallel for num_threads(nbPoints)
+// #endif // TTK_ENABLE_OPENMP        
+//         for(int i = 0; i < nbPoints; ++i){
+//             double angle=0, bk=(double)1/2;
+//             int m = n + i;
+//             while (m > 0) {
+//                 angle += (m % 2)*bk;
+//                 m /= 2;
+//                 bk /= 2;
+//             }
+//             angle = ortho_angle*angle;
+//             // angle = M_PI * 0.25 + angle * ortho_angle;
+//             // buffer_angle.emplace_back(angle);
+//             // buffer_angle.emplace_back(angle + ortho_angle);
+//             buffer_angle[i] = angle;
+//         }
 
-                if(t == 1){
-                    projectionOnThetaLine(diag1, proj1, projOnTheta1, originIndices1, scalarProd1,theta, true);
-                    projectionOnThetaLine(diag2, proj2, projOnTheta2, originIndices2, scalarProd2,theta, true);
+//         // for(int i = 1; i < nb_sample ; i += 2){
+//         //     double angle = static_cast<double>(i) * ortho_angle / static_cast<double>(nb_sample);
+//         //     buffer_angle.emplace_back(angle);
+//         //     buffer_angle.emplace_back(angle + ortho_angle);
+//         // }
 
-                    double distOneLine = 0.;
+//         total_number += static_cast<int>(buffer_angle.size());
 
-                    for(size_t k = 0; k < projOnTheta1.size(); ++k){
-                        auto &p1 = projOnTheta1[k];
-                        auto &p2 = projOnTheta2[k];
-                        const double diffX = p1[0] - p2[0];
-                        const double diffY = p1[1] - p2[1];
-                        distOneLine += diffX*diffX + diffY*diffY;
-                    }
+//         std::vector<double> temp_mean_array(buffer_angle.size(), 0.);
+//         std::vector<double> temp_sd_array(buffer_angle.size(), 0.);
+//         std::vector<double> temp_vf_array(buffer_angle.size(), 0.);
 
-                    mean += distOneLine;
-                    mean_sq += std::pow(distOneLine, 2.);
-                } else {
-                    projectionOnThetaLine(diag1, proj1, projOnTheta1, originIndices1, scalarProd1, theta, false);
-                    projectionOnThetaLine(diag2, proj2, projOnTheta2, originIndices2, scalarProd2, theta, false);
+// #ifdef TTK_ENABLE_OPENMP
+// #pragma omp parallel for num_threads(nbPoints)
+// #endif // TTK_ENABLE_OPENMP
+//         // total_number += static_cast<int>(buffer_angle.size());
+//         for(size_t t = 0; t < buffer_angle.size(); ++t){
+//             const double theta = buffer_angle[t];
+//             std::vector<std::array<double, 2>> projOnTheta1;
+//             std::vector<std::array<double, 2>> projOnTheta2;
+//             std::vector<int> originIndices1;
+//             std::vector<int> originIndices2;
+//             std::vector<double> scalarProd1;
+//             std::vector<double> scalarProd2;
 
-                    double distOneLine = 0.;
+//             projectionOnThetaLine(diag1, proj1, projOnTheta1, originIndices1, scalarProd1, theta, false);
+//             projectionOnThetaLine(diag2, proj2, projOnTheta2, originIndices2, scalarProd2, theta, false);
 
-                    for(size_t k = 0; k < projOnTheta1.size(); ++k){
-                        auto &p1 = projOnTheta1[k];
-                        auto &p2 = projOnTheta2[k];
-                        const double diffX = p1[0] - p2[0];
-                        const double diffY = p1[1] - p2[1];
-                        distOneLine += diffX*diffX + diffY*diffY;
-                    }
+//             double distOneLine = 0.;
 
-                    mean += distOneLine;
-                    mean_sq += std::pow(distOneLine, 2.);
-                }
+//             for(size_t k = 0; k < projOnTheta1.size(); ++k){
+//                 auto &p1 = projOnTheta1[k];
+//                 auto &p2 = projOnTheta2[k];
+//                 const double diffX = p1[0] - p2[0];
+//                 const double diffY = p1[1] - p2[1];
+//                 distOneLine += diffX*diffX + diffY*diffY;
+//             }
 
+//             double vf = computeNormGradient(diag1, diag2, proj1, proj2, originIndices1, originIndices2, scalarProd1, scalarProd2, theta);
 
-            }
+//             // mean += distOneLine;
+//             // mean_sq += std::pow(distOneLine, 2.);
 
-        } else {
-            // std::cout << "BUFFER ANGLE SIZE:" << buffer_angle.size() << std::endl;
-            // double angle = dis(gen);
-            // buffer_angle.emplace_back(angle);
-            // buffer_angle.emplace_back(angle + ortho_angle);    
-
-#ifdef TTK_ENABLE_OPENMP
-#pragma omp parallel for num_threads(nbPoints)
-#endif // TTK_ENABLE_OPENMP        
-            for(int i = 0; i < nbPoints; ++i){
-                double angle=0, bk=(double)1/2;
-                int m = n + i;
-                while (m > 0) {
-                    angle += (m % 2)*bk;
-                    m /= 2;
-                    bk /= 2;
-                }
-                angle = ortho_angle*angle;
-                // angle = M_PI * 0.25 + angle * ortho_angle;
-                // buffer_angle.emplace_back(angle);
-                // buffer_angle.emplace_back(angle + ortho_angle);
-                buffer_angle[i] = angle;
-            }
-
-            // for(int i = 1; i < nb_sample ; i += 2){
-            //     double angle = static_cast<double>(i) * ortho_angle / static_cast<double>(nb_sample);
-            //     buffer_angle.emplace_back(angle);
-            //     buffer_angle.emplace_back(angle + ortho_angle);
-            // }
-
-            total_number += static_cast<int>(buffer_angle.size());
-
-            std::vector<double> temp_mean_array(buffer_angle.size(), 0.);
-            std::vector<double> temp_sd_array(buffer_angle.size(), 0.);
-            std::vector<double> temp_vf_array(buffer_angle.size(), 0.);
-
-#ifdef TTK_ENABLE_OPENMP
-#pragma omp parallel for num_threads(nbPoints)
-#endif // TTK_ENABLE_OPENMP
-            // total_number += static_cast<int>(buffer_angle.size());
-            for(size_t t = 0; t < buffer_angle.size(); ++t){
-                const double theta = buffer_angle[t];
-                std::vector<std::array<double, 2>> projOnTheta1;
-                std::vector<std::array<double, 2>> projOnTheta2;
-                std::vector<int> originIndices1;
-                std::vector<int> originIndices2;
-                std::vector<double> scalarProd1;
-                std::vector<double> scalarProd2;
-
-                projectionOnThetaLine(diag1, proj1, projOnTheta1, originIndices1, scalarProd1, theta, false);
-                projectionOnThetaLine(diag2, proj2, projOnTheta2, originIndices2, scalarProd2, theta, false);
-
-                double distOneLine = 0.;
-
-                for(size_t k = 0; k < projOnTheta1.size(); ++k){
-                    auto &p1 = projOnTheta1[k];
-                    auto &p2 = projOnTheta2[k];
-                    const double diffX = p1[0] - p2[0];
-                    const double diffY = p1[1] - p2[1];
-                    distOneLine += diffX*diffX + diffY*diffY;
-                }
-
-                double vf = computeNormGradient(diag1, diag2, proj1, proj2, originIndices1, originIndices2, scalarProd1, scalarProd2, theta);
-
-                // mean += distOneLine;
-                // mean_sq += std::pow(distOneLine, 2.);
-
-                temp_mean_array[t] = distOneLine;
-                // temp_sd_array[t] = std::pow(distOneLine, 2.);
-                temp_vf_array[t] = vf;
-            }
-           
-            mean +=  std::accumulate(temp_mean_array.begin(), temp_mean_array.end(), 0.);
-            // mean_sq += std::accumulate(temp_sd_array.begin(), temp_sd_array.end(), 0.);
-            tot_variation_f += std::accumulate(temp_vf_array.begin(), temp_vf_array.end(), 0.);
-        }
+//             temp_mean_array[t] = distOneLine;
+//             temp_sd_array[t] = std::pow(distOneLine, 2.);
+//             temp_vf_array[t] = vf;
+//         }
+        
+//         mean +=  std::accumulate(temp_mean_array.begin(), temp_mean_array.end(), 0.);
+//         // mean_sq += std::accumulate(temp_sd_array.begin(), temp_sd_array.end(), 0.);
+//         tot_variation_f += std::accumulate(temp_vf_array.begin(), temp_vf_array.end(), 0.);
 
 
-        // double number_temp = 2. * static_cast<double>(nb_sample);
-        double number_temp = static_cast<double>(total_number);
-        // double current_mean = mean/(number_temp);
+
+//         // double number_temp = 2. * static_cast<double>(nb_sample);
+//         double number_temp = static_cast<double>(total_number);
+//         // double current_mean = mean/(number_temp);
  
-        // double current_sd = std::pow((number_temp/(number_temp - 1.)) * (mean_sq/number_temp - std::pow(current_mean, 2.)), 0.5);
+//         // double current_sd = std::pow((number_temp/(number_temp - 1.)) * (mean_sq/number_temp - std::pow(current_mean, 2.)), 0.5);
 
-        // std::cout << "CURRENT MEAN: " << current_mean << "\n";
-        // std::cout << "====================================" << "\n";
+//         // std::cout << "CURRENT MEAN: " << current_mean << "\n";
+//         // std::cout << "====================================" << "\n";
 
-        // std::cout << "CURRENT STANDARD DEVIATION: " << current_sd << "\n";
-        // std::cout << "====================================" << "\n";
+//         // std::cout << "CURRENT STANDARD DEVIATION: " << current_sd << "\n";
+//         // std::cout << "====================================" << "\n";
 
-        // if( current_sd * 1.96 / std::pow(number_temp, 1) < tresh){
-        //     dist = mean/number_temp;
-        //     cond = true;
-        // }
+//         // std::cout << "NUMBER SAMPLINGS: " << total_number << "\n";
+//         // std::cout << "====================================" << "\n";
+
+//         // if( current_sd * 1.96 / std::pow(number_temp, 0.5) < tresh){
+//         //     dist = mean/number_temp;
+//         //     cond = true;
+//         // }
 
 
 
-        // if( current_sd * 1.96 / std::pow(number_temp, 0.5) < tresh ||  (abs(current_mean - prev_mean) < 0.01 && abs(current_sd - prev_sd) < 0.01)){
-        //     dist = mean/number_temp;
-        //     cond = true;
-        // }
-        // std::cout << "NUMBER SAMPLINGS: " << total_number << "\n";
-        // std::cout << "====================================" << "\n";
+//         // if( current_sd * 1.96 / std::pow(number_temp, 0.5) < tresh ||  (abs(current_mean - prev_mean) < 0.01 && abs(current_sd - prev_sd) < 0.01)){
+//         //     dist = mean/number_temp;
+//         //     cond = true;
+//         // }
+
+//         std::cout << "TOTAL VARIATION: " << tot_variation_f/number_temp << "\n";
+//         std::cout << "====================================" << "\n";
+
+//         std::cout << "NUMBER SAMPLINGS: " << total_number << "\n";
+//         std::cout << "====================================" << "\n";
       
-        if (tot_variation_f/(number_temp*number_temp) < tresh){
-            dist = mean/number_temp;
-            cond = true;
-        }
+//         if (tot_variation_f/(number_temp*number_temp) < tresh){
+//             dist = mean/number_temp;
+//             cond = true;
+//         }
 
 
-        // std::cout << "TOTAL VARIATION: " << tot_variation_f/number_temp << "\n";
-        // std::cout << "====================================" << "\n";
-        // std::cout << "NUMBER SAMPLINGS: " << total_number << "\n";
-        // std::cout << "====================================" << "\n";
-        // prev_mean = current_mean;
-        // prev_sd = current_sd;
-        n = n + nbPoints;
+
+//         // std::cout << "NUMBER SAMPLINGS: " << total_number << "\n";
+//         // std::cout << "====================================" << "\n";
+//         // prev_mean = current_mean;
+//         // prev_sd = current_sd;
+//         n = n + nbPoints;
+//     }
+
+    if(useQuasiMC){
+        dist = quasiMonteCarlo(diag1, diag2, proj1, proj2);
+    } else {
+        dist = classicMonteCarlo(diag1, diag2, proj1, proj2);
     }
 
     return dist;
@@ -613,4 +544,257 @@ double PersistenceDiagramSlicedWasserstein::computeNormGradient(
     // result = Geometry::pow(Geometry::pow(tempArray[0],2) + Geometry::pow(tempArray[1],2), 1./2);
     result = abs(-sin(theta)*tempArray[0] + cos(theta)*tempArray[1]);
     return result;
+}
+
+
+double PersistenceDiagramSlicedWasserstein::classicMonteCarlo(
+    const ttk::DiagramType &diag1,
+    const ttk::DiagramType &diag2,
+    const std::vector<std::array<double, 2>> &proj1,
+    const std::vector<std::array<double, 2>> &proj2){
+
+    double temp = 0.;
+    bool cond = false;
+    int n = 0;
+    double ortho_angle = M_PI * 0.5;
+    double mean = 0.;
+    double mean_sq = 0.;
+    double tresh = 0.01;
+
+    double prev_mean = 0.;
+    double prev_sd = 0.;
+
+    double tot_variation_f = 0.;
+
+    std::random_device rd;  // Will be used to obtain a seed for the random number engine
+    std::mt19937 gen(rd()); // Standard mersenne_twister_engine seeded with rd()
+    std::uniform_real_distribution<> dis(0., ortho_angle);
+    int total_number = 0;
+    // bool vertical = false;
+
+    while (cond == false) {
+        std::vector<double> buffer_angle(nbPoints);
+        int nb_sample = static_cast<int>(std::pow(2., static_cast<double>(n)));
+
+
+        // std::cout << "BUFFER ANGLE SIZE:" << buffer_angle.size() << std::endl;
+        // double angle = dis(gen);
+        // buffer_angle.emplace_back(angle);
+        // buffer_angle.emplace_back(angle + ortho_angle);    
+
+#ifdef TTK_ENABLE_OPENMP
+#pragma omp parallel for num_threads(nbPoints)
+#endif // TTK_ENABLE_OPENMP   
+            for(int i = 0; i < nbPoints; ++i){
+                double angle = dis(gen);
+                buffer_angle[i] = angle;
+            }
+
+
+        // for(int i = 1; i < nb_sample ; i += 2){
+        //     double angle = static_cast<double>(i) * ortho_angle / static_cast<double>(nb_sample);
+        //     buffer_angle.emplace_back(angle);
+        //     buffer_angle.emplace_back(angle + ortho_angle);
+        // }
+
+        total_number += static_cast<int>(buffer_angle.size());
+
+        std::vector<double> temp_mean_array(buffer_angle.size(), 0.);
+        std::vector<double> temp_sd_array(buffer_angle.size(), 0.);
+        std::vector<double> temp_vf_array(buffer_angle.size(), 0.);
+
+#ifdef TTK_ENABLE_OPENMP
+#pragma omp parallel for num_threads(nbPoints)
+#endif // TTK_ENABLE_OPENMP
+        // total_number += static_cast<int>(buffer_angle.size());
+        for(size_t t = 0; t < buffer_angle.size(); ++t){
+            const double theta = buffer_angle[t];
+            std::vector<std::array<double, 2>> projOnTheta1;
+            std::vector<std::array<double, 2>> projOnTheta2;
+            std::vector<int> originIndices1;
+            std::vector<int> originIndices2;
+            std::vector<double> scalarProd1;
+            std::vector<double> scalarProd2;
+
+            projectionOnThetaLine(diag1, proj1, projOnTheta1, originIndices1, scalarProd1, theta, false);
+            projectionOnThetaLine(diag2, proj2, projOnTheta2, originIndices2, scalarProd2, theta, false);
+
+            double distOneLine = 0.;
+
+            for(size_t k = 0; k < projOnTheta1.size(); ++k){
+                auto &p1 = projOnTheta1[k];
+                auto &p2 = projOnTheta2[k];
+                const double diffX = p1[0] - p2[0];
+                const double diffY = p1[1] - p2[1];
+                distOneLine += diffX*diffX + diffY*diffY;
+            }
+
+            temp_mean_array[t] = distOneLine;
+            temp_sd_array[t] = std::pow(distOneLine, 2.);
+        }
+        
+        mean +=  std::accumulate(temp_mean_array.begin(), temp_mean_array.end(), 0.);
+        mean_sq += std::accumulate(temp_sd_array.begin(), temp_sd_array.end(), 0.);
+        // tot_variation_f += std::accumulate(temp_vf_array.begin(), temp_vf_array.end(), 0.);
+    
+
+
+        // double number_temp = 2. * static_cast<double>(nb_sample);
+        double number_temp = static_cast<double>(total_number);
+        double current_mean = mean/(number_temp);
+ 
+        double current_sd = std::pow((number_temp/(number_temp - 1.)) * (mean_sq/number_temp - std::pow(current_mean, 2.)), 0.5);
+
+        // std::cout << "CURRENT MEAN: " << current_mean << "\n";
+        // std::cout << "====================================" << "\n";
+
+        // std::cout << "CURRENT STANDARD DEVIATION: " << current_sd << "\n";
+        // std::cout << "====================================" << "\n";
+
+        // std::cout << "NUMBER SAMPLINGS: " << total_number << "\n";
+        // std::cout << "====================================" << "\n";
+
+        if( current_sd * 1.96 / std::pow(number_temp, 0.5) < tresh){
+            temp = mean/number_temp;
+            cond = true;
+        }
+
+        // if( current_sd * 1.96 / std::pow(number_temp, 0.5) < tresh ||  (abs(current_mean - prev_mean) < 0.01 && abs(current_sd - prev_sd) < 0.01)){
+        //     dist = mean/number_temp;
+        //     cond = true;
+        // }
+
+        n = n + nbPoints;
+    }
+
+
+    return temp;
+
+}
+
+double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
+    const ttk::DiagramType &diag1,
+    const ttk::DiagramType &diag2,
+    const std::vector<std::array<double, 2>> &proj1,
+    const std::vector<std::array<double, 2>> &proj2){
+
+    double temp = 0.;
+    bool cond = false;
+    int n = 0;
+    double ortho_angle = M_PI * 0.5;
+    double mean = 0.;
+    double mean_sq = 0.;
+    double tresh = 0.05;
+
+    double prev_mean = 0.;
+    double prev_sd = 0.;
+
+    double tot_variation_f = 0.;
+
+    int total_number = 0;
+    // bool vertical = false;
+
+    while (cond == false) {
+        std::vector<double> buffer_angle(nbPoints);
+        int nb_sample = static_cast<int>(std::pow(2., static_cast<double>(n)));
+
+#ifdef TTK_ENABLE_OPENMP
+#pragma omp parallel for num_threads(nbPoints)
+#endif // TTK_ENABLE_OPENMP        
+        for(int i = 0; i < nbPoints; ++i){
+            double angle=0, bk=(double)1/2;
+            int m = n + i;
+            while (m > 0) {
+                angle += (m % 2)*bk;
+                m /= 2;
+                bk /= 2;
+            }
+            angle = ortho_angle*angle;
+            // angle = M_PI * 0.25 + angle * ortho_angle;
+            // buffer_angle.emplace_back(angle);
+            // buffer_angle.emplace_back(angle + ortho_angle);
+            buffer_angle[i] = angle;
+        }
+
+        // for(int i = 1; i < nb_sample ; i += 2){
+        //     double angle = static_cast<double>(i) * ortho_angle / static_cast<double>(nb_sample);
+        //     buffer_angle.emplace_back(angle);
+        //     buffer_angle.emplace_back(angle + ortho_angle);
+        // }
+
+        total_number += static_cast<int>(buffer_angle.size());
+
+        std::vector<double> temp_mean_array(buffer_angle.size(), 0.);
+        std::vector<double> temp_sd_array(buffer_angle.size(), 0.);
+        std::vector<double> temp_vf_array(buffer_angle.size(), 0.);
+
+#ifdef TTK_ENABLE_OPENMP
+#pragma omp parallel for num_threads(nbPoints)
+#endif // TTK_ENABLE_OPENMP
+        // total_number += static_cast<int>(buffer_angle.size());
+        for(size_t t = 0; t < buffer_angle.size(); ++t){
+            const double theta = buffer_angle[t];
+            std::vector<std::array<double, 2>> projOnTheta1;
+            std::vector<std::array<double, 2>> projOnTheta2;
+            std::vector<int> originIndices1;
+            std::vector<int> originIndices2;
+            std::vector<double> scalarProd1;
+            std::vector<double> scalarProd2;
+
+            projectionOnThetaLine(diag1, proj1, projOnTheta1, originIndices1, scalarProd1, theta, false);
+            projectionOnThetaLine(diag2, proj2, projOnTheta2, originIndices2, scalarProd2, theta, false);
+
+            double distOneLine = 0.;
+
+            for(size_t k = 0; k < projOnTheta1.size(); ++k){
+                auto &p1 = projOnTheta1[k];
+                auto &p2 = projOnTheta2[k];
+                const double diffX = p1[0] - p2[0];
+                const double diffY = p1[1] - p2[1];
+                distOneLine += diffX*diffX + diffY*diffY;
+            }
+
+            double vf = computeNormGradient(diag1, diag2, proj1, proj2, originIndices1, originIndices2, scalarProd1, scalarProd2, theta);
+            // double vf = 42.;
+            temp_mean_array[t] = distOneLine;
+            // temp_sd_array[t] = std::pow(distOneLine, 2.);
+            temp_vf_array[t] = vf;
+        }
+        
+        mean +=  std::accumulate(temp_mean_array.begin(), temp_mean_array.end(), 0.);
+        // mean_sq += std::accumulate(temp_sd_array.begin(), temp_sd_array.end(), 0.);
+        tot_variation_f += std::accumulate(temp_vf_array.begin(), temp_vf_array.end(), 0.);
+    
+
+
+        // double number_temp = 2. * static_cast<double>(nb_sample);
+        double number_temp = static_cast<double>(total_number);
+
+        // if( current_sd * 1.96 / std::pow(number_temp, 0.5) < tresh ||  (abs(current_mean - prev_mean) < 0.01 && abs(current_sd - prev_sd) < 0.01)){
+        //     dist = mean/number_temp;
+        //     cond = true;
+        // }
+
+        // std::cout << "TOTAL VARIATION: " << tot_variation_f/number_temp << "\n";
+        // std::cout << "====================================" << "\n";
+
+        // std::cout << "NUMBER SAMPLINGS: " << total_number << "\n";
+        // std::cout << "====================================" << "\n";
+      
+        // if (tot_variation_f*(log(number_temp)/(3.*log(2)*number_temp*number_temp) + 1/(number_temp*number_temp)) < tresh){
+        //     temp = mean/number_temp;
+        //     cond = true;
+        // }
+
+        if (tot_variation_f/(number_temp*number_temp) < tresh){
+            temp = mean/number_temp;
+            cond = true;
+        }
+
+        n = n + nbPoints;
+    }
+
+
+    return temp;
+
 }

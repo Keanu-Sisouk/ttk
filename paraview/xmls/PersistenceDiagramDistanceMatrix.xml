@@ -239,6 +239,29 @@
       <IntRangeDomain name = "Range" min = "5" max = "3500" />
       </IntVectorProperty>
 
+      <IntVectorProperty
+          name="UseQuasiMonteCarlo"
+          label="QuasiMC"
+          command="SetQuasiMCForSliced"
+          number_of_elements="1"
+          default_values="1"
+          panel_visibility="advanced" >
+         <EnumerationDomain name="enum">
+          <Entry value="0" text="Classic MC"/>
+          <Entry value="1" text="Quasi MC"/>
+        </EnumerationDomain>
+        <Hints>
+          <PropertyWidgetDecorator type="GenericDecorator"
+                                   mode="visibility"
+                                   property="DistanceType"
+                                   value="1" />
+        </Hints>
+        <Documentation>
+          Use Classic Monte Carlo or Quasi Monte Carlo?
+        </Documentation>
+      </IntVectorProperty>
+
+
       ${DEBUG_WIDGETS}
 
       <Hints>

@@ -130,5 +130,7 @@ namespace ttk {
     };
 
     DistanceType Distance{DistanceType::WASSERSTEIN};
+    bool QuasiMCForSliced = true;
+
   };
 } // namespace ttk

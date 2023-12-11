@@ -134,6 +134,9 @@ public:
   vtkSetMacro(SampleNumber, int);
   vtkGetMacro(SampleNumber, int);
 
+  vtkSetEnumMacro(QuasiMCForSliced, bool);
+  vtkGetEnumMacro(QuasiMCForSliced, bool);
+  
 protected:
   ttkPersistenceDiagramDistanceMatrix();
   ~ttkPersistenceDiagramDistanceMatrix() override = default;
