@@ -15,13 +15,14 @@
 #include <vtkPointData.h>
 #include <vtkStringArray.h>
 #include <vtkTable.h>
+#include <vtkType.h>
 #include <vtkUnstructuredGrid.h>
 
 vtkStandardNewMacro(ttkPersistenceDiagramDistanceMatrix);
 
 ttkPersistenceDiagramDistanceMatrix::ttkPersistenceDiagramDistanceMatrix() {
   SetNumberOfInputPorts(1);
-  SetNumberOfOutputPorts(1);
+  SetNumberOfOutputPorts(2);
 }
 
 int ttkPersistenceDiagramDistanceMatrix::FillInputPortInformation(
@@ -37,6 +38,9 @@ int ttkPersistenceDiagramDistanceMatrix::FillInputPortInformation(
 int ttkPersistenceDiagramDistanceMatrix::FillOutputPortInformation(
   int port, vtkInformation *info) {
   if(port == 0) {
+    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkTable");
+    return 1;
+  } else if (port == 1){
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkTable");
     return 1;
   }
@@ -92,7 +96,8 @@ int ttkPersistenceDiagramDistanceMatrix::RequestData(
   }
 
   // Set output
-  auto diagramsDistTable = vtkTable::GetData(outputVector);
+  auto diagramsDistTable = vtkTable::GetData(outputVector, 0);
+  auto nbProjTable = vtkTable::GetData(outputVector, 1);
 
   std::vector<ttk::DiagramType> intermediateDiagrams(nDiags);
 
@@ -104,8 +109,8 @@ int ttkPersistenceDiagramDistanceMatrix::RequestData(
       return 0;
     }
   }
-
-  const auto diagramsDistMat = this->execute(intermediateDiagrams, nInputs);
+  std::vector<int> nbProj(1);
+  const auto diagramsDistMat = this->execute(intermediateDiagrams, nInputs, nbProj);
 
   // zero-padd column name to keep Row Data columns ordered
   const auto zeroPad
@@ -169,6 +174,13 @@ int ttkPersistenceDiagramDistanceMatrix::RequestData(
     // copy "extended" input field data array to output row data
     diagramsDistTable->AddColumn(array);
   }
+
+  vtkNew<vtkDoubleArray> nbSample{};
+  nbSample->SetNumberOfValues(nbProj.size());
+  nbSample->SetName("Nb proj");
+  nbSample->SetValue(0, nbProj[0]);
+  nbSample->Modified();
+  nbProjTable->AddColumn(nbSample);
 
   return 1;
 }

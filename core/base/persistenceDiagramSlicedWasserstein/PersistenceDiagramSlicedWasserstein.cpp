@@ -18,7 +18,7 @@ using namespace ttk;
 double PersistenceDiagramSlicedWasserstein::execute(
     const DiagramType &diag1, 
     const DiagramType &diag2, 
-    int sampleNumber) {
+    int &sampleNumber) {
 
     double dist = 0.;
 
@@ -185,9 +185,9 @@ double PersistenceDiagramSlicedWasserstein::execute(
 //     }
 
     if(useQuasiMC){
-        dist = quasiMonteCarlo(diag1, diag2, proj1, proj2);
+        dist = quasiMonteCarlo(diag1, diag2, proj1, proj2,sampleNumber);
     } else {
-        dist = classicMonteCarlo(diag1, diag2, proj1, proj2);
+        dist = classicMonteCarlo(diag1, diag2, proj1, proj2, sampleNumber);
     }
 
     return dist;
@@ -551,7 +551,8 @@ double PersistenceDiagramSlicedWasserstein::classicMonteCarlo(
     const ttk::DiagramType &diag1,
     const ttk::DiagramType &diag2,
     const std::vector<std::array<double, 2>> &proj1,
-    const std::vector<std::array<double, 2>> &proj2){
+    const std::vector<std::array<double, 2>> &proj2,
+    int &sampleNumber){
 
     double temp = 0.;
     bool cond = false;
@@ -559,7 +560,7 @@ double PersistenceDiagramSlicedWasserstein::classicMonteCarlo(
     double ortho_angle = M_PI * 0.5;
     double mean = 0.;
     double mean_sq = 0.;
-    double tresh = 0.01;
+    double tresh = 0.5;
 
     double prev_mean = 0.;
     double prev_sd = 0.;
@@ -645,14 +646,14 @@ double PersistenceDiagramSlicedWasserstein::classicMonteCarlo(
  
         double current_sd = std::pow((number_temp/(number_temp - 1.)) * (mean_sq/number_temp - std::pow(current_mean, 2.)), 0.5);
 
-        // std::cout << "CURRENT MEAN: " << current_mean << "\n";
-        // std::cout << "====================================" << "\n";
+        std::cout << "CURRENT MEAN: " << current_mean << "\n";
+        std::cout << "====================================" << "\n";
 
-        // std::cout << "CURRENT STANDARD DEVIATION: " << current_sd << "\n";
-        // std::cout << "====================================" << "\n";
+        std::cout << "CURRENT STANDARD DEVIATION: " << current_sd << "\n";
+        std::cout << "====================================" << "\n";
 
-        // std::cout << "NUMBER SAMPLINGS: " << total_number << "\n";
-        // std::cout << "====================================" << "\n";
+        std::cout << "NUMBER SAMPLINGS: " << total_number << "\n";
+        std::cout << "====================================" << "\n";
 
         if( current_sd * 1.96 / std::pow(number_temp, 0.5) < tresh){
             temp = mean/number_temp;
@@ -668,7 +669,8 @@ double PersistenceDiagramSlicedWasserstein::classicMonteCarlo(
 
         
     }
-    this->setNbOfProjused(n);
+    // this->setNbOfProjused(n);
+    sampleNumber += n;
 
     return temp;
 
@@ -678,7 +680,8 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
     const ttk::DiagramType &diag1,
     const ttk::DiagramType &diag2,
     const std::vector<std::array<double, 2>> &proj1,
-    const std::vector<std::array<double, 2>> &proj2){
+    const std::vector<std::array<double, 2>> &proj2,
+    int &sampleNumber){
 
     double temp = 0.;
     bool cond = false;
@@ -686,7 +689,7 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
     double ortho_angle = M_PI * 0.5;
     double mean = 0.;
     double mean_sq = 0.;
-    double tresh = 0.05;
+    double tresh = 0.5;
 
     double prev_mean = 0.;
     double prev_sd = 0.;
@@ -796,7 +799,8 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
         n = n + nbPoints;
     }
 
-    this->setNbOfProjused(n);
+    // this->setNbOfProjused(n);
+    sampleNumber += n;
     return temp;
 
 }

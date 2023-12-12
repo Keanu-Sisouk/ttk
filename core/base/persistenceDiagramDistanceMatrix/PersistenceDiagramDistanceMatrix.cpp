@@ -9,7 +9,8 @@ using namespace ttk;
 
 std::vector<std::vector<double>> PersistenceDiagramDistanceMatrix::execute(
   const std::vector<DiagramType> &intermediateDiagrams,
-  const std::array<size_t, 2> &nInputs) const {
+  const std::array<size_t, 2> &nInputs,
+  std::vector<int> &nbProj) const {
 
   Timer tm{};
 
@@ -111,6 +112,7 @@ std::vector<std::vector<double>> PersistenceDiagramDistanceMatrix::execute(
       }
 
       distMat.resize(nInputs[0]);
+      std::vector<int> temp(nInputs[0]);
 
 #ifdef TTK_ENABLE_OPENMP
 #pragma omp parallel for schedule(dynamic) num_threads(nbThread)
@@ -125,38 +127,42 @@ std::vector<std::vector<double>> PersistenceDiagramDistanceMatrix::execute(
           distMat[i].resize(nInputs[1]);
         }
 
-        const auto getDist = [&](const size_t a, const size_t b) -> double {
+        const auto getDist = [&](const size_t a, const size_t b, int &projNumber) -> double {
           double distance = 0.;
           if(this->do_min_) {
             auto &dimin = currentInputDiagramsMin[a];
             auto &djmin = currentInputDiagramsMin[b];
-            distance += sliceComputer.execute(dimin, djmin, this->SampleNumber);
+            distance += sliceComputer.execute(dimin, djmin, projNumber);
           }
           if(this->do_sad_) {
             auto &disad = currentInputDiagramsSad[a];
             auto &djsad = currentInputDiagramsSad[b];
-            distance += sliceComputer.execute(disad, djsad, this->SampleNumber);
+            distance += sliceComputer.execute(disad, djsad, projNumber);
           }
           if(this->do_max_) {
             auto &dimax = currentInputDiagramsMax[a];
             auto &djmax = currentInputDiagramsMax[b];
-            distance += sliceComputer.execute(dimax, djmax, this->SampleNumber);
+            distance += sliceComputer.execute(dimax, djmax, projNumber);
           }
           return Geometry::pow(distance, 1.0 / 2);
         };
 
+        int projNumber = 0;
         if(nInputs[1] == 0) {
           // square matrix: only compute the upper triangle (i < j < nInputs[0])
           for(size_t j = i + 1; j < nInputs[0]; ++j) {
-            distMat[i][j] = getDist(i, j);
+            distMat[i][j] = getDist(i, j, projNumber);
           }
         } else {
           // rectangular matrix: compute the whole line/column (0 <= j < nInputs[1])
           for(size_t j = 0; j < nInputs[1]; ++j) {
-            distMat[i][j] = getDist(i, j + nInputs[0]);
+            distMat[i][j] = getDist(i, j + nInputs[0], projNumber);
           }
         }
+        temp[i] = projNumber;
       }
+
+      nbProj[0] = temp[0];
 
       if(nInputs[1] == 0) {
         // square distance matrix is symmetric: complete the lower triangle

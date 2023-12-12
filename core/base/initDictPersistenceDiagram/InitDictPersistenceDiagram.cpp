@@ -16,7 +16,8 @@ void InitDictPersistenceDiagram::execute(
   std::array<size_t, 2> nInputs{nDiags, 0};
   MatrixCalculator.setDos(do_min_, do_sad_, do_max_);
   MatrixCalculator.setThreadNumber(this->threadNumber_);
-  Matrix distMatrix = MatrixCalculator.execute(datas, nInputs);
+  std::vector<int> temp(1);
+  Matrix distMatrix = MatrixCalculator.execute(datas, nInputs, temp);
   std::vector<double> allDistsSummed(nDiags);
   for(size_t i = 0; i < nDiags; ++i) {
     const auto &line = distMatrix[i];

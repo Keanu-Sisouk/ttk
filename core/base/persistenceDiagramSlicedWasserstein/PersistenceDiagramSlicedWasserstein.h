@@ -35,7 +35,7 @@ namespace ttk {
 
     double execute(const ttk::DiagramType &diag1,
                    const ttk::DiagramType &diag2,
-                   int sampleNumber);
+                   int &sampleNumber);
 
 
     inline void setNbPoints(int data){
@@ -47,7 +47,7 @@ namespace ttk {
     }
 
     inline void setNbOfProjused(int data){
-      nbOfProjUsed = data;
+      nbOfProjUsed += data;
     }
 
   protected:
@@ -92,12 +92,14 @@ namespace ttk {
     double classicMonteCarlo(const ttk::DiagramType &diag1,
                              const ttk::DiagramType &diag2,
                              const std::vector<std::array<double, 2>> &proj1,
-                             const std::vector<std::array<double, 2>> &proj2);
+                             const std::vector<std::array<double, 2>> &proj2,
+                             int &sampleNumber);
 
     double quasiMonteCarlo(const ttk::DiagramType &diag1,
                            const ttk::DiagramType &diag2,
                            const std::vector<std::array<double, 2>> &proj1,
-                           const std::vector<std::array<double, 2>> &proj2);
+                           const std::vector<std::array<double, 2>> &proj2,
+                           int &sampleNumber);
 
     int EPOCH_MAX = 300;
 
