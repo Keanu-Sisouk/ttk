@@ -46,6 +46,10 @@ namespace ttk {
       useQuasiMC = data;
     }
 
+    inline void setNbOfProjused(int data){
+      nbOfProjUsed = data;
+    }
+
   protected:
 
 
@@ -101,5 +105,6 @@ namespace ttk {
 
     bool useQuasiMC = true;
 
+    int nbOfProjUsed = 0;
   };
 } // namespace ttk

@@ -665,8 +665,10 @@ double PersistenceDiagramSlicedWasserstein::classicMonteCarlo(
         // }
 
         n = n + nbPoints;
-    }
 
+        
+    }
+    this->setNbOfProjused(n);
 
     return temp;
 
@@ -794,7 +796,7 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
         n = n + nbPoints;
     }
 
-
+    this->setNbOfProjused(n);
     return temp;
 
 }
