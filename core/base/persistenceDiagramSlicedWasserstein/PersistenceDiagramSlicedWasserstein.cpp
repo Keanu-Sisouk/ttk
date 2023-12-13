@@ -18,7 +18,8 @@ using namespace ttk;
 double PersistenceDiagramSlicedWasserstein::execute(
     const DiagramType &diag1, 
     const DiagramType &diag2, 
-    int &sampleNumber) {
+    int &sampleNumber,
+    int maxSampleNb) {
 
     double dist = 0.;
 
@@ -185,9 +186,9 @@ double PersistenceDiagramSlicedWasserstein::execute(
 //     }
 
     if(useQuasiMC){
-        dist = quasiMonteCarlo(diag1, diag2, proj1, proj2,sampleNumber);
+        dist = quasiMonteCarlo(diag1, diag2, proj1, proj2,sampleNumber, maxSampleNb);
     } else {
-        dist = classicMonteCarlo(diag1, diag2, proj1, proj2, sampleNumber);
+        dist = classicMonteCarlo(diag1, diag2, proj1, proj2, sampleNumber, maxSampleNb);
     }
 
     return dist;
@@ -552,7 +553,8 @@ double PersistenceDiagramSlicedWasserstein::classicMonteCarlo(
     const ttk::DiagramType &diag2,
     const std::vector<std::array<double, 2>> &proj1,
     const std::vector<std::array<double, 2>> &proj2,
-    int &sampleNumber){
+    int &sampleNumber,
+    int maxSampleNb){
 
     double temp = 0.;
     bool cond = false;
@@ -573,7 +575,7 @@ double PersistenceDiagramSlicedWasserstein::classicMonteCarlo(
     int total_number = 0;
     // bool vertical = false;
 
-    while (cond == false) {
+    while (cond == false && n < maxSampleNb) {
         std::vector<double> buffer_angle(nbPoints);
         int nb_sample = static_cast<int>(std::pow(2., static_cast<double>(n)));
 
@@ -681,7 +683,8 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
     const ttk::DiagramType &diag2,
     const std::vector<std::array<double, 2>> &proj1,
     const std::vector<std::array<double, 2>> &proj2,
-    int &sampleNumber){
+    int &sampleNumber,
+    int maxSampleNb){
 
     double temp = 0.;
     bool cond = false;
@@ -699,7 +702,7 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
     int total_number = 0;
     // bool vertical = false;
 
-    while (cond == false) {
+    while (cond == false && n < maxSampleNb) {
         std::vector<double> buffer_angle(nbPoints);
         int nb_sample = static_cast<int>(std::pow(2., static_cast<double>(n)));
 
