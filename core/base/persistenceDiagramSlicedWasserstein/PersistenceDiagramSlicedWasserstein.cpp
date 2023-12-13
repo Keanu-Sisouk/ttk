@@ -648,14 +648,14 @@ double PersistenceDiagramSlicedWasserstein::classicMonteCarlo(
  
         double current_sd = std::pow((number_temp/(number_temp - 1.)) * (mean_sq/number_temp - std::pow(current_mean, 2.)), 0.5);
 
-        std::cout << "CURRENT MEAN: " << current_mean << "\n";
-        std::cout << "====================================" << "\n";
+        // std::cout << "CURRENT MEAN: " << current_mean << "\n";
+        // std::cout << "====================================" << "\n";
 
-        std::cout << "CURRENT STANDARD DEVIATION: " << current_sd << "\n";
-        std::cout << "====================================" << "\n";
+        // std::cout << "CURRENT STANDARD DEVIATION: " << current_sd << "\n";
+        // std::cout << "====================================" << "\n";
 
-        std::cout << "NUMBER SAMPLINGS: " << total_number << "\n";
-        std::cout << "====================================" << "\n";
+        // std::cout << "NUMBER SAMPLINGS: " << total_number << "\n";
+        // std::cout << "====================================" << "\n";
 
         if( current_sd * 1.96 / std::pow(number_temp, 0.5) < tresh){
             temp = mean/number_temp;
