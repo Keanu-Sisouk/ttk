@@ -132,7 +132,7 @@ std::vector<std::vector<double>> PersistenceDiagramDistanceMatrix::execute(
           if(this->do_min_) {
             auto &dimin = currentInputDiagramsMin[a];
             auto &djmin = currentInputDiagramsMin[b];
-            distance += sliceComputer.execute(dimin, djmin, projNumber, this->SampleNumber);
+            distance += sliceComputer.execute(dimin, djmin, projNumber, SampleNumber);
           }
           if(this->do_sad_) {
             auto &disad = currentInputDiagramsSad[a];

@@ -204,7 +204,7 @@ void PersistenceDiagramSlicedWasserstein::projectionOnThetaLine(
   bool vertical){
 
     std::array<double, 2> vecUnit{cos(theta), sin(theta)};
-
+    size_t counter = 0;
     for(size_t j = 0; j < diag.size(); ++j){
         auto &pair = diag[j];
         double birth = pair.birth.sfValue;
@@ -212,8 +212,10 @@ void PersistenceDiagramSlicedWasserstein::projectionOnThetaLine(
         double scal = birth*vecUnit[0] + death*vecUnit[1];
         std::array<double, 2> temp{scal*vecUnit[0], 
                 scal*vecUnit[1]};
-        projOnTheta.emplace_back(temp);
+        // projOnTheta.emplace_back(temp);
+        projOnTheta[counter] = temp;
         scalarProd.emplace_back(scal);
+        counter += 1;
     }
 
     for(size_t j = 0; j < proj.size(); ++j){
@@ -224,7 +226,8 @@ void PersistenceDiagramSlicedWasserstein::projectionOnThetaLine(
 
         std::array<double, 2> temp{scal*vecUnit[0], 
                 scal*vecUnit[1]};
-        projOnTheta.emplace_back(temp);
+        // projOnTheta.emplace_back(temp);
+        projOnTheta[counter + j] = temp;
         scalarProd.emplace_back(scal);
     }   
 
@@ -494,7 +497,7 @@ double PersistenceDiagramSlicedWasserstein::computeNormGradient(
     const std::vector<int> &originIndices2,
     const std::vector<double> &scalarProd1,
     const std::vector<double> &scalarProd2,
-    double theta){
+    const double &theta){
 
 
     std::array<double, 2> tempArray{0.,0.};
@@ -537,8 +540,8 @@ double PersistenceDiagramSlicedWasserstein::computeNormGradient(
             temp2[1] = t[1];
         }
 
-        tempArray[0]+= 2*Geometry::pow(scal1 - scal2, 2)*vecUnit[0] + 2*(scal1 - scal2)*(temp1[0] - temp2[0]);
-        tempArray[1]+= 2*Geometry::pow(scal1 - scal2, 2)*vecUnit[1] + 2*(scal1 - scal2)*(temp1[1] - temp2[1]);
+        tempArray[0]+= 2*Geometry::powInt(scal1 - scal2, 2)*vecUnit[0] + 2*(scal1 - scal2)*(temp1[0] - temp2[0]);
+        tempArray[1]+= 2*Geometry::powInt(scal1 - scal2, 2)*vecUnit[1] + 2*(scal1 - scal2)*(temp1[1] - temp2[1]);
     }
 
 
@@ -556,13 +559,18 @@ double PersistenceDiagramSlicedWasserstein::classicMonteCarlo(
     int &sampleNumber,
     int maxSampleNb){
 
+    
+    int sizeDiag1 = diag1.size() + proj1.size();
+    int sizeDiag2 = diag2.size() + proj2.size();
+
+
     double temp = 0.;
     bool cond = false;
     int n = 0;
-    double ortho_angle = M_PI * 0.5;
+    double ortho_angle = M_PI;
     double mean = 0.;
     double mean_sq = 0.;
-    double tresh = 0.5;
+    double tresh = 0.1;
 
     double prev_mean = 0.;
     double prev_sd = 0.;
@@ -575,9 +583,16 @@ double PersistenceDiagramSlicedWasserstein::classicMonteCarlo(
     int total_number = 0;
     // bool vertical = false;
 
+    std::vector<double> buffer_angle(nbPoints);
+
+
+    std::vector<double> temp_mean_array(buffer_angle.size(), 0.);
+    std::vector<double> temp_sd_array(buffer_angle.size(), 0.);
+    std::vector<double> temp_vf_array(buffer_angle.size(), 0.);
+
+
     while (cond == false && n < maxSampleNb) {
-        std::vector<double> buffer_angle(nbPoints);
-        int nb_sample = static_cast<int>(std::pow(2., static_cast<double>(n)));
+        // int nb_sample = static_cast<int>(std::pow(2., static_cast<double>(n)));
 
 
         // std::cout << "BUFFER ANGLE SIZE:" << buffer_angle.size() << std::endl;
@@ -588,10 +603,10 @@ double PersistenceDiagramSlicedWasserstein::classicMonteCarlo(
 #ifdef TTK_ENABLE_OPENMP
 #pragma omp parallel for num_threads(nbPoints)
 #endif // TTK_ENABLE_OPENMP   
-            for(int i = 0; i < nbPoints; ++i){
-                double angle = dis(gen);
-                buffer_angle[i] = angle;
-            }
+        for(int i = 0; i < nbPoints; ++i){
+            double angle = dis(gen);
+            buffer_angle[i] = angle;
+        }
 
 
         // for(int i = 1; i < nb_sample ; i += 2){
@@ -602,9 +617,17 @@ double PersistenceDiagramSlicedWasserstein::classicMonteCarlo(
 
         total_number += static_cast<int>(buffer_angle.size());
 
-        std::vector<double> temp_mean_array(buffer_angle.size(), 0.);
-        std::vector<double> temp_sd_array(buffer_angle.size(), 0.);
-        std::vector<double> temp_vf_array(buffer_angle.size(), 0.);
+
+
+
+        std::vector<std::vector<std::array<double, 2>>> projOnTheta1(nbPoints);
+        std::vector<std::vector<std::array<double, 2>>> projOnTheta2(nbPoints);
+        // plus rapide en sequentielle ou OPENMP ici
+        for(int t = 0; t < nbPoints; t++){
+            projOnTheta1[t].resize(sizeDiag1);
+            projOnTheta2[t].resize(sizeDiag2);
+        }
+
 
 #ifdef TTK_ENABLE_OPENMP
 #pragma omp parallel for num_threads(nbPoints)
@@ -612,21 +635,21 @@ double PersistenceDiagramSlicedWasserstein::classicMonteCarlo(
         // total_number += static_cast<int>(buffer_angle.size());
         for(size_t t = 0; t < buffer_angle.size(); ++t){
             const double theta = buffer_angle[t];
-            std::vector<std::array<double, 2>> projOnTheta1;
-            std::vector<std::array<double, 2>> projOnTheta2;
+            // std::vector<std::array<double, 2>> projOnTheta1;
+            // std::vector<std::array<double, 2>> projOnTheta2;
             std::vector<int> originIndices1;
             std::vector<int> originIndices2;
             std::vector<double> scalarProd1;
             std::vector<double> scalarProd2;
 
-            projectionOnThetaLine(diag1, proj1, projOnTheta1, originIndices1, scalarProd1, theta, false);
-            projectionOnThetaLine(diag2, proj2, projOnTheta2, originIndices2, scalarProd2, theta, false);
+            projectionOnThetaLine(diag1, proj1, projOnTheta1[t], originIndices1, scalarProd1, theta, false);
+            projectionOnThetaLine(diag2, proj2, projOnTheta2[t], originIndices2, scalarProd2, theta, false);
 
             double distOneLine = 0.;
 
             for(size_t k = 0; k < projOnTheta1.size(); ++k){
-                auto &p1 = projOnTheta1[k];
-                auto &p2 = projOnTheta2[k];
+                auto &p1 = projOnTheta1[t][k];
+                auto &p2 = projOnTheta2[t][k];
                 const double diffX = p1[0] - p2[0];
                 const double diffY = p1[1] - p2[1];
                 distOneLine += diffX*diffX + diffY*diffY;
@@ -637,6 +660,7 @@ double PersistenceDiagramSlicedWasserstein::classicMonteCarlo(
         }
         
         mean +=  std::accumulate(temp_mean_array.begin(), temp_mean_array.end(), 0.);
+        // std::cout << "MEAN: " << mean << std::endl;
         mean_sq += std::accumulate(temp_sd_array.begin(), temp_sd_array.end(), 0.);
         // tot_variation_f += std::accumulate(temp_vf_array.begin(), temp_vf_array.end(), 0.);
     
@@ -657,8 +681,8 @@ double PersistenceDiagramSlicedWasserstein::classicMonteCarlo(
         // std::cout << "NUMBER SAMPLINGS: " << total_number << "\n";
         // std::cout << "====================================" << "\n";
 
+        temp = mean/number_temp;
         if( current_sd * 1.96 / std::pow(number_temp, 0.5) < tresh){
-            temp = mean/number_temp;
             cond = true;
         }
 
@@ -673,7 +697,7 @@ double PersistenceDiagramSlicedWasserstein::classicMonteCarlo(
     }
     // this->setNbOfProjused(n);
     sampleNumber += n;
-
+    // std::cout << "WHAT " << temp << std::endl;
     return temp;
 
 }
@@ -686,13 +710,16 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
     int &sampleNumber,
     int maxSampleNb){
 
+    int sizeDiag1 = diag1.size() + proj1.size();
+    int sizeDiag2 = diag2.size() + proj2.size();
+
     double temp = 0.;
     bool cond = false;
     int n = 0;
-    double ortho_angle = M_PI * 0.5;
+    double ortho_angle = M_PI;
     double mean = 0.;
     double mean_sq = 0.;
-    double tresh = 0.5;
+    double tresh = 0.1;
 
     double prev_mean = 0.;
     double prev_sd = 0.;
@@ -701,16 +728,21 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
 
     int total_number = 0;
     // bool vertical = false;
+    std::vector<double> buffer_angle(nbPoints);
+
+    std::vector<double> temp_mean_array(buffer_angle.size());
+    // std::vector<double> temp_sd_array(buffer_angle.size(), 0.);
+    std::vector<double> temp_vf_array(buffer_angle.size());
 
     while (cond == false && n < maxSampleNb) {
-        std::vector<double> buffer_angle(nbPoints);
-        int nb_sample = static_cast<int>(std::pow(2., static_cast<double>(n)));
+        
+        // int nb_sample = static_cast<int>(std::pow(2., static_cast<double>(n)));
 
 #ifdef TTK_ENABLE_OPENMP
 #pragma omp parallel for num_threads(nbPoints)
 #endif // TTK_ENABLE_OPENMP        
         for(int i = 0; i < nbPoints; ++i){
-            double angle=0, bk=(double)1/2;
+            double angle=0, bk=1.0/2;
             int m = n + i;
             while (m > 0) {
                 angle += (m % 2)*bk;
@@ -730,33 +762,37 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
         //     buffer_angle.emplace_back(angle + ortho_angle);
         // }
 
-        total_number += static_cast<int>(buffer_angle.size());
+        total_number += nbPoints;
+        // total_number += static_cast<int>(buffer_angle.size());
 
-        std::vector<double> temp_mean_array(buffer_angle.size(), 0.);
-        std::vector<double> temp_sd_array(buffer_angle.size(), 0.);
-        std::vector<double> temp_vf_array(buffer_angle.size(), 0.);
+        std::vector<std::vector<std::array<double, 2>>> projOnTheta1(nbPoints);
+        std::vector<std::vector<std::array<double, 2>>> projOnTheta2(nbPoints);
+        // plus rapide en sequentielle ou OPENMP ici
+        for(int t = 0; t < nbPoints; t++){
+            projOnTheta1[t].resize(sizeDiag1);
+            projOnTheta2[t].resize(sizeDiag2);
+        }
 
 #ifdef TTK_ENABLE_OPENMP
 #pragma omp parallel for num_threads(nbPoints)
 #endif // TTK_ENABLE_OPENMP
         // total_number += static_cast<int>(buffer_angle.size());
-        for(size_t t = 0; t < buffer_angle.size(); ++t){
+        for(int t = 0; t < nbPoints; ++t){
             const double theta = buffer_angle[t];
-            std::vector<std::array<double, 2>> projOnTheta1;
-            std::vector<std::array<double, 2>> projOnTheta2;
+
             std::vector<int> originIndices1;
             std::vector<int> originIndices2;
             std::vector<double> scalarProd1;
             std::vector<double> scalarProd2;
 
-            projectionOnThetaLine(diag1, proj1, projOnTheta1, originIndices1, scalarProd1, theta, false);
-            projectionOnThetaLine(diag2, proj2, projOnTheta2, originIndices2, scalarProd2, theta, false);
+            projectionOnThetaLine(diag1, proj1, projOnTheta1[t], originIndices1, scalarProd1, theta, false);
+            projectionOnThetaLine(diag2, proj2, projOnTheta2[t], originIndices2, scalarProd2, theta, false);
 
             double distOneLine = 0.;
 
             for(size_t k = 0; k < projOnTheta1.size(); ++k){
-                auto &p1 = projOnTheta1[k];
-                auto &p2 = projOnTheta2[k];
+                auto &p1 = projOnTheta1[t][k];
+                auto &p2 = projOnTheta2[t][k];
                 const double diffX = p1[0] - p2[0];
                 const double diffY = p1[1] - p2[1];
                 distOneLine += diffX*diffX + diffY*diffY;
@@ -793,9 +829,12 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
         //     temp = mean/number_temp;
         //     cond = true;
         // }
+        temp = mean/number_temp;
+        // if (tot_variation_f*log(number_temp)/(3.*log(2)*number_temp*number_temp) < tresh){
+        //     cond = true;
+        // }
 
         if (tot_variation_f/(number_temp*number_temp) < tresh){
-            temp = mean/number_temp;
             cond = true;
         }
 

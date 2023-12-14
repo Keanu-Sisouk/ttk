@@ -88,7 +88,7 @@ namespace ttk {
                                const std::vector<int> &originIndices2,
                                const std::vector<double> &scalarProd1,
                                const std::vector<double> &scalarProd2,
-                               double theta);
+                               const double &theta);
 
     double classicMonteCarlo(const ttk::DiagramType &diag1,
                              const ttk::DiagramType &diag2,
