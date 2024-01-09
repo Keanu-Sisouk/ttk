@@ -213,7 +213,7 @@ void PersistenceDiagramSlicedWasserstein::projectionOnThetaLine(
         std::array<double, 2> temp{scal*vecUnit[0], 
                 scal*vecUnit[1]};
         // projOnTheta.emplace_back(temp);
-        projOnTheta[counter] = temp;
+        projOnTheta[j] = temp;
         // scalarProd.emplace_back(scal);
         scalarProd[j] = scal;
         counter += 1;
@@ -245,11 +245,11 @@ void PersistenceDiagramSlicedWasserstein::projectionOnThetaLine(
             });
 
 
-        std::sort(projOnTheta.begin(), projOnTheta.end(), 
-            [](std::array<double, 2> p1, std::array<double, 2> p2) 
-            { 
-                return (p1[0] < p2[0]);
-            });
+        // std::sort(projOnTheta.begin(), projOnTheta.end(), 
+        //     [](std::array<double, 2> p1, std::array<double, 2> p2) 
+        //     { 
+        //         return (p1[0] < p2[0]);
+        //     });
     } else {
 
         std::sort(originIndices.begin(), originIndices.end(), 
@@ -257,11 +257,11 @@ void PersistenceDiagramSlicedWasserstein::projectionOnThetaLine(
                 return (projOnTheta[i][1] < projOnTheta[j][1]);
             });
 
-        std::sort(projOnTheta.begin(), projOnTheta.end(), 
-            [](std::array<double, 2> p1, std::array<double, 2> p2) 
-            { 
-                return (p1[1] < p2[1]);
-            });       
+        // std::sort(projOnTheta.begin(), projOnTheta.end(), 
+        //     [](std::array<double, 2> p1, std::array<double, 2> p2) 
+        //     { 
+        //         return (p1[1] < p2[1]);
+        //     });       
     }
 
 
@@ -514,18 +514,55 @@ double PersistenceDiagramSlicedWasserstein::computeNormGradient(
     std::array<double, 2> temp1{0.,0.};
     std::array<double, 2> temp2{0.,0.};
 
+    double scal1;
+    double scal2;
+
     for(int i = 0; i < overallSize; ++i){
         int index1 = originIndices1[i];
         int index2 = originIndices2[i];
 
-        double scal1 = scalarProd1[index1];
-        double scal2 = scalarProd2[index2];
+        scal1 = scalarProd1[index1];
+        scal2 = scalarProd2[index2];
 
-        if(index1 > size1 && index2 > size2){
-            tempArray[0]+= 0.;
-            tempArray[1]+= 0.;    
+        if(size1 <= index1 && size2 <= index2){  
             continue;    
         } else {
+
+            // if(size2 <= index2){
+            //     const auto &t1 = diag1[index1];
+            //     temp1[0] = t1.birth.sfValue;
+            //     temp1[1] = t1.birth.sfValue; 
+
+            //     const auto &t2 = proj2[index1];
+            //     temp2[0] = t2[0];
+            //     temp2[1] = t2[1];
+
+            //     scal1 = scalarProd1[index1];
+            //     scal2 = scalarProd2[size2 + index1];
+
+            // } else if(size1 <= index1){
+            //     const auto &t1 = proj1[index2];
+            //     temp1[0] = t1[0];
+            //     temp1[1] = t1[1]; 
+
+            //     const auto &t2 = diag2[index2];
+            //     temp2[0] = t2.birth.sfValue;
+            //     temp2[1] = t2.death.sfValue;
+
+            //     scal1 = scalarProd1[size1 + index2];
+            //     scal2 = scalarProd2[index2];
+            // } else {
+            //     const auto &t1 = diag1[index1];
+            //     temp1[0] = t1.birth.sfValue;
+            //     temp1[1] = t1.birth.sfValue;
+
+            //     const auto &t2 = diag2[index2];
+            //     temp2[0] = t2.birth.sfValue;
+            //     temp2[1] = t2.birth.sfValue;
+
+            //     scal1 = scalarProd1[index1];
+            //     scal2 = scalarProd2[index2];
+            // }
 
 
 
@@ -658,8 +695,10 @@ double PersistenceDiagramSlicedWasserstein::classicMonteCarlo(
             double distOneLine = 0.;
 
             for(size_t k = 0; k < projOnTheta1.size(); ++k){
-                auto &p1 = projOnTheta1[t][k];
-                auto &p2 = projOnTheta2[t][k];
+                auto &index1 = originIndices1[k];
+                auto &index2 = originIndices2[k];
+                auto &p1 = projOnTheta1[t][index1];
+                auto &p2 = projOnTheta2[t][index2];
                 const double diffX = p1[0] - p2[0];
                 const double diffY = p1[1] - p2[1];
                 distOneLine += diffX*diffX + diffY*diffY;
@@ -813,16 +852,28 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
 
             double distOneLine = 0.;
 
-            for(size_t k = 0; k < projOnTheta1.size(); ++k){
+            for(int k = 0; k < sizeDiag1; ++k){
                 double diffX = 0.;
                 double diffY = 0.;
                 auto &index1 = originIndices1[t][k];
                 auto &index2 = originIndices2[t][k];
                 if(index1 < oriSize1 || index2 < oriSize2){
-                    auto &p1 = projOnTheta1[t][k];
-                    auto &p2 = projOnTheta2[t][k];
-                    diffX = p1[0] - p2[0];
-                    diffY = p1[1] - p2[1];
+                    if(oriSize2 <= index2){
+                        auto &p1 = projOnTheta1[t][index1];
+                        auto &p2 = projOnTheta2[t][oriSize2 + index1];
+                        diffX = p1[0] - p2[0];
+                        diffY = p1[1] - p2[1];
+                    } else if (oriSize1 <= index1){
+                        auto &p1 = projOnTheta1[t][oriSize1 + index2];
+                        auto &p2 = projOnTheta2[t][index2];
+                        diffX = p1[0] - p2[0];
+                        diffY = p1[1] - p2[1];                  
+                    } else {
+                        auto &p1 = projOnTheta1[t][index1];
+                        auto &p2 = projOnTheta2[t][index2];
+                        diffX = p1[0] - p2[0];
+                        diffY = p1[1] - p2[1];
+                    }
                 }
                 distOneLine += diffX*diffX + diffY*diffY;
             }
