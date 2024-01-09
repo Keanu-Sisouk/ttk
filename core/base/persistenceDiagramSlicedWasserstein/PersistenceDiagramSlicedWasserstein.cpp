@@ -768,7 +768,7 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
     double temp = 0.;
     bool cond = false;
     int n = 0;
-    double ortho_angle = M_PI;
+    double ortho_angle = M_PI*0.5;
     double mean = 0.;
     double mean_sq = 0.;
     double tresh = 0.01;
@@ -826,6 +826,10 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
         std::vector<std::vector<double>> scalarProd1(nbPoints);
         std::vector<std::vector<double>> scalarProd2(nbPoints);
         // plus rapide en sequentielle ou OPENMP ici
+
+#ifdef TTK_ENABLE_OPENMP
+#pragma omp parallel for num_threads(nbPoints)
+#endif // TTK_ENABLE_OPENMP
         for(int t = 0; t < nbPoints; t++){
             projOnTheta1[t].resize(sizeDiag1);
             projOnTheta2[t].resize(sizeDiag2);
