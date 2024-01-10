@@ -630,6 +630,8 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
     // std::vector<double> temp_sd_array(buffer_angle.size(), 0.);
     std::vector<double> temp_vf_array(buffer_angle.size());
 
+    bool vert = false;
+
     while (cond == false && n < maxSampleNb) {
         
         // int nb_sample = static_cast<int>(std::pow(2., static_cast<double>(n)));
@@ -695,8 +697,12 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
             // std::vector<double> scalarProd1;
             // std::vector<double> scalarProd2;
 
-            projectionOnThetaLine(diag1, proj1, projOnTheta1[t], originIndices1[t], scalarProd1[t], theta, false);
-            projectionOnThetaLine(diag2, proj2, projOnTheta2[t], originIndices2[t], scalarProd2[t], theta, false);
+            if(theta > 0.85*ortho_angle){
+                vert = true;
+            }
+
+            projectionOnThetaLine(diag1, proj1, projOnTheta1[t], originIndices1[t], scalarProd1[t], theta, vert);
+            projectionOnThetaLine(diag2, proj2, projOnTheta2[t], originIndices2[t], scalarProd2[t], theta, vert);
 
             double distOneLine = 0.;
 
