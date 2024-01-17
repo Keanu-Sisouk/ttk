@@ -368,73 +368,29 @@ double PersistenceDiagramSlicedWasserstein::computeNormGradient(
         scal1 = scalarProd1[index1];
         scal2 = scalarProd2[index2];
 
-        if(size1 <= index1 && size2 <= index2){  
-            continue;    
+        if(index1 < size1){
+            const auto &t = diag1[index1];
+            temp1[0] = t.birth.sfValue;
+            temp1[1] = t.birth.sfValue;
         } else {
-
-            // if(size2 <= index2){
-            //     const auto &t1 = diag1[index1];
-            //     temp1[0] = t1.birth.sfValue;
-            //     temp1[1] = t1.birth.sfValue; 
-
-            //     const auto &t2 = proj2[index1];
-            //     temp2[0] = t2[0];
-            //     temp2[1] = t2[1];
-
-            //     scal1 = scalarProd1[index1];
-            //     scal2 = scalarProd2[size2 + index1];
-
-            // } else if(size1 <= index1){
-            //     const auto &t1 = proj1[index2];
-            //     temp1[0] = t1[0];
-            //     temp1[1] = t1[1]; 
-
-            //     const auto &t2 = diag2[index2];
-            //     temp2[0] = t2.birth.sfValue;
-            //     temp2[1] = t2.death.sfValue;
-
-            //     scal1 = scalarProd1[size1 + index2];
-            //     scal2 = scalarProd2[index2];
-            // } else {
-            //     const auto &t1 = diag1[index1];
-            //     temp1[0] = t1.birth.sfValue;
-            //     temp1[1] = t1.birth.sfValue;
-
-            //     const auto &t2 = diag2[index2];
-            //     temp2[0] = t2.birth.sfValue;
-            //     temp2[1] = t2.birth.sfValue;
-
-            //     scal1 = scalarProd1[index1];
-            //     scal2 = scalarProd2[index2];
-            // }
-
-
-
-            if(index1 < size1){
-                const auto &t = diag1[index1];
-                temp1[0] = t.birth.sfValue;
-                temp1[1] = t.birth.sfValue;
-            } else {
-                const auto &t = proj1[index1 - size1];
-                temp1[0] = t[0];
-                temp1[1] = t[1];
-            }
-
-            if(index2 < size2){
-                const auto &t = diag2[index2];
-                temp2[0] = t.birth.sfValue;
-                temp2[1] = t.birth.sfValue;
-            } else {
-                const auto &t = proj2[index2 - size2];
-                temp2[0] = t[0];
-                temp2[1] = t[1];
-            }
-
-            tempArray[0]+= 2*Geometry::powInt(scal1 - scal2, 2)*vecUnit[0] + 2*(scal1 - scal2)*(temp1[0] - temp2[0]);
-            tempArray[1]+= 2*Geometry::powInt(scal1 - scal2, 2)*vecUnit[1] + 2*(scal1 - scal2)*(temp1[1] - temp2[1]);
+            const auto &t = proj1[index1 - size1];
+            temp1[0] = t[0];
+            temp1[1] = t[1];
         }
-    }
 
+        if(index2 < size2){
+            const auto &t = diag2[index2];
+            temp2[0] = t.birth.sfValue;
+            temp2[1] = t.birth.sfValue;
+        } else {
+            const auto &t = proj2[index2 - size2];
+            temp2[0] = t[0];
+            temp2[1] = t[1];
+        }
+
+        tempArray[0]+= 2*Geometry::powInt(scal1 - scal2, 2)*vecUnit[0] + 2*(scal1 - scal2)*(temp1[0] - temp2[0]);
+        tempArray[1]+= 2*Geometry::powInt(scal1 - scal2, 2)*vecUnit[1] + 2*(scal1 - scal2)*(temp1[1] - temp2[1]);
+    }
 
     // result = Geometry::pow(Geometry::pow(tempArray[0],2) + Geometry::pow(tempArray[1],2), 1./2);
     result = abs(-sin(theta)*tempArray[0] + cos(theta)*tempArray[1]);
@@ -461,7 +417,7 @@ double PersistenceDiagramSlicedWasserstein::classicMonteCarlo(
     double ortho_angle = M_PI;
     double mean = 0.;
     double mean_sq = 0.;
-    double tresh = 0.1;
+    double tresh = 0.01;
 
     double prev_mean = 0.;
     double prev_sd = 0.;
@@ -557,22 +513,11 @@ double PersistenceDiagramSlicedWasserstein::classicMonteCarlo(
         mean_sq += std::accumulate(temp_sd_array.begin(), temp_sd_array.end(), 0.);
         // tot_variation_f += std::accumulate(temp_vf_array.begin(), temp_vf_array.end(), 0.);
     
-
-
         // double number_temp = 2. * static_cast<double>(nb_sample);
         double number_temp = static_cast<double>(total_number);
         double current_mean = mean/(number_temp);
  
         double current_sd = std::pow((number_temp/(number_temp - 1.)) * (mean_sq/number_temp - std::pow(current_mean, 2.)), 0.5);
-
-        // std::cout << "CURRENT MEAN: " << current_mean << "\n";
-        // std::cout << "====================================" << "\n";
-
-        // std::cout << "CURRENT STANDARD DEVIATION: " << current_sd << "\n";
-        // std::cout << "====================================" << "\n";
-
-        // std::cout << "NUMBER SAMPLINGS: " << total_number << "\n";
-        // std::cout << "====================================" << "\n";
 
         temp = mean/number_temp;
         if( current_sd * 1.96 / std::pow(number_temp, 0.5) < tresh){
@@ -654,12 +599,6 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
             buffer_angle[i] = angle;
         }
 
-        // for(int i = 1; i < nb_sample ; i += 2){
-        //     double angle = static_cast<double>(i) * ortho_angle / static_cast<double>(nb_sample);
-        //     buffer_angle.emplace_back(angle);
-        //     buffer_angle.emplace_back(angle + ortho_angle);
-        // }
-
         total_number += nbPoints;
         // total_number += static_cast<int>(buffer_angle.size());
 
@@ -692,11 +631,6 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
         for(int t = 0; t < nbPoints; ++t){
             const double theta = buffer_angle[t];
 
-            // std::vector<int> originIndices1;
-            // std::vector<int> originIndices2;
-            // std::vector<double> scalarProd1;
-            // std::vector<double> scalarProd2;
-
             if(theta > 0.85*ortho_angle){
                 vert = true;
             }
@@ -711,24 +645,10 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
                 double diffY = 0.;
                 auto &index1 = originIndices1[t][k];
                 auto &index2 = originIndices2[t][k];
-                if(index1 < oriSize1 || index2 < oriSize2){
-                    if(oriSize2 <= index2){
-                        auto &p1 = projOnTheta1[t][index1];
-                        auto &p2 = projOnTheta2[t][oriSize2 + index1];
-                        diffX = p1[0] - p2[0];
-                        diffY = p1[1] - p2[1];
-                    } else if (oriSize1 <= index1){
-                        auto &p1 = projOnTheta1[t][oriSize1 + index2];
-                        auto &p2 = projOnTheta2[t][index2];
-                        diffX = p1[0] - p2[0];
-                        diffY = p1[1] - p2[1];                  
-                    } else {
-                        auto &p1 = projOnTheta1[t][index1];
-                        auto &p2 = projOnTheta2[t][index2];
-                        diffX = p1[0] - p2[0];
-                        diffY = p1[1] - p2[1];
-                    }
-                }
+                auto &p1 = projOnTheta1[t][index1];
+                auto &p2 = projOnTheta2[t][index2];
+                diffX = p1[0] - p2[0];
+                diffY = p1[1] - p2[1];
                 distOneLine += diffX*diffX + diffY*diffY;
             }
 
@@ -743,27 +663,9 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
         // mean_sq += std::accumulate(temp_sd_array.begin(), temp_sd_array.end(), 0.);
         tot_variation_f += std::accumulate(temp_vf_array.begin(), temp_vf_array.end(), 0.);
     
-
-
-        // double number_temp = 2. * static_cast<double>(nb_sample);
         double number_temp = static_cast<double>(total_number);
 
-        // std::cout << "TOTAL VARIATION: " << tot_variation_f/number_temp << "\n";
-        // std::cout << "====================================" << "\n";
-
-        // std::cout << "NUMBER SAMPLINGS: " << total_number << "\n";
-        // std::cout << "====================================" << "\n";
-      
-        // if (tot_variation_f*(log(number_temp)/(3.*log(2)*number_temp*number_temp) + 1/(number_temp*number_temp)) < tresh){
-        //     temp = mean/number_temp;
-        //     cond = true;
-        // }
         temp = mean/number_temp;
-        // if (tot_variation_f*log(number_temp)/(3.*log(2)*number_temp*number_temp) < tresh){
-        //     cond = true;
-        // }
-
-        // std::cout << "ERROR BOUND: " << tot_variation_f/(number_temp*number_temp) << std::endl; 
 
         if (tot_variation_f/(number_temp*number_temp) < tresh){
             cond = true;
