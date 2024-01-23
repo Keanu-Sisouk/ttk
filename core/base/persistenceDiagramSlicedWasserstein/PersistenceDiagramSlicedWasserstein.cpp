@@ -448,9 +448,9 @@ double PersistenceDiagramSlicedWasserstein::classicMonteCarlo(
         // buffer_angle.emplace_back(angle + ortho_angle);    
 
 #ifdef TTK_ENABLE_OPENMP
-#pragma omp parallel for num_threads(nbPoints)
+#pragma omp parallel for num_threads(this->threadNumber_)
 #endif // TTK_ENABLE_OPENMP   
-        for(int i = 0; i < nbPoints; ++i){
+        for(int i = 0; i < this->threadNumber_; ++i){
             double angle = dis(gen);
             buffer_angle[i] = angle;
         }
@@ -470,14 +470,14 @@ double PersistenceDiagramSlicedWasserstein::classicMonteCarlo(
         std::vector<std::vector<std::array<double, 2>>> projOnTheta1(nbPoints);
         std::vector<std::vector<std::array<double, 2>>> projOnTheta2(nbPoints);
         // plus rapide en sequentielle ou OPENMP ici
-        for(int t = 0; t < nbPoints; t++){
+        for(int t = 0; t < this->threadNumber_; t++){
             projOnTheta1[t].resize(sizeDiag1);
             projOnTheta2[t].resize(sizeDiag2);
         }
 
 
 #ifdef TTK_ENABLE_OPENMP
-#pragma omp parallel for num_threads(nbPoints)
+#pragma omp parallel for num_threads(this->threadNumber_)
 #endif // TTK_ENABLE_OPENMP
         // total_number += static_cast<int>(buffer_angle.size());
         for(size_t t = 0; t < buffer_angle.size(); ++t){
@@ -557,34 +557,36 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
     double temp = 0.;
     bool cond = false;
     int n = 0;
-    double ortho_angle = M_PI*0.5;
+    double ortho_angle = M_PI;
     double mean = 0.;
     double mean_sq = 0.;
     double tresh = 0.01;
 
     double prev_mean = 0.;
-    double prev_sd = 0.;
+    // double prev_sd = 0.;
+
+    int counter = 0;
+    int anti_counter = 0;
 
     double tot_variation_f = 0.;
 
     int total_number = 0;
     // bool vertical = false;
-    std::vector<double> buffer_angle(nbPoints);
+    std::vector<double> buffer_angle(this->threadNumber_);
 
     std::vector<double> temp_mean_array(buffer_angle.size());
     // std::vector<double> temp_sd_array(buffer_angle.size(), 0.);
     std::vector<double> temp_vf_array(buffer_angle.size());
 
-    bool vert = false;
-
+    std::cout << "THREAD NUMBER " << this->threadNumber_ << std::endl;
     while (cond == false && n < maxSampleNb) {
         
         // int nb_sample = static_cast<int>(std::pow(2., static_cast<double>(n)));
 
 #ifdef TTK_ENABLE_OPENMP
-#pragma omp parallel for num_threads(nbPoints)
+#pragma omp parallel for num_threads(this->threadNumber_)
 #endif // TTK_ENABLE_OPENMP        
-        for(int i = 0; i < nbPoints; ++i){
+        for(int i = 0; i < this->threadNumber_; ++i){
             double angle=0, bk=1.0/2;
             int m = n + i;
             while (m > 0) {
@@ -599,23 +601,23 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
             buffer_angle[i] = angle;
         }
 
-        total_number += nbPoints;
+        total_number += this->threadNumber_;
         // total_number += static_cast<int>(buffer_angle.size());
 
-        std::vector<std::vector<std::array<double, 2>>> projOnTheta1(nbPoints);
-        std::vector<std::vector<std::array<double, 2>>> projOnTheta2(nbPoints);
+        std::vector<std::vector<std::array<double, 2>>> projOnTheta1(this->threadNumber_);
+        std::vector<std::vector<std::array<double, 2>>> projOnTheta2(this->threadNumber_);
 
-        std::vector<std::vector<int>> originIndices1(nbPoints);
-        std::vector<std::vector<int>> originIndices2(nbPoints);
+        std::vector<std::vector<int>> originIndices1(this->threadNumber_);
+        std::vector<std::vector<int>> originIndices2(this->threadNumber_);
 
-        std::vector<std::vector<double>> scalarProd1(nbPoints);
-        std::vector<std::vector<double>> scalarProd2(nbPoints);
+        std::vector<std::vector<double>> scalarProd1(this->threadNumber_);
+        std::vector<std::vector<double>> scalarProd2(this->threadNumber_);
         // plus rapide en sequentielle ou OPENMP ici
 
-#ifdef TTK_ENABLE_OPENMP
-#pragma omp parallel for num_threads(nbPoints)
-#endif // TTK_ENABLE_OPENMP
-        for(int t = 0; t < nbPoints; t++){
+// #ifdef TTK_ENABLE_OPENMP
+// #pragma omp parallel for num_threads(nbPoints)
+// #endif // TTK_ENABLE_OPENMP
+        for(int t = 0; t < this->threadNumber_; t++){
             projOnTheta1[t].resize(sizeDiag1);
             projOnTheta2[t].resize(sizeDiag2);
             originIndices1[t].resize(sizeDiag1);
@@ -625,13 +627,16 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
         }
 
 #ifdef TTK_ENABLE_OPENMP
-#pragma omp parallel for num_threads(nbPoints)
+#pragma omp parallel for num_threads(this->threadNumber_)
 #endif // TTK_ENABLE_OPENMP
         // total_number += static_cast<int>(buffer_angle.size());
-        for(int t = 0; t < nbPoints; ++t){
+        for(int t = 0; t < this->threadNumber_; ++t){
             const double theta = buffer_angle[t];
 
-            if(theta > 0.85*ortho_angle){
+
+            bool vert = false;
+
+            if(theta > 0.85*ortho_angle*0.5 && theta < 1.15*ortho_angle*0.5){
                 vert = true;
             }
 
@@ -652,26 +657,60 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
                 distOneLine += diffX*diffX + diffY*diffY;
             }
 
-            double vf = computeNormGradient(diag1, diag2, proj1, proj2, originIndices1[t], originIndices2[t], scalarProd1[t], scalarProd2[t], theta);
+            // double vf = computeNormGradient(diag1, diag2, proj1, proj2, originIndices1[t], originIndices2[t], scalarProd1[t], scalarProd2[t], theta);
             // double vf = 42.;
             temp_mean_array[t] = distOneLine;
             // temp_sd_array[t] = std::pow(distOneLine, 2.);
-            temp_vf_array[t] = vf;
+            // temp_vf_array[t] = vf;
         }
         
         mean +=  std::accumulate(temp_mean_array.begin(), temp_mean_array.end(), 0.);
         // mean_sq += std::accumulate(temp_sd_array.begin(), temp_sd_array.end(), 0.);
-        tot_variation_f += std::accumulate(temp_vf_array.begin(), temp_vf_array.end(), 0.);
+        // tot_variation_f += std::accumulate(temp_vf_array.begin(), temp_vf_array.end(), 0.);
     
         double number_temp = static_cast<double>(total_number);
 
         temp = mean/number_temp;
 
-        if (tot_variation_f/(number_temp*number_temp) < tresh){
-            cond = true;
-        }
+        // if (tot_variation_f/(number_temp*number_temp) < tresh){
+        //     cond = true;
+        // }
 
-        n = n + nbPoints;
+        // if (tot_variation_f/(number_temp*number_temp) < tresh ||  abs(temp - prev_mean) < tresh*0.5){
+        //     cond = true;
+        // }
+
+        // if(temp == 0){
+        //     anti_counter +=1;
+        // }
+
+        // if(anti_counter > 10){
+        //     cond = true;
+        // }
+
+        // if (temp > prev_mean){
+        //     if( 1 - prev_mean/temp < tresh*0.1){
+        //         counter+=1;
+        //     }
+        // } else {
+        //     if (1 - temp/prev_mean < tresh*0.1){
+        //         counter+=1;
+        //     }
+        // }
+
+        // // std::cout << "COUNTER: " << counter << std::endl;
+
+        // if(counter > 100){
+        //     cond = true;
+        // }
+
+        // if (abs(temp - prev_mean) < tresh){
+        //     cond = true;
+        // }
+
+        prev_mean = temp;
+
+        n = n + this->threadNumber_;
     }
 
     // this->setNbOfProjused(n);

@@ -87,11 +87,14 @@ std::vector<std::vector<double>> PersistenceDiagramDistanceMatrix::execute(
 
       int nbThread = 1;
       if(nDiags > 2){
-        sliceComputer.setNbPoints(1);
-        nbThread = this->threadNumber_;
+        sliceComputer.setThreadNumber(1);
+        // sliceComputer.setNbPoints(1);
+        // nbThread = this->threadNumber_;
       } else {
-        sliceComputer.setNbPoints(this->threadNumber_);
-        nbThread = 1;
+        // sliceComputer.setNbPoints(this->threadNumber_);
+        sliceComputer.setThreadNumber(this->threadNumber_);
+        // nbThread = 1;
+        this->threadNumber_ = 1;
       }
 
       std::vector<DiagramType> currentInputDiagramsMin(nDiags);
@@ -115,7 +118,7 @@ std::vector<std::vector<double>> PersistenceDiagramDistanceMatrix::execute(
       std::vector<int> temp(nInputs[0]);
 
 #ifdef TTK_ENABLE_OPENMP
-#pragma omp parallel for schedule(dynamic) num_threads(nbThread)
+#pragma omp parallel for schedule(dynamic) num_threads(this->threadNumber_)
 #endif // TTK_ENABLE_OPENMP
       for(size_t i = 0; i < nInputs[0]; ++i) {
 
