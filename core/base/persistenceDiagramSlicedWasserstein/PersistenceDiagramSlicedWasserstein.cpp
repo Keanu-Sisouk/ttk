@@ -59,7 +59,7 @@ void PersistenceDiagramSlicedWasserstein::projectionOnThetaLine(
         // projOnTheta.emplace_back(temp);
         projOnTheta[j] = temp;
         // scalarProd.emplace_back(scal);
-        scalarProd[j] = scal;
+        // scalarProd[j] = scal;
         counter += 1;
     }
 
@@ -74,38 +74,38 @@ void PersistenceDiagramSlicedWasserstein::projectionOnThetaLine(
         // projOnTheta.emplace_back(temp);
         projOnTheta[counter + j] = temp;
         // scalarProd.emplace_back(scal);
-        scalarProd[counter + j] = scal;
+        // scalarProd[counter + j] = scal;
     }   
 
 
     // originIndices.resize(projOnTheta.size());
-    std::iota(originIndices.begin(), originIndices.end(), 0);
+    // std::iota(originIndices.begin(), originIndices.end(), 0);
 
     if(vertical != true){
 
-        std::sort(originIndices.begin(), originIndices.end(), 
-            [&](int i , int j){
-                return (projOnTheta[i][0] < projOnTheta[j][0]);
-            });
-
-
-        // std::sort(projOnTheta.begin(), projOnTheta.end(), 
-        //     [](std::array<double, 2> p1, std::array<double, 2> p2) 
-        //     { 
-        //         return (p1[0] < p2[0]);
+        // std::sort(originIndices.begin(), originIndices.end(), 
+        //     [&](int i , int j){
+        //         return (projOnTheta[i][0] < projOnTheta[j][0]);
         //     });
+
+
+        std::sort(projOnTheta.begin(), projOnTheta.end(), 
+            [](std::array<double, 2> p1, std::array<double, 2> p2) 
+            { 
+                return (p1[0] < p2[0]);
+            });
     } else {
 
-        std::sort(originIndices.begin(), originIndices.end(), 
-            [&](int i , int j){
-                return (projOnTheta[i][1] < projOnTheta[j][1]);
-            });
+        // std::sort(originIndices.begin(), originIndices.end(), 
+        //     [&](int i , int j){
+        //         return (projOnTheta[i][1] < projOnTheta[j][1]);
+        //     });
 
-        // std::sort(projOnTheta.begin(), projOnTheta.end(), 
-        //     [](std::array<double, 2> p1, std::array<double, 2> p2) 
-        //     { 
-        //         return (p1[1] < p2[1]);
-        //     });       
+        std::sort(projOnTheta.begin(), projOnTheta.end(), 
+            [](std::array<double, 2> p1, std::array<double, 2> p2) 
+            { 
+                return (p1[1] < p2[1]);
+            });       
     }
 
 
@@ -548,8 +548,8 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
     int &sampleNumber,
     int maxSampleNb){
 
-    int oriSize1 = diag1.size();
-    int oriSize2 = diag2.size();
+    // int oriSize1 = diag1.size();
+    // int oriSize2 = diag2.size();
 
     int sizeDiag1 = diag1.size() + proj1.size();
     int sizeDiag2 = diag2.size() + proj2.size();
@@ -576,9 +576,9 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
 
     std::vector<double> temp_mean_array(buffer_angle.size());
     // std::vector<double> temp_sd_array(buffer_angle.size(), 0.);
-    std::vector<double> temp_vf_array(buffer_angle.size());
+    // std::vector<double> temp_vf_array(buffer_angle.size());
 
-    std::cout << "THREAD NUMBER " << this->threadNumber_ << std::endl;
+    // std::cout << "THREAD NUMBER " << this->threadNumber_ << std::endl;
     while (cond == false && n < maxSampleNb) {
         
         // int nb_sample = static_cast<int>(std::pow(2., static_cast<double>(n)));
@@ -625,7 +625,7 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
             scalarProd1[t].resize(sizeDiag1);
             scalarProd2[t].resize(sizeDiag2);
         }
-
+        // Timer tm_init{};
 #ifdef TTK_ENABLE_OPENMP
 #pragma omp parallel for num_threads(this->threadNumber_)
 #endif // TTK_ENABLE_OPENMP
@@ -648,24 +648,26 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
             for(int k = 0; k < sizeDiag1; ++k){
                 double diffX = 0.;
                 double diffY = 0.;
-                auto &index1 = originIndices1[t][k];
-                auto &index2 = originIndices2[t][k];
-                auto &p1 = projOnTheta1[t][index1];
-                auto &p2 = projOnTheta2[t][index2];
+                // auto &index1 = originIndices1[t][k];
+                // auto &index2 = originIndices2[t][k];
+                // auto &p1 = projOnTheta1[t][index1];
+                // auto &p2 = projOnTheta2[t][index2];
+                auto &p1 = projOnTheta1[t][k];
+                auto &p2 = projOnTheta2[t][k];
                 diffX = p1[0] - p2[0];
                 diffY = p1[1] - p2[1];
                 distOneLine += diffX*diffX + diffY*diffY;
             }
 
             // double vf = computeNormGradient(diag1, diag2, proj1, proj2, originIndices1[t], originIndices2[t], scalarProd1[t], scalarProd2[t], theta);
-            // double vf = 42.;
+            
             temp_mean_array[t] = distOneLine;
-            // temp_sd_array[t] = std::pow(distOneLine, 2.);
+            
             // temp_vf_array[t] = vf;
         }
-        
+
         mean +=  std::accumulate(temp_mean_array.begin(), temp_mean_array.end(), 0.);
-        // mean_sq += std::accumulate(temp_sd_array.begin(), temp_sd_array.end(), 0.);
+        
         // tot_variation_f += std::accumulate(temp_vf_array.begin(), temp_vf_array.end(), 0.);
     
         double number_temp = static_cast<double>(total_number);
@@ -689,18 +691,18 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
         // }
 
         // if (temp > prev_mean){
-        //     if( 1 - prev_mean/temp < tresh*0.1){
+        //     if( 1 - prev_mean/temp < tresh*0.5){
         //         counter+=1;
         //     }
         // } else {
-        //     if (1 - temp/prev_mean < tresh*0.1){
+        //     if (1 - temp/prev_mean < tresh*0.5){
         //         counter+=1;
         //     }
         // }
 
         // // std::cout << "COUNTER: " << counter << std::endl;
 
-        // if(counter > 100){
+        // if(counter > 50){
         //     cond = true;
         // }
 
