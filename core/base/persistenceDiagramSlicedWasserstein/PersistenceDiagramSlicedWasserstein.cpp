@@ -570,6 +570,8 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
 
     double tot_variation_f = 0.;
 
+    double phi = (1.+ pow(5,0.5))/2.;
+    double fibseq = 0.;
     int total_number = 0;
     // bool vertical = false;
     std::vector<double> buffer_angle(this->threadNumber_);
@@ -581,25 +583,36 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
     // std::cout << "THREAD NUMBER " << this->threadNumber_ << std::endl;
     while (cond == false && n < maxSampleNb) {
         
+
         // int nb_sample = static_cast<int>(std::pow(2., static_cast<double>(n)));
 
-#ifdef TTK_ENABLE_OPENMP
-#pragma omp parallel for num_threads(this->threadNumber_)
-#endif // TTK_ENABLE_OPENMP        
-        for(int i = 0; i < this->threadNumber_; ++i){
-            double angle=0, bk=1.0/2;
-            int m = n + i;
-            while (m > 0) {
-                angle += (m % 2)*bk;
-                m /= 2;
-                bk /= 2;
-            }
-            angle = ortho_angle*angle;
-            // angle = M_PI * 0.25 + angle * ortho_angle;
-            // buffer_angle.emplace_back(angle);
-            // buffer_angle.emplace_back(angle + ortho_angle);
-            buffer_angle[i] = angle;
+// #ifdef TTK_ENABLE_OPENMP
+// #pragma omp parallel for num_threads(this->threadNumber_)
+// #endif // TTK_ENABLE_OPENMP        
+//         for(int i = 0; i < this->threadNumber_; ++i){
+//             double angle=0, bk=1.0/2;
+//             int m = n + i;
+//             while (m > 0) {
+//                 angle += (m % 2)*bk;
+//                 m /= 2;
+//                 bk /= 2;
+//             }
+//             angle = ortho_angle*angle;
+//             // angle = M_PI * 0.25 + angle * ortho_angle;
+//             // buffer_angle.emplace_back(angle);
+//             // buffer_angle.emplace_back(angle + ortho_angle);
+//             buffer_angle[i] = angle;
+//         }
+
+        double dummy;
+        for (int i = 0; i < this->threadNumber_ ; ++i){
+            fibseq = modf(fibseq + phi, &dummy);
+            // fibseq = (fibseq + phi)%1;
+            buffer_angle[i] = fibseq*ortho_angle;
         }
+
+
+
 
         total_number += this->threadNumber_;
         // total_number += static_cast<int>(buffer_angle.size());
@@ -682,33 +695,33 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
         //     cond = true;
         // }
 
-        // if(temp == 0){
-        //     anti_counter +=1;
-        // }
+        if(temp == 0){
+            anti_counter +=1;
+        }
 
-        // if(anti_counter > 10){
-        //     cond = true;
-        // }
+        if(anti_counter > 10){
+            cond = true;
+        }
 
-        // if (temp > prev_mean){
-        //     if( 1 - prev_mean/temp < tresh*0.5){
-        //         counter+=1;
-        //     }
-        // } else {
-        //     if (1 - temp/prev_mean < tresh*0.5){
-        //         counter+=1;
-        //     }
-        // }
+        if (temp > prev_mean){
+            if( 1 - prev_mean/temp < tresh*0.5){
+                counter+=1;
+            }
+        } else {
+            if (1 - temp/prev_mean < tresh*0.5){
+                counter+=1;
+            }
+        }
 
-        // // std::cout << "COUNTER: " << counter << std::endl;
+        // std::cout << "COUNTER: " << counter << std::endl;
 
-        // if(counter > 50){
-        //     cond = true;
-        // }
+        if(counter > 50){
+            cond = true;
+        }
 
-        // if (abs(temp - prev_mean) < tresh){
-        //     cond = true;
-        // }
+        if (abs(temp - prev_mean) < tresh){
+            cond = true;
+        }
 
         prev_mean = temp;
 
