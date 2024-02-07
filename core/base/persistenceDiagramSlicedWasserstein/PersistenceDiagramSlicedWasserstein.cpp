@@ -560,7 +560,7 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
     double ortho_angle = M_PI;
     double mean = 0.;
     double mean_sq = 0.;
-    double tresh = 0.01;
+    // double tresh = 0.01;
 
     double prev_mean = 0.;
     // double prev_sd = 0.;
@@ -694,6 +694,8 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
         // if (tot_variation_f/(number_temp*number_temp) < tresh ||  abs(temp - prev_mean) < tresh*0.5){
         //     cond = true;
         // }
+
+        // std::cout << "TRESH" << tresh << std::endl;
 
         if(temp == 0){
             anti_counter +=1;

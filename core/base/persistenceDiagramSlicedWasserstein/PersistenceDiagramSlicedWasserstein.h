@@ -51,6 +51,10 @@ namespace ttk {
       nbOfProjUsed += data;
     }
 
+    inline void setTreshold(double data){
+      tresh = data;
+    }
+
   protected:
 
 
@@ -111,5 +115,7 @@ namespace ttk {
     bool useQuasiMC = true;
 
     int nbOfProjUsed = 0;
+
+    double tresh = 0.01;
   };
 } // namespace ttk

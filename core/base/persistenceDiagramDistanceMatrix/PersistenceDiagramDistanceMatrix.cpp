@@ -85,6 +85,8 @@ std::vector<std::vector<double>> PersistenceDiagramDistanceMatrix::execute(
         sliceComputer.setUseQuasiMC(false);
       }
 
+      sliceComputer.setTreshold(this->DeltaLim);
+
       int nbThread = 1;
       if(nDiags > 2){
         sliceComputer.setThreadNumber(1);
