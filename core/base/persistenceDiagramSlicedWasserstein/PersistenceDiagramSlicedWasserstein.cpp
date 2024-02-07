@@ -695,33 +695,33 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
         //     cond = true;
         // }
 
-        if(temp == 0){
-            anti_counter +=1;
-        }
+        // if(temp == 0){
+        //     anti_counter +=1;
+        // }
 
-        if(anti_counter > 10){
-            cond = true;
-        }
+        // if(anti_counter > 10){
+        //     cond = true;
+        // }
 
-        if (temp > prev_mean){
-            if( 1 - prev_mean/temp < tresh*0.5){
-                counter+=1;
-            }
-        } else {
-            if (1 - temp/prev_mean < tresh*0.5){
-                counter+=1;
-            }
-        }
+        // if (temp > prev_mean){
+        //     if( 1 - prev_mean/temp < tresh*0.5){
+        //         counter+=1;
+        //     }
+        // } else {
+        //     if (1 - temp/prev_mean < tresh*0.5){
+        //         counter+=1;
+        //     }
+        // }
 
-        // std::cout << "COUNTER: " << counter << std::endl;
+        // // std::cout << "COUNTER: " << counter << std::endl;
 
-        if(counter > 50){
-            cond = true;
-        }
+        // if(counter > 10){
+        //     cond = true;
+        // }
 
-        if (abs(temp - prev_mean) < tresh){
-            cond = true;
-        }
+        // if (abs(temp - prev_mean) < tresh){
+        //     cond = true;
+        // }
 
         prev_mean = temp;
 
