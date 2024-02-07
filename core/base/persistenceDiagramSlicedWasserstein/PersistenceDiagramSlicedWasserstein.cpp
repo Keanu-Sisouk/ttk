@@ -560,7 +560,7 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
     double ortho_angle = M_PI;
     double mean = 0.;
     double mean_sq = 0.;
-    double tresh = 0.01;
+    double tresh = 0.001;
 
     double prev_mean = 0.;
     // double prev_sd = 0.;
