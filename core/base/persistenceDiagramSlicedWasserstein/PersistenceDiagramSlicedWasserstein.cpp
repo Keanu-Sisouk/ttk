@@ -417,20 +417,21 @@ double PersistenceDiagramSlicedWasserstein::classicMonteCarlo(
     double ortho_angle = M_PI;
     double mean = 0.;
     double mean_sq = 0.;
-    double tresh = 0.01;
+    // double tresh = 0.01;
 
     double prev_mean = 0.;
     double prev_sd = 0.;
-
+    double phi = (1.+ pow(5,0.5))/2.;
+    double fibseq = 0.;
     double tot_variation_f = 0.;
 
     std::random_device rd;  // Will be used to obtain a seed for the random number engine
     std::mt19937 gen(rd()); // Standard mersenne_twister_engine seeded with rd()
-    std::uniform_real_distribution<> dis(0., ortho_angle);
+    std::uniform_real_distribution<> dis(0., 1);
     int total_number = 0;
     // bool vertical = false;
 
-    std::vector<double> buffer_angle(nbPoints);
+    std::vector<double> buffer_angle(this->threadNumber_);
 
 
     std::vector<double> temp_mean_array(buffer_angle.size(), 0.);
@@ -451,8 +452,10 @@ double PersistenceDiagramSlicedWasserstein::classicMonteCarlo(
 #pragma omp parallel for num_threads(this->threadNumber_)
 #endif // TTK_ENABLE_OPENMP   
         for(int i = 0; i < this->threadNumber_; ++i){
-            double angle = dis(gen);
-            buffer_angle[i] = angle;
+            // double angle = dis(gen);
+            double angle = static_cast<double>(n+i)/static_cast<double>(maxSampleNb);
+            // std::cout << "ANGLE: " << angle << "\n";
+            buffer_angle[i] = angle*ortho_angle;
         }
 
 
@@ -462,17 +465,48 @@ double PersistenceDiagramSlicedWasserstein::classicMonteCarlo(
         //     buffer_angle.emplace_back(angle + ortho_angle);
         // }
 
+        // double dummy;
+        // for (int i = 0; i < this->threadNumber_ ; ++i){
+        //     fibseq = modf(fibseq + phi, &dummy);
+        //     // fibseq = (fibseq + phi)%1;
+        //     buffer_angle[i] = fibseq*ortho_angle;
+        // }
+
+
         total_number += static_cast<int>(buffer_angle.size());
 
 
+        std::vector<std::vector<std::array<double, 2>>> projOnTheta1(this->threadNumber_);
+        std::vector<std::vector<std::array<double, 2>>> projOnTheta2(this->threadNumber_);
 
+        std::vector<std::vector<int>> originIndices1(this->threadNumber_);
+        std::vector<std::vector<int>> originIndices2(this->threadNumber_);
 
-        std::vector<std::vector<std::array<double, 2>>> projOnTheta1(nbPoints);
-        std::vector<std::vector<std::array<double, 2>>> projOnTheta2(nbPoints);
+        std::vector<std::vector<double>> scalarProd1(this->threadNumber_);
+        std::vector<std::vector<double>> scalarProd2(this->threadNumber_);
         // plus rapide en sequentielle ou OPENMP ici
+
+        // std::vector<std::vector<std::array<double, 2>>> projOnTheta1(nbPoints);
+        // std::vector<std::vector<std::array<double, 2>>> projOnTheta2(nbPoints);
+        // // plus rapide en sequentielle ou OPENMP ici
+        // // for(int t = 0; t < this->threadNumber_; t++){
+        // //     projOnTheta1[t].resize(sizeDiag1);
+        // //     projOnTheta2[t].resize(sizeDiag2);
+        // // }
+
+        // std::vector<int> originIndices1;
+        // std::vector<int> originIndices2;
+        // std::vector<double> scalarProd1;
+        // std::vector<double> scalarProd2;
+
+
         for(int t = 0; t < this->threadNumber_; t++){
             projOnTheta1[t].resize(sizeDiag1);
             projOnTheta2[t].resize(sizeDiag2);
+            originIndices1[t].resize(sizeDiag1);
+            originIndices2[t].resize(sizeDiag2);
+            scalarProd1[t].resize(sizeDiag1);
+            scalarProd2[t].resize(sizeDiag2);
         }
 
 
@@ -484,52 +518,57 @@ double PersistenceDiagramSlicedWasserstein::classicMonteCarlo(
             const double theta = buffer_angle[t];
             // std::vector<std::array<double, 2>> projOnTheta1;
             // std::vector<std::array<double, 2>> projOnTheta2;
-            std::vector<int> originIndices1;
-            std::vector<int> originIndices2;
-            std::vector<double> scalarProd1;
-            std::vector<double> scalarProd2;
+            // std::vector<int> originIndices1;
+            // std::vector<int> originIndices2;
+            // std::vector<double> scalarProd1;
+            // std::vector<double> scalarProd2;
+            bool vert = false;
 
-            projectionOnThetaLine(diag1, proj1, projOnTheta1[t], originIndices1, scalarProd1, theta, false);
-            projectionOnThetaLine(diag2, proj2, projOnTheta2[t], originIndices2, scalarProd2, theta, false);
+            if(theta > 0.85*ortho_angle*0.5 && theta < 1.15*ortho_angle*0.5){
+                vert = true;
+            }
+
+            projectionOnThetaLine(diag1, proj1, projOnTheta1[t], originIndices1[t], scalarProd1[t], theta, vert);
+            projectionOnThetaLine(diag2, proj2, projOnTheta2[t], originIndices2[t], scalarProd2[t], theta, vert);
 
             double distOneLine = 0.;
 
-            for(size_t k = 0; k < projOnTheta1.size(); ++k){
-                auto &index1 = originIndices1[k];
-                auto &index2 = originIndices2[k];
-                auto &p1 = projOnTheta1[t][index1];
-                auto &p2 = projOnTheta2[t][index2];
+            for(int k = 0; k < sizeDiag1; ++k){
+                // auto &index1 = originIndices1[k];
+                // auto &index2 = originIndices2[k];
+                auto &p1 = projOnTheta1[t][k];
+                auto &p2 = projOnTheta2[t][k];
                 const double diffX = p1[0] - p2[0];
                 const double diffY = p1[1] - p2[1];
                 distOneLine += diffX*diffX + diffY*diffY;
             }
 
             temp_mean_array[t] = distOneLine;
-            temp_sd_array[t] = std::pow(distOneLine, 2.);
+            // temp_sd_array[t] = std::pow(distOneLine, 2.);
         }
         
         mean +=  std::accumulate(temp_mean_array.begin(), temp_mean_array.end(), 0.);
         // std::cout << "MEAN: " << mean << std::endl;
-        mean_sq += std::accumulate(temp_sd_array.begin(), temp_sd_array.end(), 0.);
+        // mean_sq += std::accumulate(temp_sd_array.begin(), temp_sd_array.end(), 0.);
         // tot_variation_f += std::accumulate(temp_vf_array.begin(), temp_vf_array.end(), 0.);
     
         // double number_temp = 2. * static_cast<double>(nb_sample);
         double number_temp = static_cast<double>(total_number);
         double current_mean = mean/(number_temp);
  
-        double current_sd = std::pow((number_temp/(number_temp - 1.)) * (mean_sq/number_temp - std::pow(current_mean, 2.)), 0.5);
+        // double current_sd = std::pow((number_temp/(number_temp - 1.)) * (mean_sq/number_temp - std::pow(current_mean, 2.)), 0.5);
 
         temp = mean/number_temp;
-        if( current_sd * 1.96 / std::pow(number_temp, 0.5) < tresh){
-            cond = true;
-        }
+        // if( current_sd * 1.96 / std::pow(number_temp, 0.5) < tresh){
+        //     cond = true;
+        // }
 
         // if( current_sd * 1.96 / std::pow(number_temp, 0.5) < tresh ||  (abs(current_mean - prev_mean) < 0.01 && abs(current_sd - prev_sd) < 0.01)){
         //     dist = mean/number_temp;
         //     cond = true;
         // }
 
-        n = n + nbPoints;
+        n = n + this->threadNumber_;
 
         
     }
@@ -586,33 +625,41 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
 
         // int nb_sample = static_cast<int>(std::pow(2., static_cast<double>(n)));
 
-// #ifdef TTK_ENABLE_OPENMP
-// #pragma omp parallel for num_threads(this->threadNumber_)
-// #endif // TTK_ENABLE_OPENMP        
-//         for(int i = 0; i < this->threadNumber_; ++i){
-//             double angle=0, bk=1.0/2;
-//             int m = n + i;
-//             while (m > 0) {
-//                 angle += (m % 2)*bk;
-//                 m /= 2;
-//                 bk /= 2;
-//             }
-//             angle = ortho_angle*angle;
-//             // angle = M_PI * 0.25 + angle * ortho_angle;
-//             // buffer_angle.emplace_back(angle);
-//             // buffer_angle.emplace_back(angle + ortho_angle);
-//             buffer_angle[i] = angle;
-//         }
-
-        double dummy;
-        for (int i = 0; i < this->threadNumber_ ; ++i){
-            fibseq = modf(fibseq + phi, &dummy);
-            // fibseq = (fibseq + phi)%1;
-            buffer_angle[i] = fibseq*ortho_angle;
+#ifdef TTK_ENABLE_OPENMP
+#pragma omp parallel for num_threads(this->threadNumber_)
+#endif // TTK_ENABLE_OPENMP        
+        for(int i = 0; i < this->threadNumber_; ++i){
+            double angle=0, bk=1.0/2;
+            int m = n + i;
+            while (m > 0) {
+                angle += (m % 2)*bk;
+                m /= 2;
+                bk /= 2;
+            }
+            // angle = ortho_angle*angle;
+            // std::cout << "ANGLE: " << angle << "\n";
+            // angle = M_PI * 0.25 + angle * ortho_angle;
+            // buffer_angle.emplace_back(angle);
+            // buffer_angle.emplace_back(angle + ortho_angle);
+            buffer_angle[i] = angle*ortho_angle;
         }
 
+        // double dummy;
+        // for (int i = 0; i < this->threadNumber_ ; ++i){
+        //     fibseq = modf(fibseq + phi, &dummy);
+        //     // fibseq = (fibseq + phi)%1;
+        //     buffer_angle[i] = fibseq*ortho_angle;
+        // }
 
-
+// #ifdef TTK_ENABLE_OPENMP
+// #pragma omp parallel for num_threads(this->threadNumber_)
+// #endif // TTK_ENABLE_OPENMP   
+//         for(int i = 0; i < this->threadNumber_; ++i){
+//             // double angle = dis(gen);
+//             double angle = static_cast<double>(n+i)/static_cast<double>(maxSampleNb);
+//             // std::cout << "ANGLE: " << angle << "\n";
+//             buffer_angle[i] = angle*ortho_angle;
+//         }
 
         total_number += this->threadNumber_;
         // total_number += static_cast<int>(buffer_angle.size());
@@ -657,18 +704,18 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
             projectionOnThetaLine(diag2, proj2, projOnTheta2[t], originIndices2[t], scalarProd2[t], theta, vert);
 
             double distOneLine = 0.;
-
+            // std::cout << "COMPARE SIZE: " << sizeDiag1 << " AND " << sizeDiag2 << "\n";
             for(int k = 0; k < sizeDiag1; ++k){
-                double diffX = 0.;
-                double diffY = 0.;
+                // double diffX = 0.;
+                // double diffY = 0.;
                 // auto &index1 = originIndices1[t][k];
                 // auto &index2 = originIndices2[t][k];
                 // auto &p1 = projOnTheta1[t][index1];
                 // auto &p2 = projOnTheta2[t][index2];
                 auto &p1 = projOnTheta1[t][k];
                 auto &p2 = projOnTheta2[t][k];
-                diffX = p1[0] - p2[0];
-                diffY = p1[1] - p2[1];
+                const double diffX = p1[0] - p2[0];
+                const double diffY = p1[1] - p2[1];
                 distOneLine += diffX*diffX + diffY*diffY;
             }
 
