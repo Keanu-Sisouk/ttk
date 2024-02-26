@@ -108,6 +108,8 @@ namespace ttk {
                            int &sampleNumber,
                            int maxSampleNb);
 
+    double Wass_greedy(std::vector<double> &sequence);
+
     int EPOCH_MAX = 300;
 
     int nbPoints = 1;

@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <array>
 #include <limits>
+#include <math.h>
 #include <numeric>
 #include <random>
 
@@ -613,6 +614,12 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
     double fibseq = 0.;
     int total_number = 0;
     // bool vertical = false;
+    std::vector<double> sequence{1./ortho_angle, 1./exp(1), 1./sqrt(2.)};
+    // std::vector<double> sequence{0., 0.5, 0.25, 0.75};
+    // std::vector<double> sequence;
+    // for(int i = 1; i < 10; ++i){
+    //     sequence.emplace_back(1.*i/10.);
+    // }
     std::vector<double> buffer_angle(this->threadNumber_);
 
     std::vector<double> temp_mean_array(buffer_angle.size());
@@ -625,24 +632,24 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
 
         // int nb_sample = static_cast<int>(std::pow(2., static_cast<double>(n)));
 
-#ifdef TTK_ENABLE_OPENMP
-#pragma omp parallel for num_threads(this->threadNumber_)
-#endif // TTK_ENABLE_OPENMP        
-        for(int i = 0; i < this->threadNumber_; ++i){
-            double angle=0, bk=1.0/2;
-            int m = n + i;
-            while (m > 0) {
-                angle += (m % 2)*bk;
-                m /= 2;
-                bk /= 2;
-            }
-            // angle = ortho_angle*angle;
-            // std::cout << "ANGLE: " << angle << "\n";
-            // angle = M_PI * 0.25 + angle * ortho_angle;
-            // buffer_angle.emplace_back(angle);
-            // buffer_angle.emplace_back(angle + ortho_angle);
-            buffer_angle[i] = angle*ortho_angle;
-        }
+// #ifdef TTK_ENABLE_OPENMP
+// #pragma omp parallel for num_threads(this->threadNumber_)
+// #endif // TTK_ENABLE_OPENMP        
+//         for(int i = 0; i < this->threadNumber_; ++i){
+//             double angle=0, bk=1.0/2;
+//             int m = n + i;
+//             while (m > 0) {
+//                 angle += (m % 2)*bk;
+//                 m /= 2;
+//                 bk /= 2;
+//             }
+//             // angle = ortho_angle*angle;
+//             // std::cout << "ANGLE: " << angle << "\n";
+//             // angle = M_PI * 0.25 + angle * ortho_angle;
+//             // buffer_angle.emplace_back(angle);
+//             // buffer_angle.emplace_back(angle + ortho_angle);
+//             buffer_angle[i] = angle*ortho_angle;
+//         }
 
         // double dummy;
         // for (int i = 0; i < this->threadNumber_ ; ++i){
@@ -660,6 +667,14 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
 //             // std::cout << "ANGLE: " << angle << "\n";
 //             buffer_angle[i] = angle*ortho_angle;
 //         }
+
+        for(int i = 0; i < this->threadNumber_ ; ++i){
+            double angle = Wass_greedy(sequence);
+            buffer_angle[i] = angle*ortho_angle;
+            sequence.emplace_back(angle);
+        }
+
+
 
         total_number += this->threadNumber_;
         // total_number += static_cast<int>(buffer_angle.size());
@@ -781,4 +796,168 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
     sampleNumber += n;
     return temp;
 
+}
+
+
+// double PersistenceDiagramSlicedWasserstein::Wass_greedy(
+//     std::vector<double> &sequence){
+
+//     std::sort(sequence.begin(), sequence.end(), 
+//         [](double p1, double p2) 
+//         { 
+//             return (p1 < p2);
+//         });
+
+//     double minima = 0.;
+//     int N = sequence.size();
+//     std::vector<double> all_consts(N+1,0.);
+//     const double N_cubed = pow(1.*N+1, 3);
+//     const double N_squared = pow(1.*N+1, 2);
+
+//     const double sum_normal = 1.*N*(1.*N+1.)/2.;
+//     const double sum_squared = 1.*N*(1.*N+1.)*(2.*N+1.)/6.;
+
+//     const double total = N+1;
+
+//     double cste = 0.;
+// #ifdef TTK_ENABLE_OPENMP
+// #pragma omp parallel for num_threads(this->threadNumber_)
+// #endif // TTK_ENABLE_OPENMP
+//     for(int j = 1; j < N+1; ++j){
+//         double y = sequence[j-1];
+//         cste += -y*(2*j + 1)/N_squared + y*y/total;
+//     }
+//     cste += (1./3.)*1/N_cubed + (1./3.)*(3.*sum_squared + 3.*sum_normal + static_cast<double>(N))/N_cubed;
+//     all_consts[0] = cste;
+
+// #ifdef TTK_ENABLE_OPENMP
+// #pragma omp parallel for num_threads(this->threadNumber_)
+// #endif // TTK_ENABLE_OPENMP
+//     for(int i = 2; i < N+1; ++i){
+//         cste = 0.;
+//         for(int j = 1; j < i+1; ++j){
+//             const double y = sequence[j-1];
+//             cste += (1./3.)*(3.*pow(1.0*j,2) - 3.*j + 1.)/N_cubed - y*(2.*j - 1.)/N_squared + y*y/(1.*N + 1.);
+//         }
+
+//         for(int j = i+1; j < N+1; ++j){
+//             const double y = sequence[j-1];
+//             cste += (1./3.)*(3.*pow(1.0*j,2) + 3.*j + 1.)/N_cubed - y*(2.*j + 1.)/N_squared + y*y/(1.*N + 1.);
+//         }
+//         cste += (1./3.)*(3.*pow(1.0*i,2) + 3.*i +1.)/N_cubed;
+//         all_consts[i-1] = cste;
+//     }
+
+//     cste = 0;
+// #ifdef TTK_ENABLE_OPENMP
+// #pragma omp parallel for num_threads(this->threadNumber_)
+// #endif // TTK_ENABLE_OPENMP
+//     for(int j = 1; j < N+1; ++j){
+//         const double y = sequence[j-1];
+//         cste += -y*(2*j - 1)/N_squared + y*y/total;
+//     }
+//     cste += (1./3.)*(3.*pow(1.*N,2) + 3.*N + 1.)/N_cubed + (1./3.)*(3.*sum_squared - 3.*sum_normal + static_cast<double>(N))/N_cubed;
+//     all_consts[N] = cste;
+
+//     std::vector<double> all_minima(N+1,0.);
+//     all_minima[0] = 1./(2.*(1.*N + 1.));
+
+// #ifdef TTK_ENABLE_OPENMP
+// #pragma omp parallel for num_threads(this->threadNumber_)
+// #endif // TTK_ENABLE_OPENMP
+//     for(int i = 2; i < N+1; ++i){
+//         double temp = (2.*i + 1.)/(2.*(1.*N + 1.));
+//         all_minima[i-1] = temp;
+//     }
+
+//     all_minima[N] = (2.*N + 1.)/(2.*(1.*N + 1.));
+
+//     std::vector<double> all_values(N+1, 0.);
+
+//     all_values[0] = all_consts[0] - all_minima[0]*1./N_squared + all_minima[0]*all_minima[0]/(1.*N +1.);
+
+// #ifdef TTK_ENABLE_OPENMP
+// #pragma omp parallel for num_threads(this->threadNumber_)
+// #endif // TTK_ENABLE_OPENMP
+//     for(int i = 2; i < N+1; ++i){
+//         double value = 0.;
+//         double temp = all_consts[i-1];
+//         double temp2 = all_minima[i-1];
+//         value = temp - temp2*(2.*i + 1.)/N_squared + temp2*temp2/(1.*N + 1.);
+//         all_values[i-1] = value;
+//     }
+
+//     all_values[N] = all_consts[N] - all_minima[N]*(2.*N + 1.)/N_squared + all_minima[N]*all_minima[N]/(1.*N + 1.);
+
+//     int index = std::min_element(all_values.begin(), all_values.end()) - all_values.begin();
+//     minima = all_minima[index];
+
+//     return minima;
+// }
+
+double PersistenceDiagramSlicedWasserstein::Wass_greedy(
+    std::vector<double> &sequence){
+
+    std::sort(sequence.begin(), sequence.end(), 
+        [](double p1, double p2) 
+        { 
+            return (p1 < p2);
+        });
+
+
+    int N = sequence.size();
+    std::vector<double> all_minima(N+1);
+
+    double cste = 1./(2.*(1.0*N + 1.));
+    if(cste > sequence[0]){
+        all_minima[0] = sequence[0];
+    } else {
+        all_minima[0] = cste;
+    }
+
+    cste = 0.;
+    for(int i = 1; i < N; ++i){
+        cste = (2.*i + 1)/(2*(1.0*N + 1.));
+        if(cste < sequence[i - 1]){
+            all_minima[i] = sequence[i-1];
+        } else if (cste > sequence[i]){
+            all_minima[i] = sequence[i];
+        } else {
+            all_minima[i] = cste;
+        }
+    }
+
+    cste = 0.;
+    cste = (2.*N + 1.)/(2.*(1.0*N+1.));
+    if(cste < sequence[N-1]){
+        all_minima[N] = sequence[N-1];
+    } else {
+        all_minima[N] = cste;
+    }
+    
+
+    std::vector<double> all_vals(N+1);
+    double sum = 0.;
+    for(int i = 0; i < N; ++i){
+        sum += sequence[i];
+    }
+    all_vals[0] = -2.*sum + (1.0*N + 1.)*all_minima[0]*all_minima[0] - all_minima[0];
+
+    for(int i = 1; i < N; ++i){
+        sum = 0.;
+        for(int j = i ; j < N; ++j){
+            sum += sequence[j];
+        }
+        double minima = all_minima[i];
+        double value = -(2.*i + 1.)*minima + (1.0*N + 1.)*minima*minima -2.*sum;
+        all_vals[i] = value;
+    }
+
+    all_vals[N] = -(2.*N + 1.)*all_minima[N] + (1.0*N + 1)*all_minima[N]*all_minima[N]; 
+
+
+    int index = std::min_element(all_vals.begin(), all_vals.end()) - all_vals.begin();
+    double minima = all_minima[index];
+
+    return minima;
 }
