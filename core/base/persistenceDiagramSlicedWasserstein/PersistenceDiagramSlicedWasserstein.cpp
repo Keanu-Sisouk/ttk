@@ -629,7 +629,7 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
     // for(int i = 1; i < 10; ++i){
     //     sequence.emplace_back(1.*i/10.);
     // }
-    std::vector<double> buffer_angle(2*this->threadNumber_);
+    std::vector<double> buffer_angle(this->threadNumber_);
 
     std::vector<double> temp_mean_array(buffer_angle.size());
     // std::vector<double> temp_sd_array(buffer_angle.size(), 0.);
@@ -644,7 +644,8 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
 #ifdef TTK_ENABLE_OPENMP
 #pragma omp parallel for num_threads(this->threadNumber_)
 #endif // TTK_ENABLE_OPENMP        
-        for(int i = 0; i < 2*this->threadNumber_; i = i + 2){
+        // for(int i = 0; i < 2*this->threadNumber_; i = i + 2){
+        for(int i = 0; i < this->threadNumber_; ++i){
             double angle=0., bk=1.0/2.;
             int m = n + i;
             while (m > 0) {
@@ -658,7 +659,7 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
             // buffer_angle.emplace_back(angle);
             // buffer_angle.emplace_back(angle + ortho_angle);
             buffer_angle[i] = angle*ortho_angle;
-            buffer_angle[i+1] = angle*ortho_angle + ortho_angle*0.5;
+            // buffer_angle[i+1] = angle*ortho_angle + ortho_angle*0.5;
         }
 
         // double dummy;
@@ -691,23 +692,23 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
         //     buffer_angle[i] = angle*ortho_angle;
         // }
 
-        total_number += 2*this->threadNumber_;
+        total_number += this->threadNumber_;
         // total_number += static_cast<int>(buffer_angle.size());
 
-        std::vector<std::vector<std::array<double, 2>>> projOnTheta1(2*this->threadNumber_);
-        std::vector<std::vector<std::array<double, 2>>> projOnTheta2(2*this->threadNumber_);
+        std::vector<std::vector<std::array<double, 2>>> projOnTheta1(this->threadNumber_);
+        std::vector<std::vector<std::array<double, 2>>> projOnTheta2(this->threadNumber_);
 
-        std::vector<std::vector<int>> originIndices1(2*this->threadNumber_);
-        std::vector<std::vector<int>> originIndices2(2*this->threadNumber_);
+        std::vector<std::vector<int>> originIndices1(this->threadNumber_);
+        std::vector<std::vector<int>> originIndices2(this->threadNumber_);
 
-        std::vector<std::vector<double>> scalarProd1(2*this->threadNumber_);
-        std::vector<std::vector<double>> scalarProd2(2*this->threadNumber_);
+        std::vector<std::vector<double>> scalarProd1(this->threadNumber_);
+        std::vector<std::vector<double>> scalarProd2(this->threadNumber_);
         // plus rapide en sequentielle ou OPENMP ici
 
 // #ifdef TTK_ENABLE_OPENMP
 // #pragma omp parallel for num_threads(nbPoints)
 // #endif // TTK_ENABLE_OPENMP
-        for(int t = 0; t < 2*this->threadNumber_; t++){
+        for(int t = 0; t < this->threadNumber_; t++){
             projOnTheta1[t].resize(sizeDiag1);
             projOnTheta2[t].resize(sizeDiag2);
             originIndices1[t].resize(sizeDiag1);
@@ -720,7 +721,7 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
 #pragma omp parallel for num_threads(this->threadNumber_)
 #endif // TTK_ENABLE_OPENMP
         // total_number += static_cast<int>(buffer_angle.size());
-        for(int t = 0; t < 2*this->threadNumber_; ++t){
+        for(int t = 0; t < this->threadNumber_; ++t){
             const double theta = buffer_angle[t];
 
 
