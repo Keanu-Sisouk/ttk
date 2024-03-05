@@ -24,6 +24,9 @@
 #include <Debug.h>
 #include <PersistenceDiagramUtils.h>
 
+#include <random>
+
+
 namespace ttk {
 
   class PersistenceDiagramSlicedWasserstein : virtual public Debug {
@@ -108,7 +111,9 @@ namespace ttk {
                            int &sampleNumber,
                            int maxSampleNb);
 
-    double Wass_greedy(std::vector<double> &sequence);
+    double wassGreedy(std::vector<double> &sequence);
+
+    double randomizedVDC(int n, int base, std::mt19937 &gen, std::uniform_real_distribution<> &dis);
 
     int EPOCH_MAX = 300;
 

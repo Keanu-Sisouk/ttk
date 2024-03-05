@@ -3,9 +3,8 @@
 #include <algorithm>
 #include <array>
 #include <limits>
-#include <math.h>
+#include <cmath>
 #include <numeric>
-#include <random>
 
 #ifdef TTK_ENABLE_EIGEN
 #include <Eigen/Dense>
@@ -613,14 +612,24 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
     double phi = (1.+ pow(5,0.5))/2.;
     double fibseq = 0.;
     int total_number = 0;
+
+    // std::random_device rd;  // Will be used to obtain a seed for the random number engine
+    // std::mt19937 gen(rd()); // Standard mersenne_twister_engine seeded with rd()
+    // std::uniform_real_distribution<> dis(0., 1);
+
     // bool vertical = false;
     std::vector<double> sequence{1./ortho_angle, 1./exp(1), 1./sqrt(2.)};
+    // std::vector<double> sequence{0., 1./ortho_angle, 1./exp(1), 1./sqrt(2.), 1./phi};
+    // std::vector<double> sequence{1./ortho_angle, 1./exp(1), 1./sqrt(2.), 2./(phi*phi), 2./(phi*phi) - 0.5, 1./pow(2.,sqrt(2)) };
+    // std::vector<double> sequence{0., 0.25, 0.5, 0.75, 1./ortho_angle, 1./exp(1), 1./sqrt(2.),2./(phi*phi), 2./(phi*phi) - 0.5};
+    // std::vector<double> sequence{2./(phi*phi),2./(phi*phi) - 0.5 };
+    // std::vector<double> sequence{1./phi};
     // std::vector<double> sequence{0., 0.5, 0.25, 0.75};
     // std::vector<double> sequence;
     // for(int i = 1; i < 10; ++i){
     //     sequence.emplace_back(1.*i/10.);
     // }
-    std::vector<double> buffer_angle(this->threadNumber_);
+    std::vector<double> buffer_angle(2*this->threadNumber_);
 
     std::vector<double> temp_mean_array(buffer_angle.size());
     // std::vector<double> temp_sd_array(buffer_angle.size(), 0.);
@@ -632,30 +641,32 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
 
         // int nb_sample = static_cast<int>(std::pow(2., static_cast<double>(n)));
 
-// #ifdef TTK_ENABLE_OPENMP
-// #pragma omp parallel for num_threads(this->threadNumber_)
-// #endif // TTK_ENABLE_OPENMP        
-//         for(int i = 0; i < this->threadNumber_; ++i){
-//             double angle=0, bk=1.0/2;
-//             int m = n + i;
-//             while (m > 0) {
-//                 angle += (m % 2)*bk;
-//                 m /= 2;
-//                 bk /= 2;
-//             }
-//             // angle = ortho_angle*angle;
-//             // std::cout << "ANGLE: " << angle << "\n";
-//             // angle = M_PI * 0.25 + angle * ortho_angle;
-//             // buffer_angle.emplace_back(angle);
-//             // buffer_angle.emplace_back(angle + ortho_angle);
-//             buffer_angle[i] = angle*ortho_angle;
-//         }
+#ifdef TTK_ENABLE_OPENMP
+#pragma omp parallel for num_threads(this->threadNumber_)
+#endif // TTK_ENABLE_OPENMP        
+        for(int i = 0; i < 2*this->threadNumber_; i = i + 2){
+            double angle=0., bk=1.0/2.;
+            int m = n + i;
+            while (m > 0) {
+                angle += (m % 2)*bk;
+                m /= 2;
+                bk /= 2;
+            }
+            // angle = ortho_angle*angle;
+            // std::cout << "ANGLE: " << angle << "\n";
+            // angle = M_PI * 0.25 + angle * ortho_angle;
+            // buffer_angle.emplace_back(angle);
+            // buffer_angle.emplace_back(angle + ortho_angle);
+            buffer_angle[i] = angle*ortho_angle;
+            buffer_angle[i+1] = angle*ortho_angle + ortho_angle*0.5;
+        }
 
         // double dummy;
-        // for (int i = 0; i < this->threadNumber_ ; ++i){
+        // for (int i = 0; i < 2*this->threadNumber_ ; i = i +2){
         //     fibseq = modf(fibseq + phi, &dummy);
         //     // fibseq = (fibseq + phi)%1;
         //     buffer_angle[i] = fibseq*ortho_angle;
+        //     buffer_angle[i+1] = fibseq*ortho_angle + ortho_angle*0.5;
         // }
 
 // #ifdef TTK_ENABLE_OPENMP
@@ -668,31 +679,35 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
 //             buffer_angle[i] = angle*ortho_angle;
 //         }
 
-        for(int i = 0; i < this->threadNumber_ ; ++i){
-            double angle = Wass_greedy(sequence);
-            buffer_angle[i] = angle*ortho_angle;
-            sequence.emplace_back(angle);
-        }
+        // for(int i = 0; i < this->threadNumber_ ; ++i){
+        //     double angle = wassGreedy(sequence);
+        //     buffer_angle[i] = angle*ortho_angle;
+        //     sequence.emplace_back(angle);
+        // }
 
+        // for(int i = 0; i < this->threadNumber_; ++i){
+        //     int m = n + i;
+        //     double angle = randomizedVDC(m, 2, gen, dis);
+        //     buffer_angle[i] = angle*ortho_angle;
+        // }
 
-
-        total_number += this->threadNumber_;
+        total_number += 2*this->threadNumber_;
         // total_number += static_cast<int>(buffer_angle.size());
 
-        std::vector<std::vector<std::array<double, 2>>> projOnTheta1(this->threadNumber_);
-        std::vector<std::vector<std::array<double, 2>>> projOnTheta2(this->threadNumber_);
+        std::vector<std::vector<std::array<double, 2>>> projOnTheta1(2*this->threadNumber_);
+        std::vector<std::vector<std::array<double, 2>>> projOnTheta2(2*this->threadNumber_);
 
-        std::vector<std::vector<int>> originIndices1(this->threadNumber_);
-        std::vector<std::vector<int>> originIndices2(this->threadNumber_);
+        std::vector<std::vector<int>> originIndices1(2*this->threadNumber_);
+        std::vector<std::vector<int>> originIndices2(2*this->threadNumber_);
 
-        std::vector<std::vector<double>> scalarProd1(this->threadNumber_);
-        std::vector<std::vector<double>> scalarProd2(this->threadNumber_);
+        std::vector<std::vector<double>> scalarProd1(2*this->threadNumber_);
+        std::vector<std::vector<double>> scalarProd2(2*this->threadNumber_);
         // plus rapide en sequentielle ou OPENMP ici
 
 // #ifdef TTK_ENABLE_OPENMP
 // #pragma omp parallel for num_threads(nbPoints)
 // #endif // TTK_ENABLE_OPENMP
-        for(int t = 0; t < this->threadNumber_; t++){
+        for(int t = 0; t < 2*this->threadNumber_; t++){
             projOnTheta1[t].resize(sizeDiag1);
             projOnTheta2[t].resize(sizeDiag2);
             originIndices1[t].resize(sizeDiag1);
@@ -705,7 +720,7 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
 #pragma omp parallel for num_threads(this->threadNumber_)
 #endif // TTK_ENABLE_OPENMP
         // total_number += static_cast<int>(buffer_angle.size());
-        for(int t = 0; t < this->threadNumber_; ++t){
+        for(int t = 0; t < 2*this->threadNumber_; ++t){
             const double theta = buffer_angle[t];
 
 
@@ -789,7 +804,7 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
 
         prev_mean = temp;
 
-        n = n + this->threadNumber_;
+        n = n + 2*this->threadNumber_;
     }
 
     // this->setNbOfProjused(n);
@@ -895,7 +910,7 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
 //     return minima;
 // }
 
-double PersistenceDiagramSlicedWasserstein::Wass_greedy(
+double PersistenceDiagramSlicedWasserstein::wassGreedy(
     std::vector<double> &sequence){
 
     std::sort(sequence.begin(), sequence.end(), 
@@ -961,3 +976,55 @@ double PersistenceDiagramSlicedWasserstein::Wass_greedy(
 
     return minima;
 }
+
+
+double PersistenceDiagramSlicedWasserstein::randomizedVDC(
+    int n, 
+    int base, 
+    std::mt19937 &gen,
+    std::uniform_real_distribution<> &dis){
+
+    std::vector<int> result;
+    std::vector<int> result2;
+
+    while(n > 0){
+        result.emplace_back(n % 2);
+        n /=2;
+    }
+    std::reverse(result.begin(), result.end());
+
+    double v = dis(gen);
+
+    
+    while(v > 0){
+        v *= 2.;
+        double whole;
+        std::modf(v, &whole);
+        result2.emplace_back(static_cast<int>(whole));
+        v -= whole;
+    }
+
+
+    if(result2.size() < result.size()){
+        for(size_t i = 0; i < result.size() - result2.size(); ++i){
+            result2.emplace_back(0);
+        }
+    }
+
+    if(result.size() < result2.size()){
+        for(size_t i = 0; i < result2.size() - result.size(); ++i){
+            result.emplace_back(0);
+        }
+    }
+
+
+    double angle = 0.;
+    double bk = 1./base;
+    for(int i = 0; i < static_cast<int>(result.size()); ++i){
+        angle += ((result[i] + result2[i]) % 2) * bk;
+        bk /= base;
+    }
+
+    return angle;
+
+};
