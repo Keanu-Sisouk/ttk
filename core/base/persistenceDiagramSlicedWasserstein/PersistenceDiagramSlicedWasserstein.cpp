@@ -805,7 +805,7 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
 
         prev_mean = temp;
 
-        n = n + 2*this->threadNumber_;
+        n = n + this->threadNumber_;
     }
 
     // this->setNbOfProjused(n);
