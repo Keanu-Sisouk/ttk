@@ -72,40 +72,40 @@ void PersistenceDiagramSlicedWasserstein::projectionOnThetaLine(
         std::array<double, 2> temp{scal*vecUnit[0], 
                 scal*vecUnit[1]};
         // projOnTheta.emplace_back(temp);
-        projOnTheta[counter + j] = temp;
+        projOnTheta[diag.size() + j] = temp;
         // scalarProd.emplace_back(scal);
         // scalarProd[counter + j] = scal;
     }   
 
 
-    // originIndices.resize(projOnTheta.size());
-    // std::iota(originIndices.begin(), originIndices.end(), 0);
+    originIndices.resize(projOnTheta.size());
+    std::iota(originIndices.begin(), originIndices.end(), 0);
 
     if(vertical != true){
 
-        // std::sort(originIndices.begin(), originIndices.end(), 
-        //     [&](int i , int j){
-        //         return (projOnTheta[i][0] < projOnTheta[j][0]);
-        //     });
-
-
-        std::sort(projOnTheta.begin(), projOnTheta.end(), 
-            [](std::array<double, 2> p1, std::array<double, 2> p2) 
-            { 
-                return (p1[0] < p2[0]);
+        std::sort(originIndices.begin(), originIndices.end(), 
+            [&](size_t i , size_t j){
+                return (projOnTheta[i][0] < projOnTheta[j][0]);
             });
+
+
+        // std::sort(projOnTheta.begin(), projOnTheta.end(), 
+        //     [](std::array<double, 2> p1, std::array<double, 2> p2) 
+        //     { 
+        //         return (p1[0] < p2[0]);
+        //     });
     } else {
 
-        // std::sort(originIndices.begin(), originIndices.end(), 
-        //     [&](int i , int j){
-        //         return (projOnTheta[i][1] < projOnTheta[j][1]);
-        //     });
+        std::sort(originIndices.begin(), originIndices.end(), 
+            [&](size_t i , size_t j){
+                return (projOnTheta[i][1] < projOnTheta[j][1]);
+            });
 
-        std::sort(projOnTheta.begin(), projOnTheta.end(), 
-            [](std::array<double, 2> p1, std::array<double, 2> p2) 
-            { 
-                return (p1[1] < p2[1]);
-            });       
+        // std::sort(projOnTheta.begin(), projOnTheta.end(), 
+        //     [](std::array<double, 2> p1, std::array<double, 2> p2) 
+        //     { 
+        //         return (p1[1] < p2[1]);
+        //     });       
     }
 
 
@@ -371,7 +371,7 @@ double PersistenceDiagramSlicedWasserstein::computeNormGradient(
         if(index1 < size1){
             const auto &t = diag1[index1];
             temp1[0] = t.birth.sfValue;
-            temp1[1] = t.birth.sfValue;
+            temp1[1] = t.death.sfValue;
         } else {
             const auto &t = proj1[index1 - size1];
             temp1[0] = t[0];
@@ -381,19 +381,22 @@ double PersistenceDiagramSlicedWasserstein::computeNormGradient(
         if(index2 < size2){
             const auto &t = diag2[index2];
             temp2[0] = t.birth.sfValue;
-            temp2[1] = t.birth.sfValue;
+            temp2[1] = t.death.sfValue;
         } else {
             const auto &t = proj2[index2 - size2];
             temp2[0] = t[0];
             temp2[1] = t[1];
         }
 
-        tempArray[0]+= 2*Geometry::powInt(scal1 - scal2, 2)*vecUnit[0] + 2*(scal1 - scal2)*(temp1[0] - temp2[0]);
-        tempArray[1]+= 2*Geometry::powInt(scal1 - scal2, 2)*vecUnit[1] + 2*(scal1 - scal2)*(temp1[1] - temp2[1]);
-    }
+        result += (temp1[0] - temp2[0])*(temp1[0] - temp2[0]) + (temp1[1] - temp2[1])*(temp1[1] - temp2[1]);
 
+
+        // tempArray[0]+= 2*Geometry::powInt(scal1 - scal2, 2)*vecUnit[0] + 2*(scal1 - scal2)*(temp1[0] - temp2[0]);
+        // tempArray[1]+= 2*Geometry::powInt(scal1 - scal2, 2)*vecUnit[1] + 2*(scal1 - scal2)*(temp1[1] - temp2[1]);
+    }
+    // result = result/static_cast<double>(overallSize);
     // result = Geometry::pow(Geometry::pow(tempArray[0],2) + Geometry::pow(tempArray[1],2), 1./2);
-    result = abs(-sin(theta)*tempArray[0] + cos(theta)*tempArray[1]);
+    // result = abs(-sin(theta)*tempArray[0] + cos(theta)*tempArray[1]);
     return result;
 }
 
@@ -424,6 +427,9 @@ double PersistenceDiagramSlicedWasserstein::classicMonteCarlo(
     double phi = (1.+ pow(5,0.5))/2.;
     double fibseq = 0.;
     double tot_variation_f = 0.;
+    double minSWGG;
+    int it = 0;
+
 
     std::random_device rd;  // Will be used to obtain a seed for the random number engine
     std::mt19937 gen(rd()); // Standard mersenne_twister_engine seeded with rd()
@@ -432,6 +438,7 @@ double PersistenceDiagramSlicedWasserstein::classicMonteCarlo(
     // bool vertical = false;
 
     std::vector<double> buffer_angle(this->threadNumber_);
+    std::vector<double> buffer_min(this->threadNumber_);
 
 
     std::vector<double> temp_mean_array(buffer_angle.size(), 0.);
@@ -533,28 +540,39 @@ double PersistenceDiagramSlicedWasserstein::classicMonteCarlo(
 
             double distOneLine = 0.;
 
-            for(int k = 0; k < sizeDiag1; ++k){
-                // auto &index1 = originIndices1[k];
-                // auto &index2 = originIndices2[k];
-                auto &p1 = projOnTheta1[t][k];
-                auto &p2 = projOnTheta2[t][k];
-                const double diffX = p1[0] - p2[0];
-                const double diffY = p1[1] - p2[1];
-                distOneLine += diffX*diffX + diffY*diffY;
-            }
+            // for(int k = 0; k < sizeDiag1; ++k){
+            //     // auto &index1 = originIndices1[k];
+            //     // auto &index2 = originIndices2[k];
+            //     auto &p1 = projOnTheta1[t][k];
+            //     auto &p2 = projOnTheta2[t][k];
+            //     const double diffX = p1[0] - p2[0];
+            //     const double diffY = p1[1] - p2[1];
+            //     distOneLine += diffX*diffX + diffY*diffY;
+            // }
+            double SWGG = computeNormGradient(diag1, diag2, proj1, proj2, originIndices1[t], originIndices2[t], scalarProd1[t], scalarProd2[t], theta);
 
-            temp_mean_array[t] = distOneLine;
+            // temp_mean_array[t] = distOneLine;
             // temp_sd_array[t] = std::pow(distOneLine, 2.);
+            buffer_min[t] = SWGG;
         }
         
-        mean +=  std::accumulate(temp_mean_array.begin(), temp_mean_array.end(), 0.);
+
+        if(it == 0){
+            minSWGG = *std::min_element(buffer_min.begin(), buffer_min.end());
+        } else {
+            double tempMin = *std::min_element(buffer_min.begin(), buffer_min.end());
+            if(minSWGG > tempMin){
+                minSWGG = tempMin;
+            }
+        }
+        // mean +=  std::accumulate(temp_mean_array.begin(), temp_mean_array.end(), 0.);
         // std::cout << "MEAN: " << mean << std::endl;
         // mean_sq += std::accumulate(temp_sd_array.begin(), temp_sd_array.end(), 0.);
         // tot_variation_f += std::accumulate(temp_vf_array.begin(), temp_vf_array.end(), 0.);
     
         // double number_temp = 2. * static_cast<double>(nb_sample);
         double number_temp = static_cast<double>(total_number);
-        double current_mean = mean/(number_temp);
+        // double current_mean = mean/(number_temp);
  
         // double current_sd = std::pow((number_temp/(number_temp - 1.)) * (mean_sq/number_temp - std::pow(current_mean, 2.)), 0.5);
 
@@ -569,13 +587,14 @@ double PersistenceDiagramSlicedWasserstein::classicMonteCarlo(
         // }
 
         n = n + this->threadNumber_;
-
+        it +=1;
         
     }
     // this->setNbOfProjused(n);
     sampleNumber += n;
     // std::cout << "WHAT " << temp << std::endl;
-    return temp;
+    // return temp;
+    return minSWGG;
 
 }
 
@@ -613,6 +632,8 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
     double fibseq = 0.;
     int total_number = 0;
 
+    double minSWGG;
+    int it = 0;
     // std::random_device rd;  // Will be used to obtain a seed for the random number engine
     // std::mt19937 gen(rd()); // Standard mersenne_twister_engine seeded with rd()
     // std::uniform_real_distribution<> dis(0., 1);
@@ -630,6 +651,9 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
     //     sequence.emplace_back(1.*i/10.);
     // }
     std::vector<double> buffer_angle(this->threadNumber_);
+    std::vector<double> buffer_min(this->threadNumber_);
+
+
 
     std::vector<double> temp_mean_array(buffer_angle.size());
     // std::vector<double> temp_sd_array(buffer_angle.size(), 0.);
@@ -663,11 +687,11 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
         }
 
         // double dummy;
-        // for (int i = 0; i < 2*this->threadNumber_ ; i = i +2){
+        // for (int i = 0; i < this->threadNumber_ ; ++i){
         //     fibseq = modf(fibseq + phi, &dummy);
         //     // fibseq = (fibseq + phi)%1;
         //     buffer_angle[i] = fibseq*ortho_angle;
-        //     buffer_angle[i+1] = fibseq*ortho_angle + ortho_angle*0.5;
+        //     // buffer_angle[i+1] = fibseq*ortho_angle + ortho_angle*0.5;
         // }
 
 // #ifdef TTK_ENABLE_OPENMP
@@ -717,9 +741,9 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
             scalarProd2[t].resize(sizeDiag2);
         }
         // Timer tm_init{};
-#ifdef TTK_ENABLE_OPENMP
-#pragma omp parallel for num_threads(this->threadNumber_)
-#endif // TTK_ENABLE_OPENMP
+// #ifdef TTK_ENABLE_OPENMP
+// #pragma omp parallel for num_threads(this->threadNumber_)
+// #endif // TTK_ENABLE_OPENMP
         // total_number += static_cast<int>(buffer_angle.size());
         for(int t = 0; t < this->threadNumber_; ++t){
             const double theta = buffer_angle[t];
@@ -736,28 +760,46 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
 
             double distOneLine = 0.;
             // std::cout << "COMPARE SIZE: " << sizeDiag1 << " AND " << sizeDiag2 << "\n";
-            for(int k = 0; k < sizeDiag1; ++k){
-                // double diffX = 0.;
-                // double diffY = 0.;
-                // auto &index1 = originIndices1[t][k];
-                // auto &index2 = originIndices2[t][k];
-                // auto &p1 = projOnTheta1[t][index1];
-                // auto &p2 = projOnTheta2[t][index2];
-                auto &p1 = projOnTheta1[t][k];
-                auto &p2 = projOnTheta2[t][k];
-                const double diffX = p1[0] - p2[0];
-                const double diffY = p1[1] - p2[1];
-                distOneLine += diffX*diffX + diffY*diffY;
-            }
+            double SWGG = 0.;
+            // for(int k = 0; k < sizeDiag1; ++k){
+            //     // double diffX = 0.;
+            //     // double diffY = 0.;
+            //     auto &index1 = originIndices1[t][k];
+            //     auto &index2 = originIndices2[t][k];
+            //     auto &p1 = projOnTheta1[t][index1];
+            //     auto &p2 = projOnTheta2[t][index2];
+            //     // auto &p1 = projOnTheta1[t][k];
+            //     // auto &p2 = projOnTheta2[t][k];
+            //     const double diffX = p1[0] - p2[0];
+            //     const double diffY = p1[1] - p2[1];
+            //     distOneLine += diffX*diffX + diffY*diffY;
+            // }
 
             // double vf = computeNormGradient(diag1, diag2, proj1, proj2, originIndices1[t], originIndices2[t], scalarProd1[t], scalarProd2[t], theta);
-            
-            temp_mean_array[t] = distOneLine;
+            SWGG = computeNormGradient(diag1, diag2, proj1, proj2, originIndices1[t], originIndices2[t], scalarProd1[t], scalarProd2[t], theta);
+            // temp_mean_array[t] = distOneLine;
             
             // temp_vf_array[t] = vf;
+
+            buffer_min[t] = SWGG;
         }
 
-        mean +=  std::accumulate(temp_mean_array.begin(), temp_mean_array.end(), 0.);
+        if(it == 0){
+            minSWGG = *std::min_element(buffer_min.begin(), buffer_min.end());
+        } else {
+            double tempMin = *std::min_element(buffer_min.begin(), buffer_min.end());
+            if(minSWGG > tempMin){
+                minSWGG = tempMin;
+            }
+        }
+        // minSWGG = buffer_min[0];
+        // for(size_t i = 1; i < buffer_min.size(); ++i){
+        //     if(minSWGG > buffer_min[i]){
+        //         minSWGG = buffer_min[i];
+        //     }
+        // }
+
+        // mean +=  std::accumulate(temp_mean_array.begin(), temp_mean_array.end(), 0.);
         
         // tot_variation_f += std::accumulate(temp_vf_array.begin(), temp_vf_array.end(), 0.);
     
@@ -775,42 +817,44 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
 
         // std::cout << "TRESH" << tresh << std::endl;
 
-        if(temp == 0){
-            anti_counter +=1;
-        }
+        // if(temp == 0){
+        //     anti_counter +=1;
+        // }
 
-        if(anti_counter > 10){
-            cond = true;
-        }
+        // if(anti_counter > 10){
+        //     cond = true;
+        // }
 
-        if (temp > prev_mean){
-            if( 1 - prev_mean/temp < tresh*0.5){
-                counter+=1;
-            }
-        } else {
-            if (1 - temp/prev_mean < tresh*0.5){
-                counter+=1;
-            }
-        }
+        // if (temp > prev_mean){
+        //     if( 1 - prev_mean/temp < tresh*0.5){
+        //         counter+=1;
+        //     }
+        // } else {
+        //     if (1 - temp/prev_mean < tresh*0.5){
+        //         counter+=1;
+        //     }
+        // }
 
-        // std::cout << "COUNTER: " << counter << std::endl;
+        // // std::cout << "COUNTER: " << counter << std::endl;
 
-        if(counter > 10){
-            cond = true;
-        }
+        // if(counter > 10){
+        //     cond = true;
+        // }
 
         // if (abs(temp - prev_mean) < tresh){
         //     cond = true;
         // }
 
-        prev_mean = temp;
+        // prev_mean = temp;
 
         n = n + this->threadNumber_;
+        it +=1;
     }
 
     // this->setNbOfProjused(n);
     sampleNumber += n;
-    return temp;
+    // return temp;
+    return minSWGG;
 
 }
 
