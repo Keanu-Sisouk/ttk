@@ -615,6 +615,7 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
     double temp = 0.;
     bool cond = false;
     int n = 0;
+    int n2 = 0;
     double ortho_angle = M_PI;
     double mean = 0.;
     double mean_sq = 0.;
@@ -634,14 +635,14 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
 
     double minSWGG;
     int it = 0;
-    // std::random_device rd;  // Will be used to obtain a seed for the random number engine
-    // std::mt19937 gen(rd()); // Standard mersenne_twister_engine seeded with rd()
-    // std::uniform_real_distribution<> dis(0., 1);
+    std::random_device rd;  // Will be used to obtain a seed for the random number engine
+    std::mt19937 gen(rd()); // Standard mersenne_twister_engine seeded with rd()
+    std::uniform_real_distribution<> dis(0., 1);
 
     // bool vertical = false;
-    std::vector<double> sequence{1./ortho_angle, 1./exp(1), 1./sqrt(2.)};
+    // std::vector<double> sequence{1./ortho_angle, 1./exp(1), 1./sqrt(2.)};
     // std::vector<double> sequence{0., 1./ortho_angle, 1./exp(1), 1./sqrt(2.), 1./phi};
-    // std::vector<double> sequence{1./ortho_angle, 1./exp(1), 1./sqrt(2.), 2./(phi*phi), 2./(phi*phi) - 0.5, 1./pow(2.,sqrt(2)) };
+    std::vector<double> sequence{1./ortho_angle, 1./exp(1), 1./sqrt(2.), 2./(phi*phi), 2./(phi*phi) - 0.5, 1./pow(2.,sqrt(2)) };
     // std::vector<double> sequence{0., 0.25, 0.5, 0.75, 1./ortho_angle, 1./exp(1), 1./sqrt(2.),2./(phi*phi), 2./(phi*phi) - 0.5};
     // std::vector<double> sequence{2./(phi*phi),2./(phi*phi) - 0.5 };
     // std::vector<double> sequence{1./phi};
@@ -652,7 +653,8 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
     // }
     std::vector<double> buffer_angle(this->threadNumber_);
     std::vector<double> buffer_min(this->threadNumber_);
-
+    // std::vector<double> buffer_angle(2*this->threadNumber_);
+    // std::vector<double> buffer_min(2*this->threadNumber_);
 
 
     std::vector<double> temp_mean_array(buffer_angle.size());
@@ -661,6 +663,7 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
 
     // std::cout << "THREAD NUMBER " << this->threadNumber_ << std::endl;
     while (cond == false && n < maxSampleNb) {
+    // while (cond == false && (n + n2 < maxSampleNb)){
         
 
         // int nb_sample = static_cast<int>(std::pow(2., static_cast<double>(n)));
@@ -670,12 +673,13 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
 #endif // TTK_ENABLE_OPENMP        
         // for(int i = 0; i < 2*this->threadNumber_; i = i + 2){
         for(int i = 0; i < this->threadNumber_; ++i){
+        // for(int i = 0; i < this->threadNumber_/2; ++i){
             double angle=0., bk=1.0/2.;
             int m = n + i;
             while (m > 0) {
                 angle += (m % 2)*bk;
                 m /= 2;
-                bk /= 2;
+                bk /= 2.;
             }
             // angle = ortho_angle*angle;
             // std::cout << "ANGLE: " << angle << "\n";
@@ -686,12 +690,36 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
             // buffer_angle[i+1] = angle*ortho_angle + ortho_angle*0.5;
         }
 
+
+// #ifdef TTK_ENABLE_OPENMP
+// #pragma omp parallel for num_threads(this->threadNumber_)
+// #endif // TTK_ENABLE_OPENMP        
+//         // for(int i = 0; i < 2*this->threadNumber_; i = i + 2){
+//         for(int i = 0; i < this->threadNumber_/2; ++i){
+//             double angle=0., bk=1.0/3.;
+//             int m = n2 + i;
+//             while (m > 0) {
+//                 angle += (m % 3)*bk;
+//                 m /= 3;
+//                 bk /= 3.;
+//             }
+//             // angle = ortho_angle*angle;
+//             // std::cout << "ANGLE: " << angle << "\n";
+//             // angle = M_PI * 0.25 + angle * ortho_angle;
+//             // buffer_angle.emplace_back(angle);
+//             // buffer_angle.emplace_back(angle + ortho_angle);
+//             buffer_angle[this->threadNumber_/2+i] = angle*ortho_angle;
+//             // buffer_angle[i+1] = angle*ortho_angle + ortho_angle*0.5;
+//         }
+        // std::cout << "HERE?????" << std::endl;
         // double dummy;
+        // double c = modf(phi - 1., &dummy);
         // for (int i = 0; i < this->threadNumber_ ; ++i){
-        //     fibseq = modf(fibseq + phi, &dummy);
+        //     fibseq = modf(fibseq + c, &dummy);
         //     // fibseq = (fibseq + phi)%1;
         //     buffer_angle[i] = fibseq*ortho_angle;
         //     // buffer_angle[i+1] = fibseq*ortho_angle + ortho_angle*0.5;
+        //     // buffer_angle[i] = fibseq*ortho_angle/2.;
         // }
 
 // #ifdef TTK_ENABLE_OPENMP
@@ -704,10 +732,19 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
 //             buffer_angle[i] = angle*ortho_angle;
 //         }
 
-        // for(int i = 0; i < this->threadNumber_ ; ++i){
-        //     double angle = wassGreedy(sequence);
-        //     buffer_angle[i] = angle*ortho_angle;
-        //     sequence.emplace_back(angle);
+        // if(it == 0){
+        //     int temp_int = static_cast<int>(sequence.size());
+        //     for(int i = 0; i < this->threadNumber_ - temp_int; ++i){
+        //         double angle = wassGreedy(sequence);
+        //         buffer_angle[i+temp_int] = angle*ortho_angle;
+        //         sequence.emplace_back(angle);
+        //     }
+        // } else {
+        //     for(int i = 0; i < this->threadNumber_ ; ++i){
+        //         double angle = wassGreedy(sequence);
+        //         buffer_angle[i] = angle*ortho_angle;
+        //         sequence.emplace_back(angle);
+        //     }
         // }
 
         // for(int i = 0; i < this->threadNumber_; ++i){
@@ -717,6 +754,7 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
         // }
 
         total_number += this->threadNumber_;
+        // total_number += 2*this->threadNumber_;
         // total_number += static_cast<int>(buffer_angle.size());
 
         std::vector<std::vector<std::array<double, 2>>> projOnTheta1(this->threadNumber_);
@@ -727,12 +765,21 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
 
         std::vector<std::vector<double>> scalarProd1(this->threadNumber_);
         std::vector<std::vector<double>> scalarProd2(this->threadNumber_);
+        // std::vector<std::vector<std::array<double, 2>>> projOnTheta1(2*this->threadNumber_);
+        // std::vector<std::vector<std::array<double, 2>>> projOnTheta2(2*this->threadNumber_);
+
+        // std::vector<std::vector<int>> originIndices1(2*this->threadNumber_);
+        // std::vector<std::vector<int>> originIndices2(2*this->threadNumber_);
+
+        // std::vector<std::vector<double>> scalarProd1(2*this->threadNumber_);
+        // std::vector<std::vector<double>> scalarProd2(2*this->threadNumber_);
         // plus rapide en sequentielle ou OPENMP ici
 
 // #ifdef TTK_ENABLE_OPENMP
 // #pragma omp parallel for num_threads(nbPoints)
 // #endif // TTK_ENABLE_OPENMP
         for(int t = 0; t < this->threadNumber_; t++){
+        // for(int t = 0; t < 2*this->threadNumber_; t++){
             projOnTheta1[t].resize(sizeDiag1);
             projOnTheta2[t].resize(sizeDiag2);
             originIndices1[t].resize(sizeDiag1);
@@ -741,11 +788,13 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
             scalarProd2[t].resize(sizeDiag2);
         }
         // Timer tm_init{};
-// #ifdef TTK_ENABLE_OPENMP
-// #pragma omp parallel for num_threads(this->threadNumber_)
-// #endif // TTK_ENABLE_OPENMP
+#ifdef TTK_ENABLE_OPENMP
+#pragma omp parallel for num_threads(this->threadNumber_)
+#endif // TTK_ENABLE_OPENMP
         // total_number += static_cast<int>(buffer_angle.size());
         for(int t = 0; t < this->threadNumber_; ++t){
+        // for(int t = 0; t < 2*this->threadNumber_; ++t){
+
             const double theta = buffer_angle[t];
 
 
@@ -848,11 +897,14 @@ double PersistenceDiagramSlicedWasserstein::quasiMonteCarlo(
         // prev_mean = temp;
 
         n = n + this->threadNumber_;
+        // n = n + this->threadNumber_/2;
+        // n2 = n2 + this->threadNumber_/2;
         it +=1;
     }
 
     // this->setNbOfProjused(n);
     sampleNumber += n;
+    // sampleNumber += n + n2;
     // return temp;
     return minSWGG;
 
