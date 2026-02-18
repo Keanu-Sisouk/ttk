@@ -723,8 +723,8 @@ void PersistenceDiagramDictionary::method(
                 continue;
               }
 
-              PersistencePair newPair{CriticalVertex{0, c1, pair[0], {}},
-                                      CriticalVertex{0, c2, pair[1], {}},
+              PersistencePair newPair{CriticalVertex{0, pair[0], 0, {}, c1},
+                                      CriticalVertex{0, pair[1], 0, {}, c2},
                                       idTemp, true};
               allTrueProj[atomIndex].push_back(proj);
               allTrueFeaturesToAdd[atomIndex].push_back(newPair);
@@ -763,8 +763,8 @@ void PersistenceDiagramDictionary::method(
                   continue;
                 }
 
-                PersistencePair newPair{CriticalVertex{0, c1, pair[0], {}},
-                                        CriticalVertex{0, c2, pair[1], {}},
+                PersistencePair newPair{CriticalVertex{0, pair[0], 0, {}, c1},
+                                        CriticalVertex{0, pair[0], 0, {}, c2},
                                         idTemp, true};
                 allTrueProj[atomIndex].push_back(proj);
                 allTrueFeaturesToAdd[atomIndex].push_back(newPair);
@@ -1040,7 +1040,6 @@ void PersistenceDiagramDictionary::computeGradientWeights(
       const SimplexId Id1 = std::get<0>(t);
       // Id in barycenter
       const SimplexId Id2 = std::get<1>(t);
-      // if(Id2 < 0) {
       if(Id2 < 0 || static_cast<int>(gradBuffersList.size()) <= Id2
          || static_cast<int>(dictDiagrams[i].size()) <= Id1) {
         continue;
