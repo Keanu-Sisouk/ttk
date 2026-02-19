@@ -106,9 +106,6 @@ int ttkPersistenceDiagramDictionaryDecoding::RequestData(
   temp->DeepCopy(weightsVTK);
   std::vector<vtkDataArray *> inputWeights;
   int numWeights = temp->GetNumberOfRows();
-  for(int i = 0; i < temp->GetNumberOfColumns(); ++i) {
-    std::cout << temp->GetColumnName(i) << "\n";
-  }
 
   if(weightsVTK != nullptr) {
     inputWeights.resize(nDiags);
@@ -139,7 +136,7 @@ int ttkPersistenceDiagramDictionaryDecoding::RequestData(
   outputDgm->SetNumberOfBlocks(numWeights);
   outputCoordinates->SetNumberOfRows(numWeights);
 
-  outputDiagrams(outputDgm, outputCoordinates, Barycenters, dictDiagrams,
+  GetOutputDiagrams(outputDgm, outputCoordinates, Barycenters, dictDiagrams,
                  weightsVTK, vectorWeights, Spacing, 1);
 
   // Get input object from input vector
@@ -155,7 +152,7 @@ int ttkPersistenceDiagramDictionaryDecoding::RequestData(
   return 1;
 }
 
-void ttkPersistenceDiagramDictionaryDecoding::outputDiagrams(
+void ttkPersistenceDiagramDictionaryDecoding::GetOutputDiagrams(
   vtkMultiBlockDataSet *output,
   vtkTable *outputCoordinates,
   const std::vector<ttk::DiagramType> &diags,
