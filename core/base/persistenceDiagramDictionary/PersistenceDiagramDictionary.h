@@ -17,8 +17,8 @@
 #include <array>
 #include <limits>
 
-#include <ConstrainedGradientDescent.h>
-#include <InitDictPersistenceDiagram.h>
+#include <PersistenceDiagramConstrainedOptimization.h>
+#include <PersistenceDiagramDictionaryBorderInitializer.h>
 #include <InitDictRandomly.h>
 #include <PersistenceDiagramAuction.h>
 #include <PersistenceDiagramClustering.h>

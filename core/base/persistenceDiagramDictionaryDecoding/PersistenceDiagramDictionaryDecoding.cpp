@@ -209,14 +209,14 @@ void ttk::PersistenceDiagramDictionaryDecoding::computeAtomsCoordinates(
         tempTrueCoords[2][1] = distAdja * std::sin(alpha);
         for(int i = 0; i < 2; ++i) {
           for(size_t j = 0; j < nAtoms; ++j) {
-            double temp = 0.;
+            double lamb = 0.;
             for(int iAtom = 0; iAtom < 3; ++iAtom) {
               if(i == 0) {
-                temp += tempWeights[j][iAtom] * tempTrueCoords[iAtom][0];
-                trueCoords[j][0] = temp;
+                lamb += tempWeights[j][iAtom] * tempTrueCoords[iAtom][0];
+                trueCoords[j][0] = lamb;
               } else {
-                temp += tempWeights[j][iAtom] * tempTrueCoords[iAtom][1];
-                trueCoords[j][1] = temp;
+                lamb += tempWeights[j][iAtom] * tempTrueCoords[iAtom][1];
+                trueCoords[j][1] = lamb;
               }
             }
           }

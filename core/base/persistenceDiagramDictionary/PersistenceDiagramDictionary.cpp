@@ -222,7 +222,7 @@ void PersistenceDiagramDictionary::method(
   std::vector<std::vector<ttk::MatchingType>> matchingsDatasMin(nDiags);
   std::vector<std::vector<ttk::MatchingType>> matchingsDatasSad(nDiags);
   std::vector<std::vector<ttk::MatchingType>> matchingsDatasMax(nDiags);
-  ConstrainedGradientDescent gradActor;
+  PersistenceDiagramConstrainedOptimization gradActor;
   double loss;
   int lag = 0;
   int lag2 = 0;
@@ -1258,7 +1258,7 @@ int PersistenceDiagramDictionary::initDictionary(
     }
 
     case BACKEND::BORDER_INIT: {
-      ttk::InitDictPersistenceDiagram initializer;
+      ttk::PersistenceDiagramDictionaryBorderInitializer initializer;
       initializer.setThreadNumber(this->threadNumber_);
       initializer.execute(dictDiagrams, datas, nbAtom, do_min, do_sad, do_max);
       break;
