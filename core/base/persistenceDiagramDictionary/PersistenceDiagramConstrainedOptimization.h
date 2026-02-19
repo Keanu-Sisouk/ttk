@@ -3,9 +3,6 @@
 #include <PersistenceDiagramUtils.h>
 #include <Wrapper.h>
 
-#include <algorithm>
-#include <array>
-#include <tuple>
 
 namespace ttk {
   using Matrix = std::vector<std::vector<double>>;
@@ -37,11 +34,7 @@ namespace ttk {
 
     void setStep(double &factEquiv);
     void reduceStep();
-    // void executeAtoms(std::vector<Diagram> &DictDiagrams);
 
-    // inline void setNbAtoms(const int nbAtoms) {
-    // NbAtoms = nbAtoms;
-    //}
 
   protected:
     void projectionOnSimplex(std::vector<double> &weights);
@@ -67,4 +60,4 @@ namespace ttk {
     double stepAtom_;
   };
 
-} // namespace ttk
+}

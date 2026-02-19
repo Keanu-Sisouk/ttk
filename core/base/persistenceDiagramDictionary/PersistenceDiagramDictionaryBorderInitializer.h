@@ -1,14 +1,9 @@
 #pragma once
 
-// #include <PDClustering.h>
-// #include <PersistenceDiagramBarycenter.h>
-//  #include <PersistenceDiagramAuction.h>
 #include <PersistenceDiagramDistanceMatrix.h>
 #include <PersistenceDiagramUtils.h>
 #include <Wrapper.h>
 
-#include <algorithm>
-#include <array>
 
 namespace ttk {
   using Matrix = std::vector<std::vector<double>>;
@@ -38,4 +33,4 @@ namespace ttk {
     size_t MaxNumberOfPairs{20};
     double MinPersistence{0.1};
   };
-} // namespace ttk
+}
