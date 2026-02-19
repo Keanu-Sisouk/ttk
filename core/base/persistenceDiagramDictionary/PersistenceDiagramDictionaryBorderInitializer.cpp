@@ -5,7 +5,7 @@ using namespace ttk;
 void PersistenceDiagramDictionaryBorderInitializer::execute(
   std::vector<ttk::DiagramType> &DictDiagrams,
   const std::vector<ttk::DiagramType> &datas,
-  const int nbAtoms,
+  const int &nbAtoms,
   bool do_min_,
   bool do_sad_,
   bool do_max_) {

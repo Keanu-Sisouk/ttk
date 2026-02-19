@@ -17,7 +17,7 @@ namespace ttk {
 
     void execute(std::vector<ttk::DiagramType> &DictDiagrams,
                  const std::vector<ttk::DiagramType> &datas,
-                 const int nbAtoms,
+                 const int &nbAtoms,
                  bool do_min_,
                  bool do_sad_,
                  bool do_max_);
@@ -26,11 +26,5 @@ namespace ttk {
     int getNextIndex(const Matrix &distMatrix,
                      const std::vector<int> &indices) const;
 
-    int Wasserstein{2};
-    double Alpha{1.0};
-    double DeltaLim{0.01};
-    double Lambda{0};
-    size_t MaxNumberOfPairs{20};
-    double MinPersistence{0.1};
   };
 }

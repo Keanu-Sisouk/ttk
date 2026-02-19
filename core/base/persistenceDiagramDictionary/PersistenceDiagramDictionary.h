@@ -1,8 +1,7 @@
 /// \ingroup base
 /// \class ttk::PersistenceDiagramDictionary
 /// \author Keanu Sisouk <keanu.sisouk@lip6.fr>
-/// \author Pierre Guillou <pierre.guillou@lip6.fr>
-/// \date Mai 2023
+/// \date Februrary 2026
 ///
 /// \b Related \b publication \n
 /// "Wasserstein Dictionaries of Persistence Diagrams" \n
