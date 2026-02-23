@@ -157,12 +157,6 @@ public:
     return -1;
   }
 
-  vtkSetMacro(MaxNumberOfPairs, unsigned int);
-  vtkGetMacro(MaxNumberOfPairs, unsigned int);
-
-  vtkSetMacro(MinPersistence_, double);
-  vtkGetMacro(MinPersistence_, double);
-
 protected:
   ttkPersistenceDiagramDictionary();
   ~ttkPersistenceDiagramDictionary() override = default;

@@ -75,10 +75,6 @@ namespace ttk {
       do_max_ = max;
     }
 
-    inline void setMinPersistence_(const double data) {
-      MinPersistence_ = data;
-    }
-
   protected:
     BACKEND BackEnd{BACKEND::BORDER_INIT};
     double distVect(const std::vector<double> &vec1,
@@ -217,8 +213,6 @@ namespace ttk {
     // pair sad-max) lambda = 0 : saddle (bad stability) lambda = 1/2 : middle
     // of the 2 critical points of the pair
     double Lambda{1.0};
-    size_t MaxNumberOfPairs{20};
-    double MinPersistence_{0.1};
 
     double CompressionFactor{1.5};
     bool do_min_{true}, do_sad_{true}, do_max_{true};

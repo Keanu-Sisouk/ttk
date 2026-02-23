@@ -934,11 +934,11 @@ void PersistenceDiagramDictionary::method(
              - lossTab.begin()));
 
   for(size_t p = 0; p < dictDiagrams.size(); ++p) {
-    auto atom = histoDictDiagrams[p];
+    auto &atom = histoDictDiagrams[p];
     dictDiagrams[p] = atom;
   }
   for(size_t p = 0; p < nDiags; ++p) {
-    auto weights = histoVectorWeights[p];
+    auto &weights = histoVectorWeights[p];
     vectorWeights[p] = weights;
   }
 
