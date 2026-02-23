@@ -70,7 +70,7 @@ protected:
                       const double spacing,
                       const double maxPersistence) const;
 
-  double getMaxPersistence(const ttk::DiagramType &diagram) const;
+  // double GetPersistenceOfGlobalPair(const ttk::DiagramType &diagram) const;
 
   int RequestData(vtkInformation *request,
                   vtkInformationVector **inputVector,

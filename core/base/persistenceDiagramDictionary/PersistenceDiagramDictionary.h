@@ -225,10 +225,8 @@ namespace ttk {
     bool OptimizeAtoms_{true};
 
     bool CreationFeatures_{true};
-    bool Fusion_{false};
     bool ProgBarycenter_{false};
 
-    bool sortedForTest_{false};
     bool ProgApproach_{false};
     bool StopCondition_{true};
 

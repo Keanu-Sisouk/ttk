@@ -23,16 +23,6 @@ void PersistenceDiagramDictionary::execute(
 
   if(!ProgApproach_) {
     // Regular approach
-    for(size_t i = 0; i < intermediateDiagrams.size(); ++i) {
-      if(sortedForTest_) {
-        auto &diag = intermediateDiagrams[i];
-        std::sort(diag.begin(), diag.end(),
-                  [](const PersistencePair &t1, const PersistencePair &t2) {
-                    return (t1.death.sfValue - t1.birth.sfValue)
-                           > (t2.death.sfValue - t2.birth.sfValue);
-                  });
-      }
-    }
 
     bool doCompression = false;
     if(CompressionMode_) {
@@ -339,7 +329,7 @@ void PersistenceDiagramDictionary::method(
       = *std::min_element(lossTab.begin() + nbEpochPrevious, lossTab.end() - 1);
     if(loss <= mini) {
       for(size_t p = 0; p < dictDiagrams.size(); ++p) {
-        const auto atom = dictDiagrams[p];
+        const auto &atom = dictDiagrams[p];
         histoDictDiagrams[p] = atom;
 
         const auto &histoEpochAtom = histoAllEpochLife[p];
@@ -355,7 +345,7 @@ void PersistenceDiagramDictionary::method(
         bufferCheckAboveGlobal[p] = boolAboveGlobal;
       }
       for(size_t p = 0; p < nDiags; ++p) {
-        const auto weights = vectorWeights[p];
+        const auto &weights = vectorWeights[p];
         histoVectorWeights[p] = weights;
       }
       lag = 0;
@@ -378,11 +368,11 @@ void PersistenceDiagramDictionary::method(
           this->printMsg("Loss not decreasing enough");
           if(StopCondition_) {
             for(size_t p = 0; p < dictDiagrams.size(); ++p) {
-              const auto atom = histoDictDiagrams[p];
+              const auto &atom = histoDictDiagrams[p];
               dictDiagrams[p] = atom;
             }
             for(size_t p = 0; p < nDiags; ++p) {
-              const auto weights = histoVectorWeights[p];
+              const auto &weights = histoVectorWeights[p];
               vectorWeights[p] = weights;
             }
             doOptimizeWeights = false;
@@ -401,11 +391,11 @@ void PersistenceDiagramDictionary::method(
 
       if(StopCondition_) {
         for(size_t p = 0; p < dictDiagrams.size(); ++p) {
-          const auto atom = histoDictDiagrams[p];
+          const auto &atom = histoDictDiagrams[p];
           dictDiagrams[p] = atom;
         }
         for(size_t p = 0; p < nDiags; ++p) {
-          const auto weights = histoVectorWeights[p];
+          const auto &weights = histoVectorWeights[p];
           vectorWeights[p] = weights;
         }
         this->printMsg("Minimum not passed");
@@ -424,7 +414,7 @@ void PersistenceDiagramDictionary::method(
         this->printMsg("Loss increasing too much, reducing step and recompute "
                        "Barycenters and matchings");
         for(size_t p = 0; p < dictDiagrams.size(); ++p) {
-          const auto atom = histoDictDiagrams[p];
+          const auto &atom = histoDictDiagrams[p];
           dictDiagrams[p] = atom;
 
           const auto &bufferHistoEpochAtom = bufferHistoAllEpochLife[p];
@@ -441,7 +431,7 @@ void PersistenceDiagramDictionary::method(
         }
 
         for(size_t p = 0; p < nDiags; ++p) {
-          const auto weights = histoVectorWeights[p];
+          const auto &weights = histoVectorWeights[p];
           vectorWeights[p] = weights;
         }
         gradActor.reduceStep();
@@ -730,22 +720,10 @@ void PersistenceDiagramDictionary::method(
               allTrueFeaturesToAdd[atomIndex].push_back(newPair);
               allTrueProjLoc[atomIndex].push_back(pair);
             } else {
+
               bool ralph = true;
               size_t index = 0;
-              if(Fusion_) {
-                for(size_t n = 0; n < allTrueProj[atomIndex].size(); ++n) {
-                  auto &projStocked = allTrueProj[atomIndex][n];
-                  auto &projLocStocked = allTrueProj[atomIndex][n];
-                  double distance
-                    = sqrt(pow((pair[0] - projLocStocked[0]), 2)
-                           + pow((pair[1] - projLocStocked[1]), 2));
-                  if(proj == projStocked && distance < 1e-3) {
-                    ralph = false;
-                    index = n;
-                    break;
-                  }
-                }
-              }
+
               if(ralph) {
 
                 const CriticalType c1 = t.birth.type;
@@ -934,11 +912,11 @@ void PersistenceDiagramDictionary::method(
              - lossTab.begin()));
 
   for(size_t p = 0; p < dictDiagrams.size(); ++p) {
-    auto &atom = histoDictDiagrams[p];
+    const auto &atom = histoDictDiagrams[p];
     dictDiagrams[p] = atom;
   }
   for(size_t p = 0; p < nDiags; ++p) {
-    auto &weights = histoVectorWeights[p];
+    const auto &weights = histoVectorWeights[p];
     vectorWeights[p] = weights;
   }
 

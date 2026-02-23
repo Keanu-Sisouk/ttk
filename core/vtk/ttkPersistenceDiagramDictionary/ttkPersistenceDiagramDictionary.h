@@ -82,9 +82,6 @@ public:
   vtkSetMacro(MaxEigenValue_, int);
   vtkGetMacro(MaxEigenValue_, int);
 
-  vtkSetMacro(Fusion_, int);
-  vtkGetMacro(Fusion_, int);
-
   vtkSetMacro(ProgBarycenter_, int);
   vtkGetMacro(ProgBarycenter_, int);
 
@@ -102,9 +99,6 @@ public:
 
   vtkSetMacro(DimReductMode_, int);
   vtkGetMacro(DimReductMode_, int);
-
-  vtkSetMacro(sortedForTest_, int);
-  vtkGetMacro(sortedForTest_, int);
 
   vtkSetMacro(CreationFeatures_, int);
   vtkGetMacro(CreationFeatures_, int);

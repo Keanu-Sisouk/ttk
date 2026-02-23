@@ -9,9 +9,7 @@
 #include <vtkDataArray.h>
 #include <vtkDataSet.h>
 #include <vtkDoubleArray.h>
-#include <vtkFiltersCoreModule.h>
 #include <vtkFloatArray.h>
-#include <vtkIntArray.h>
 #include <vtkMultiBlockDataSet.h>
 #include <vtkNew.h>
 #include <vtkObjectFactory.h>
