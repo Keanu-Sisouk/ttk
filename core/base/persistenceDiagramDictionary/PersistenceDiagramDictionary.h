@@ -205,16 +205,8 @@ namespace ttk {
     double getMaxPers(const ttk::DiagramType &data);
 
     int Wasserstein{2};
-    double Alpha{1.0};
-    double DeltaLim{0.01};
-    // lambda : 0<=lambda<=1
-    // parametrizes the point used for the physical (critical) coordinates of
-    // the persistence paired lambda = 1 : extremum (min if pair min-sad, max if
-    // pair sad-max) lambda = 0 : saddle (bad stability) lambda = 1/2 : middle
-    // of the 2 critical points of the pair
-    double Lambda{1.0};
 
-    double CompressionFactor{1.5};
+    double CompressionFactor_{1.5};
     bool do_min_{true}, do_sad_{true}, do_max_{true};
 
     int maxLag2_;

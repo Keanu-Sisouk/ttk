@@ -56,20 +56,6 @@ public:
     return Wasserstein == -1 ? "inf" : std::to_string(Wasserstein);
   }
 
-  void SetAntiAlpha(double data) {
-    data = 1 - data;
-    if(data > 0 && data <= 1) {
-      Alpha = data;
-    } else if(data > 1) {
-      Alpha = 1;
-    } else {
-      Alpha = 0.001;
-    }
-    Modified();
-  }
-
-  vtkGetMacro(Alpha, double);
-
   vtkSetMacro(Percent_, double);
   vtkGetMacro(Percent_, double);
 
@@ -109,47 +95,11 @@ public:
   vtkSetMacro(Seed_, int);
   vtkGetMacro(Seed_, int);
 
-  vtkSetMacro(DeltaLim, double);
-  vtkGetMacro(DeltaLim, double);
-
-  vtkSetMacro(Lambda, double);
-  vtkGetMacro(Lambda, double);
-
   ttkSetEnumMacro(BackEnd, BACKEND);
   vtkGetEnumMacro(BackEnd, BACKEND);
 
-  vtkSetMacro(CompressionFactor, double);
-  vtkGetMacro(CompressionFactor, double);
-
-  void SetPairType(const int data) {
-    switch(data) {
-      case(0):
-        this->setDos(true, false, false);
-        break;
-      case(1):
-        this->setDos(false, true, false);
-        break;
-      case(2):
-        this->setDos(false, false, true);
-        break;
-      default:
-        this->setDos(true, true, true);
-        break;
-    }
-    Modified();
-  }
-  int GetPairType() {
-    if(do_min_ && do_sad_ && do_max_) {
-      return -1;
-    } else if(do_min_) {
-      return 0;
-    } else if(do_sad_) {
-      return 1;
-    } else if(do_max_) {
-      return 2;
-    }
-    return -1;
-  }
+  vtkSetMacro(CompressionFactor_, double);
+  vtkGetMacro(CompressionFactor_, double);
 
 protected:
   ttkPersistenceDiagramDictionary();

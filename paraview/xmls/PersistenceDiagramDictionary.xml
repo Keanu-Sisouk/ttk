@@ -70,7 +70,7 @@
     <EnumerationDomain name="enum">
          <Entry value="0" text="Border initialization"/>
          <Entry value="1" text="Random initialization"/>
-         <Entry value="2" text="First Elem initialization"/>
+         <Entry value="2" text="First element initialization"/>
          <Entry value="3" text="Input atom (optional input)"/>
          <Entry value="4" text="Greddy initialization"/>
        </EnumerationDomain>
@@ -117,7 +117,7 @@
         </Documentation>
       </DoubleVectorProperty>
 
-      <DoubleVectorProperty name = "CompressionFactor" label = "Compression factor" command="SetCompressionFactor" number_of_elements = "1" default_values="1.5" >
+      <DoubleVectorProperty name = "CompressionFactor_" label = "Compression factor" command="SetCompressionFactor_" number_of_elements = "1" default_values="1.5" >
       <DoubleRangeDomain name = "Range" min = "1.0" max = "50.0" />
         <Hints>
           <PropertyWidgetDecorator type="GenericDecorator"
@@ -270,7 +270,7 @@
       <PropertyGroup panel_widget="Line" label="Input Options">
         <Property name="AtomNumber_" />
         <Property name="Percent_" />
-        <Property name="CompressionFactor" />
+        <Property name="CompressionFactor_" />
         <Property name="MaxEpoch_" />
         <Property name="Seed_" />
       </PropertyGroup>

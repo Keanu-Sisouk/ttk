@@ -307,7 +307,7 @@ void PersistenceDiagramDictionary::method(
     lossTab.push_back(loss);
 
     printMsg(
-      " Epoch " + std::to_string(epoch) + ", loss = " + std::to_string(loss), 1,
+      " Epoch " + std::to_string(epoch) + ", loss = " + std::to_string(loss), 1, tm_it.getElapsedTime(),
       threadNumber_, ttk::debug::LineMode::REPLACE);
 
     if(preWeightOpt && OptimizeAtoms_) {
@@ -900,7 +900,7 @@ void PersistenceDiagramDictionary::method(
     allMatchingsAtoms.resize(nDiags);
   }
   printMsg(
-    " Epoch " + std::to_string(epoch) + ", loss = " + std::to_string(loss), 1,
+    " Epoch " + std::to_string(epoch) + ", loss = " + std::to_string(loss), 1.0,tm.getElapsedTime(),
     threadNumber_);
 
   printMsg("Loss returned "
@@ -909,7 +909,8 @@ void PersistenceDiagramDictionary::method(
            + " at Epoch "
            + std::to_string(
              std::min_element(lossTab.begin() + nbEpochPrevious, lossTab.end())
-             - lossTab.begin()));
+             - lossTab.begin()),1.0,tm.getElapsedTime(),
+             threadNumber_);
 
   for(size_t p = 0; p < dictDiagrams.size(); ++p) {
     const auto &atom = histoDictDiagrams[p];
@@ -965,7 +966,7 @@ double PersistenceDiagramDictionary::computeDistance(
   }
 
   PersistenceDiagramAuction auction(
-    this->Wasserstein, this->Alpha, this->Lambda, this->DeltaLim, true);
+    this->Wasserstein, 1.0, 1.0, 0.01, true);
   auction.BuildAuctionDiagrams(D1, D2_bis);
   double loss = auction.run(matching);
   return loss;
@@ -1192,7 +1193,7 @@ void PersistenceDiagramDictionary::setBidderDiagrams(
 
     for(size_t j = 0; j < diag.size(); j++) {
       // Add bidder to bidders
-      Bidder b(diag[j], j, this->Lambda);
+      Bidder b(diag[j], j, 1.0);
       b.setPositionInAuction(bidders.size());
       bidders.emplace_back(b);
       if(b.isDiagonal() || b.x_ == b.y_) {
@@ -1410,9 +1411,9 @@ void PersistenceDiagramDictionary::controlAtomsSize(
   }
 
   if(static_cast<double>(dictSize)
-     > (1. / this->CompressionFactor) * static_cast<double>(globalSize)) {
+     > (1. / this->CompressionFactor_) * static_cast<double>(globalSize)) {
     double factor
-      = (1. / this->CompressionFactor)
+      = (1. / this->CompressionFactor_)
         * (static_cast<double>(globalSize) / static_cast<double>(dictSize));
     std::vector<std::vector<double>> tempDictPersistencePairs(m);
 
