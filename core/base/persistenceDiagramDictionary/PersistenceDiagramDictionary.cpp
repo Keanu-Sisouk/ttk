@@ -39,7 +39,7 @@ void PersistenceDiagramDictionary::execute(
     std::vector<std::vector<double>> histoVectorWeights(
       intermediateDiagrams.size());
     std::vector<ttk::DiagramType> histoDictDiagrams(numAtom);
-    this->maxLag2_ = 5;
+    this->MaxLag2_ = 5;
 
     Timer tm_init{};
     bool preWeightOpt = false;
@@ -82,7 +82,7 @@ void PersistenceDiagramDictionary::execute(
     Timer tm_method{};
     for(size_t j = 0; j < 1; ++j) {
       double percentage = percentages[j];
-      this->maxLag2_ = 0;
+      this->MaxLag2_ = 0;
       this->printMsg("First step multi-scale approach:");
       for(size_t i = 0; i < intermediateDiagrams.size(); ++i) {
         auto &diag = intermediateDiagrams[i];
@@ -119,9 +119,9 @@ void PersistenceDiagramDictionary::execute(
       double percentage = percentages[j];
       double previousPerc = percentages[j - 1];
       if(j < percentages.size() - 1) {
-        this->maxLag2_ = 0;
+        this->MaxLag2_ = 0;
       } else {
-        this->maxLag2_ = 5;
+        this->MaxLag2_ = 5;
       }
       if(j < percentages.size() - 1) {
         this->printMsg("New step multi-scale approach:");
@@ -364,7 +364,7 @@ void PersistenceDiagramDictionary::method(
            > 0.99)) {
       if(lossTab[epoch + nbEpochPrevious]
          < lossTab[epoch + nbEpochPrevious - 1]) {
-        if(lag2 == this->maxLag2_) {
+        if(lag2 == this->MaxLag2_) {
           this->printMsg("Loss not decreasing enough");
           if(StopCondition_) {
             for(size_t p = 0; p < dictDiagrams.size(); ++p) {

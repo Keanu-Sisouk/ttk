@@ -209,7 +209,7 @@ namespace ttk {
     double CompressionFactor_{1.5};
     bool do_min_{true}, do_sad_{true}, do_max_{true};
 
-    int maxLag2_;
+    int MaxLag2_;
 
     int MaxEpoch_;
     bool MaxEigenValue_{true};
