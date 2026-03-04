@@ -1208,12 +1208,12 @@ int PersistenceDiagramDictionary::initDictionary(
   std::vector<ttk::DiagramType> &dictDiagrams,
   const std::vector<ttk::DiagramType> &datas,
   const std::vector<ttk::DiagramType> &inputAtoms,
-  const int nbAtom,
-  bool do_min,
-  bool do_sad,
-  bool do_max,
+  const int &nbAtom,
+  bool &do_min,
+  bool &do_sad,
+  bool &do_max,
   int seed,
-  double percent) {
+  double &percent) {
   switch(this->BackEnd) {
     case BACKEND::INPUT_ATOMS: {
       if(static_cast<int>(inputAtoms.size()) != nbAtom) {

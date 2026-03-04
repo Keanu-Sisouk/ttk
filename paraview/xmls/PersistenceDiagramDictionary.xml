@@ -5,17 +5,17 @@
         class="ttkPersistenceDiagramDictionary"
         label="TTK PersistenceDiagramDictionary">
       <Documentation
-          long_help="Encodes new persistence diagrams by a dictionary and a vector of number."
+          long_help="Encodes an ensemble of persistence diagrams by a dictionary and a vector of barycentric coefficients."
           shorthelp="Persistence Diagrams Dictionary Encoding."
           >
-        This filter encodes new persistence diagrams by a dictionary and a vector of number.
+        This filter encodes an ensemble of persistence diagrams by a dictionary (much small ensemble of PDs) and a vector of barycentric coefficients.
 
-        Related publication: "Progressive Wasserstein Barycenters of Persistence Diagrams"
-        Jules Vidal, Joseph Budin, Julien Tierny
+        Related publication: "Wasserstein Dictionaries of Persistence Diagram"
+        Keanu Sisouk, Julie Delon, Julien Tierny
         IEEE Transactions on Visualization and Computer Graphics.
-        Proceedings of IEEE VIS 2019.
+        Proceedings of IEEE VIS 2023.
 
-        See also PersistenceDiagram, BottleneckDistance
+        See also PersistenceDiagram
       </Documentation>
 
       <InputProperty
@@ -56,7 +56,7 @@
           <Property name="Input" function="FieldDataSelection" />
         </InputArrayDomain>
         <Documentation>
-          Input Atoms
+          Input Atoms (optional)
         </Documentation>
       </InputProperty>
 
@@ -79,14 +79,22 @@
        </Documentation>
      </IntVectorProperty>
 
-      <!-- INPUT PARAMETER WIDGETS -->
-
-      <!-- This is the VTK way of selecting arrays for processing by calling the SetInputArrayToProcess method -->
-      <!-- (see ttkTestModule.cpp for details) -->
-
-
-      <!-- Create a UI group that contains all input parameter widgets (here only one) -->
-      <!-- OUTPUT PARAMETER WIDGETS -->
+      <IntVectorProperty
+          name="Critical pairs"
+          label="Critical pairs used"
+          command="SetPairType"
+          number_of_elements="1"
+          default_values="-1" >
+        <EnumerationDomain name="enum">
+          <Entry value="-1" text="All pairs : global clustering"/>
+          <Entry value="0" text="min-saddle pairs"/>
+          <Entry value="1" text="saddle-saddle pairs"/>
+          <Entry value="2" text="saddle-max pairs"/>
+        </EnumerationDomain>
+        <Documentation>
+          Specify the types of critical pairs to be taken into account for the clustering.
+        </Documentation>
+      </IntVectorProperty>
 
       <IntVectorProperty name = "AtomNumber_" label = "Number of Atoms" command="SetAtomNumber_" number_of_elements = "1" default_values="3" >
       <IntRangeDomain name = "Range" min = "0" max = "20" />
@@ -98,7 +106,7 @@
             inverse="1"/>
         </Hints>
         <Documentation>
-            Set the number of elements in the dictionary
+            Set the number of elements in the dictionary.
         </Documentation>       
       </IntVectorProperty>
 
@@ -113,7 +121,7 @@
             inverse="1"/>
         </Hints>
         <Documentation>
-            Set the persistence threshold as a percentage of the global persistence of each persistence diagram inputs
+            Set the persistence threshold as a percentage of the global persistence of each persistence diagram inputs.
         </Documentation>
       </DoubleVectorProperty>
 
@@ -127,7 +135,7 @@
             inverse="1"/>
         </Hints>
         <Documentation>
-            Set the compression factor
+            Set the compression factor gained by the encoding process.
         </Documentation>
       </DoubleVectorProperty>
 
@@ -140,7 +148,7 @@
         panel_visibility="advanced">
         <BooleanDomain name="bool"/>
         <Documentation>
-            Performs the optimization of the barycentric weights
+            Performs the optimization of the barycentric weights.
         </Documentation>
       </IntVectorProperty>
 
@@ -153,7 +161,7 @@
         panel_visibility="advanced">
         <BooleanDomain name="bool"/>
         <Documentation>
-            Performs the optimization of the dictionary
+            Performs the optimization of the dictionary.
         </Documentation>
       </IntVectorProperty>
 
@@ -168,7 +176,7 @@
         panel_visibility="advanced">
         <BooleanDomain name="bool"/>
         <Documentation>
-            Set the strategy for choosing the gradient step as the maxium eigen value of the Hessian function
+            Set the strategy for choosing the gradient step as the maxium eigen value of the Hessian function.
         </Documentation>
       </IntVectorProperty>
 
@@ -181,7 +189,7 @@
         panel_visibility="advanced">
         <BooleanDomain name="bool"/>
         <Documentation>
-            Performs progressivity when computing barycenters of the dictionary
+            Performs progressivity when computing barycenters of the dictionary.
         </Documentation>
       </IntVectorProperty>
 
@@ -196,7 +204,7 @@
         panel_visibility="advanced">
         <BooleanDomain name="bool"/>
         <Documentation>
-            Activate the multi-scaling approach of the Dicitionary method
+            Activate the multi-scaling approach of the Dicitionary method.
         </Documentation>
       </IntVectorProperty>
 
@@ -210,7 +218,7 @@
         panel_visibility="advanced">
         <BooleanDomain name="bool"/>
         <Documentation>
-            Activate the empiric stopping condition of the optimization 
+            Activate the empiric stopping condition of the optimization.
         </Documentation>
       </IntVectorProperty>
 
@@ -223,7 +231,7 @@
         panel_visibility="advanced">
         <BooleanDomain name="bool"/>
         <Documentation>
-            Performs the creation of features in the diagram of the dictionary during the optimization, recommended when using the multi-scaling approach
+            Performs the creation of features in the diagram of the dictionary during the optimization, recommended when using the multi-scaling approach.
         </Documentation>
       </IntVectorProperty>
 
@@ -236,7 +244,7 @@
         panel_visibility="advanced">
         <BooleanDomain name="bool"/>
         <Documentation>
-            Activate the compression mode, it removes the pair so that the size of the dictionary is controled by the compression factor
+            Activate the compression mode, it removes the pair so that the size of the dictionary is controled by the compression factor.
         </Documentation>
       </IntVectorProperty>
 
@@ -249,7 +257,7 @@
         panel_visibility="advanced">
         <BooleanDomain name="bool"/>
         <Documentation>
-            Activate the dimension reduction mode, it only works when the number of atom is 3
+            Activate the dimension reduction mode, it only works when the number of atom is 3.
         </Documentation>
       </IntVectorProperty>
 

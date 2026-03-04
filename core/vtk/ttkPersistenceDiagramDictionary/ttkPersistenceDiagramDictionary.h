@@ -101,6 +101,36 @@ public:
   vtkSetMacro(CompressionFactor_, double);
   vtkGetMacro(CompressionFactor_, double);
 
+  void SetPairType(const int data) {
+    switch(data) {
+      case(0):
+        this->setDos(true, false, false);
+        break;
+      case(1):
+        this->setDos(false, true, false);
+        break;
+      case(2):
+        this->setDos(false, false, true);
+        break;
+      default:
+        this->setDos(true, true, true);
+        break;
+    }
+    Modified();
+  }
+  int GetPairType() {
+    if(do_min_ && do_sad_ && do_max_) {
+      return -1;
+    } else if(do_min_) {
+      return 0;
+    } else if(do_sad_) {
+      return 1;
+    } else if(do_max_) {
+      return 2;
+    }
+    return -1;
+  }
+
 protected:
   ttkPersistenceDiagramDictionary();
   ~ttkPersistenceDiagramDictionary() override = default;

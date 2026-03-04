@@ -157,12 +157,12 @@ namespace ttk {
     int initDictionary(std::vector<ttk::DiagramType> &dictDiagrams,
                        const std::vector<ttk::DiagramType> &datas,
                        const std::vector<ttk::DiagramType> &inputAtoms,
-                       const int nbAtom,
-                       bool do_min_,
-                       bool do_sad_,
-                       bool do_max_,
+                       const int &nbAtom,
+                       bool &do_min_,
+                       bool &do_sad_,
+                       bool &do_max_,
                        int seed,
-                       double percent);
+                       double &percent);
 
     void gettingBidderDiagrams(
       const std::vector<ttk::DiagramType> &intermediateDiagrams,
