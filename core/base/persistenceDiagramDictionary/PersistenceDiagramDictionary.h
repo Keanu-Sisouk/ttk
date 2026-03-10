@@ -210,8 +210,8 @@ namespace ttk {
     bool do_min_{true}, do_sad_{true}, do_max_{true};
 
     int MaxLag2_;
-
     int MaxEpoch_;
+
     bool MaxEigenValue_{true};
     bool OptimizeWeights_{true};
     bool OptimizeAtoms_{true};

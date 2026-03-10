@@ -720,12 +720,9 @@ void PersistenceDiagramDictionary::method(
               allTrueFeaturesToAdd[atomIndex].push_back(newPair);
               allTrueProjLoc[atomIndex].push_back(pair);
             } else {
-
               bool ralph = true;
               size_t index = 0;
-
               if(ralph) {
-
                 const CriticalType c1 = t.birth.type;
                 const CriticalType c2 = t.death.type;
                 const SimplexId idTemp = t.dim;
@@ -829,7 +826,6 @@ void PersistenceDiagramDictionary::method(
             auto &boolDiag = checkDiag[i];
             auto &boolAboveGlobal = checkAboveGlobal[i];
             auto initSize = initSizes[i];
-            // size_t initAtomSize = atom.size() -histoEpochAtom.size();
             if(static_cast<int>(indicesAtomToDelete.size()) > 0) {
               for(int j = static_cast<int>(indicesAtomToDelete.size()) - 1;
                   j >= 0; j--) {
@@ -866,7 +862,7 @@ void PersistenceDiagramDictionary::method(
           }
         }
       }
-      // Deleting unallowed pairs:
+      // Deleting destroyed pairs:
       for(int i = 0; i < numAtom; ++i) {
         auto &atom = dictDiagrams[i];
         auto &globalPair = atom[0];
@@ -1058,7 +1054,7 @@ void PersistenceDiagramDictionary::computeGradientWeights(
                               directions, dataAssigned, tracker2,
                               doOptimizeAtoms);
 
-  // Compute directions for sad diagram
+  // Compute directions for saddle diagram
   computeDirectionsGradWeight(matchingsAtoms, Barycenter, newData, matchingsSad,
                               indexBarySad, indexDataSad, pairToAddGradList,
                               directions, dataAssigned, tracker2,
@@ -1156,7 +1152,7 @@ void PersistenceDiagramDictionary::computeGradientAtoms(
                              pairToAddGradList, directions, checker, infoToAdd,
                              doDimReduct);
 
-  // Compute directions for sad diagram
+  // Compute directions for saddle diagram
   computeDirectionsGradAtoms(gradsAtoms, Barycenter, weights, newData,
                              matchingsSad, indexBarySad, indexDataSad,
                              pairToAddGradList, directions, checker, infoToAdd,
@@ -1475,7 +1471,6 @@ void PersistenceDiagramDictionary::computeDirectionsGradWeight(
     // Id in barycenter
     const SimplexId Id2 = std::get<1>(t);
     if(Id2 < 0) {
-
       if(Id1 < 0) {
         continue;
       } else {
@@ -1515,7 +1510,6 @@ void PersistenceDiagramDictionary::computeDirectionsGradWeight(
         direction[0] = birthDeathData - birthBarycenter;
         direction[1] = birthDeathData - deathBarycenter;
         dataAssigned[indexBaryCritType[Id2]] = {birthDeathData, birthDeathData};
-
       } else {
         const PersistencePair &t2 = newData[indexDataCritType[Id1]];
         const double birthData = t2.birth.sfValue;
@@ -1610,7 +1604,6 @@ void PersistenceDiagramDictionary::computeDirectionsGradAtoms(
           = birthBarycenter + (deathBarycenter - birthBarycenter) / 2.;
         direction[0] = birthDeathData - birthBarycenter;
         direction[1] = birthDeathData - deathBarycenter;
-
       } else {
         const PersistencePair &t2 = newData[indexDataCritType[Id1]];
         const double birthData = t2.birth.sfValue;
@@ -1663,7 +1656,6 @@ void PersistenceDiagramDictionary::computeAllDistances(
     if(this->do_min_) {
       auto &barycentermin = bidderBarycentersListMin[i];
       auto &datamin = bidderDiagramsMin[i];
-
       if(firstDistComputation) {
         allLossesAtEpoch[i]
           += computeDistance(datamin, barycentermin, matchingMin);
@@ -1675,11 +1667,9 @@ void PersistenceDiagramDictionary::computeAllDistances(
     if(this->do_max_) {
       auto &barycentermax = bidderBarycentersListMax[i];
       auto &datamax = bidderDiagramsMax[i];
-
       if(firstDistComputation) {
         allLossesAtEpoch[i]
           += computeDistance(datamax, barycentermax, matchingMax);
-
       } else {
         computeDistance(datamax, barycentermax, matchingMax);
       }
@@ -1687,11 +1677,9 @@ void PersistenceDiagramDictionary::computeAllDistances(
     if(this->do_sad_) {
       auto &barycentersListad = bidderBarycentersListSad[i];
       auto &datasad = bidderDiagramsSad[i];
-
       if(firstDistComputation) {
         allLossesAtEpoch[i]
           += computeDistance(datasad, barycentersListad, matchingSad);
-
       } else {
         computeDistance(datasad, barycentersListad, matchingSad);
       }
