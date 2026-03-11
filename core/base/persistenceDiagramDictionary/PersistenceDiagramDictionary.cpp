@@ -862,7 +862,7 @@ void PersistenceDiagramDictionary::method(
           }
         }
       }
-      // Deleting destroyed pairs:
+      // Ensuring to stay in the space of persistence diagrams:
       for(int i = 0; i < numAtom; ++i) {
         auto &atom = dictDiagrams[i];
         auto &globalPair = atom[0];
@@ -1298,6 +1298,7 @@ int PersistenceDiagramDictionary::initDictionary(
     default:
       break;
   }
+  
   return 0;
 }
 
@@ -1376,6 +1377,7 @@ void PersistenceDiagramDictionary::gettingBidderDiagrams(
 
 double PersistenceDiagramDictionary::getMaxPers(const ttk::DiagramType &data) {
   double maxPers = 0.;
+
   for(size_t j = 0; j < data.size(); ++j) {
     auto &t = data[j];
     double pers = t.death.sfValue - t.birth.sfValue;
